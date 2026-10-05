@@ -16,6 +16,7 @@
     const SYNC_TAG = 'tradecore-sale-sync';
     let deferredInstallPrompt = null;
     let syncing = false;
+    let zxingLoadPromise = null;
 
     function getEl(id) { return document.getElementById(id); }
 
@@ -110,6 +111,16 @@
         document.body.classList.add('tradecore-sheet-visible');
     }
 
+    function isIOSDevice() {
+        return /iphone|ipad|ipod/i.test(navigator.userAgent)
+            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
+    function isLikelyChromiumInstallBrowser() {
+        return /android/i.test(navigator.userAgent)
+            && !/firefox|fxios/i.test(navigator.userAgent);
+    }
+
     TC.install = async function () {
         if (isStandaloneMode()) {
             showInstallGuide('standalone');
@@ -121,22 +132,39 @@
             return;
         }
 
-        if (/iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+        if (isIOSDevice()) {
             showInstallGuide('ios');
             return;
         }
 
+        // The native beforeinstallprompt is optional and browser-controlled.
+        // Never leave the button silent: always give a concrete fallback path.
         showInstallGuide('unavailable');
+
+        const subtitle = getEl('tradecoreInstallSubtitle');
+        const unavailableText = getEl('tradecoreInstallUnavailable')?.querySelector('.tradecore-install-guide-text');
+        if (subtitle) {
+            subtitle.textContent = isLikelyChromiumInstallBrowser()
+                ? 'Tumia menu ya browser kama Install app haijajitokeza moja kwa moja.'
+                : 'Browser hii haijatoa install prompt ya moja kwa moja.';
+        }
+        if (unavailableText) {
+            unavailableText.textContent = isLikelyChromiumInstallBrowser()
+                ? 'Fungua menu ya browser na uchague Install app au Add to Home Screen. TradeCore iko kwenye HTTPS.'
+                : 'Fungua menu ya browser na uchague Add to Home Screen / Install App kama chaguo hilo linaonekana.';
+        }
     };
 
     TC.installNowFromSheet = async function () {
         if (!deferredInstallPrompt) {
-            showInstallGuide('unavailable');
+            TC.install();
             return;
         }
         try {
             deferredInstallPrompt.prompt();
             await deferredInstallPrompt.userChoice;
+        } catch (error) {
+            console.debug('TradeCore install prompt was dismissed/unavailable:', error);
         } finally {
             deferredInstallPrompt = null;
             document.querySelectorAll('[data-tradecore-install]').forEach(el => el.classList.add('hidden'));
@@ -275,9 +303,51 @@
     };
 
     // Camera / HID scanner ---------------------------------------------------
+    async function loadZXingBrowser() {
+        if (window.ZXingBrowser?.BrowserMultiFormatReader) {
+            return window.ZXingBrowser;
+        }
+        if (zxingLoadPromise) {
+            return zxingLoadPromise;
+        }
+
+        zxingLoadPromise = new Promise((resolve, reject) => {
+            const existing = document.querySelector('script[data-tradecore-zxing]');
+            if (existing) {
+                existing.addEventListener('load', () => {
+                    if (window.ZXingBrowser?.BrowserMultiFormatReader) resolve(window.ZXingBrowser);
+                    else reject(new Error('ZXingBrowser global haijapatikana.'));
+                }, {once:true});
+                existing.addEventListener('error', () => reject(new Error('ZXingBrowser haikupakuliwa.')), {once:true});
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/@zxing/browser@0.2.1';
+            script.async = true;
+            script.crossOrigin = 'anonymous';
+            script.dataset.tradecoreZxing = 'true';
+            script.onload = () => {
+                if (window.ZXingBrowser?.BrowserMultiFormatReader) {
+                    resolve(window.ZXingBrowser);
+                } else {
+                    reject(new Error('ZXingBrowser global haijapatikana.'));
+                }
+            };
+            script.onerror = () => reject(new Error('ZXingBrowser haikupakuliwa.'));
+            document.head.appendChild(script);
+        }).catch(error => {
+            zxingLoadPromise = null;
+            throw error;
+        });
+
+        return zxingLoadPromise;
+    }
+
     let scannerStream = null;
     let scannerTimer = null;
     let scannerDetector = null;
+    let scannerZXingControls = null;
     function setScannerMessage(message) {
         const el = getEl('tradecoreScannerMessage');
         if (el) el.textContent = message;
@@ -285,6 +355,10 @@
     async function stopScanner() {
         if (scannerTimer) { clearInterval(scannerTimer); scannerTimer = null; }
         scannerDetector = null;
+        if (scannerZXingControls) {
+            try { scannerZXingControls.stop?.(); } catch (_) {}
+            scannerZXingControls = null;
+        }
         if (scannerStream) {
             scannerStream.getTracks().forEach(track => track.stop());
             scannerStream = null;
@@ -306,38 +380,51 @@
         TC.closeQuickActions?.();
         toggleLayer(sheetEl, true);
         document.body.classList.add('tradecore-sheet-visible');
+
         const input = getEl('tradecoreScannerInput');
         input?.focus();
         await stopScanner();
 
         const video = getEl('tradecoreScannerVideo');
-        if (!('BarcodeDetector' in window)) {
-            setScannerMessage('Kifaa chako (k.m. Safari/iOS) hakisupport Barcode Scanner ya moja kwa moja. Tumia scanner ya Bluetooth/USB hapa chini.');
-            return;
-        }
         if (!navigator.mediaDevices?.getUserMedia) {
-            setScannerMessage('Camera API haipatikani. Tumia scanner ya Bluetooth/USB hapa chini.');
+            setScannerMessage('Camera API haipatikani kwenye browser hii. Tumia scanner ya Bluetooth/USB.');
             return;
         }
         if (window.isSecureContext !== true) {
-            setScannerMessage('Camera inahitaji HTTPS kwenye simu. Kwa local HTTP tumia scanner ya Bluetooth/USB hapa chini.');
+            setScannerMessage('Camera inahitaji HTTPS. TradeCore production iko salama; fungua kupitia domain ya HTTPS.');
             return;
         }
+
         try {
-            scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+            scannerStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { ideal: 'environment' } },
+                audio: false
+            });
+
             if (video) {
                 video.srcObject = scannerStream;
+                video.setAttribute('playsinline', '');
+                video.muted = true;
                 await video.play().catch(() => {});
             }
-            const formats = ['ean_13','ean_8','code_128','code_39','upc_a','upc_e','qr_code','itf'];
-            try { scannerDetector = new BarcodeDetector({ formats }); } catch (_) { scannerDetector = new BarcodeDetector(); }
-            setScannerMessage('Leta barcode katikati ya frame…');
-            scannerTimer = setInterval(async () => {
-                if (!scannerDetector || !video || video.readyState < 2) return;
+
+            // Native BarcodeDetector is preferred for performance.
+            if ('BarcodeDetector' in window) {
+                const formats = ['ean_13','ean_8','code_128','code_39','upc_a','upc_e','qr_code','itf'];
                 try {
-                    const codes = await scannerDetector.detect(video);
-                    const value = codes?.[0]?.rawValue || '';
-                    if (value) {
+                    scannerDetector = new BarcodeDetector({ formats });
+                } catch (_) {
+                    scannerDetector = new BarcodeDetector();
+                }
+
+                setScannerMessage('Leta barcode katikati ya frame…');
+                scannerTimer = setInterval(async () => {
+                    if (!scannerDetector || !video || video.readyState < 2) return;
+                    try {
+                        const codes = await scannerDetector.detect(video);
+                        const value = codes?.[0]?.rawValue || '';
+                        if (!value) return;
+
                         const found = await window.scanBarcodeValue?.(value);
                         if (found !== false) {
                             setScannerMessage(`Barcode ${value} imeongezwa kwenye cart.`);
@@ -345,17 +432,49 @@
                         } else {
                             setScannerMessage(`Barcode ${value} haijapatikana kwenye bidhaa.`);
                         }
+                    } catch (_) {}
+                }, 350);
+                return;
+            }
+
+            // Safari/iOS and other browsers without BarcodeDetector:
+            // keep the camera preview and use ZXing as a decoder fallback.
+            setScannerMessage('Camera imefunguka. Inapakia barcode scanner…');
+            const ZXingBrowser = await loadZXingBrowser();
+            const reader = new ZXingBrowser.BrowserMultiFormatReader();
+
+            scannerZXingControls = await reader.decodeFromVideoElementContinuously(
+                video,
+                async (result) => {
+                    if (!result) return;
+                    const value = String(result.getText?.() || '').trim();
+                    if (!value) return;
+
+                    const found = await window.scanBarcodeValue?.(value);
+                    if (found !== false) {
+                        setScannerMessage(`Barcode ${value} imeongezwa kwenye cart.`);
+                        setTimeout(() => TC.closeScanner(), 500);
+                    } else {
+                        setScannerMessage(`Barcode ${value} haijapatikana kwenye bidhaa.`);
                     }
-                } catch (_) {}
-            }, 350);
+                }
+            );
+
+            setScannerMessage('Leta barcode katikati ya frame…');
         } catch (error) {
+            console.error('TradeCore POS camera scanner failed:', error);
             if (error?.name === 'NotAllowedError' || error?.name === 'SecurityError') {
-                setScannerMessage('Ruhusa ya camera haikupatikana. Ruhusu Camera kwenye browser, au tumia scanner ya Bluetooth/USB.');
+                setScannerMessage('Ruhusa ya camera haikupatikana. Ruhusu Camera kwenye browser kisha ujaribu tena.');
+            } else if (error?.name === 'NotFoundError' || error?.name === 'OverconstrainedError') {
+                setScannerMessage('Hakuna camera ya nyuma iliyopatikana. Tumia camera nyingine au scanner ya Bluetooth/USB.');
+            } else if (/ZXingBrowser|ZXing/i.test(String(error?.message || error))) {
+                setScannerMessage('Decoder ya camera haikupatikana. Camera imefunguka; tumia scanner ya Bluetooth/USB kwa sasa.');
             } else {
-                setScannerMessage('Camera haikufunguka kwenye kifaa hiki. Tumia scanner ya Bluetooth/USB hapa chini.');
+                setScannerMessage('Camera haikufunguka kwenye kifaa hiki. Ruhusu Camera au tumia scanner ya Bluetooth/USB.');
             }
         }
     };
+
     TC.submitScannerInput = async function () {
         const input = getEl('tradecoreScannerInput');
         const value = input?.value?.trim() || '';
@@ -376,6 +495,7 @@
     let inventoryScannerStream = null;
     let inventoryScannerTimer = null;
     let inventoryScannerDetector = null;
+    let inventoryScannerZXingControls = null;
     let inventoryScannerBusy = false;
     let inventoryCameraLastValue = '';
     let inventoryCameraLastAt = 0;
@@ -386,6 +506,10 @@
     function stopInventoryScannerStream() {
         if (inventoryScannerTimer) { clearInterval(inventoryScannerTimer); inventoryScannerTimer = null; }
         inventoryScannerDetector = null;
+        if (inventoryScannerZXingControls) {
+            try { inventoryScannerZXingControls.stop?.(); } catch (_) {}
+            inventoryScannerZXingControls = null;
+        }
         if (inventoryScannerStream) {
             inventoryScannerStream.getTracks().forEach(track => track.stop());
             inventoryScannerStream = null;
@@ -422,65 +546,141 @@
         TC.closeQuickActions?.();
         toggleLayer(sheetEl, true);
         document.body.classList.add('tradecore-sheet-visible');
+
         const title = getEl('tradecoreInventoryScannerTitle');
-        const labels = {stock_in:'Scan Stock In', transfer:'Scan Transfer', stock_take:'Scan Stock Take', adjustment:'Scan Adjustment', lookup:'Quick Lookup'};
+        const labels = {
+            stock_in:'Scan Stock In',
+            transfer:'Scan Transfer',
+            stock_take:'Scan Stock Take',
+            adjustment:'Scan Adjustment',
+            lookup:'Quick Lookup'
+        };
         if (title) title.textContent = labels[mode] || 'Scan Barcode';
+
         const input = getEl('tradecoreInventoryScannerInput');
         if (input) { input.value = ''; input.focus(); }
+
         const serialButton = getEl('tradecoreInventorySerialButton');
         if (serialButton) {
             serialButton.classList.toggle('hidden', !(('serial' in navigator)));
             serialButton.textContent = inventorySerialPort ? 'Funga Serial' : 'Serial 9600';
         }
+
         await stopInventoryScannerStream();
         if (serialButton) serialButton.textContent = 'Serial 9600';
+
         const video = getEl('tradecoreInventoryScannerVideo');
         if (!navigator.mediaDevices?.getUserMedia || window.isSecureContext !== true) {
-            setInventoryScannerMessage('Camera haipatikani hapa. USB/Bluetooth scanner ya keyboard/HID inaweza kuscan moja kwa moja.');
+            setInventoryScannerMessage('Camera inahitaji HTTPS na ruhusa ya camera. Tumia USB/Bluetooth scanner ya keyboard/HID kama backup.');
             return;
         }
-        if (!('BarcodeDetector' in window)) {
-            setInventoryScannerMessage('Browser hii haina Camera BarcodeDetector. Tumia USB/Bluetooth scanner ya keyboard/HID.');
-            return;
-        }
+
         try {
-            inventoryScannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
-            if (video) { video.srcObject = inventoryScannerStream; await video.play().catch(() => {}); }
-            const formats = ['ean_13','ean_8','code_128','code_39','upc_a','upc_e','qr_code','itf'];
-            try { inventoryScannerDetector = new BarcodeDetector({ formats }); } catch (_) { inventoryScannerDetector = new BarcodeDetector(); }
-            setInventoryScannerMessage('Leta barcode katikati ya frame…');
-            inventoryScannerTimer = setInterval(async () => {
-                if (inventoryScannerBusy || !inventoryScannerDetector || !video || video.readyState < 2) return;
+            inventoryScannerStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { ideal: 'environment' } },
+                audio: false
+            });
+
+            if (video) {
+                video.srcObject = inventoryScannerStream;
+                video.setAttribute('playsinline', '');
+                video.muted = true;
+                await video.play().catch(() => {});
+            }
+
+            if ('BarcodeDetector' in window) {
+                const formats = ['ean_13','ean_8','code_128','code_39','upc_a','upc_e','qr_code','itf'];
                 try {
-                    const codes = await inventoryScannerDetector.detect(video);
-                    const value = String(codes?.[0]?.rawValue || '').trim();
+                    inventoryScannerDetector = new BarcodeDetector({ formats });
+                } catch (_) {
+                    inventoryScannerDetector = new BarcodeDetector();
+                }
+
+                setInventoryScannerMessage('Leta barcode katikati ya frame…');
+                inventoryScannerTimer = setInterval(async () => {
+                    if (inventoryScannerBusy || !inventoryScannerDetector || !video || video.readyState < 2) return;
+                    try {
+                        const codes = await inventoryScannerDetector.detect(video);
+                        const value = String(codes?.[0]?.rawValue || '').trim();
+                        if (!value) return;
+
+                        const nowMs = Date.now();
+                        if (value === inventoryCameraLastValue && (nowMs - inventoryCameraLastAt) < 1200) return;
+
+                        inventoryCameraLastValue = value;
+                        inventoryCameraLastAt = nowMs;
+                        inventoryScannerBusy = true;
+
+                        const handler = window.tradecoreInventoryScanHandler;
+                        if (typeof handler !== 'function') {
+                            setInventoryScannerMessage('Inventory scan handler haijapatikana.');
+                            inventoryScannerBusy = false;
+                            return;
+                        }
+
+                        await handler(value);
+                        if (input) input.value = '';
+                        setTimeout(() => { inventoryScannerBusy = false; }, 450);
+                    } catch (_) {
+                        inventoryScannerBusy = false;
+                    }
+                }, 350);
+                return;
+            }
+
+            // Native BarcodeDetector absent: camera still opens, then ZXing decodes it.
+            setInventoryScannerMessage('Camera imefunguka. Inapakia barcode scanner…');
+            const ZXingBrowser = await loadZXingBrowser();
+            const reader = new ZXingBrowser.BrowserMultiFormatReader();
+
+            inventoryScannerZXingControls = await reader.decodeFromVideoElementContinuously(
+                video,
+                async (result) => {
+                    if (inventoryScannerBusy || !result) return;
+                    const value = String(result.getText?.() || '').trim();
                     if (!value) return;
+
                     const nowMs = Date.now();
                     if (value === inventoryCameraLastValue && (nowMs - inventoryCameraLastAt) < 1200) return;
+
                     inventoryCameraLastValue = value;
                     inventoryCameraLastAt = nowMs;
                     inventoryScannerBusy = true;
+
                     const handler = window.tradecoreInventoryScanHandler;
                     if (typeof handler !== 'function') {
                         setInventoryScannerMessage('Inventory scan handler haijapatikana.');
                         inventoryScannerBusy = false;
                         return;
                     }
-                    await handler(value);
-                    if (input) input.value = '';
-                    setTimeout(() => { inventoryScannerBusy = false; }, 450);
-                } catch (e) {
-                    inventoryScannerBusy = false;
+
+                    try {
+                        await handler(value);
+                        if (input) input.value = '';
+                        setInventoryScannerMessage(`Barcode ${value} imechakachuliwa.`);
+                    } catch (error) {
+                        setInventoryScannerMessage(error?.message || 'Scan imeshindikana.');
+                    } finally {
+                        setTimeout(() => { inventoryScannerBusy = false; }, 450);
+                    }
                 }
-            }, 350);
+            );
+
+            setInventoryScannerMessage('Leta barcode katikati ya frame…');
         } catch (error) {
+            console.error('TradeCore inventory camera scanner failed:', error);
             if (error?.name === 'NotAllowedError' || error?.name === 'SecurityError') {
-                setInventoryScannerMessage('Ruhusa ya camera haikupatikana. Ruhusu Camera au tumia Bluetooth/USB scanner.');
+                setInventoryScannerMessage('Ruhusa ya camera haikupatikana. Ruhusu Camera kwenye browser kisha ujaribu tena.');
+            } else if (error?.name === 'NotFoundError' || error?.name === 'OverconstrainedError') {
+                setInventoryScannerMessage('Hakuna camera inayopatikana kwenye kifaa hiki.');
+            } else if (/ZXingBrowser|ZXing/i.test(String(error?.message || error))) {
+                setInventoryScannerMessage('Decoder ya camera haikupatikana. Tumia USB/Bluetooth scanner ya keyboard/HID.');
             } else {
                 setInventoryScannerMessage('Camera haikufunguka. Tumia Bluetooth/USB scanner hapa chini.');
             }
         }
     };
+
     TC.submitInventoryScannerInput = async function () {
         const input = getEl('tradecoreInventoryScannerInput');
         const value = input?.value?.trim() || '';
@@ -1030,6 +1230,8 @@
         event.preventDefault();
         deferredInstallPrompt = event;
         document.querySelectorAll('[data-tradecore-install]').forEach(el => el.classList.remove('hidden'));
+        const primary = getEl('tradecoreInstallPrimary');
+        if (primary) primary.classList.remove('hidden');
     });
 
     window.addEventListener('appinstalled', function () {

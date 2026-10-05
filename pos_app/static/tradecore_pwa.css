@@ -2672,3 +2672,148 @@ html.dark .tradecore-sync-delete { background:#342d39; color:#c2bac8; }
         border-radius: 20px !important;
     }
 }
+
+/* =========================================================
+   TRADECORE PWA — LANDSCAPE HARDENING
+   PWA/mobile only. Desktop layout remains untouched.
+   Handles phones rotated sideways without squashing cards,
+   header, scanner, cart, or bottom navigation.
+   ========================================================= */
+@media (max-width: 1024px) and (orientation: landscape) {
+    html, body {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+    }
+
+    body {
+        padding: 8px 10px calc(72px + env(safe-area-inset-bottom)) 10px !important;
+    }
+
+    main {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    #tradecoreMobileHeader.tradecore-mobile-only {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 54px !important;
+        height: 54px !important;
+        margin: 0 0 10px 0 !important;
+        padding: 6px 10px !important;
+        border-radius: 18px !important;
+        top: 0 !important;
+    }
+
+    #tradecoreMobileHeader .tc-header-logo .tradecore-mobile-logo {
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 12px !important;
+    }
+
+    #tradecoreMobileHeader .tc-store-name {
+        font-size: 12px !important;
+        line-height: 1.05 !important;
+    }
+
+    #tradecoreMobileHeader .tc-store-subtitle {
+        font-size: 7px !important;
+        margin-top: 2px !important;
+    }
+
+    #tradecoreMobileHeader .tc-header-right {
+        gap: 6px !important;
+    }
+
+    #tradecoreMobileHeader .tradecore-mobile-status {
+        padding: 4px 7px !important;
+        font-size: 7px !important;
+    }
+
+    #tradecoreMobileHeader .tradecore-mobile-profile {
+        width: 34px !important;
+        height: 34px !important;
+    }
+
+    .tradecore-mobile-tabbar {
+        left: 8px !important;
+        right: 8px !important;
+        bottom: 8px !important;
+        height: 60px !important;
+        min-height: 60px !important;
+        border-radius: 22px !important;
+        padding: 4px 8px !important;
+    }
+
+    .tradecore-mobile-tab {
+        height: 48px !important;
+        max-width: 72px !important;
+    }
+
+    .tradecore-mobile-tab.center {
+        width: 50px !important;
+        height: 50px !important;
+        transform: translateY(-8px) !important;
+    }
+
+    .tradecore-mobile-sheet {
+        align-items: center !important;
+        padding: 8px !important;
+    }
+
+    .tradecore-mobile-sheet-card {
+        width: min(720px, 100%) !important;
+        max-height: 92dvh !important;
+        border-radius: 24px !important;
+        overflow-y: auto !important;
+    }
+
+    .tradecore-scanner-sheet .tradecore-mobile-sheet-card {
+        max-height: 96dvh !important;
+    }
+
+    .tradecore-scanner-video-wrap {
+        height: min(66dvh, 330px) !important;
+        margin-top: 10px !important;
+    }
+
+    .tradecore-scanner-fallback {
+        margin-top: 8px !important;
+    }
+
+    body:has(#posContainer) #cartSection {
+        top: 8px !important;
+        bottom: 70px !important;
+        left: 8px !important;
+        right: 8px !important;
+        width: calc(100vw - 16px) !important;
+        max-width: none !important;
+    }
+
+    body:has(#posContainer) #cartSection > div {
+        border-radius: 20px !important;
+    }
+
+    body:has(#posContainer) #cartItemsContainer {
+        max-height: none !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    body:has(#inventoryPageRoot) .inventory-table-scroll {
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    body:has(#tradecoreDashboardPage) #salesHistoryCard .overflow-y-auto,
+    body:has(#tradecoreDashboardPage) .dashboard-history-pane,
+    body:has(#tradecoreDashboardPage) .activity-center-list {
+        max-height: 38dvh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+}
