@@ -1,0 +1,3406 @@
+{% extends 'base.html' %}
+{% load humanize i18n %}
+
+{% block content %}
+
+<style>
+    /* FULL-WIDTH SURGERY: remove inherited right-side empty space */
+    main {
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0;
+        padding: 8px 42px 42px !important; /* Tumevuta padding ya juu kutoka 24px kuwa 8px */
+        box-sizing: border-box;
+    }
+
+    /* TOP SPACE SURGERY: punguza nafasi kati ya topbar na title bila
+       kugusa layout nyingine ya page. */
+    @media (min-width: 768px) {
+        body:has(#matumiziPageHeader) main {
+            padding-top: 8px !important; /* Ilikuwa 24px */
+        }
+    }
+
+    @media (max-width: 767px) {
+        body:has(#matumiziPageHeader) main {
+            padding-top: 4px !important; /* Ilikuwa 18px */
+        }
+    }
+
+    /* PAGE-ONLY SURGERY: keep Base unchanged, but remove the
+       global identity/notification cluster on this shared finance page. */
+    body:has(#matumiziPageHeader) header button:has(#notificationBellBadge) {
+        display: none !important;
+    }
+
+    body:has(#matumiziPageHeader) header div:has(> #userAvatarContainer) {
+        display: none !important;
+    }
+
+    /* CENTER TOPBAR SURGERY: Kuweka TradeCore na Menyu Katikati kwa page hii tu */
+    body:has(#matumiziPageHeader) header {
+        justify-content: center !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    body:has(#matumiziPageHeader) header > div:first-child,
+    body:has(#matumiziPageHeader) header nav {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        flex: 1 1 auto !important;
+    }
+
+    /* CENTER TOPBAR SURGERY: Kuweka TradeCore na Menyu Katikati kwa page hii tu */
+    body:has(#matumiziPageHeader) header {
+        justify-content: center !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    body:has(#matumiziPageHeader) header > div:first-child,
+    body:has(#matumiziPageHeader) header nav {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        flex: 1 1 auto !important;
+    }
+
+    /* PAGE-ONLY SURGERY: hide the inherited Base greeting/date row.
+       The real date is rendered inline with the page actions below. */
+    div.relative:has(#salamuYaMuda) {
+        display: none !important;
+    }
+
+    /* LIST-ONLY SCROLL: juu inabaki imetulia; database list pekee ndiyo inasroll. */
+    .matumizi-list-scroll {
+        height: clamp(220px, calc(100vh - 505px), 680px);
+        min-height: 220px;
+        overflow-y: auto !important;
+        overflow-x: auto !important;
+        overscroll-behavior: contain;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-gutter: stable;
+    }
+
+    .matumizi-list-scroll thead th {
+        position: sticky;
+        top: 0;
+        z-index: 15;
+        background: #f9fafb;
+    }
+
+    .matumizi-inline-controls {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: .5rem;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+    }
+
+    .matumizi-inline-date {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 .9rem;
+        border-radius: 9999px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        color: #6b7280;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+        box-shadow: 0 1px 2px rgba(0,0,0,.03);
+    }
+
+    @media (min-width: 768px) {
+        main {
+            overflow: hidden !important;
+            min-height: 0 !important;
+        }
+
+        /* LIST HEIGHT SURGERY: default compact frame.
+           User can expand/collapse the list without moving the upper UI. */
+        .matumizi-list-scroll {
+            height: clamp(260px, 42vh, 360px) !important;
+            max-height: 360px !important;
+            min-height: 260px !important;
+            transition: height .28s ease, max-height .28s ease;
+        }
+
+        .matumizi-list-scroll.is-expanded {
+            height: min(66vh, 620px) !important;
+            max-height: min(66vh, 620px) !important;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .matumizi-inline-controls {
+            width: 100%;
+            justify-content: flex-start;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .matumizi-inline-date {
+            flex: 0 0 auto;
+        }
+    }
+
+    .tc-card {
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            border-color .2s ease;
+    }
+
+    .tc-card:hover {
+        transform: translateY(-2px);
+        box-shadow:
+            0 16px 40px rgba(49, 20, 93, .08);
+    }
+
+    .tc-btn {
+        min-height: 42px;
+        border-radius: 14px;
+        font-size: 12px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .45rem;
+        transition: .2s ease;
+    }
+
+    .tc-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    /* APPLE UI SURGERY: centered, clean, soft-glass modal treatment. */
+    #listModal,
+    #matumiziModal {
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 16px !important;
+        background: rgba(15, 23, 42, .36) !important;
+        backdrop-filter: blur(14px) saturate(135%) !important;
+        -webkit-backdrop-filter: blur(14px) saturate(135%) !important;
+    }
+
+    #listModalCard,
+    #matumiziModalCard {
+        margin: auto !important;
+        background: rgba(255, 255, 255, .97) !important;
+        border: 1px solid rgba(255, 255, 255, .92) !important;
+        box-shadow:
+            0 32px 80px rgba(15, 23, 42, .20),
+            0 10px 30px rgba(15, 23, 42, .10) !important;
+        border-radius: 28px !important;
+        overflow: hidden;
+        transform-origin: center center;
+    }
+
+    #listModalCard {
+        width: min(1180px, calc(100vw - 32px)) !important;
+        max-width: none !important;
+        max-height: 84vh !important;
+        /* Padding tumeiondoa hapa ili itumie p-6 ya kwenye HTML */
+    }
+
+    #listModalCard > div:nth-child(2) {
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: 62vh;
+        overflow-x: auto !important; /* Inaruhusu scroll ya pembeni kama table ni pana */
+        overflow-y: auto !important;
+    }
+
+    #listModalCard table {
+        width: 100% !important;
+        min-width: 1000px !important; /* Table inakuwa pana vizuri */
+        table-layout: auto !important; /* Maneno yanajipanga bila kukatwa */
+    }
+
+    #listModalCard th,
+    #listModalCard td {
+        overflow-wrap: normal;
+        word-break: normal;
+        white-space: nowrap; /* Inazuia maneno kufinyangwa */
+    }
+
+    #listModalCard td:nth-child(4) {
+        white-space: normal; /* Safu ya 'Maelezo' pekee iruhusiwe kushuka mistari */
+        min-width: 250px;
+    }
+
+    #matumiziModalCard {
+        width: min(560px, calc(100vw - 32px)) !important;
+        max-width: none !important;
+        max-height: calc(100vh - 32px) !important;
+        overflow: hidden !important;
+        padding: 24px !important;
+    }
+
+    #matumiziModalCard form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    #matumiziModalCard form > * {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    #listModalCard > div:first-child,
+    #matumiziModalCard > div:first-child {
+        border-color: #f1f5f9 !important;
+    }
+
+    #listModalCard table thead tr {
+        background: rgba(248, 250, 252, .96) !important;
+    }
+
+    #matumiziModalCard textarea[name="maelezo"] {
+        min-height: 108px;
+        line-height: 1.55;
+        background: #fbfbfd !important;
+        border-color: #e5e7eb !important;
+        resize: none !important;
+    }
+
+    #matumiziModalCard textarea[name="maelezo"]:focus {
+        background: #fff !important;
+        border-color: #7c3aed !important;
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, .08) !important;
+    }
+
+    /* APPLE SEARCH UI: compact trigger + centered glass modal. */
+    .matumizi-search-trigger { display: flex; justify-content: flex-end; }
+
+    .matumizi-search-pill {
+        min-height: 44px; min-width: min(390px, 100%); padding: 0 12px;
+        border-radius: 15px; border: 1px solid #e5e7eb;
+        background: rgba(255,255,255,.90); display: inline-flex;
+        align-items: center; gap: 10px; color: #64748b; font-size: 12px;
+        font-weight: 700; box-shadow: 0 2px 10px rgba(15,23,42,.04); transition: .2s ease;
+    }
+    .matumizi-search-pill:hover { background: #fff; border-color: #d8b4fe; box-shadow: 0 8px 24px rgba(124,58,237,.08); }
+    .matumizi-list-toggle {
+        min-height: 44px; padding: 0 12px; border-radius: 15px;
+        border: 1px solid #e5e7eb; background: rgba(255,255,255,.90);
+        color: #64748b; display: inline-flex; align-items: center; gap: 8px;
+        font-size: 11px; font-weight: 800; box-shadow: 0 2px 10px rgba(15,23,42,.04);
+        transition: .2s ease; white-space: nowrap;
+    }
+    .matumizi-list-toggle:hover { background: #fff; border-color: #d8b4fe; box-shadow: 0 8px 24px rgba(124,58,237,.08); color: #5b21b6; }
+    .matumizi-list-toggle.is-expanded { background: #f5f3ff; border-color: #ddd6fe; color: #5b21b6; }
+    .matumizi-search-key {
+        margin-left: auto; display: inline-flex; align-items: center; min-height: 24px;
+        padding: 0 7px; border-radius: 7px; background: #f8fafc;
+        border: 1px solid #e5e7eb; color: #94a3b8; font-size: 9px; font-weight: 900;
+    }
+    #matumiziSearchModal {
+        align-items: center !important; justify-content: center !important;
+        background: rgba(15,23,42,.36) !important; backdrop-filter: blur(14px) saturate(135%) !important;
+        -webkit-backdrop-filter: blur(14px) saturate(135%) !important;
+    }
+    #matumiziSearchCard {
+        margin: auto !important; width: min(520px, calc(100vw - 32px)) !important;
+        border-radius: 28px !important; background: rgba(255,255,255,.97) !important;
+        border: 1px solid rgba(255,255,255,.92) !important;
+        box-shadow: 0 32px 80px rgba(15,23,42,.20), 0 10px 30px rgba(15,23,42,.10) !important;
+    }
+    .matumizi-search-field { display: block; }
+    .matumizi-search-field > span {
+        display: block; margin: 0 0 7px 2px; font-size: 10px; line-height: 1;
+        font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #64748b;
+    }
+    .matumizi-search-field input, .matumizi-search-field select {
+        width: 100%; min-height: 46px; border-radius: 14px; border: 1px solid #e5e7eb;
+        background: #fbfbfd; color: #1f2937; font-size: 13px; font-weight: 700; outline: none; transition: .2s ease;
+    }
+    .matumizi-search-field input { padding: 0 13px; }
+    .matumizi-search-field select { padding: 0 13px; }
+    .matumizi-search-field input:focus, .matumizi-search-field select:focus {
+        background: #fff; border-color: #7c3aed; box-shadow: 0 0 0 4px rgba(124,58,237,.08);
+    }
+    @media (max-width: 767px) {
+        .matumizi-search-trigger { width: 100%; }
+        .matumizi-search-pill { width: 100%; min-width: 0; }
+        #matumiziSearchCard { width: calc(100vw - 24px) !important; border-radius: 24px !important; }
+    }
+
+    .pay-success-check {
+        width: 84px; height: 84px; margin: 0 auto; border-radius: 28px;
+        background: #ecfdf5; border: 1px solid #a7f3d0;
+        display: flex; align-items: center; justify-content: center;
+        animation: paySuccessPop .42s cubic-bezier(.2,.9,.25,1.2) both;
+    }
+    .pay-success-path {
+        stroke-dasharray: 30; stroke-dashoffset: 30;
+        animation: paySuccessDraw .48s ease .15s forwards;
+    }
+    @keyframes paySuccessPop {
+        0% { transform: scale(.72); opacity: 0; }
+        70% { transform: scale(1.06); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes paySuccessDraw {
+        to { stroke-dashoffset: 0; }
+    }
+
+    #payConfirmCard {
+        width: min(420px, calc(100vw - 32px)) !important;
+        margin: auto !important;
+        background: rgba(255, 255, 255, .97) !important;
+        border: 1px solid rgba(255, 255, 255, .92) !important;
+        border-radius: 28px !important;
+        box-shadow:
+            0 32px 80px rgba(15, 23, 42, .20),
+            0 10px 30px rgba(15, 23, 42, .10) !important;
+    }
+
+    #payConfirmModal {
+        align-items: center !important;
+        justify-content: center !important;
+        background: rgba(15, 23, 42, .36) !important;
+        backdrop-filter: blur(14px) saturate(135%) !important;
+        -webkit-backdrop-filter: blur(14px) saturate(135%) !important;
+    }
+
+    #matumiziModalCard .tc-btn,
+    #listModalCard .tc-btn {
+        border-radius: 14px !important;
+    }
+
+    @media (max-width: 767px) {
+        #listModalCard {
+            width: calc(100vw - 24px) !important;
+            max-height: 88vh !important;
+            border-radius: 24px !important;
+        }
+
+        #listModalCard > div:nth-child(2) {
+            overflow-x: auto !important;
+        }
+
+        #listModalCard table {
+            width: max-content !important;
+            min-width: 1050px !important;
+            table-layout: auto !important;
+        }
+
+        #listModalCard th,
+        #listModalCard td {
+            overflow-wrap: normal;
+            word-break: normal;
+        }
+
+        #listModalCard th:nth-child(n),
+        #listModalCard td:nth-child(n) {
+            width: auto;
+        }
+
+        #matumiziModalCard {
+            width: calc(100vw - 24px) !important;
+            max-height: calc(100vh - 24px) !important;
+            border-radius: 24px !important;
+            padding: 20px !important;
+        }
+    }
+
+    .tc-empty {
+        border: 1px dashed #e5e7eb;
+        background:
+            linear-gradient(
+                180deg,
+                #fafafa,
+                #fff
+            );
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    @media print {
+        .print-hidden {
+            display: none !important;
+        }
+
+        body {
+            background: white !important;
+        }
+    }
+
+
+    /* MONEY DISPLAY: compact notation only; page architecture untouched. */
+    .compact-money {
+        white-space: nowrap;
+    }
+
+    /* INLINE SPARKLINES: presentation-only; existing page architecture untouched. */
+    .expense-mini-line {
+        width: min(210px, 100%);
+        height: 34px;
+        margin-top: 8px;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .expense-mini-line svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+    }
+
+    .expense-mini-line-path {
+        fill: none;
+        stroke-width: 3.25;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        vector-effect: non-scaling-stroke;
+    }
+
+    .expense-mini-line-monthly .expense-mini-line-path {
+        stroke: #7c3aed;
+    }
+
+    .expense-mini-line-largest .expense-mini-line-path {
+        stroke: #d4a017;
+    }
+
+    @media (max-width: 767px) {
+        .expense-mini-line {
+            width: 180px;
+            height: 30px;
+        }
+    }
+</style>
+
+<!-- TOAST -->
+<div id="toastNotification"
+     class="fixed top-5 left-1/2 -translate-x-1/2 z-[250]
+            -translate-y-20 opacity-0 transition-all duration-300
+            bg-gray-900 text-white px-6 py-3 rounded-full
+            shadow-2xl font-bold text-sm flex items-center gap-2
+            pointer-events-none"
+     role="status"
+     aria-live="polite">
+
+    <svg class="w-5 h-5 text-emerald-400"
+         fill="none"
+         stroke="currentColor"
+         viewBox="0 0 24 24"
+         aria-hidden="true">
+        <path stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0
+                 9 9 0 0118 0z"/>
+    </svg>
+
+    <span id="toastMessage"></span>
+</div>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+<div id="matumiziPageHeader"
+     class="flex flex-col lg:flex-row
+            lg:items-center justify-between
+            mb-4 gap-4 relative z-20">
+
+    <div>
+
+        <div class="flex items-center gap-2 mb-2">
+
+            <span class="text-[9px] font-black
+                         tracking-[.18em] uppercase
+                         text-purple-600 bg-purple-50
+                         border border-purple-100
+                         px-2.5 py-1 rounded-full">
+                {% trans 'Finance' %}
+            </span>
+
+            <span class="text-[9px] font-bold text-gray-400">
+                {{ matumizi|length|intcomma }} records loaded
+            </span>
+
+        </div>
+
+        <h1 class="text-3xl font-light text-gray-700">
+            {% trans 'Usimamizi wa' %}
+            <span class="font-black text-purple-900">
+                {% trans 'Matumizi' %}
+            </span>
+        </h1>
+
+        <p class="text-sm text-gray-500 mt-1">
+            Fuatilia matumizi, bili pending,
+            maelezo ya matumizi na malipo.
+        </p>
+
+    </div>
+
+
+    <div class="matumizi-inline-controls print-hidden">
+
+        <span id="matumiziInlineDate"
+              class="matumizi-inline-date"
+              aria-label="Tarehe ya sasa">
+            —
+        </span>
+
+        <a href="{% url 'matumizi' %}?print=1{% if query %}&q={{ query|urlencode }}{% endif %}{% if status_filter %}&status={{ status_filter|urlencode }}{% endif %}"
+           target="_blank"
+           rel="noopener"
+           onclick="return TradeCoreMobile.printUrl(this.href)"
+           class="tc-btn bg-white
+                  border border-gray-200
+                  hover:bg-gray-50
+                  text-gray-700 px-4 shadow-sm">
+
+            <svg class="w-4 h-4 text-purple-900"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 17h2a2 2 0 002-2v-4
+                         a2 2 0 00-2-2H5a2 2 0
+                         00-2 2v4h2m2 4h6a2 2
+                         0 002-2v-4H9v4a2 2
+                         0 002 2zm8-12V5a2 2
+                         0 00-2-2H9a2 2
+                         0 00-2 2v4h10z"/>
+            </svg>
+
+            {% trans 'Print / PDF' %}
+        </a>
+
+
+        <button type="button"
+                onclick="funguaMatumiziModal()"
+                class="tc-btn bg-gray-900
+                       hover:bg-gray-800
+                       text-white px-5 shadow-md">
+
+            <svg class="w-5 h-5 text-amber-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true">
+                <path stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6v12m6-6H6"/>
+            </svg>
+
+            {% trans 'Sajili Matumizi' %}
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     SUMMARY CARDS
+===================================================== -->
+<div class="grid grid-cols-1
+            sm:grid-cols-2
+            lg:grid-cols-4
+            gap-4 mb-5 relative z-20">
+
+
+    <!-- TODAY -->
+    <button type="button"
+            onclick="funguaListModal('today')"
+            class="tc-card bg-white p-5 rounded-3xl
+                   shadow-sm border border-rose-100
+                   flex items-center justify-between
+                   hover:border-rose-200 text-left">
+
+        <div>
+
+            <p class="text-[10px] font-black
+                    text-rose-400 uppercase
+                    tracking-wider mb-1">
+                {% trans 'Today\'s Expenses' %}
+            </p>
+
+            <h3 class="text-xl font-black text-rose-600">
+                TZS <span class="compact-money" data-money-value="{{ today_total|default_if_none:0 }}">—</span>
+            </h3>
+
+            <span class="text-[9px] text-gray-400
+                        bg-gray-100 px-2 py-0.5
+                        rounded-full mt-1 inline-block">
+                {% trans 'Tazama Orodha' %}
+            </span>
+
+        </div>
+
+        <div class="w-10 h-10 bg-rose-50
+                    rounded-xl flex items-center
+                    justify-center text-rose-600">
+
+            <svg class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true">
+                <path stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/>
+            </svg>
+
+        </div>
+
+    </button>
+
+
+    <!-- MONTH -->
+    <button type="button"
+            onclick="funguaListModal('monthly')"
+            class="tc-card bg-white p-5 rounded-3xl
+                shadow-sm border border-gray-100
+                flex items-center justify-between
+                hover:border-purple-200 text-left">
+
+        <div>
+
+            <p class="text-[10px] font-black
+                      text-gray-400 uppercase
+                      tracking-wider mb-1">
+                {% trans 'Monthly Expenses' %}
+            </p>
+
+            <h3 class="text-xl font-black text-gray-800">
+                TZS <span class="compact-money" data-money-value="{{ monthly_total|default_if_none:0 }}">—</span>
+            </h3>
+
+            <div class="expense-mini-line expense-mini-line-monthly" aria-hidden="true">
+                <svg viewBox="0 0 240 54" preserveAspectRatio="none">
+                    <polyline class="expense-mini-line-path" points="8,42 42,34 76,38 110,24 144,28 178,14 212,20 232,10" />
+                </svg>
+            </div>
+
+            <span class="text-[9px] text-gray-400
+                         bg-gray-100 px-2 py-0.5
+                         rounded-full mt-1 inline-block">
+                {% trans 'Tazama Orodha' %}
+            </span>
+
+        </div>
+
+        <div class="w-10 h-10 bg-purple-50
+                    rounded-xl flex items-center
+                    justify-center text-purple-900">
+
+            <svg class="w-5 h-5"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 7V3m8 4V3m-9
+                         8h10M5 21h14a2 2
+                         0 002-2V7a2 2
+                         0 00-2-2H5a2 2
+                         0 00-2 2v12a2 2
+                         0 002 2z"/>
+            </svg>
+
+        </div>
+
+    </button>
+
+
+    <!-- LARGEST -->
+    <div class="tc-card bg-gradient-to-br
+                from-gray-900 to-gray-800
+                p-5 rounded-3xl shadow-sm
+                text-white flex items-center
+                justify-between">
+
+        <div class="min-w-0">
+
+            <p class="text-[10px] font-black
+                      text-gray-400 uppercase
+                      tracking-wider mb-1">
+                {% trans 'Largest Expense' %}
+            </p>
+
+            {% if largest_expense %}
+
+                <h3 class="text-xl font-black
+                           text-amber-400">
+                    TZS <span class="compact-money" data-money-value="{{ largest_expense.kiasi|default_if_none:0 }}">—</span>
+                </h3>
+
+                <div class="expense-mini-line expense-mini-line-largest" aria-hidden="true">
+                    <svg viewBox="0 0 240 54" preserveAspectRatio="none">
+                        <polyline class="expense-mini-line-path" points="8,40 42,36 76,28 110,34 144,18 178,24 212,12 232,8" />
+                    </svg>
+                </div>
+
+                <span class="text-[9px] text-gray-300
+                             bg-white/10 px-2 py-0.5
+                             rounded-full mt-1 inline-block
+                             border border-white/5
+                             max-w-full truncate">
+
+                    {{ largest_expense.category }}
+
+                    •
+
+                    {{ largest_expense.maelezo }}
+
+                </span>
+
+            {% else %}
+
+                <h3 class="text-xl font-black text-gray-500">
+                    —
+                </h3>
+
+                <span class="text-[9px] text-gray-500">
+                    {% trans 'Hakuna matumizi mwezi huu' %}
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="w-10 h-10 bg-white/10
+                    rounded-xl flex items-center
+                    justify-center text-amber-400
+                    shrink-0">
+
+            <svg class="w-5 h-5"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 19V6a2 2 0 012-2h2a2
+                         2 0 012 2v13m4 0V3a2 2
+                         0 012-2h2a2 2 0 012
+                         2v16"/>
+
+            </svg>
+
+        </div>
+
+    </div>
+
+
+    <!-- PENDING -->
+    <button type="button"
+            onclick="funguaListModal('pending')"
+            class="tc-card bg-blue-50 p-5
+                   rounded-3xl shadow-sm
+                   border border-blue-100
+                   flex items-center justify-between
+                   hover:border-blue-200 text-left">
+
+        <div>
+
+            <p class="text-[10px] font-black
+                      text-blue-500 uppercase
+                      tracking-wider mb-1">
+                {% trans 'Pending Bills' %}
+            </p>
+
+            <h3 class="text-xl font-black text-blue-700">
+                TZS <span class="compact-money" data-money-value="{{ pending_total|default_if_none:0 }}">—</span>
+            </h3>
+
+            <span class="text-[9px] text-blue-500
+                         bg-white px-2 py-0.5
+                         rounded-full mt-1
+                         inline-block shadow-sm">
+                {% trans 'Tazama Madeni' %}
+            </span>
+
+        </div>
+
+        <div class="w-10 h-10 bg-white
+                    rounded-xl flex items-center
+                    justify-center text-blue-600
+                    shadow-sm">
+
+            <svg class="w-5 h-5"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9
+                         9 0 11-18 0 9 9 0
+                         0118 0z"/>
+
+            </svg>
+
+        </div>
+
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     MAIN DATABASE TABLE
+===================================================== -->
+<div class="bg-white rounded-3xl
+            shadow-sm border border-gray-100
+            overflow-hidden relative z-10
+            print:shadow-none print:border-none">
+
+
+    <!-- HEADER / SEARCH -->
+    <div class="p-6 border-b border-gray-100
+                flex flex-col xl:flex-row
+                xl:items-center
+                justify-between gap-4">
+
+        <div>
+
+            <h3 class="font-black text-gray-800 text-lg">
+                {% trans 'Matumizi Yote' %}
+            </h3>
+
+            <p class="text-[10px] text-gray-400
+                      font-bold mt-1">
+                {% trans 'Taarifa kutoka database' %}
+            </p>
+
+        </div>
+
+
+        <div class="matumizi-search-trigger print-hidden gap-2">
+            <button type="button"
+                    id="toggleMatumiziListBtn"
+                    onclick="window.toggleMatumiziList()"
+                    class="matumizi-list-toggle"
+                    aria-expanded="false"
+                    title="Expand list">
+                <svg id="matumiziListToggleIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
+                </svg>
+                <span id="matumiziListToggleText">{% trans 'Expand' %}</span>
+            </button>
+
+            <button type="button"
+                    id="openMatumiziSearchBtn"
+                    onclick="window.funguaMatumiziSearch()"
+                    class="matumizi-search-pill">
+                <svg class="w-4 h-4 text-purple-700 shrink-0"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"/>
+                </svg>
+                <span id="matumiziSearchTriggerText">{% trans 'Search expenses...' %}</span>
+                <span class="matumizi-search-key">⌘ K</span>
+            </button>
+        </div>
+
+    </div>
+
+
+    <!-- TABLE -->
+    <div class="matumizi-list-scroll overflow-auto custom-scrollbar">
+
+        <table class="w-full text-left
+                      border-collapse
+                      min-w-[1050px]">
+
+            <thead>
+
+                <tr class="bg-gray-50
+                           text-gray-500
+                           text-[10px]
+                           uppercase
+                           tracking-wider
+                           border-b
+                           border-gray-100">
+
+                    <th class="p-4 font-black">
+                        {% trans 'Tarehe' %}
+                    </th>
+
+                    <th class="p-4 font-black">
+                        {% trans 'Muda' %}
+                    </th>
+
+                    <th class="p-4 font-black">
+                        {% trans 'Category' %}
+                    </th>
+
+                    <th class="p-4 font-black min-w-[320px]">
+                        {% trans 'Maelezo ya Matumizi' %}
+                    </th>
+
+                    <th class="p-4 font-black">
+                        {% trans 'Reference / Receipt' %}
+                    </th>
+
+                    <th class="p-4 font-black">
+                        {% trans 'Aliyesajili' %}
+                    </th>
+
+                    <th class="p-4 font-black">
+                        {% trans 'Status' %}
+                    </th>
+
+                    <th class="p-4 font-black text-right">
+                        {% trans 'Kiasi (TZS)' %}
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody class="text-sm divide-y divide-gray-100"
+                   id="tableBody">
+
+                {% for matumizi_item in matumizi %}
+
+                    <tr class="hover:bg-gray-50
+                               transition-colors"
+                        data-expense-date="{{ matumizi_item.created_at|date:'Y-m-d' }}"
+                        data-expense-category="{{ matumizi_item.category|escape }}"
+                        data-expense-usage="{{ matumizi_item.maelezo|escape }}"
+                        data-expense-amount="{{ matumizi_item.kiasi|default_if_none:0 }}">
+
+                        <td class="p-4 text-xs
+                                   font-bold text-gray-500
+                                   whitespace-nowrap">
+
+                            {{ matumizi_item.created_at|date:"d M Y" }}
+
+                        </td>
+
+
+                        <td class="p-4 text-xs
+                                   font-semibold
+                                   text-purple-900
+                                   whitespace-nowrap">
+
+                            <span class="bg-purple-50
+                                         px-2 py-1
+                                         rounded-md">
+
+                                {{ matumizi_item.created_at|date:"h:i A" }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td class="p-4">
+
+                            <span class="bg-gray-100
+                                         text-gray-700
+                                         font-bold px-2.5
+                                         py-1 rounded-md
+                                         text-xs">
+
+                                {{ matumizi_item.category }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td class="p-4 min-w-[320px]">
+
+                            <p class="text-xs
+                                      font-black
+                                      text-gray-800">
+
+                                {{ matumizi_item.maelezo }}
+
+                            </p>
+
+                            {% if matumizi_item.reference %}
+
+                                <p class="text-[10px]
+                                          text-gray-400
+                                          mt-1">
+
+                                    Ref:
+                                    {{ matumizi_item.reference }}
+
+                                </p>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="p-4 text-xs
+                                   text-gray-500
+                                   whitespace-nowrap">
+
+                            {% if matumizi_item.reference %}
+
+                                <span class="bg-gray-50
+                                             border
+                                             border-gray-100
+                                             px-2 py-1
+                                             rounded-md">
+
+                                    {{ matumizi_item.reference }}
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="text-gray-300">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="p-4 text-xs
+                                   text-gray-500
+                                   whitespace-nowrap">
+
+                            {% if matumizi_item.created_by %}
+
+                                {{ matumizi_item.created_by.get_full_name|default:matumizi_item.created_by.username }}
+
+                            {% else %}
+
+                                System
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="p-4">
+
+                            {% if matumizi_item.status == "PENDING" %}
+
+                                <div class="flex items-center gap-2">
+
+                                    <span class="bg-blue-50
+                                                 text-blue-600
+                                                 font-black px-2.5
+                                                 py-1 rounded-md
+                                                 text-[10px]
+                                                 border
+                                                 border-blue-100
+                                                 uppercase
+                                                 tracking-wide">
+
+                                        {% trans 'Pending' %}
+
+                                    </span>
+
+
+                                    <form method="post"
+                                          class="print-hidden"
+                                          onsubmit="return window.confirmPayMatumizi(this);">
+
+                                        {% csrf_token %}
+
+                                        <input type="hidden"
+                                               name="action"
+                                               value="pay">
+
+                                        <input type="hidden"
+                                               name="matumizi_id"
+                                               value="{{ matumizi_item.id }}">
+
+                                        <button type="submit"
+                                                class="bg-emerald-600
+                                                       hover:bg-emerald-500
+                                                       text-white
+                                                       text-[10px]
+                                                       font-black
+                                                       px-2.5 py-1.5
+                                                       rounded-lg
+                                                       shadow-sm
+                                                       transition-all">
+
+                                            {% trans 'Lipa Sasa' %}
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            {% else %}
+
+                                <span class="status-badge bg-emerald-50
+                                             text-emerald-600
+                                             font-black px-2.5
+                                             py-1 rounded-md
+                                             text-[10px]
+                                             border
+                                             border-emerald-100
+                                             uppercase
+                                             tracking-wide">
+
+                                    {% trans 'Paid' %}
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="p-4 text-right
+                                   font-black
+                                   text-gray-900
+                                   whitespace-nowrap">
+
+                            <span class="compact-money" data-money-value="{{ matumizi_item.kiasi|default_if_none:0 }}">—</span>
+
+                        </td>
+
+                    </tr>
+
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="8"
+                            class="p-12">
+
+                            <div class="tc-empty
+                                        p-8 rounded-2xl
+                                        text-center">
+
+                                <div class="text-3xl mb-3">
+                                    💸
+                                </div>
+
+                                <p class="text-sm
+                                          font-black
+                                          text-gray-500">
+                                    Hakuna matumizi
+                                    yaliyopatikana.
+                                </p>
+
+                                <p class="text-[10px]
+                                          text-gray-400 mt-1">
+                                    Sajili matumizi mapya
+                                    ili yaonekane hapa.
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     APPLE-STYLE EXPENSE SEARCH MODAL
+===================================================== -->
+<div id="matumiziSearchModal"
+     class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden
+            items-center justify-center z-[226] p-4 opacity-0
+            transition-opacity duration-300"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="matumiziSearchTitle"
+     aria-hidden="true">
+
+    <div id="matumiziSearchCard"
+         class="bg-white rounded-3xl max-w-lg w-full p-6
+                shadow-2xl relative transform scale-95 opacity-0
+                transition-all duration-300 overflow-hidden">
+
+        <div class="flex items-start justify-between gap-4 pb-4 border-b border-gray-100">
+            <div>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
+                             bg-purple-50 border border-purple-100 text-purple-700
+                             text-[9px] font-black uppercase tracking-[.14em]">
+                    {% trans 'Search' %}
+                </span>
+                <h3 id="matumiziSearchTitle" class="text-xl font-black text-gray-900 mt-2">
+                    {% trans 'Tafuta Matumizi' %}
+                </h3>
+                <p class="text-[10px] text-gray-400 mt-1">
+                    {% trans 'Tumia tarehe, category au maelezo ya matumizi.' %}
+                </p>
+            </div>
+
+            <button type="button"
+                    onclick="window.fungaMatumiziSearch()"
+                    class="w-9 h-9 rounded-xl bg-gray-50 border border-gray-100
+                           text-gray-400 hover:text-gray-700 hover:bg-gray-100
+                           flex items-center justify-center text-2xl leading-none transition-all"
+                    aria-label="Funga">
+                &times;
+            </button>
+        </div>
+
+        <div class="pt-5 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label class="matumizi-search-field">
+                    <span>{% trans 'Tarehe kuanzia' %}</span>
+                    <input type="date" id="expenseSearchDateFrom">
+                </label>
+
+                <label class="matumizi-search-field">
+                    <span>{% trans 'Tarehe mpaka' %}</span>
+                    <input type="date" id="expenseSearchDateTo">
+                </label>
+            </div>
+
+            <label class="matumizi-search-field">
+                <span>{% trans 'Category' %}</span>
+                <select id="expenseSearchCategory">
+                    <option value="">{% trans 'Categories zote' %}</option>
+                    {% for value, label in expense_categories %}
+                        <option value="{{ value|escape }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label class="matumizi-search-field">
+                <span>{% trans 'Matumizi' %}</span>
+                <div class="relative">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"/>
+                    </svg>
+                    <input type="text" id="expenseSearchUsage"
+                           placeholder="Mfano: umeme, mafuta, chakula..."
+                           class="pl-10">
+                </div>
+            </label>
+
+            <div id="matumiziSearchResultHint"
+                 class="rounded-2xl bg-gray-50 border border-gray-100 px-4 py-3
+                        text-[10px] font-bold text-gray-500">
+                {% trans 'Ingiza vigezo unavyotaka kutafuta.' %}
+            </div>
+        </div>
+
+        <div class="pt-5 mt-5 border-t border-gray-100 flex items-center justify-between gap-3">
+            <button type="button"
+                    onclick="window.clearMatumiziSearch()"
+                    class="min-h-[44px] px-4 rounded-2xl bg-gray-100 hover:bg-gray-200
+                           text-gray-700 text-sm font-black transition-all">
+                {% trans 'Clear' %}
+            </button>
+
+            <div class="flex gap-2">
+                <button type="button"
+                        onclick="window.fungaMatumiziSearch()"
+                        class="min-h-[44px] px-4 rounded-2xl bg-white border border-gray-200
+                               hover:bg-gray-50 text-gray-700 text-sm font-black transition-all">
+                    {% trans 'Cancel' %}
+                </button>
+                <button type="button"
+                        onclick="window.applyMatumiziSearch()"
+                        class="min-h-[44px] px-5 rounded-2xl bg-purple-900 hover:bg-purple-800
+                               text-white text-sm font-black shadow-sm transition-all">
+                    {% trans 'Tafuta' %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =====================================================
+     LIST MODAL
+===================================================== -->
+<div id="listModal"
+     class="fixed inset-0 bg-slate-900/80
+            backdrop-blur-md hidden
+            items-center justify-center
+            z-[220] p-4 opacity-0
+            transition-opacity duration-300"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="listModalTitle"
+     aria-hidden="true">
+
+    <div id="listModalCard"
+         class="bg-white rounded-3xl
+                max-w-6xl w-full p-6
+                shadow-2xl relative
+                transform scale-95
+                opacity-0
+                transition-all
+                duration-300
+                flex flex-col
+                max-h-[90vh]">
+
+        <div class="flex justify-between
+                    items-center mb-4
+                    border-b border-gray-100
+                    pb-4">
+
+            <div>
+
+                <h3 id="listModalTitle"
+                    class="text-xl font-black
+                           text-purple-900">
+                    {% trans 'Matumizi' %}
+                </h3>
+
+                <p class="text-[10px]
+                          text-gray-400 mt-1">
+                    {% trans 'Orodha kutoka database.' %}
+                </p>
+
+            </div>
+
+
+            <button type="button"
+                    onclick="fungaListModal()"
+                    class="text-gray-400
+                           hover:text-rose-500
+                           font-black text-3xl
+                           leading-none"
+                    aria-label="Funga">
+
+                &times;
+
+            </button>
+
+        </div>
+
+
+        <div class="overflow-y-auto
+                    overflow-x-auto
+                    flex-1 pr-2
+                    custom-scrollbar">
+
+            <table class="w-full
+                          min-w-[1050px]
+                          text-left
+                          border-collapse">
+
+                <thead>
+
+                    <tr class="bg-white
+                               text-gray-500
+                               text-[10px]
+                               uppercase
+                               tracking-wider
+                               sticky top-0
+                               border-b
+                               border-gray-100">
+
+                        <th class="p-3 font-black">
+                            {% trans 'Tarehe' %}
+                        </th>
+
+                        <th class="p-3 font-black">
+                            {% trans 'Muda' %}
+                        </th>
+
+                        <th class="p-3 font-black">
+                            {% trans 'Category' %}
+                        </th>
+
+                        <th class="p-3 font-black">
+                            {% trans 'Maelezo' %}
+                        </th>
+
+                        <th class="p-3 font-black">
+                            {% trans 'Reference' %}
+                        </th>
+
+                        <th class="p-3 font-black">
+                            {% trans 'Aliyesajili' %}
+                        </th>
+
+                        <th class="p-3 font-black">
+                            {% trans 'Status' %}
+                        </th>
+
+                        <th class="p-3 font-black text-right">
+                            {% trans 'Kiasi' %}
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody class="text-sm
+                               divide-y
+                               divide-gray-100"
+                       id="modalTableBody">
+
+                    {% for matumizi_item in matumizi %}
+
+                        <tr class="expense-row"
+                            data-period="{% if matumizi_item.created_at|date:'Y-m-d' == now|date:'Y-m-d' %}today{% else %}monthly{% endif %}"
+                            data-status="{{ matumizi_item.status|lower }}">
+
+                            <td class="p-3 text-xs
+                                       font-bold
+                                       text-gray-500">
+
+                                {{ matumizi_item.created_at|date:"d M Y" }}
+
+                            </td>
+
+
+                            <td class="p-3 text-xs
+                                       text-purple-900">
+
+                                {{ matumizi_item.created_at|date:"h:i A" }}
+
+                            </td>
+
+
+                            <td class="p-3">
+
+                                <span class="bg-gray-100
+                                             text-gray-700
+                                             font-bold px-2 py-1
+                                             rounded-md
+                                             text-[10px]">
+
+                                    {{ matumizi_item.category }}
+
+                                </span>
+
+                            </td>
+
+
+                            <td class="p-3 text-xs
+                                       text-gray-700">
+
+                                {{ matumizi_item.maelezo }}
+
+                            </td>
+
+
+                            <td class="p-3 text-xs
+                                       text-gray-500">
+
+                                {% if matumizi_item.reference %}
+
+                                    {{ matumizi_item.reference }}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td class="p-3 text-xs
+                                       text-gray-500">
+
+                                {% if matumizi_item.created_by %}
+
+                                    {{ matumizi_item.created_by.get_full_name|default:matumizi_item.created_by.username }}
+
+                                {% else %}
+
+                                    System
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td class="p-3">
+
+                                {% if matumizi_item.status == "PENDING" %}
+
+                                    <span class="bg-blue-50
+                                                 text-blue-600
+                                                 font-black px-2 py-1
+                                                 rounded-md text-[9px]
+                                                 border border-blue-100">
+
+                                        {% trans 'Pending' %}
+
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="bg-emerald-50
+                                                 text-emerald-600
+                                                 font-black px-2 py-1
+                                                 rounded-md
+                                                 text-[9px]
+                                                 border
+                                                 border-emerald-100">
+
+                                        {% trans 'Paid' %}
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td class="p-3 text-right
+                                       font-black
+                                       text-gray-900">
+
+                                <span class="compact-money" data-money-value="{{ matumizi_item.kiasi|default_if_none:0 }}">—</span>
+
+                            </td>
+
+                        </tr>
+
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="p-12 text-center">
+                                <div class="tc-empty p-8 rounded-2xl inline-block bg-gray-50 border border-gray-100">
+                                    <div class="text-3xl mb-3">📭</div>
+                                    <p class="text-sm font-black text-gray-700">{% trans 'Hakuna taarifa yoyote.' %}</p>
+                                    <p class="text-[10px] text-gray-500 mt-1">{% trans 'Rekodi unazotafuta hazijapatikana kwenye kipengele hiki.' %}</p>
+                                </div>
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <div class="mt-4 pt-4
+                    border-t border-gray-100
+                    flex justify-end">
+
+            <a href="{% url 'matumizi' %}?print=1{% if query %}&q={{ query|urlencode }}{% endif %}{% if status_filter %}&status={{ status_filter|urlencode }}{% endif %}"
+               target="_blank"
+               rel="noopener"
+               onclick="return TradeCoreMobile.printUrl(this.href)"
+               class="tc-btn
+                           bg-gray-900
+                           hover:bg-gray-800
+                           text-white px-6
+                           shadow-lg">
+
+                <svg class="w-4 h-4 text-amber-400"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
+                     aria-hidden="true">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M17 17h2a2 2
+                             0 002-2v-4a2 2
+                             0 00-2-2H5a2
+                             2 0 00-2
+                             2v4h2m2
+                             4h6a2 2
+                             0 002-2v-4H9v4
+                             a2 2 0 002 2
+                             zm8-12V5a2
+                             2 0 00-2-2H9a2
+                             2 0 00-2 2v4h10z"/>
+
+                </svg>
+
+                {% trans 'Print Ripoti' %}
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     APPLE-STYLE PAYMENT CONFIRMATION
+===================================================== -->
+<div id="payConfirmModal"
+     class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden
+            items-center justify-center z-[230] p-4 opacity-0
+            transition-opacity duration-300"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="payConfirmTitle"
+     aria-hidden="true">
+
+    <div id="payConfirmCard"
+         class="bg-white rounded-3xl max-w-sm w-full
+                shadow-2xl relative transform scale-95 opacity-0
+                transition-all duration-300 overflow-hidden">
+
+        <div id="payConfirmSuccess" class="hidden p-8 text-center">
+            <div class="pay-success-check" aria-hidden="true">
+                <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path class="pay-success-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <p class="text-[9px] font-black uppercase tracking-[.18em] text-emerald-600 mt-4">{% trans 'Confirmed' %}</p>
+            <h3 class="text-xl font-black text-gray-900 mt-1">{% trans 'Malipo yamethibitishwa' %}</h3>
+            <p class="text-sm text-gray-500 mt-2">{% trans 'Rekodi inabadilishwa kuwa Paid.' %}</p>
+        </div>
+
+        <div id="payConfirmContent">
+        <div class="p-7 text-center">
+
+            <div class="mx-auto mb-4 w-14 h-14 rounded-2xl
+                        bg-emerald-50 border border-emerald-100
+                        flex items-center justify-center">
+                <svg class="w-7 h-7 text-emerald-600"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
+                     aria-hidden="true">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 6v12m6-6H6"/>
+                </svg>
+            </div>
+
+            <p class="text-[9px] font-black uppercase tracking-[.18em]
+                      text-gray-400">
+                {% trans 'Payment confirmation' %}
+            </p>
+
+            <h3 id="payConfirmTitle"
+                class="text-xl font-black text-gray-900 mt-1">
+                {% trans 'Thibitisha malipo' %}
+            </h3>
+
+            <p id="payConfirmMessage"
+               class="text-sm text-gray-500 mt-2 leading-6">
+                {% trans 'Unataka kubadilisha matumizi haya kutoka Pending kuwa Paid?' %}
+            </p>
+
+        </div>
+
+        <div class="px-5 pb-5 flex gap-3">
+            <button type="button"
+                    onclick="window.fungaPayConfirmModal()"
+                    class="flex-1 min-h-[46px] rounded-2xl
+                           bg-gray-100 hover:bg-gray-200
+                           text-gray-700 text-sm font-black transition-all">
+                {% trans 'Cancel' %}
+            </button>
+
+            <button type="button"
+                    id="payConfirmYesBtn"
+                    onclick="window.thibitishaPayMatumizi()"
+                    class="flex-1 min-h-[46px] rounded-2xl
+                           bg-emerald-600 hover:bg-emerald-500
+                           text-white text-sm font-black
+                           shadow-sm transition-all">
+                {% trans 'Ndiyo, Lipa' %}
+            </button>
+        </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- =====================================================
+     CREATE EXPENSE MODAL
+===================================================== -->
+<div id="matumiziModal"
+     class="fixed inset-0
+            bg-slate-900/80
+            backdrop-blur-md hidden
+            items-center justify-center
+            z-[225] p-4
+            opacity-0
+            transition-opacity
+            duration-300"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="matumiziModalTitle"
+     aria-hidden="true">
+
+    <div id="matumiziModalCard"
+         class="bg-white rounded-3xl
+                max-w-md w-full p-6
+                shadow-2xl relative
+                transform scale-95
+                opacity-0
+                transition-all
+                duration-300">
+
+        <div class="flex justify-between
+                    items-center mb-6
+                    border-b border-gray-100
+                    pb-4">
+
+            <div>
+
+                <h3 id="matumiziModalTitle"
+                    class="text-xl font-black
+                           text-gray-900">
+
+                    {% trans 'Sajili Matumizi' %}
+
+                </h3>
+
+                <p class="text-[10px]
+                          text-gray-400 mt-1">
+
+                    Rekodi itaingia kwenye
+                    database moja kwa moja.
+
+                </p>
+
+            </div>
+
+
+            <button type="button"
+                    onclick="window.fungaMatumiziModal()"
+                    class="text-gray-400
+                           hover:text-rose-500
+                           font-black text-3xl
+                           leading-none"
+                    aria-label="Funga">
+
+
+                &times;
+
+            </button>
+
+        </div>
+
+
+        <form method="post"
+              class="space-y-4"
+              onsubmit="return validateMatumiziForm(this)">
+
+            {% csrf_token %}
+
+            <input type="hidden"
+                   name="action"
+                   value="create">
+
+
+            <!-- CATEGORY: SMART + MANUAL -->
+            <div>
+
+                <div class="flex items-center justify-between gap-3 mb-2">
+                    <label class="block text-xs
+                                  font-black text-gray-700
+                                  uppercase">
+                        {% trans 'Category' %}
+                    </label>
+
+                    <span id="categoryModeBadge"
+                          class="text-[9px] font-black uppercase
+                                 tracking-wide text-purple-700
+                                 bg-purple-50 border border-purple-100
+                                 px-2 py-1 rounded-full">
+                        {% trans 'Smart' %}
+                    </span>
+                </div>
+
+                <select name="category"
+                        id="categorySelect"
+                        required
+                        onchange="window.handleExpenseCategoryChange(this)"
+                        class="w-full px-4 py-3
+                               rounded-xl
+                               border border-gray-200
+                               focus:outline-none
+                               focus:border-purple-900
+                               text-sm font-bold
+                               bg-white">
+
+                    <option value="">{% trans 'Smart Category — itaamuliwa kutokana na maelezo' %}</option>
+
+                    {% for value, label in expense_categories %}
+                        <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+
+                    <option value="__MANUAL__">{% trans '＋ Add category manually...' %}</option>
+
+                </select>
+
+                <div id="manualCategoryWrap" class="hidden mt-2">
+                    <div class="flex gap-2">
+                        <input type="text"
+                               id="manualCategoryInput"
+                               maxlength="50"
+                               placeholder="{% trans 'Andika category mpya, mfano: Office Supplies' %}"
+                               class="flex-1 min-w-0 px-3 py-2.5 rounded-xl
+                                      border border-gray-200 bg-white text-sm font-bold
+                                      focus:outline-none focus:border-purple-900">
+
+                        <button type="button"
+                                onclick="window.saveManualExpenseCategory()"
+                                class="px-3 py-2.5 rounded-xl bg-purple-900
+                                       text-amber-400 text-[10px] font-black
+                                       whitespace-nowrap hover:bg-purple-800">
+                            {% trans 'Tumia' %}
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1">
+                        {% trans 'Category mpya itahifadhiwa kwenye history mara matumizi haya yakihifadhiwa,' %}
+                        kisha itaonekana kwenye list ya category.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- MAELEZO -->
+            <div>
+
+                <div class="flex items-center justify-between gap-3 mb-2">
+                    <label class="block text-xs font-black
+                                  text-gray-700 uppercase">
+                        {% trans 'Maelezo ya Matumizi' %}
+                    </label>
+
+                    <select id="usageHistorySelect"
+                            class="max-w-[230px] min-w-0 px-3 py-2
+                                   rounded-xl border border-gray-200
+                                   bg-white text-[10px] font-bold
+                                   text-gray-600 focus:outline-none
+                                   focus:border-purple-900">
+                        <option value="">{% trans '↺ Tumia matumizi yaliyopita...' %}</option>
+                        {% for item in expense_usage_history %}
+                            <option value="{{ item.maelezo|escape }}"
+                                    data-category="{{ item.category|escape }}">
+                                {{ item.maelezo|truncatechars:64 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <textarea name="maelezo"
+                          id="maelezoInput"
+                          required
+                          maxlength="1000"
+                          rows="4"
+                          placeholder="{% trans 'Mfano: Kununua mafuta ya jenereta kwa backup ya umeme...' %}"
+                          class="w-full px-4 py-3
+                                 rounded-xl
+                                 border border-gray-200
+                                 focus:outline-none
+                                 focus:border-purple-900
+                                 text-sm font-medium
+                                 bg-white resize-y"></textarea>
+
+                <p id="smartCategoryHint"
+                   class="text-[10px] text-purple-500 mt-1 min-h-[15px]">
+                    Andika matumizi; Smart Category itapendekeza category kutokana na maelezo na historia.
+                </p>
+
+            </div>
+
+
+            <!-- ALIYEANDIKA / EXISTING AUDIT USER -->
+            <div>
+                <label class="block text-xs
+                              font-black text-gray-700
+                              uppercase mb-1">
+                    {% trans 'Aliyeandika / Aliyesajili' %}
+                </label>
+
+                <input type="text"
+                       value="{{ request.user.get_full_name|default:request.user.username }}"
+                       readonly
+                       class="w-full px-4 py-3 rounded-xl
+                              border border-gray-200 bg-gray-50
+                              text-sm font-bold text-gray-600">
+
+                <p class="text-[10px] text-gray-400 mt-1">
+                    Hii inatumia account iliyopo na inaendelea kuhifadhiwa kwenye <code>created_by</code>.
+                </p>
+            </div>
+
+
+            <!-- REFERENCE -->
+            <div>
+
+                <label class="block text-xs
+                              font-black text-gray-700
+                              uppercase mb-1">
+
+                    Reference / Receipt No.
+
+                </label>
+
+                <input type="text"
+                       name="reference"
+                       id="referenceInput"
+                       maxlength="100"
+                       placeholder="Mf. TANESCO-INV-00421"
+                       class="w-full px-4 py-3
+                              rounded-xl
+                              border border-gray-200
+                              focus:outline-none
+                              focus:border-purple-900
+                              text-sm font-medium
+                              bg-white">
+
+                <p class="text-[10px]
+                          text-gray-400 mt-1">
+
+                    {% trans 'Weka invoice, receipt,' %}
+                    voucher au reference nyingine.
+                    Si lazima ikiwa hakuna.
+
+                </p>
+
+            </div>
+
+
+            <!-- AMOUNT -->
+            <div>
+
+                <label class="block text-xs
+                              font-black text-gray-700
+                              uppercase mb-1">
+
+                    {% trans 'Kiasi (TZS)' %}
+
+                </label>
+
+                <input type="number"
+                       name="kiasi"
+                       id="kiasiInput"
+                       required
+                       min="0.01"
+                       step="0.01"
+                       placeholder="25000"
+                       class="w-full px-4 py-3
+                              rounded-xl
+                              border border-gray-200
+                              focus:outline-none
+                              focus:border-purple-900
+                              text-lg
+                              font-black
+                              bg-white">
+
+            </div>
+
+
+            <!-- STATUS -->
+            <div class="pt-2">
+
+                <label class="block text-xs
+                              font-black text-gray-700
+                              uppercase mb-2">
+
+                    {% trans 'Hali ya Malipo' %}
+
+                </label>
+
+                <div class="grid
+                            grid-cols-2 gap-3">
+
+                    <label class="flex items-center
+                                  gap-2 cursor-pointer
+                                  border border-emerald-100
+                                  bg-emerald-50/50
+                                  rounded-xl px-3 py-3">
+
+                        <input type="radio"
+                               name="status"
+                               value="PAID"
+                               checked>
+
+                        <span class="text-sm
+                                     font-black
+                                     text-emerald-700">
+
+                            {% trans 'Imelipwa' %}
+
+                        </span>
+
+                    </label>
+
+
+                    <label class="flex items-center
+                                  gap-2 cursor-pointer
+                                  border border-blue-100
+                                  bg-blue-50/50
+                                  rounded-xl px-3 py-3">
+
+                        <input type="radio"
+                               name="status"
+                               value="PENDING">
+
+                        <span class="text-sm
+                                     font-black
+                                     text-blue-700">
+
+                            {% trans 'Pending' %}
+
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <button type="submit"
+                    class="w-full
+                           bg-gray-900
+                           hover:bg-purple-900
+                           text-white
+                           font-black
+                           py-3.5 rounded-xl
+                           shadow-lg transition-all
+                           text-sm mt-4">
+
+                {% trans 'Hifadhi Taarifa' %}
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+/* PAGE-LOCAL I18N */
+const MATUMIZI_I18N = {
+        searchExpenses: "{% trans 'Search expenses...' %}",
+        dateRangeError: "{% trans 'Tarehe ya kuanzia haiwezi kuwa baada ya tarehe ya mwisho.' %}",
+        searchCleared: "{% trans 'Search imeondolewa. Unaona records zote zilizopakiwa.' %}",
+        smartHint: "{% trans 'Andika matumizi; Smart Category itapendekeza category kutokana na maelezo na historia.' %}",
+        manualChosen: "{% trans 'Category imechaguliwa manually.' %}",
+        tooLong: "{% trans 'Category imezidi herufi 50.' %}",
+        collapse: "{% trans MATUMIZI_I18N.collapse %}",
+        expand: "{% trans MATUMIZI_I18N.expand %}",
+        paymentConfirm: "{% trans 'Thibitisha malipo. Rekodi hii itabadilika kutoka Pending kuwa Paid.' %}",
+        manualPrefix: "{% trans 'Category manual: ' %}",
+        smartPrefix: "{% trans 'Smart Category: ' %}",
+        switchManual: "{% trans ' · unaweza kubadilisha manually' %}"
+    };
+
+/* PAGE-ONLY SURGERY: render the actual weekday/date in the inline controls. */
+document.addEventListener("DOMContentLoaded", function () {
+    const weekdayNames = [
+        "{% trans 'Jumapili' %}",
+        "{% trans 'Jumatatu' %}",
+        "{% trans 'Jumanne' %}",
+        "{% trans 'Jumatano' %}",
+        "{% trans 'Alhamisi' %}",
+        "{% trans 'Ijumaa' %}",
+        "{% trans 'Jumamosi' %}"
+    ];
+
+    const monthNames = [
+        "{% trans 'Januari' %}",
+        "{% trans 'Februari' %}",
+        "{% trans 'Machi' %}",
+        "{% trans 'Aprili' %}",
+        "{% trans 'Mei' %}",
+        "{% trans 'Juni' %}",
+        "{% trans 'Julai' %}",
+        "{% trans 'Agosti' %}",
+        "{% trans 'Septemba' %}",
+        "{% trans 'Oktoba' %}",
+        "{% trans 'Novemba' %}",
+        "{% trans 'Desemba' %}"
+    ];
+
+    const now = new Date();
+    const dayName = weekdayNames[now.getDay()];
+    const dateText = `${dayName}, ${String(now.getDate()).padStart(2, "0")} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+
+    const dateNode = document.getElementById("matumiziInlineDate");
+    if (dateNode) {
+        dateNode.textContent = dateText;
+    }
+
+    const expenseLabels = Array.from(document.querySelectorAll("p")).filter(
+        el => el.textContent.trim() === "Today's Expenses"
+    );
+
+    expenseLabels.forEach(el => {
+        el.textContent = `Matumizi ya ${dayName}`;
+    });
+});
+</script>
+
+<script>
+(function () {
+    "use strict";
+
+    function compactMoney(value) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return "—";
+
+        const sign = n < 0 ? "-" : "";
+        const abs = Math.abs(n);
+
+        const tidy = (amount, suffix) => {
+            const rounded = Math.round(amount * 100) / 100;
+            return `${sign}${rounded}${suffix}`;
+        };
+
+        if (abs >= 1000000000) return tidy(abs / 1000000000, "B");
+        if (abs >= 1000000) return tidy(abs / 1000000, "M");
+        if (abs >= 1000) return tidy(abs / 1000, "k");
+
+        return `${sign}${Math.round(abs).toLocaleString("en-TZ")}`;
+    }
+
+    function buildSparkPoints(values, width, height, pad) {
+        if (!values.length) return "";
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const span = max - min || 1;
+        const step = values.length > 1 ? (width - pad * 2) / (values.length - 1) : 0;
+        return values.map(function (value, index) {
+            const x = pad + index * step;
+            const y = height - pad - ((value - min) / span) * (height - pad * 2);
+            return `${x.toFixed(2)},${y.toFixed(2)}`;
+        }).join(" ");
+    }
+
+    function renderExpenseSparklines() {
+        const rows = Array.from(document.querySelectorAll("#tableBody tr[data-expense-date][data-expense-amount]"));
+        if (!rows.length) return;
+
+        const daily = new Map();
+        rows.forEach(function (row) {
+            const date = row.dataset.expenseDate || "";
+            const amount = Number(row.dataset.expenseAmount || 0);
+            if (!date || !Number.isFinite(amount)) return;
+            if (!daily.has(date)) daily.set(date, { total: 0, largest: 0 });
+            const item = daily.get(date);
+            item.total += amount;
+            item.largest = Math.max(item.largest, amount);
+        });
+
+        const entries = Array.from(daily.entries()).sort(function (a, b) {
+            return a[0].localeCompare(b[0]);
+        });
+
+        const totalValues = entries.slice(-8).map(function (entry) { return entry[1].total; });
+        const largestValues = entries.slice(-8).map(function (entry) { return entry[1].largest; });
+        const fallback = [0, 0, 0, 0, 0, 0, 0, 0];
+
+        const monthlyLine = document.querySelector(".expense-mini-line-monthly .expense-mini-line-path");
+        const largestLine = document.querySelector(".expense-mini-line-largest .expense-mini-line-path");
+
+        if (monthlyLine) {
+            monthlyLine.setAttribute("points", buildSparkPoints(totalValues.length ? totalValues : fallback, 240, 54, 8));
+        }
+        if (largestLine) {
+            largestLine.setAttribute("points", buildSparkPoints(largestValues.length ? largestValues : fallback, 240, 54, 8));
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("[data-money-value]").forEach(function (el) {
+            el.textContent = compactMoney(el.dataset.moneyValue);
+        });
+        renderExpenseSparklines();
+    });
+})();
+</script>
+{{ expense_usage_history|json_script:"expenseUsageHistoryData" }}
+
+<script>
+(function () {
+
+    "use strict";
+
+    let activeModal = null;
+    let lastFocusedElement = null;
+
+    /* =====================================================
+       EXPENSE SEARCH MODAL
+       Filters the already loaded database rows: date, category, usage.
+       No new route/model/subsystem is introduced.
+    ===================================================== */
+    function normalizeSearchText(value) {
+        return String(value || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    function expenseSearchState() {
+        return {
+            from: document.getElementById("expenseSearchDateFrom")?.value || "",
+            to: document.getElementById("expenseSearchDateTo")?.value || "",
+            category: normalizeSearchText(document.getElementById("expenseSearchCategory")?.value || ""),
+            usage: normalizeSearchText(document.getElementById("expenseSearchUsage")?.value || "")
+        };
+    }
+
+    function applyExpenseRowFilter(state) {
+        const rows = Array.from(document.querySelectorAll("#tableBody tr[data-expense-date]"));
+        let visible = 0;
+
+        rows.forEach(row => {
+            const date = row.dataset.expenseDate || "";
+            const category = normalizeSearchText(row.dataset.expenseCategory || "");
+            const usage = normalizeSearchText(row.dataset.expenseUsage || "");
+            const matches = (!state.from || date >= state.from)
+                && (!state.to || date <= state.to)
+                && (!state.category || category === state.category)
+                && (!state.usage || usage.includes(state.usage));
+            row.style.display = matches ? "" : "none";
+            if (matches) visible += 1;
+        });
+
+        const hint = document.getElementById("matumiziSearchResultHint");
+        if (hint) hint.textContent = `${visible} record${visible === 1 ? "" : "s"} zimepatikana kwa vigezo ulivyochagua.`;
+
+        const trigger = document.getElementById("matumiziSearchTriggerText");
+        if (trigger) {
+            const parts = [];
+            if (state.from || state.to) {
+                parts.push(state.from && state.to ? `${state.from} → ${state.to}` : (state.from ? `From ${state.from}` : `Until ${state.to}`));
+            }
+            if (state.category) parts.push(state.category);
+            if (state.usage) parts.push(`“${state.usage}”`);
+            trigger.textContent = parts.length ? parts.join(" · ") : "Search expenses...";
+        }
+    }
+
+    window.funguaMatumiziSearch = function () {
+        openModal("matumiziSearchModal", "matumiziSearchCard");
+    };
+
+    window.fungaMatumiziSearch = function () {
+        closeModal("matumiziSearchModal", "matumiziSearchCard");
+    };
+
+    window.applyMatumiziSearch = function () {
+        const from = document.getElementById("expenseSearchDateFrom")?.value || "";
+        const to = document.getElementById("expenseSearchDateTo")?.value || "";
+        if (from && to && from > to) {
+            showToast("Tarehe ya kuanzia haiwezi kuwa baada ya tarehe ya mwisho.");
+            return;
+        }
+        applyExpenseRowFilter(expenseSearchState());
+        closeModal("matumiziSearchModal", "matumiziSearchCard");
+    };
+
+    window.clearMatumiziSearch = function () {
+        const dateFrom = document.getElementById("expenseSearchDateFrom");
+        const dateTo = document.getElementById("expenseSearchDateTo");
+        const category = document.getElementById("expenseSearchCategory");
+        const usage = document.getElementById("expenseSearchUsage");
+        if (dateFrom) dateFrom.value = "";
+        if (dateTo) dateTo.value = "";
+        if (category) category.value = "";
+        if (usage) usage.value = "";
+        applyExpenseRowFilter({ from: "", to: "", category: "", usage: "" });
+        const hint = document.getElementById("matumiziSearchResultHint");
+        if (hint) hint.textContent = "Search imeondolewa. Unaona records zote zilizopakiwa.";
+    };
+
+
+    /* =====================================================
+       TOAST
+    ===================================================== */
+    function showToast(message) {
+
+        const toast =
+            document.getElementById(
+                "toastNotification"
+            );
+
+        const text =
+            document.getElementById(
+                "toastMessage"
+            );
+
+        if (!toast || !text) {
+            return;
+        }
+
+        text.textContent =
+            message || "";
+
+        toast.classList.remove(
+            "-translate-y-20",
+            "opacity-0"
+        );
+
+        toast.classList.add(
+            "translate-y-0",
+            "opacity-100"
+        );
+
+        clearTimeout(
+            showToast.timer
+        );
+
+        showToast.timer =
+            setTimeout(() => {
+
+                toast.classList.remove(
+                    "translate-y-0",
+                    "opacity-100"
+                );
+
+                toast.classList.add(
+                    "-translate-y-20",
+                    "opacity-0"
+                );
+
+            }, 2800);
+    }
+
+
+    /* =====================================================
+       MODAL OPEN
+    ===================================================== */
+    function openModal(
+        modalId,
+        cardId
+    ) {
+
+        const modal =
+            document.getElementById(
+                modalId
+            );
+
+        const card =
+            document.getElementById(
+                cardId
+            );
+
+        if (!modal || !card) {
+            return;
+        }
+
+        lastFocusedElement =
+            document.activeElement;
+
+        activeModal =
+            modal;
+
+        modal.classList.remove(
+            "hidden",
+            "opacity-0"
+        );
+
+        modal.classList.add(
+            "flex",
+            "opacity-100"
+        );
+
+        modal.style.display =
+            "flex";
+
+        modal.style.opacity =
+            "1";
+
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        card.classList.remove(
+            "scale-95",
+            "opacity-0"
+        );
+
+        card.classList.add(
+            "scale-100",
+            "opacity-100"
+        );
+
+        requestAnimationFrame(() => {
+
+            const focusable =
+                card.querySelector(
+                    "button, input, select, textarea, [href], [tabindex]:not([tabindex='-1'])"
+                );
+
+            if (focusable) {
+                focusable.focus();
+            }
+
+        });
+    }
+
+
+    /* =====================================================
+       MODAL CLOSE
+    ===================================================== */
+    function closeModal(
+        modalId,
+        cardId
+    ) {
+
+        const modal =
+            document.getElementById(
+                modalId
+            );
+
+        const card =
+            document.getElementById(
+                cardId
+            );
+
+        if (!modal || !card) {
+            return;
+        }
+
+        modal.classList.remove(
+            "opacity-100"
+        );
+
+        modal.classList.add(
+            "opacity-0"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        card.classList.remove(
+            "scale-100",
+            "opacity-100"
+        );
+
+        card.classList.add(
+            "scale-95",
+            "opacity-0"
+        );
+
+        setTimeout(() => {
+
+            modal.classList.add(
+                "hidden"
+            );
+
+            modal.classList.remove(
+                "flex"
+            );
+
+            modal.style.display =
+                "none";
+
+            if (
+                activeModal ===
+                modal
+            ) {
+                activeModal =
+                    null;
+            }
+
+            if (
+                lastFocusedElement &&
+                typeof lastFocusedElement.focus ===
+                    "function"
+            ) {
+                lastFocusedElement.focus();
+            }
+
+        }, 250);
+    }
+
+
+    /* =====================================================
+       LIST MODAL
+    ===================================================== */
+    window.funguaListModal =
+        function (type) {
+
+            const modal =
+                document.getElementById(
+                    "listModal"
+                );
+
+            const body =
+                document.getElementById(
+                    "modalTableBody"
+                );
+
+            const title =
+                document.getElementById(
+                    "listModalTitle"
+                );
+
+            if (!modal ||
+                !body ||
+                !title) {
+                return;
+            }
+
+            const rows =
+                Array.from(
+                    document.querySelectorAll(
+                        "#tableBody tr"
+                    )
+                );
+
+            let titleText =
+                "Matumizi";
+
+            if (type === "today") {
+                titleText =
+                    "{% trans 'Matumizi ya Leo' %}";
+            }
+
+            else if (
+                type === "monthly"
+            ) {
+                titleText =
+                    "{% trans 'Matumizi ya Mwezi Huu' %}";
+            }
+
+            else if (
+                type === "pending"
+            ) {
+                titleText =
+                    "Bili Zinazodaiwa";
+            }
+
+            title.textContent =
+                titleText;
+
+            body.innerHTML =
+                "";
+
+            let found =
+                0;
+
+            rows.forEach(row => {
+
+                if (
+                    !row.querySelector(
+                        "td"
+                    )
+                ) {
+                    return;
+                }
+
+                const rowDate =
+                    row.querySelector(
+                        "td:first-child"
+                    )?.textContent
+                    ?.trim();
+
+                const statusText =
+                    row.querySelector(
+                        ".status-badge"
+                    )?.textContent
+                    ?.trim()
+                    .toLowerCase();
+
+                const isPending =
+                    statusText ===
+                    "pending";
+
+                let matches =
+                    false;
+
+                if (
+                    type ===
+                    "pending"
+                ) {
+                    matches =
+                        isPending;
+                }
+
+                else {
+                    matches =
+                        true;
+                    // Backend/page already contains
+                    // the relevant records for this view.
+                }
+
+                if (matches) {
+
+                    const cloned =
+                        row.cloneNode(
+                            true
+                        );
+
+                    body.appendChild(
+                        cloned
+                    );
+
+                    found++;
+                }
+
+            });
+
+
+            if (!found) {
+
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="8"
+                            class="p-10 text-center">
+
+                            <div class="tc-empty
+                                        p-6 rounded-2xl">
+
+                                <div class="text-2xl mb-2">
+                                    💸
+                                </div>
+
+                                <p class="text-sm
+                                          font-black
+                                          text-gray-500">
+
+                                    Hakuna taarifa
+                                    kwenye kipengele hiki.
+
+                                </p>
+
+                            </div>
+
+                        </td>
+                    </tr>
+                `;
+            }
+
+
+            openModal(
+                "listModal",
+                "listModalCard"
+            );
+        };
+
+
+    window.fungaListModal =
+        function () {
+
+            closeModal(
+                "listModal",
+                "listModalCard"
+            );
+
+        };
+
+
+    /* =====================================================
+    CREATE MODAL
+    ===================================================== */
+    let expenseCategoryWasManuallyChosen = false;
+
+    const expenseCategoryKeywords = {
+        Fuel: [
+            "mafuta", "fuel", "petrol", "diesel", "petroli", "jenereta",
+            "generator", "oil", "lubricant", "lube", "gasoline"
+        ],
+        Transport: [
+            "usafiri", "transport", "nauli", "taxi", "bodaboda", "bajaji",
+            "daladala", "fare", "fuel trip", "parking", "maegesho"
+        ],
+        Salary: [
+            "mshahara", "salary", "staff salary", "malipo ya mfanyakazi",
+            "posho ya mfanyakazi", "allowance", "wages"
+        ],
+        Maintenance: [
+            "matengenezo", "repair", "maintenance", "fundi", "service",
+            "kubadilisha", "spare", "parts", "printer repair", "computer repair"
+        ],
+        Electricity: [
+            "umeme", "electricity", "tanesco", "luku", "token", "power",
+            "bill ya umeme"
+        ],
+        Internet: [
+            "internet", "intaneti", "wifi", "wi-fi", "data", "bundle",
+            "router", "modem", "airtel data", "vodacom data", "halotel data"
+        ],
+        Meal: [
+            "chakula", "meal", "lunch", "dinner", "breakfast", "maji",
+            "chai", "kahawa", "food", "restaurant", "mlo"
+        ]
+    };
+
+    const expenseStopWords = new Set([
+        "ya", "wa", "na", "kwa", "cha", "mwa", "la", "the", "a", "an",
+        "of", "to", "for", "from", "this", "hii", "ili", "kwaajili", "kufanya"
+    ]);
+
+    function normalizeExpenseText(value) {
+        return String(value || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9\s]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    function expenseTokens(value) {
+        return new Set(
+            normalizeExpenseText(value)
+                .split(" ")
+                .filter(token => token && !expenseStopWords.has(token) && token.length > 2)
+        );
+    }
+
+    function getExpenseHistory() {
+        const node = document.getElementById("expenseUsageHistoryData");
+        if (!node) return [];
+        try {
+            const parsed = JSON.parse(node.textContent || "[]");
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function smartExpenseCategory(description) {
+        const text = normalizeExpenseText(description);
+        const tokens = expenseTokens(description);
+        const scores = {};
+
+        Object.keys(expenseCategoryKeywords).forEach(category => {
+            scores[category] = 0;
+            expenseCategoryKeywords[category].forEach(keyword => {
+                const normalizedKeyword = normalizeExpenseText(keyword);
+                if (!normalizedKeyword) return;
+                if (text.includes(normalizedKeyword)) {
+                    scores[category] += normalizedKeyword.includes(" ") ? 4 : 3;
+                }
+            });
+        });
+
+        // History-aware matching: previous wording teaches the next record.
+        getExpenseHistory().slice(0, 100).forEach(item => {
+            const pastTokens = expenseTokens(item.maelezo);
+            if (!pastTokens.size || !tokens.size || !item.category) return;
+            let overlap = 0;
+            tokens.forEach(token => {
+                if (pastTokens.has(token)) overlap += 1;
+            });
+            if (overlap > 0) {
+                const weight = Math.min(6, overlap * 2);
+                scores[item.category] = (scores[item.category] || 0) + weight;
+            }
+        });
+
+        let best = "Others";
+        let bestScore = 0;
+        Object.entries(scores).forEach(([category, score]) => {
+            if (score > bestScore) {
+                best = category;
+                bestScore = score;
+            }
+        });
+
+        return {
+            category: best,
+            confidence: bestScore >= 7 ? "high" : (bestScore >= 3 ? "medium" : "low"),
+            score: bestScore
+        };
+    }
+
+    function setSmartCategory(category, confidence) {
+        const select = document.getElementById("categorySelect");
+        const badge = document.getElementById("categoryModeBadge");
+        if (!select || !category || expenseCategoryWasManuallyChosen) return;
+
+        let option = Array.from(select.options).find(
+            item => item.value.toLowerCase() === String(category).toLowerCase()
+        );
+        if (!option) {
+            option = new Option(category, category);
+            select.insertBefore(option, select.lastElementChild);
+        }
+        select.value = option.value;
+
+        if (badge) {
+            badge.textContent = confidence === "low" ? "Smart · Others" : "Smart";
+        }
+    }
+
+    function refreshSmartCategory() {
+        const input = document.getElementById("maelezoInput");
+        const hint = document.getElementById("smartCategoryHint");
+        if (!input) return;
+
+        const description = input.value.trim();
+        if (!description) {
+            if (hint) hint.textContent = "Andika matumizi; Smart Category itapendekeza category kutokana na maelezo na historia.";
+            return;
+        }
+
+        if (expenseCategoryWasManuallyChosen) {
+            if (hint) hint.textContent = "Category imechaguliwa manually.";
+            return;
+        }
+
+        const result = smartExpenseCategory(description);
+        setSmartCategory(result.category, result.confidence);
+
+        if (hint) {
+            hint.textContent = `Smart Category: ${result.category}${result.confidence === "low" ? " · unaweza kubadilisha manually" : ""}`;
+        }
+    }
+
+    window.handleExpenseCategoryChange = function (select) {
+        const manualWrap = document.getElementById("manualCategoryWrap");
+        const badge = document.getElementById("categoryModeBadge");
+
+        if (!select) return;
+
+        if (select.value === "__MANUAL__") {
+            expenseCategoryWasManuallyChosen = true;
+            if (manualWrap) manualWrap.classList.remove("hidden");
+            if (badge) {
+                badge.textContent = "Manual";
+                badge.className = "text-[9px] font-black uppercase tracking-wide text-amber-700 bg-amber-50 border border-amber-100 px-2 py-1 rounded-full";
+            }
+            document.getElementById("manualCategoryInput")?.focus();
+            return;
+        }
+
+        expenseCategoryWasManuallyChosen = Boolean(select.value);
+        if (manualWrap) manualWrap.classList.add("hidden");
+        if (badge) {
+            badge.textContent = expenseCategoryWasManuallyChosen ? "Manual" : "Smart";
+            badge.className = expenseCategoryWasManuallyChosen
+                ? "text-[9px] font-black uppercase tracking-wide text-gray-700 bg-gray-100 border border-gray-200 px-2 py-1 rounded-full"
+                : "text-[9px] font-black uppercase tracking-wide text-purple-700 bg-purple-50 border border-purple-100 px-2 py-1 rounded-full";
+        }
+    };
+
+    window.saveManualExpenseCategory = function () {
+        const input = document.getElementById("manualCategoryInput");
+        const select = document.getElementById("categorySelect");
+        const hint = document.getElementById("smartCategoryHint");
+        const badge = document.getElementById("categoryModeBadge");
+        if (!input || !select) return;
+
+        const name = input.value.trim().replace(/\s+/g, " ");
+        if (!name) {
+            showToast("Andika jina la category mpya kwanza.");
+            input.focus();
+            return;
+        }
+
+        if (name.length > 50) {
+            showToast("Category imezidi herufi 50.");
+            input.focus();
+            return;
+        }
+
+        let option = Array.from(select.options).find(
+            item => item.value.toLowerCase() === name.toLowerCase()
+        );
+        if (!option) {
+            option = new Option(name, name);
+            select.insertBefore(option, select.lastElementChild);
+        }
+        select.value = option.value;
+        expenseCategoryWasManuallyChosen = true;
+
+        document.getElementById("manualCategoryWrap")?.classList.add("hidden");
+        if (badge) {
+            badge.textContent = "Manual";
+            badge.className = "text-[9px] font-black uppercase tracking-wide text-gray-700 bg-gray-100 border border-gray-200 px-2 py-1 rounded-full";
+        }
+        if (hint) hint.textContent = `Category manual: ${name}`;
+    };
+
+    let pendingPayForm = null;
+
+    window.toggleMatumiziList = function () {
+        const list = document.querySelector('.matumizi-list-scroll');
+        const btn = document.getElementById('toggleMatumiziListBtn');
+        const text = document.getElementById('matumiziListToggleText');
+        if (!list || !btn || !text) return;
+
+        const expanded = list.classList.toggle('is-expanded');
+        btn.classList.toggle('is-expanded', expanded);
+        btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        btn.title = expanded ? 'Collapse list' : 'Expand list';
+        text.textContent = expanded ? 'Collapse' : 'Expand';
+    };
+
+    function playPaymentConfirmationSound() {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            const ctx = new AudioCtx();
+            const now = ctx.currentTime;
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.exponentialRampToValueAtTime(0.16, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+            gain.connect(ctx.destination);
+
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            osc1.type = 'sine';
+            osc2.type = 'sine';
+            osc1.frequency.setValueAtTime(880, now);
+            osc1.frequency.exponentialRampToValueAtTime(1174.66, now + 0.16);
+            osc2.frequency.setValueAtTime(1174.66, now + 0.05);
+            osc2.frequency.exponentialRampToValueAtTime(1567.98, now + 0.22);
+            osc1.connect(gain);
+            osc2.connect(gain);
+            osc1.start(now);
+            osc2.start(now + 0.05);
+            osc1.stop(now + 0.42);
+            osc2.stop(now + 0.42);
+            setTimeout(() => ctx.close().catch(() => {}), 500);
+        } catch (error) {
+            // Sound is enhancement only; payment flow continues normally.
+        }
+    }
+
+    window.confirmPayMatumizi = function (form) {
+        pendingPayForm = form || null;
+
+        document.getElementById('payConfirmSuccess')?.classList.add('hidden');
+        document.getElementById('payConfirmContent')?.classList.remove('hidden');
+        const yesBtn = document.getElementById('payConfirmYesBtn');
+        if (yesBtn) yesBtn.disabled = false;
+
+        const row = form ? form.closest("tr") : null;
+        const amountCell = row ? row.querySelector("td:last-child") : null;
+        const amountText = amountCell ? amountCell.textContent.trim() : "";
+        const message = document.getElementById("payConfirmMessage");
+
+        if (message) {
+            message.textContent = amountText
+                ? `Thibitisha malipo ya TZS ${amountText}. Rekodi hii itabadilika kutoka Pending kuwa Paid.`
+                : "Thibitisha malipo. Rekodi hii itabadilika kutoka Pending kuwa Paid.";
+        }
+
+        openModal("payConfirmModal", "payConfirmCard");
+        return false;
+    };
+
+    window.thibitishaPayMatumizi = function () {
+        const form = pendingPayForm;
+        if (!form) return;
+
+        const yesBtn = document.getElementById('payConfirmYesBtn');
+        if (yesBtn) yesBtn.disabled = true;
+
+        document.getElementById('payConfirmContent')?.classList.add('hidden');
+        document.getElementById('payConfirmSuccess')?.classList.remove('hidden');
+        playPaymentConfirmationSound();
+
+        pendingPayForm = null;
+        setTimeout(() => {
+            closeModal("payConfirmModal", "payConfirmCard");
+            setTimeout(() => form.submit(), 90);
+        }, 720);
+    };
+
+    window.fungaPayConfirmModal = function () {
+        pendingPayForm = null;
+        document.getElementById('payConfirmSuccess')?.classList.add('hidden');
+        document.getElementById('payConfirmContent')?.classList.remove('hidden');
+        closeModal("payConfirmModal", "payConfirmCard");
+    };
+
+    window.funguaMatumiziModal = function () {
+
+    expenseCategoryWasManuallyChosen = false;
+
+    const categorySelect = document.getElementById("categorySelect");
+    const manualWrap = document.getElementById("manualCategoryWrap");
+    const manualInput = document.getElementById("manualCategoryInput");
+    const categoryBadge = document.getElementById("categoryModeBadge");
+
+    if (categorySelect) categorySelect.value = "";
+    if (manualWrap) manualWrap.classList.add("hidden");
+    if (manualInput) manualInput.value = "";
+    if (categoryBadge) {
+        categoryBadge.textContent = "Smart";
+        categoryBadge.className = "text-[9px] font-black uppercase tracking-wide text-purple-700 bg-purple-50 border border-purple-100 px-2 py-1 rounded-full";
+    }
+
+    const modal =
+        document.getElementById("matumiziModal");
+
+    const card =
+        document.getElementById("matumiziModalCard");
+
+    if (!modal || !card) {
+        console.error(
+            "Matumizi modal haijapatikana kwenye DOM."
+        );
+        return;
+    }
+
+    lastFocusedElement =
+        document.activeElement;
+
+    activeModal =
+        modal;
+
+    modal.classList.remove(
+        "hidden",
+        "opacity-0"
+    );
+
+    modal.classList.add(
+        "flex",
+        "opacity-100"
+    );
+
+    modal.style.display = "flex";
+    modal.style.opacity = "1";
+
+    modal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    card.classList.remove(
+        "scale-95",
+        "opacity-0"
+    );
+
+    card.classList.add(
+        "scale-100",
+        "opacity-100"
+    );
+
+    requestAnimationFrame(() => {
+
+        const firstInput =
+            card.querySelector(
+                "textarea[name='maelezo'], input[name='reference'], input, select, button"
+            );
+
+        if (firstInput) {
+            firstInput.focus();
+        }
+
+    });
+};
+
+
+    window.fungaMatumiziModal =
+        function () {
+
+            closeModal(
+                "matumiziModal",
+                "matumiziModalCard"
+            );
+
+        };
+
+
+    /* =====================================================
+       FORM VALIDATION
+    ===================================================== */
+    window.validateMatumiziForm =
+        function (form) {
+
+            const description =
+                (form.querySelector("[name='maelezo']")?.value || "").trim();
+            const categorySelect = form.querySelector("[name='category']");
+
+            if (categorySelect && (categorySelect.value === "" || categorySelect.value === "__MANUAL__")) {
+                const manualInput = document.getElementById("manualCategoryInput");
+                const manualValue = (manualInput?.value || "").trim();
+
+                if (categorySelect.value === "__MANUAL__") {
+                    if (!manualValue) {
+                        showToast("Andika category mpya au chagua category nyingine.");
+                        manualInput?.focus();
+                        return false;
+                    }
+                    let option = Array.from(categorySelect.options).find(
+                        item => item.value.toLowerCase() === manualValue.toLowerCase()
+                    );
+                    if (!option) {
+                        option = new Option(manualValue, manualValue);
+                        categorySelect.insertBefore(option, categorySelect.lastElementChild);
+                    }
+                    categorySelect.value = option.value;
+                } else {
+                    const result = smartExpenseCategory(description);
+                    categorySelect.value = result.category || "Others";
+                }
+            }
+
+            const amount =
+                Number(
+                    form.querySelector(
+                        "[name='kiasi']"
+                    )?.value || 0
+                );
+
+
+            if (!description) {
+
+                showToast(
+                    "Weka maelezo ya matumizi."
+                );
+
+                return false;
+            }
+
+            if (
+                !Number.isFinite(amount) ||
+                amount <= 0
+            ) {
+
+                showToast(
+                    "Kiasi lazima kiwe zaidi ya sifuri."
+                );
+
+                return false;
+            }
+
+            return true;
+        };
+
+
+    /* =====================================================
+       SMART USAGE / CATEGORY BINDINGS
+    ===================================================== */
+    const usageHistorySelect = document.getElementById("usageHistorySelect");
+    const usageInput = document.getElementById("maelezoInput");
+
+    if (usageInput) {
+        usageInput.addEventListener("input", refreshSmartCategory);
+    }
+
+    if (usageHistorySelect) {
+        usageHistorySelect.addEventListener("change", function () {
+            const option = this.options[this.selectedIndex];
+            if (!option || !option.value) return;
+
+            if (usageInput) usageInput.value = option.value;
+            const oldCategory = option.dataset.category || "";
+            const categorySelect = document.getElementById("categorySelect");
+
+            if (categorySelect && oldCategory) {
+                const matching = Array.from(categorySelect.options).find(
+                    item => item.value.toLowerCase() === oldCategory.toLowerCase()
+                );
+                if (matching) {
+                    expenseCategoryWasManuallyChosen = false;
+                    categorySelect.value = matching.value;
+                    const badge = document.getElementById("categoryModeBadge");
+                    if (badge) badge.textContent = "From history";
+                }
+            }
+
+            if (usageInput) {
+                const hint = document.getElementById("smartCategoryHint");
+                if (hint) hint.textContent = `Imetumika tena: ${option.value}`;
+            }
+        });
+    }
+
+
+    /* =====================================================
+       ESCAPE KEY
+    ===================================================== */
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (!activeModal) {
+                return;
+            }
+
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                if (
+                    activeModal.id ===
+                    "listModal"
+                ) {
+
+                    window.fungaListModal();
+
+                }
+
+                else if (
+                    activeModal.id ===
+                    "matumiziModal"
+                ) {
+
+                    window.fungaMatumiziModal();
+
+                }
+
+                else if (
+                    activeModal.id ===
+                    "payConfirmModal"
+                ) {
+
+                    window.fungaPayConfirmModal();
+
+                }
+
+            }
+        }
+    );
+
+
+    /* =====================================================
+       OUTSIDE CLICK
+    ===================================================== */
+    [
+        "listModal",
+        "matumiziModal",
+        "payConfirmModal"
+    ].forEach(id => {
+
+        const modal =
+            document.getElementById(
+                id
+            );
+
+        if (!modal) {
+            return;
+        }
+
+        modal.addEventListener(
+            "mousedown",
+            event => {
+
+                if (
+                    event.target !==
+                    modal
+                ) {
+                    return;
+                }
+
+                if (
+                    id ===
+                    "listModal"
+                ) {
+
+                    window.fungaListModal();
+
+                }
+
+                else if (id === "matumiziModal") {
+
+                    window.fungaMatumiziModal();
+
+                }
+
+                else if (id === "payConfirmModal") {
+
+                    window.fungaPayConfirmModal();
+
+                }
+
+            }
+        );
+
+    });
+
+
+
+
+    document.addEventListener("keydown", function (event) {
+        const isShortcut = (event.metaKey || event.ctrlKey) && String(event.key).toLowerCase() === "k";
+        if (isShortcut) {
+            event.preventDefault();
+            window.funguaMatumiziSearch();
+        }
+    });
+
+    document.getElementById("expenseSearchUsage")?.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            window.applyMatumiziSearch();
+        }
+    });
+
+})();
+
+
+</script>
+
+<script id="tradecore-matumizi-print-bridge">
+(function(){
+  try {
+    const params=new URLSearchParams(window.location.search);
+    if(params.get('print')==='1'){
+      document.documentElement.classList.add('tradecore-print-mode');
+      window.setTimeout(()=>window.print(),350);
+    }
+  } catch(e) {}
+})();
+</script>
+
+{% endblock %}

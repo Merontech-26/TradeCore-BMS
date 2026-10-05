@@ -1,0 +1,2284 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load i18n %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+<style>
+    .tc-card { transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+    .tc-card:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(49, 20, 93, .08); border-color: rgba(99, 102, 241, .12); }
+    .tc-kicker { font-size: 9px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+    .tc-icon-btn { width: 42px; height: 42px; border-radius: 14px; display:flex; align-items:center; justify-content:center; border:1px solid #f1f5f9; background:#fff; box-shadow:0 4px 16px rgba(15,23,42,.05); transition:.2s ease; }
+    .tc-icon-btn:hover { transform:translateY(-1px); box-shadow:0 10px 24px rgba(15,23,42,.10); }
+    .tc-empty { border:1px dashed #e5e7eb; background:linear-gradient(180deg,#fafafa,#fff); }
+    .tc-table-row:hover { background:#faf7ff; }
+    .tc-action { min-height: 40px; border-radius: 12px; font-size: 11px; font-weight: 800; display:inline-flex; align-items:center; justify-content:center; gap:.35rem; transition:.2s ease; }
+    .tc-action:hover { transform:translateY(-1px); }
+
+    /* DASHBOARD MICRO SURGERY — date + clock share one compact row under greeting. */
+    @media (max-width: 420px) {
+        #liveDateCashier {
+            font-size: 9px;
+        }
+        #liveTimeCashier {
+            min-height: 26px;
+            padding-left: 9px;
+            padding-right: 9px;
+            font-size: 10px;
+        }
+    }
+
+
+    /* DASHBOARD PAGE SCROLL — same page-lock behavior used on Customer.
+       Only the dashboard content owns vertical scrolling on desktop. */
+    @media (min-width: 768px) {
+        body:has(#tradecoreDashboardPage) main {
+            height: calc(100dvh - 48px) !important;
+            max-height: calc(100dvh - 48px) !important;
+            overflow: hidden !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        body:has(#tradecoreDashboardPage) #tradecoreDashboardPage {
+            flex: 1 1 auto !important;
+            min-height: 0 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            padding-right: 2px;
+
+            /* Hidden at rest; visible only during active scrolling. */
+            scrollbar-width: thin;
+            scrollbar-color: transparent transparent;
+        }
+
+        body:has(#tradecoreDashboardPage) #tradecoreDashboardPage::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        body:has(#tradecoreDashboardPage) #tradecoreDashboardPage::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        body:has(#tradecoreDashboardPage) #tradecoreDashboardPage::-webkit-scrollbar-thumb {
+            background: transparent;
+            border-radius: 999px;
+        }
+
+        body:has(#tradecoreDashboardPage) #tradecoreDashboardPage.is-scrolling {
+            scrollbar-color: rgba(76,29,149,.42) transparent;
+        }
+
+        body:has(#tradecoreDashboardPage) #tradecoreDashboardPage.is-scrolling::-webkit-scrollbar-thumb {
+            background: rgba(76,29,149,.42);
+        }
+
+        body:has(#tradecoreDashboardPage) #tradecoreDashboardPage.page-scroll-locked {
+            overflow-y: hidden !important;
+        }
+
+        body:has(#tradecoreDashboardPage) #tradecoreDashboardPage.page-scroll-locked::-webkit-scrollbar-thumb {
+            background: transparent !important;
+        }
+
+        /* Internal dashboard lists also stay clean and reveal their bar only
+           while the user is actually scrolling them. */
+        body:has(#tradecoreDashboardPage) #salesHistoryCard .dashboard-history-pane,
+        body:has(#tradecoreDashboardPage) #activityCenterCard .overflow-y-auto {
+            scrollbar-width: thin;
+            scrollbar-color: transparent transparent;
+        }
+
+        body:has(#tradecoreDashboardPage) #salesHistoryCard .dashboard-history-pane::-webkit-scrollbar,
+        body:has(#tradecoreDashboardPage) #activityCenterCard .overflow-y-auto::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        body:has(#tradecoreDashboardPage) #salesHistoryCard .dashboard-history-pane::-webkit-scrollbar-track,
+        body:has(#tradecoreDashboardPage) #activityCenterCard .overflow-y-auto::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        body:has(#tradecoreDashboardPage) #salesHistoryCard .dashboard-history-pane::-webkit-scrollbar-thumb,
+        body:has(#tradecoreDashboardPage) #activityCenterCard .overflow-y-auto::-webkit-scrollbar-thumb {
+            background: transparent;
+            border-radius: 999px;
+        }
+
+        body:has(#tradecoreDashboardPage) #salesHistoryCard .dashboard-history-pane.is-scrolling,
+        body:has(#tradecoreDashboardPage) #activityCenterCard .overflow-y-auto.is-scrolling {
+            scrollbar-color: rgba(76,29,149,.42) transparent;
+        }
+
+        body:has(#tradecoreDashboardPage) #salesHistoryCard .dashboard-history-pane.is-scrolling::-webkit-scrollbar-thumb,
+        body:has(#tradecoreDashboardPage) #activityCenterCard .overflow-y-auto.is-scrolling::-webkit-scrollbar-thumb {
+            background: rgba(76,29,149,.42);
+        }
+    }
+
+    /* PAGE LOCK CONTROL — compact, Apple-like and unobtrusive. */
+    .dashboard-page-lock-row {
+        display:flex;
+        justify-content:flex-end;
+        align-items:center;
+        gap:.5rem;
+        margin:0 0 .65rem 0;
+    }
+    .dashboard-page-lock-btn {
+        min-height:34px;
+        padding:0 12px;
+        border-radius:12px;
+        border:1px solid #e5e7eb;
+        background:rgba(255,255,255,.92);
+        color:#4b5563;
+        box-shadow:0 4px 14px rgba(15,23,42,.045);
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:.4rem;
+        font-size:9px;
+        font-weight:900;
+        letter-spacing:.01em;
+        transition:.2s ease;
+    }
+    .dashboard-page-lock-btn:hover {
+        background:#f9fafb;
+        border-color:#ddd6fe;
+        color:#4c1d95;
+        transform:translateY(-1px);
+    }
+    .dashboard-page-lock-btn.is-locked {
+        background:#4c1d95;
+        border-color:#4c1d95;
+        color:#fff;
+        box-shadow:0 8px 18px rgba(76,29,149,.18);
+    }
+    .dashboard-page-lock-hint {
+        font-size:8px;
+        font-weight:700;
+        color:#9ca3af;
+    }
+    @media (max-width: 767px) {
+        .dashboard-page-lock-hint { display:none; }
+        .dashboard-page-lock-row { margin-bottom:.5rem; }
+    }
+
+    .dashboard-history-switch {
+        display:inline-flex; align-items:center; gap:3px; padding:3px; border:1px solid #ebe8f2;
+        background:#f7f5fa; border-radius:14px; box-shadow:inset 0 1px 2px rgba(31,25,45,.04);
+    }
+    .dashboard-history-tab {
+        border:0; background:transparent; color:#7c7487; border-radius:10px; padding:7px 10px;
+        font-size:9px; font-weight:900; white-space:nowrap; transition:.18s ease; cursor:pointer;
+    }
+    .dashboard-history-tab:hover { background:#fff; color:#4c1d95; }
+    .dashboard-history-tab.is-active { background:#fff; color:#5b21b6; box-shadow:0 2px 8px rgba(31,25,45,.08); }
+    .dashboard-history-pane.is-hidden, .dashboard-history-modal-pane.is-hidden { display:none !important; }
+    .dashboard-history-modal-pane .text-gray-400 { color:#64748b !important; }
+    .dashboard-history-modal-pane .text-gray-500 { color:#475569 !important; }
+    .dashboard-history-row:hover { background:#faf7ff; }
+
+    /* DASHBOARD MICRO SURGERY — keep the lower History card compact; only its list scrolls. */
+    #salesHistoryCard .dashboard-history-pane {
+        max-height: 330px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+    }
+    #salesHistoryCard .dashboard-history-pane::-webkit-scrollbar {
+        width: 5px;
+    }
+    #salesHistoryCard .dashboard-history-pane::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #salesHistoryCard .dashboard-history-pane::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+    }
+    @media (max-width: 640px) {
+        #salesHistoryCard .dashboard-history-pane {
+            max-height: 260px;
+        }
+    }
+
+    /* DASHBOARD SURGERY — dashboard uses the single notification near the username.
+       Hide the inherited header date pill on dashboard only; base.html stays untouched. */
+    body:has(#tradecoreDashboardPage) .app-main > .relative.mb-6.flex.flex-col.sm\:flex-row > .sm\:absolute.sm\:right-6 {
+        display:none !important;
+    }
+
+    /* DASHBOARD SURGERY — remove inherited right-side max-width gap first. */
+    @media (min-width:1024px){
+        body:has(#tradecoreDashboardPage) main{
+            width:100% !important;
+            max-width:none !important;
+            margin-right:0 !important;
+            padding-left:42px !important;
+            padding-right:42px !important;
+            box-sizing:border-box !important;
+        }
+        #tradecoreDashboardPage{
+            width:100%;
+            box-sizing:border-box;
+        }
+
+        /* Profit action: give it true button presence without changing layout architecture. */
+        body:has(#tradecoreDashboardPage) .tc-profit-btn{
+            min-height:42px !important;
+            padding:0 18px !important;
+            border-radius:13px !important;
+            font-size:11px !important;
+            font-weight:900 !important;
+            background:#059669 !important;
+            color:#ffffff !important;
+            border:1px solid #047857 !important;
+            box-shadow:0 6px 16px rgba(5,150,105,.18) !important;
+        }
+        body:has(#tradecoreDashboardPage) .tc-profit-btn:hover{
+            background:#047857 !important;
+            border-color:#065f46 !important;
+        }
+    }
+    /* FINAL SMART SCROLLBAR OVERRIDE — wins over the earlier History surgery. */
+    @media (min-width: 768px) {
+        body:has(#tradecoreDashboardPage) #salesHistoryCard .dashboard-history-pane,
+        body:has(#tradecoreDashboardPage) #activityCenterCard .overflow-y-auto {
+            scrollbar-color: transparent transparent !important;
+        }
+
+        body:has(#tradecoreDashboardPage) #salesHistoryCard .dashboard-history-pane::-webkit-scrollbar-thumb,
+        body:has(#tradecoreDashboardPage) #activityCenterCard .overflow-y-auto::-webkit-scrollbar-thumb {
+            background: transparent !important;
+        }
+
+        body:has(#tradecoreDashboardPage) #salesHistoryCard .dashboard-history-pane.is-scrolling,
+        body:has(#tradecoreDashboardPage) #activityCenterCard .overflow-y-auto.is-scrolling {
+            scrollbar-color: rgba(76,29,149,.42) transparent !important;
+        }
+
+        body:has(#tradecoreDashboardPage) #salesHistoryCard .dashboard-history-pane.is-scrolling::-webkit-scrollbar-thumb,
+        body:has(#tradecoreDashboardPage) #activityCenterCard .overflow-y-auto.is-scrolling::-webkit-scrollbar-thumb {
+            background: rgba(76,29,149,.42) !important;
+        }
+    }
+
+
+
+    /* =====================================================
+       SMOOTH SCROLL SURGERY
+       Keep nested dashboard scrolling predictable and soft:
+       - smooth programmatic scrolling
+       - contained momentum/overscroll
+       - no scroll chaining between child lists and page
+       - stable scrollbar gutter where supported
+       ===================================================== */
+    #tradecoreDashboardPage,
+    #tradecoreDashboardPage .dashboard-history-pane,
+    #tradecoreDashboardPage .dashboard-history-pane > .overflow-x-auto,
+    #tradecoreDashboardPage .activity-center-list,
+    #tradecoreDashboardPage .overflow-y-auto {
+        scroll-behavior: smooth !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-gutter: stable !important;
+    }
+
+    #tradecoreDashboardPage .overflow-x-auto {
+        overscroll-behavior-x: contain !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        #tradecoreDashboardPage,
+        #tradecoreDashboardPage .dashboard-history-pane,
+        #tradecoreDashboardPage .dashboard-history-pane > .overflow-x-auto,
+        #tradecoreDashboardPage .activity-center-list,
+        #tradecoreDashboardPage .overflow-y-auto {
+            scroll-behavior: auto !important;
+        }
+    }
+
+
+    /* Modal/list scrolling follows the same contained smooth behavior. */
+    .p-4.md\:p-6.overflow-y-auto.max-h-\[62vh\],
+    .space-y-2.max-h-\[62vh\].overflow-y-auto,
+    #dashboardSalesHistoryGroups,
+    .overflow-x-auto.max-h-\[72vh\].overflow-y-auto,
+    #dashboardOrdersHistoryGroups,
+    #reorderApprovalModalCard {
+        scroll-behavior: smooth !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-gutter: stable !important;
+    }
+
+    /* =====================================================
+       DASHBOARD CARD RESIZE SURGERY
+       Chart, Activity Center and Sales History can be resized
+       with the native corner handle. Their inner content follows
+       the new card dimensions instead of becoming a separate
+       fixed box.
+       ===================================================== */
+    @media (min-width: 768px) {
+        body:has(#tradecoreDashboardPage) .dashboard-resizable-card {
+            position: relative !important;
+            resize: both !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+            min-width: 260px !important;
+            min-height: 220px !important;
+            /* Global safety boundary: a card must stay inside its own grid area. */
+            max-width: 100% !important;
+            max-height: calc(100dvh - 140px) !important;
+            /* Grid gap already provides the intended breathing room. */
+            margin: 0 !important;
+        }
+
+        /* Per-card resize limits — prevent extreme stretching/shrinking. */
+        body:has(#tradecoreDashboardPage) #adminSalesChartCard {
+            min-width: 360px !important;
+            min-height: 250px !important;
+            max-width: 100% !important;
+            max-height: 420px !important;
+        }
+
+        body:has(#tradecoreDashboardPage) #activityCenterCard {
+            min-width: 280px !important;
+            min-height: 250px !important;
+            max-width: 100% !important;
+            max-height: 480px !important;
+        }
+
+        body:has(#tradecoreDashboardPage) #salesHistoryCard {
+            min-width: 520px !important;
+            min-height: 260px !important;
+            max-width: 100% !important;
+            max-height: 520px !important;
+        }
+
+        @media (max-width: 1100px) and (min-width: 768px) {
+            body:has(#tradecoreDashboardPage) #adminSalesChartCard {
+                min-width: 320px !important;
+            }
+
+            body:has(#tradecoreDashboardPage) #activityCenterCard {
+                min-width: 260px !important;
+            }
+
+            body:has(#tradecoreDashboardPage) #salesHistoryCard {
+                min-width: 420px !important;
+            }
+        }
+
+        body:has(#tradecoreDashboardPage) .dashboard-resizable-card::after {
+            content: "";
+            position: absolute;
+            /* Tumesogeza kishikio cha design kiwe karibu zaidi na kona halisi ya browser */
+            right: 3px;
+            bottom: 3px;
+            width: 18px;
+            height: 18px;
+            border-right: 2px solid rgba(76,29,149,.28);
+            border-bottom: 2px solid rgba(76,29,149,.28);
+            border-radius: 0 0 6px 0;
+            pointer-events: none;
+            opacity: .9;
+            background:
+                linear-gradient(135deg, transparent 47%, rgba(76,29,149,.18) 48%, rgba(76,29,149,.18) 56%, transparent 57%) 1px 1px/6px 6px repeat;
+        }
+
+        body:has(#tradecoreDashboardPage) .dashboard-resizable-card > * {
+            min-width: 0 !important;
+        }
+
+        /* Chart internals follow the card height. */
+        body:has(#tradecoreDashboardPage) #adminSalesChartWrap {
+            flex: 1 1 auto !important;
+            height: auto !important;
+            min-height: 150px !important;
+            min-width: 0 !important;
+        }
+
+        body:has(#tradecoreDashboardPage) #adminSalesChart {
+            width: 100% !important;
+            height: 100% !important;
+            min-width: 0 !important;
+        }
+
+        /* Activity internals use the remaining card space.
+           Height is bounded by the 480px card resize ceiling above. */
+
+        body:has(#tradecoreDashboardPage) #activityCenterCard .activity-center-list {
+            flex: 1 1 auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            overflow-y: auto !important;
+        }
+
+        /* History internals expand/shrink with the parent card. */
+        body:has(#tradecoreDashboardPage) #salesHistoryCard {
+            display: flex !important;
+            flex-direction: column !important;
+            min-height: 220px !important;
+        }
+
+        body:has(#tradecoreDashboardPage) #salesHistoryCard .dashboard-history-pane {
+            flex: 1 1 auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+        }
+
+        body:has(#tradecoreDashboardPage) #salesHistoryCard .dashboard-history-pane > .overflow-x-auto {
+            min-height: 0 !important;
+        }
+
+        body:has(#tradecoreDashboardPage) .dashboard-resizable-card.is-resizing {
+            z-index: 90 !important; /* Imeshushwa kutoka 240 */
+            box-shadow: 0 18px 55px rgba(49,20,93,.16) !important;
+            border-color: rgba(76,29,149,.22) !important;
+        }
+    }
+
+    /* SURGERY YA KADI: Animation na Kurekebisha Pazia (Mask) linalozuia click */
+    @keyframes tembeaKushoto {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+    .jina-la-duka-tembea {
+        display: inline-block;
+        white-space: nowrap;
+        animation: tembeaKushoto 15s linear infinite;
+        padding-left: 100%;
+    }
+    .kadi-ya-salamu-fader {
+        position: absolute;
+        bottom: -15px;
+        left: 0;
+        right: 0;
+        height: 15px;
+        pointer-events: none !important; /* Hii ndiyo inaruhusu click zipite kwenda kwenye kadi za chini! */
+        background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+        z-index: 10;
+    }
+
+
+
+    /* SALES HISTORY SCROLL FIX — final override.
+       Keep the history pane as the only vertical scroll surface inside the card,
+       allow normal mouse-wheel scrolling, and avoid smooth-wheel stutter. */
+    @media (min-width: 768px) {
+        body.is-tradecore-dashboard #salesHistoryCard {
+            overflow: hidden !important;
+        }
+
+        body.is-tradecore-dashboard #salesHistoryCard .dashboard-history-pane {
+            flex: 1 1 auto !important;
+            min-height: 0 !important;
+            height: auto !important;
+            max-height: 300px !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            overscroll-behavior-y: contain !important;
+            touch-action: pan-y !important;
+            scroll-behavior: auto !important;
+            pointer-events: auto !important;
+        }
+
+        body.is-tradecore-dashboard #salesHistoryCard .dashboard-history-pane > .overflow-x-auto {
+            min-height: 0 !important;
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+            pointer-events: auto !important;
+            touch-action: pan-x pan-y !important;
+        }
+    }
+
+    @media (max-width: 767px) {
+        body.is-tradecore-dashboard #salesHistoryCard .dashboard-history-pane {
+            max-height: 260px !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            overscroll-behavior-y: contain !important;
+            touch-action: pan-y !important;
+            scroll-behavior: auto !important;
+            pointer-events: auto !important;
+        }
+
+        body.is-tradecore-dashboard #salesHistoryCard .dashboard-history-pane > .overflow-x-auto {
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+            pointer-events: auto !important;
+            touch-action: pan-x pan-y !important;
+        }
+    }
+
+
+    /* MICRO POLISH — tighten the admin overview without changing structure or behavior. */
+    @media (min-width: 1024px) {
+        body:has(#tradecoreDashboardPage) #activityCenterCard {
+            padding: 18px !important;
+        }
+        body:has(#tradecoreDashboardPage) #activityCenterCard .rounded-xl {
+            box-shadow: 0 1px 2px rgba(15,23,42,.025);
+        }
+        body:has(#tradecoreDashboardPage) #activityCenterCard .activity-center-list > div {
+            min-width: 0;
+        }
+        body:has(#tradecoreDashboardPage) #adminSalesChartCard #adminSalesChartWrap {
+            margin-top: 2px;
+        }
+    }
+
+    /* ACTIVITY CENTER MICRO POSITION — move only the card visually a little left;
+       keep the grid footprint, resize behavior, buttons and surrounding layout unchanged. */
+    @media (min-width: 1024px) {
+        body:has(#tradecoreDashboardPage) #activityCenterCard {
+            transform: translateX(-10px) !important;
+        }
+        body:has(#tradecoreDashboardPage) #activityCenterCard:hover {
+            transform: translate(-10px, -2px) !important;
+        }
+    }
+
+    /* FINAL LOCK FLOAT OVERRIDE — must remain last so legacy sticky rules cannot override it. */
+    body:has(#tradecoreDashboardPage) #tradecoreDashboardPage {
+        position: relative !important;
+    }
+
+    body:has(#tradecoreDashboardPage) .dashboard-page-lock-row {
+        position: absolute !important;
+        top: 74px !important;
+        right: 10px !important;
+        z-index: 140 !important;
+        width: auto !important;
+        height: 30px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        pointer-events: none !important;
+    }
+
+    body:has(#tradecoreDashboardPage) .dashboard-page-lock-btn {
+        width: 30px !important;
+        height: 30px !important;
+        min-height: 30px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(226,232,240,.95) !important;
+        background: rgba(255,255,255,.94) !important;
+        color: #64748b !important;
+        box-shadow: 0 5px 16px rgba(15,23,42,.10) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0 !important;
+        font-size: 0 !important;
+        pointer-events: auto !important;
+        transform: none !important;
+    }
+
+    body:has(#tradecoreDashboardPage) .dashboard-page-lock-btn svg {
+        width: 12px !important;
+        height: 12px !important;
+        flex: 0 0 auto !important;
+        margin: 0 !important;
+    }
+
+    body:has(#tradecoreDashboardPage) #dashboardPageScrollLockLabel,
+    body:has(#tradecoreDashboardPage) #dashboardPageScrollLockHint {
+        display: none !important;
+    }
+
+    body:has(#tradecoreDashboardPage) .dashboard-page-lock-btn:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 8px 20px rgba(76,29,149,.13) !important;
+    }
+
+    body:has(#tradecoreDashboardPage) .dashboard-page-lock-btn.is-locked {
+        background: rgba(76,29,149,.96) !important;
+        border-color: rgba(76,29,149,.96) !important;
+        color: #fff !important;
+        box-shadow: 0 8px 20px rgba(76,29,149,.22) !important;
+    }
+
+    @media (max-width: 767px) {
+        body:has(#tradecoreDashboardPage) .dashboard-page-lock-row {
+            top: 118px !important;
+            right: 8px !important;
+            height: 28px !important;
+        }
+
+        body:has(#tradecoreDashboardPage) .dashboard-page-lock-btn {
+            width: 28px !important;
+            height: 28px !important;
+            min-height: 28px !important;
+            border-radius: 9px !important;
+        }
+
+        body:has(#tradecoreDashboardPage) .dashboard-page-lock-btn svg {
+            width: 11px !important;
+            height: 11px !important;
+        }
+    }
+</style>
+
+
+{% if sales_chart_data %}
+    {{ sales_chart_data|json_script:"salesChartData" }}
+{% else %}
+    <script id="salesChartData" type="application/json">{"labels":[],"values":[]}</script>
+{% endif %}
+
+<div id="toastNotification" class="fixed top-5 left-1/2 -translate-x-1/2 z-[250] transform -translate-y-20 opacity-0 transition-all duration-300 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl font-bold text-sm flex items-center gap-2 pointer-events-none" role="status" aria-live="polite">
+    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <span id="toastMessage"></span>
+</div>
+
+{% with user_role=request.user.profile.jukumu|default:'' %}
+
+<div id="tradecoreDashboardPage">
+
+<!-- KADI MPYA YA SALAMU (Round, Jina Linatembea, na Ipo chini kidogo) -->
+<div class="sticky top-0 z-[120] mt-2 mb-4 w-full flex flex-col md:flex-row items-center justify-between bg-white/85 px-6 py-4 rounded-full border border-gray-200/50 shadow-md transition-all"
+     style="backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);">
+    
+    <!-- Pazia Linalofifia Chini (Limeruhusu pointer-events-none) -->
+    <div class="kadi-ya-salamu-fader"></div>
+
+    <!-- Kushoto: Salamu -->
+    <div class="overflow-hidden min-w-[200px] text-center md:text-left relative z-20">
+        <h1 class="text-sm font-light text-gray-700 salamu-animated">
+            <span id="salamuYaMudaDash">Habari</span>, <span class="font-black text-purple-900">{{ user.get_full_name|default:user.username|title }}</span> 
+        </h1>
+    </div>
+
+    <!-- Katikati: Jina la Duka linalotembea (TUMELIKUZA HAPA) -->
+    <div class="flex-1 overflow-hidden w-full max-w-[350px] border-l border-r border-gray-200 px-4 relative z-20">
+        <span id="animatedStoreNameDisplay" class="jina-la-duka-tembea text-sm md:text-base font-black tracking-widest text-amber-500 uppercase">
+            {{ request.user.duka.jina_la_duka|default:""|escape }}
+        </span>
+    </div>
+
+    <!-- Kulia: Siku, Tarehe na Saa Pekee (Bila kurudia location) -->
+    <div class="flex items-center gap-2 min-w-[180px] justify-center md:justify-end relative z-20">
+        <!-- Tarehe -->
+        <div class="flex items-center gap-1.5 border-r border-gray-200 pr-2.5">
+            <span id="dashLiveDate" class="text-[9px] font-bold text-gray-500 tracking-wide uppercase">...</span>
+        </div>
+        <!-- Saa Live -->
+        <div class="flex items-center gap-1.5 pl-1">
+            <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span id="dashLiveTime" class="text-[11px] font-black text-gray-900 font-mono tracking-wider"></span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-page-lock-row">
+    <button type="button"
+            id="toggleDashboardPageScrollLock"
+            class="dashboard-page-lock-btn"
+            aria-pressed="false"
+            title="{% translate 'Lock / unlock dashboard page scroll' %}">
+        <svg id="dashboardPageScrollLockIcon"
+             class="w-3.5 h-3.5"
+             fill="none"
+             stroke="currentColor"
+             viewBox="0 0 24 24"
+             aria-hidden="true">
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 10V8a4 4 0 10-8 0v2m-1 0h10a2 2 0 012 2v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7a2 2 0 012-2z"/>
+        </svg>
+        <span id="dashboardPageScrollLockLabel">{% translate 'Lock Page Scroll' %}</span>
+    </button>
+    <span id="dashboardPageScrollLockHint" class="dashboard-page-lock-hint">{% translate 'Page scroll iko ON' %}</span>
+</div>
+
+{% if user_role == 'stoo' %}
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 relative z-20 gap-4">
+        <div class="flex items-center gap-4">
+            <div class="relative">
+                <div class="w-14 h-14 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-2xl border border-amber-200 shadow-sm overflow-hidden">
+                    {% if request.user.profile.picha %}
+                        <img src="{{ request.user.profile.picha.url }}" alt="{{ request.user.username }}" class="w-full h-full object-cover">
+                    {% else %}
+                        {{ request.user.username|first|upper }}
+                    {% endif %}
+                </div>
+                <span class="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full" aria-label="Online"></span>
+            </div>
+            <div>
+                <h1 class="text-[22px] font-black text-gray-800 leading-tight">{% translate 'Store Inventory' %}</h1>
+                <p class="text-[10px] font-black text-emerald-600 uppercase flex items-center gap-1 mt-0.5 tracking-wider">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span> Storekeeper
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 w-full md:w-auto">
+            <button type="button" onclick="funguaSmartReorderModal()" class="flex-1 md:flex-none bg-[#4c1d95] text-amber-400 font-bold px-5 py-2.5 rounded-2xl text-xs shadow-md hover:bg-purple-900 transition-all flex items-center justify-center gap-2">
+                    🤖 Smart Reorder
+                    {% if reorder_request_count %}<span class="inline-flex min-w-5 h-5 items-center justify-center rounded-full bg-amber-400 text-purple-950 px-1">{{ reorder_request_count }}</span>{% endif %}
+                </button>
+            <div class="hidden md:flex bg-white p-2.5 rounded-2xl border border-gray-100 shadow-sm items-center gap-3">
+                <div class="text-right">
+                    <p id="liveDateStoo" class="text-[10px] font-black text-amber-700 uppercase"></p>
+                </div>
+                <div class="w-10 h-10 bg-amber-50 text-amber-700 rounded-xl flex items-center justify-center font-black text-sm border border-amber-100" id="liveTimeStoo"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-[#3b0764] rounded-[30px] p-8 text-white mb-8 flex flex-col md:flex-row justify-between items-center shadow-lg relative z-10">
+        <div class="w-full md:w-auto">
+            <span class="inline-block border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest mb-3">{% translate 'Inventory Health Assessment' %}</span>
+            <h2 class="text-[28px] font-black mb-1">
+                {% translate 'Stoo Health' %}: <span class="text-amber-400">{{ inventory_health_percentage|default_if_none:0|floatformat:0 }}%</span>
+            </h2>
+            <p class="text-[11px] text-amber-100/70 font-medium tracking-wide">{{ inventory_health_message }}</p>
+        </div>
+        <div class="flex gap-4 mt-6 md:mt-0">
+            <div class="text-center px-5 py-3 bg-white/5 border border-white/10 rounded-2xl min-w-[80px]"><p class="text-2xl font-black text-[#2dd4bf]">{{ inventory_healthy_percentage|default_if_none:0|floatformat:0 }}%</p><p class="text-[8px] text-gray-400 uppercase font-bold mt-1 tracking-wider">{% translate 'Healthy' %}</p></div>
+            <div class="text-center px-5 py-3 bg-white/5 border border-white/10 rounded-2xl min-w-[80px]"><p class="text-2xl font-black text-amber-400">{{ inventory_critical_percentage|default_if_none:0|floatformat:0 }}%</p><p class="text-[8px] text-gray-400 uppercase font-bold mt-1 tracking-wider">{% translate 'Critical' %}</p></div>
+            <div class="text-center px-5 py-3 bg-white/5 border border-white/10 rounded-2xl min-w-[80px]"><p class="text-2xl font-black text-rose-400">{{ inventory_out_percentage|default_if_none:0|floatformat:0 }}%</p><p class="text-[8px] text-gray-400 uppercase font-bold mt-1 tracking-wider">{% translate 'Out' %}</p></div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8 relative z-10">
+        <button type="button" onclick="funguaStockListModal('Total Items in Stock', 'all')" class="bg-white p-5 rounded-[20px] shadow-sm cursor-pointer border border-gray-100 hover:shadow-md transition-all text-left">
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider">{% translate 'Total Items' %}</p>
+            <h3 class="text-2xl font-black text-gray-900 mt-1">{{ jumla_bidhaa|default_if_none:0|floatformat:0|intcomma }} <span class="text-[10px] text-gray-400 font-normal">{% translate 'Pieces' %}</span></h3>
+        </button>
+        <button type="button" onclick="funguaStockListModal('Low Stock', 'low')" class="bg-[#fffbeb] p-5 rounded-[20px] shadow-sm border border-[#fef3c7] text-left hover:shadow-md transition-all">
+            <p class="text-[9px] font-black text-amber-600 uppercase tracking-wider">{% translate 'Low Stock' %}</p>
+            <h3 class="text-2xl font-black text-amber-900 mt-1">{{ low_stock_count|default_if_none:0|floatformat:0|intcomma }}</h3>
+        </button>
+        <button type="button" onclick="funguaStockListModal('Out of Stock', 'out')" class="bg-[#fff1f2] p-5 rounded-[20px] shadow-sm border border-[#ffe4e6] text-left hover:shadow-md transition-all">
+            <p class="text-[9px] font-black text-rose-500 uppercase tracking-wider">{% translate 'Out of Stock' %}</p>
+            <h3 class="text-2xl font-black text-rose-900 mt-1">{{ out_of_stock_count|default_if_none:0|floatformat:0|intcomma }}</h3>
+        </button>
+        <div class="bg-[#ecfdf5] p-5 rounded-[20px] shadow-sm border border-[#d1fae5]"><p class="text-[9px] font-black text-emerald-600 uppercase tracking-wider">{% translate 'Goods Received' %}</p><h3 class="text-2xl font-black text-emerald-900 mt-1">{{ goods_received_count|default_if_none:0|floatformat:0|intcomma }}</h3></div>
+        <div class="bg-white p-5 rounded-[20px] shadow-sm border border-gray-100"><p class="text-[9px] font-black text-blue-500 uppercase tracking-wider">{% translate 'Pending POs' %}</p><h3 class="text-2xl font-black text-blue-900 mt-1">{{ pending_po_count|default_if_none:0|floatformat:0|intcomma }}</h3></div>
+        <div class="bg-white p-5 rounded-[20px] shadow-sm border border-gray-100"><p class="text-[9px] font-black text-purple-500 uppercase tracking-wider">{% translate 'Stock Issued' %}</p><h3 class="text-2xl font-black text-purple-900 mt-1">{{ stock_issued_count|default_if_none:0|floatformat:0|intcomma }}</h3></div>
+    </div>
+
+{% elif user_role == 'cashier' %}
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 relative z-20">
+        <div class="flex items-center gap-4">
+            <div class="relative">
+                <div class="w-16 h-16 rounded-full bg-purple-100 text-purple-900 flex items-center justify-center font-bold text-2xl border-2 border-purple-200 shadow-lg overflow-hidden">
+                    {% if request.user.profile.picha %}
+                        <img src="{{ request.user.profile.picha.url }}" alt="{{ request.user.username }}" class="w-full h-full object-cover">
+                    {% else %}
+                        {{ request.user.username|first|upper }}
+                    {% endif %}
+                </div>
+                <span class="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full" aria-label="Online"></span>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black text-gray-800 tracking-tight">
+                    {% now "H" as current_hour %}
+                    {% if current_hour|add:"0" < 12 %}{% translate 'Habari ya Asubuhi,' %}
+                    {% elif current_hour|add:"0" < 18 %}{% translate 'Habari ya Mchana,' %}
+                    {% else %}{% translate 'Habari ya Jioni,' %}{% endif %}
+                    <span class="text-purple-900">{{ request.user.username|title }}</span> 
+                </h1>
+
+                <div class="flex items-center gap-2 mt-2">
+                    <p id="liveDateCashier" class="text-[10px] font-black text-purple-900 uppercase whitespace-nowrap"></p>
+                    <span class="text-[10px] text-gray-300 font-black">•</span>
+                    <div id="liveTimeCashier"
+                         class="inline-flex items-center min-h-[28px] px-2.5 rounded-lg bg-purple-900 text-amber-400 font-black text-[11px] leading-none"></div>
+
+                    </div>
+                </div>
+
+                <p class="text-xs text-gray-400 font-bold flex items-center gap-1.5 uppercase mt-1">
+                    <span class="text-emerald-600">● {% translate 'Online' %}</span> • {% translate 'Cashier Station' %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8 relative z-10">
+        <div class="lg:col-span-8 bg-purple-900 p-8 rounded-[40px] shadow-2xl text-white relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="flex justify-between items-end mb-4 gap-4">
+                    <div>
+                        <p class="text-xs font-bold text-purple-200 uppercase tracking-widest mb-1">{% translate 'Target ya Mauzo ya Leo' %}</p>
+                        <h3 class="text-3xl font-black text-amber-400">{{ dashboard_currency }} {{ mauzo_leo|default_if_none:0|floatformat:0|intcomma }} {% if target_is_configured %}<span class="text-sm font-medium text-white/50">/ {{ target_ya_leo|floatformat:0|intcomma }}</span>{% endif %}</h3>
+                    </div>
+                    <span class="text-4xl font-black text-white">{% if target_is_configured %}{{ asilimia_target|floatformat:0 }}%{% else %}—{% endif %}</span>
+                </div>
+                <div class="w-full bg-black/20 rounded-full h-6 p-1 border border-white/10" aria-label="Sales target progress">
+                    <div id="salesTargetProgress" class="bg-gradient-to-r from-amber-400 to-amber-200 h-full rounded-full transition-all duration-1000 shadow-lg flex items-center justify-end pr-2" style="width: {{ asilimia_target|default_if_none:0|floatformat:0 }}%;">
+                        <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                    </div>
+                </div>
+                <p class="mt-3 text-[11px] text-purple-200 font-bold italic">
+                    {% if target_is_configured and bakiza_target > 0 %}
+                        {% translate 'Bakiza' %} {{ dashboard_currency }} {{ bakiza_target|floatformat:0|intcomma }} {% translate 'kufikia lengo la leo.' %}
+                    {% elif target_is_configured %}
+                        {% translate 'Lengo la leo limefikiwa.' %}
+                    {% else %}
+                        {% translate 'Target ya mauzo haijawekwa.' %}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="lg:col-span-4 bg-white p-6 rounded-[40px] border border-gray-100 shadow-sm flex flex-col justify-center">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{% translate 'Top Selling Product Today' %}</p>
+            {% if top_selling_product %}
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-2xl">📈</div>
+                    <div class="min-w-0">
+                        <h4 class="text-lg font-black text-gray-800 truncate">{{ top_selling_product }}</h4>
+                        {% if top_selling_product_quantity is not None %}<p class="text-sm text-emerald-600 font-bold">{{ top_selling_product_quantity|floatformat:0|intcomma }} units</p>{% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-sm text-gray-400 font-bold">{% translate 'Hakuna bidhaa ya mauzo iliyopatikana kwa leo.' %}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <a href="{% url 'mauzo' %}" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group text-center">
+            <div class="text-2xl mb-2 group-hover:scale-110 transition-transform">🛒</div><p class="text-xs font-black text-gray-700">{% translate 'New Sale' %}</p><span class="text-[9px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded mt-2 inline-block">F2</span>
+        </a>
+        <a href="{% url 'mauzo' %}?customer=1" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group text-center">
+            <div class="text-2xl mb-2 group-hover:scale-110 transition-transform">👤</div><p class="text-xs font-black text-gray-700">{% translate 'New Customer' %}</p><span class="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded mt-2 inline-block">F4</span>
+        </a>
+        <a href="{% url 'mauzo' %}?hold=1" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group text-center"><div class="text-2xl mb-2">⏸️</div><p class="text-xs font-black text-gray-700">{% translate 'Hold Sales' %}</p></a>
+        {% if latest_sale_id %}<a href="{% url 'receipt' latest_sale_id %}" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group text-center"><div class="text-2xl mb-2">🖨️</div><p class="text-xs font-black text-gray-700">{% translate 'Reprint Receipt' %}</p></a>{% else %}<a href="{% url 'mauzo' %}" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group text-center"><div class="text-2xl mb-2">🖨️</div><p class="text-xs font-black text-gray-700">{% translate 'Receipts' %}</p></a>{% endif %}
+        <a href="{% url 'mauzo' %}?recent=1" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group text-center"><div class="text-2xl mb-2">🧾</div><p class="text-xs font-black text-gray-700">{% translate 'Recent Sales' %}</p></a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+        <div class="lg:col-span-7 bg-white p-6 rounded-[40px] shadow-sm border border-gray-100 min-h-[350px]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-black text-gray-900 text-lg">{% translate 'Mwenendo wa Mauzo (Leo)' %}</h3>
+                <span class="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-3 py-1 rounded-full border border-emerald-100">{% translate 'Live' %}</span>
+            </div>
+            <div class="w-full h-64 mt-2"><canvas id="cashierSalesChart"></canvas></div>
+        </div>
+
+        <div class="lg:col-span-5 bg-white p-6 rounded-[40px] shadow-sm border border-gray-100">
+            <h3 class="font-black text-gray-900 text-lg mb-4">{% translate 'Miamala ya Hivi Punde' %}</h3>
+            <div class="space-y-3">
+                {% for muamala in miamala_recent %}
+                    <div class="flex items-center justify-between p-3.5 bg-gray-50 rounded-2xl border border-gray-100 gap-3">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+                            <div class="min-w-0">
+                                <p class="text-xs font-black text-gray-800 truncate">INV-{{ muamala.id }} • {{ muamala.mteja.majina_kamili|default:"Walk-in" }}</p>
+                                <p class="text-[9px] text-gray-400">{{ muamala.tarehe_ya_mauzo|date:"h:i A" }}</p>
+                            </div>
+                        </div>
+                        <p class="font-black text-purple-900 text-sm whitespace-nowrap">{{ dashboard_currency }} {{ muamala.jumla_pesa_iliyopokelewa|default_if_none:0|floatformat:0|intcomma }}</p>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-6 text-gray-400 text-sm font-bold"><p>{% translate 'Hakuna miamala iliyofanyika bado leo.' %}</p></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% else %}
+    <div class="flex justify-between items-center mb-6 relative z-20 px-2">
+        <div class="flex items-center gap-4">
+            <h2 class="text-sm text-gray-700 font-medium tracking-tight">{% translate 'Daily Overview' %}</h2>
+            <div class="h-4 w-px bg-gray-300"></div>
+            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{% translate 'Your Business Summary' %}</span>
+        </div>
+        <div class="flex items-center gap-4">
+            {% if reorder_request_count %}
+                <button type="button" onclick="funguaReorderModal()" class="tc-icon-btn relative" aria-label="View reorder requests">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 002-2h2a2 2 0 002 2h2a2 2 0 002 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h2"></path></svg>
+                    <span class="absolute -top-1 -right-1 min-w-4 h-4 px-1 text-[9px] bg-amber-500 text-white border-2 border-white rounded-full flex items-center justify-center">{{ reorder_request_count }}</span>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6 relative z-10 items-start">
+        <div class="lg:col-span-4 flex flex-col gap-4 min-w-0">
+            <div class="bg-gradient-to-br from-purple-900 to-[#4e1977] rounded-[24px] p-5 text-white shadow-xl relative overflow-hidden flex flex-col justify-center border border-purple-900/50 h-[115px]">
+                <div class="flex justify-between items-start relative z-10 mb-2">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-amber-400">{% translate 'Inventory Value' %}</p>
+                    <div class="w-6 h-6 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-[9px]">TZS</div>
+                </div>
+                <div class="flex items-end justify-between relative z-10">
+                    <h2 class="text-3xl font-black text-amber-400"><span class="k-money" data-raw="{{ thamani_stoo|default_if_none:0 }}">{{ thamani_stoo|default_if_none:0|floatformat:0|intcomma }}</span></h2>
+                    <!-- Trending line nene zaidi -->
+                    <svg class="w-24 h-12 text-amber-400/80" viewBox="0 0 50 20" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><path d="M0,15 L10,10 L20,13 L30,5 L40,8 L50,2" /></svg>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="tc-card bg-white rounded-[24px] p-4 shadow-sm border border-gray-100 flex flex-col justify-between h-[119px]">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">{% translate 'Sales (Mo)' %}</p>
+                        {% if growth_percentage is not None %}<span class="{% if growth_percentage >= 0 %}bg-emerald-50 text-emerald-600{% else %}bg-rose-50 text-rose-600{% endif %} text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-sm">{% if growth_percentage >= 0 %}+{% endif %}{{ growth_percentage|floatformat:1 }}%</span>{% endif %}
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-gray-800">{{ dashboard_currency }} <span class="k-money" data-raw="{{ mauzo_mwezi|default_if_none:0 }}">{{ mauzo_mwezi|default_if_none:0|floatformat:0|intcomma }}</span></h3>
+                        <svg class="w-full h-8 mt-1.5 text-emerald-400" preserveAspectRatio="none" viewBox="0 0 50 20" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><path d="M0,18 L10,14 L20,16 L30,8 L40,10 L50,2" /></svg>
+                    </div>
+                </div>
+                
+                <div class="tc-card bg-white rounded-[24px] p-4 shadow-sm border border-gray-100 flex flex-col justify-between h-[119px]">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">{% translate 'Gross Profit' %}</p>
+                        <span class="bg-purple-50 text-purple-600 text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-sm">
+                            {% if profit_margin %}{{ profit_margin|floatformat:1 }}%{% else %}%{% endif %}
+                        </span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-gray-800">{{ dashboard_currency }} <span class="k-money" data-raw="{{ gross_profit_mwezi|default_if_none:0 }}">{{ gross_profit_mwezi|default_if_none:0|floatformat:0|intcomma }}</span></h3>
+                        <svg class="w-full h-8 mt-1.5 text-purple-400" preserveAspectRatio="none" viewBox="0 0 50 20" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><path d="M0,12 L15,15 L25,8 L35,10 L50,3" /></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-center gap-2 pt-1.5 mt-0.5 translate-x-[12px]">
+                <a href="{% url 'mauzo' %}" class="tc-action px-4 py-1.5 bg-[#31145d] text-white hover:bg-purple-900 shadow-sm rounded-full font-bold text-[10px] flex items-center gap-1.5 transition-all">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                    {% translate 'Sell' %}
+                </a>
+                <a href="{% url 'stoo_bidhaa' %}" class="tc-action px-4 py-1.5 bg-white text-gray-700 hover:bg-gray-50 border border-gray-200/80 shadow-sm rounded-full font-bold text-[10px] flex items-center gap-1.5 transition-all">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m7 7V3"></path></svg>
+                    {% translate 'Stock' %}
+                </a>
+                <button type="button" onclick="funguaProductProfitModal()" class="tc-action px-4 py-1.5 bg-[#059669] text-white hover:bg-[#047857] shadow-sm rounded-full font-black text-[10px] flex items-center gap-1.5 transition-all">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    {% translate 'Profit' %}
+                </button>
+            </div>
+        </div>
+
+
+        <div id="adminSalesChartCard" class="tc-card dashboard-resizable-card lg:col-span-5 min-w-0 bg-white rounded-[24px] p-5 shadow-sm border border-gray-100 flex flex-col h-[250px]" data-dashboard-resize-key="salesChart">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-gray-800 text-sm">{% translate 'Sales Trend (Today)' %}</h3>
+                <div class="flex bg-gray-50 rounded-lg p-1 border border-gray-100">
+                    <button type="button" onclick="toggleChartType('both')" id="btnTypeBoth" class="px-2 py-1 text-[9px] font-bold bg-[#31145d] text-white rounded-md shadow-sm transition-all">{% translate 'Mixed' %}</button>
+                    <button type="button" onclick="toggleChartType('bar')" id="btnTypeBar" class="px-2 py-1 text-[9px] font-bold text-gray-500 hover:text-gray-900 transition-all rounded-md">{% translate 'Bar' %}</button>
+                    <button type="button" onclick="toggleChartType('line')" id="btnTypeLine" class="px-2 py-1 text-[9px] font-bold text-gray-500 hover:text-gray-900 transition-all rounded-md">{% translate 'Line' %}</button>
+                </div>
+            </div>
+            <div id="adminSalesChartWrap" class="flex-1 relative w-full h-full min-h-0"><canvas id="adminSalesChart"></canvas></div>
+        </div>
+
+        <div id="activityCenterCard" data-dashboard-resize-key="activityCenter" class="tc-card dashboard-resizable-card lg:col-span-3 self-start min-w-0 bg-white rounded-[24px] p-4.5 shadow-sm border border-gray-100 flex flex-col cursor-pointer h-[250px] focus:outline-none focus:ring-2 focus:ring-purple-200" role="button" tabindex="0" aria-label="{% translate 'Activity Center' %}">
+            <div class="flex justify-between items-center mb-3 border-b border-gray-50 pb-2.5">
+                <div class="flex items-center gap-2"><svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><h4 class="text-xs font-bold text-gray-700">{% translate 'Activity Center' %}</h4></div>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1"><span class="w-1 h-1 rounded-full bg-emerald-500 animate-ping"></span> {% translate 'Live' %}</span>
+                    <span class="text-[9px] font-bold text-purple-700 bg-purple-50 px-2 py-1 rounded-lg">{% translate 'View all' %}</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5 mb-3">
+                <div class="rounded-xl bg-purple-50 border border-purple-100 px-2 py-1.5 min-w-0"><div class="text-[8px] uppercase tracking-wider font-black text-purple-500">{% translate 'Activities' %}</div><div class="text-sm font-black text-purple-900"><span class="k-money" data-raw="{{ activity_total|default_if_none:0 }}">{{ activity_total|default_if_none:0|floatformat:0|intcomma }}</span></div></div>
+                <div class="rounded-xl bg-gray-50 border border-gray-100 px-2 py-1.5 min-w-0"><div class="text-[8px] uppercase tracking-wider font-black text-gray-400">{% translate 'Types' %}</div><div class="text-sm font-black text-gray-900">{{ activity_type_count|default_if_none:0|floatformat:0|intcomma }}</div></div>
+            </div>
+            <div class="activity-center-list flex-1 overflow-y-auto pr-0.5 space-y-2 custom-scrollbar min-h-0">
+                {% for log in activity_logs|slice:":6" %}
+                    <div class="flex items-center justify-between gap-2 rounded-xl bg-gray-50 border border-gray-100 px-2.5 py-1.5">
+                        <div class="flex items-center gap-1.5 min-w-0">
+                            {% if 'Mauzo' in log.aina or 'Sale' in log.aina %}<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>{% elif 'Stoo' in log.aina or 'GRN' in log.aina %}<span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>{% elif 'Matumizi' in log.aina or 'Expense' in log.aina %}<span class="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></span>{% else %}<span class="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0"></span>{% endif %}
+                            <div class="min-w-0"><p class="text-[9px] font-bold text-gray-800 truncate" title="{{ log.kitendo }}">{{ log.kitendo }}</p><p class="text-[8px] text-gray-500 truncate">{% if log.mhusika %}{{ log.mhusika.get_full_name|default:log.mhusika.username }}{% else %}{% translate 'System' %}{% endif %} · {{ log.aina|title }}</p></div>
+                        </div>
+                    </div>
+                {% empty %}<p class="text-[9px] text-gray-400 text-center mt-2 font-bold">{% translate 'No activities recorded yet.' %}</p>{% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="salesHistoryCard" data-dashboard-resize-key="salesHistory" class="tc-card dashboard-resizable-card bg-white rounded-[30px] p-5 shadow-sm border border-gray-100 mb-6 relative z-10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-200" role="button" tabindex="0" aria-label="{% translate 'Sales History' %}">
+        <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+            <h3 id="dashboardHistoryCardTitle" class="font-bold text-gray-800">{% translate 'Sales History' %}</h3>
+            <div class="flex items-center gap-3">
+                <div class="dashboard-history-switch" role="tablist" aria-label="{% translate 'Dashboard history' %}">
+                    <button type="button" class="dashboard-history-tab is-active" data-history-tab="sales" onclick="switchDashboardHistory('sales', true)">{% translate 'Sales' %}</button>
+                    <button type="button" class="dashboard-history-tab" data-history-tab="expenses" onclick="switchDashboardHistory('expenses', true)">{% translate 'Matumizi' %}</button>
+                    <button type="button" class="dashboard-history-tab" data-history-tab="orders" onclick="switchDashboardHistory('orders', true)">{% translate 'Order History' %}</button>
+                </div>
+                <button type="button" onclick="event.stopPropagation(); openDashboardHistoryModal('sales')" class="text-xs font-bold text-purple-900 hover:underline">{% translate 'View All' %}</button>
+            </div>
+        </div>
+
+        <div id="dashboardHistoryPaneSales" class="dashboard-history-pane">
+            <div class="overflow-x-auto">
+                <table class="min-w-[700px] w-full text-left border-collapse">
+                    <thead><tr class="text-[10px] text-gray-500 uppercase tracking-wider border-b border-gray-100"><th class="pb-3 font-medium">{% translate 'Invoice No.' %}</th><th class="pb-3 font-medium">{% translate 'Customer' %}</th><th class="pb-3 font-medium">{% translate 'Attendant' %}</th><th class="pb-3 font-medium">{% translate 'Date & Time' %}</th><th class="pb-3 font-medium text-right">{% translate 'Amount (TZS)' %}</th></tr></thead>
+                    <tbody class="text-sm">
+                        {% for muamala in miamala_recent %}
+                            <tr class="dashboard-history-row transition-colors border-b border-gray-50">
+                                <td class="py-3.5 font-black text-gray-800"><div class="flex items-center gap-2"><span>{{ muamala.namba_ya_invoice|default:"—" }}</span><span class="px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-[8px] font-black tracking-wide">{% translate 'RECORDED' %}</span></div></td>
+                                <td class="py-3.5 text-xs text-gray-600">{{ muamala.mteja.majina_kamili|default:"Walk-in" }}</td>
+                                <td class="py-3.5 text-xs text-gray-600">{{ muamala.muuzaji.get_full_name|default:muamala.muuzaji.username|default:"Haijarekodiwa" }}</td>
+                                <td class="py-3.5 text-xs text-gray-600">{{ muamala.tarehe_ya_mauzo|date:"d M Y, h:i A" }}</td>
+                                <td class="py-3.5 text-right font-black text-gray-800">{{ muamala.jumla_pesa_iliyopokelewa|default_if_none:0|floatformat:0|intcomma }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5" class="py-6 text-center text-gray-400 text-sm font-bold"><div class="tc-empty p-6 rounded-2xl text-center"><div class="text-2xl mb-2">🧾</div><p class="text-sm font-bold text-gray-500">{% translate 'Hakuna mauzo yoyote yaliyofanyika.' %}</p></div></td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="dashboardHistoryPaneExpenses" class="dashboard-history-pane is-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-[700px] w-full text-left border-collapse">
+                    <thead><tr class="text-[10px] text-gray-500 uppercase tracking-wider border-b border-gray-100"><th class="pb-3 font-medium">{% translate 'Category' %}</th><th class="pb-3 font-medium">{% translate 'Maelezo' %}</th><th class="pb-3 font-medium">{% translate 'Aliyesajili' %}</th><th class="pb-3 font-medium">{% translate 'Tarehe' %}</th><th class="pb-3 font-medium text-right">{% translate 'Kiasi (TZS)' %}</th></tr></thead>
+                    <tbody class="text-sm">
+                        {% for matumizi_item in dashboard_expense_history|slice:":6" %}
+                            <tr class="dashboard-history-row transition-colors border-b border-gray-50">
+                                <td class="py-3.5"><span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 text-[10px] font-black">{{ matumizi_item.category }}</span></td>
+                                <td class="py-3.5 text-xs font-bold text-gray-700">{{ matumizi_item.maelezo|truncatechars:55 }}</td>
+                                <td class="py-3.5 text-xs text-gray-600">{{ matumizi_item.created_by.get_full_name|default:matumizi_item.created_by.username|default:"—" }}</td>
+                                <td class="py-3.5 text-xs text-gray-600">{{ matumizi_item.created_at|date:"d M Y, H:i" }}</td>
+                                <td class="py-3.5 text-right font-black text-gray-800">{{ matumizi_item.kiasi|floatformat:0|intcomma }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5" class="py-8 text-center text-gray-400 text-sm font-bold">{% translate 'Hakuna historia ya matumizi.' %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="dashboardHistoryPaneOrders" class="dashboard-history-pane is-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-[700px] w-full text-left border-collapse">
+                    <thead><tr class="text-[10px] text-gray-500 uppercase tracking-wider border-b border-gray-100"><th class="pb-3 font-medium">{% translate 'Order No.' %}</th><th class="pb-3 font-medium">{% translate 'Requester' %}</th><th class="pb-3 font-medium">{% translate 'Status' %}</th><th class="pb-3 font-medium">{% translate 'Tarehe' %}</th><th class="pb-3 font-medium text-right">{% translate 'Total (TZS)' %}</th></tr></thead>
+                    <tbody class="text-sm">
+                        {% for order in dashboard_order_history|slice:":6" %}
+                            <tr class="dashboard-history-row transition-colors border-b border-gray-50">
+                                <td class="py-3.5 font-black text-gray-800">{{ order.display_number }}</td>
+                                <td class="py-3.5 text-xs text-gray-600">{{ order.requested_by.get_full_name|default:order.requested_by.username|default:"—" }}</td>
+                                <td class="py-4"><span class="px-2.5 py-1 rounded-lg {% if order.status == 'APPROVED' %}bg-emerald-50 text-emerald-700{% elif order.status == 'REJECTED' %}bg-rose-50 text-rose-700{% else %}bg-amber-50 text-amber-700{% endif %} text-[10px] font-black">{{ order.status }}</span></td>
+                                <td class="py-3.5 text-xs text-gray-600">{{ order.created_at|date:"d M Y, H:i" }}</td>
+                                <td class="py-3.5 text-right font-black text-gray-800">{{ order.total_amount|floatformat:0|intcomma }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5" class="py-8 text-center text-gray-400 text-sm font-bold">{% translate 'Hakuna historia ya order.' %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% if reorder_request_count %}
+        <div id="floatingReorderAlert" class="fixed bottom-6 right-6 z-[100] bg-white p-5 rounded-[25px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-l-4 border-amber-500 max-w-sm transform translate-y-0 opacity-100 transition-all duration-500" role="status">
+            <button type="button" onclick="fungaFloatingAlert()" class="absolute top-4 right-4 text-gray-400 hover:text-rose-500 font-bold text-lg leading-none transition-colors" aria-label="{% translate 'Close notification' %}">&times;</button>
+            <div class="flex items-start gap-4 pr-4">
+                <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0 mt-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></div>
+                <div class="flex-1">
+                    <h4 class="text-sm font-black text-gray-800">{% translate 'Purchase Request' %}</h4>
+                    <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">{% blocktrans count counter=reorder_request_count %}Kuna <strong>{{ counter }}</strong> purchase request inayohitaji kuangaliwa.{% plural %}Kuna <strong>{{ counter }}</strong> purchase requests zinazohitaji kuangaliwa.{% endblocktrans %}</p>
+                    <div class="flex gap-2 mt-3"><button type="button" onclick="funguaReorderModal(); fungaFloatingAlert();" class="text-[10px] font-bold bg-amber-500 text-white px-4 py-1.5 rounded-lg hover:bg-amber-600 shadow-sm">{% translate 'Review Order' %}</button><button type="button" onclick="fungaFloatingAlert()" class="text-[10px] font-bold text-gray-600 bg-gray-100 px-4 py-1.5 rounded-lg hover:bg-gray-200">{% translate 'Later' %}</button></div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+</div>
+
+{% endwith %}
+
+
+<div id="productProfitModal" aria-hidden="true" class="fixed inset-0 bg-slate-950/60 backdrop-blur-md hidden items-center justify-center z-[9998] p-4 transition-opacity duration-300 opacity-0" role="dialog" aria-modal="true" aria-labelledby="productProfitModalTitle">
+    <div id="productProfitModalCard" class="bg-white rounded-[30px] max-w-6xl w-full max-h-[88vh] shadow-2xl border border-white transform scale-95 opacity-0 transition-all duration-300 overflow-hidden">
+        <div class="px-6 md:px-7 py-5 border-b border-gray-100 bg-white/95">
+            <div class="flex items-center justify-between gap-4">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <span class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">📊</span>
+                        <div>
+                            <h3 id="productProfitModalTitle" class="text-xl font-black text-gray-900">{% translate 'Bei & Faida kwa Bidhaa' %}</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">{% translate 'Buying, selling price, bei halisi iliyouziwa na gross profit/loss.' %}</p>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="fungaProductProfitModal()" class="shrink-0 w-10 h-10 rounded-full bg-gray-100 text-gray-400 hover:text-rose-500 hover:bg-rose-50 font-black text-xl" aria-label="{% translate 'Close' %}">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4" id="productProfitSummary"></div>
+        </div>
+        <div class="p-4 md:p-6 overflow-y-auto max-h-[62vh]">
+            <div class="overflow-x-auto rounded-2xl border border-gray-100">
+                <table class="min-w-[980px] w-full text-left">
+                    <thead class="bg-gray-50 text-[9px] uppercase tracking-wider text-gray-400">
+                        <tr>
+                            <th class="px-4 py-3 font-black">{% translate 'Bidhaa' %}</th>
+                            <th class="px-4 py-3 font-black">{% translate 'Bei ya Kununua' %}</th>
+                            <th class="px-4 py-3 font-black">{% translate 'Bei ya Kuuza' %}</th>
+                            <th class="px-4 py-3 font-black">{% translate 'Iliyouziwa' %}</th>
+                            <th class="px-4 py-3 font-black text-center">{% translate 'Qty' %}</th>
+                            <th class="px-4 py-3 font-black text-right">{% translate 'Gross Result' %}</th>
+                            <th class="px-4 py-3 font-black">{% translate 'Comment' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productProfitTableBody" class="text-xs divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+            <p id="productProfitNote" class="text-[10px] text-gray-400 mt-3">{% translate 'Gross profit inahesabiwa kwa tofauti ya bei ya kuuza dhidi ya buying price × quantity; haijumuishi gharama nyingine kama usafirishaji, kodi au matumizi.' %}</p>
+        </div>
+    </div>
+</div>
+
+<div id="generalModal" aria-hidden="true" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden items-center justify-center z-[200] p-4 transition-opacity duration-300 opacity-0" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+    <div id="generalModalCard" class="bg-white rounded-[40px] max-w-md w-full p-8 shadow-2xl relative border border-white transform scale-95 opacity-0 transition-all duration-300">
+        <button type="button" onclick="fungaModal()" class="absolute top-6 right-6 text-gray-400 hover:text-rose-500 font-black text-2xl" aria-label="{% translate 'Close' %}">&times;</button>
+        <div id="modalIcon" class="w-16 h-16 bg-purple-100 text-purple-900 rounded-3xl flex items-center justify-center mb-6 text-3xl shadow-sm">⚡</div>
+        <h3 id="modalTitle" class="text-2xl font-black text-gray-900 mb-2"></h3>
+        <div id="modalDesc" class="text-gray-500 text-sm mb-6 leading-relaxed"></div>
+        <button type="button" onclick="kamilishaKaziGeneral()" class="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl hover:bg-purple-900 transition-all shadow-md">{% translate "Complete Action" %}</button>
+    </div>
+</div>
+
+<div id="stockListModal" aria-hidden="true" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden items-center justify-center z-[210] p-4 transition-opacity duration-300 opacity-0" role="dialog" aria-modal="true" aria-labelledby="stockListModalTitle">
+    <div id="stockListModalCard" class="bg-white rounded-[40px] max-w-3xl w-full p-8 shadow-2xl relative border border-white transform scale-95 opacity-0 transition-all duration-300">
+        <button type="button" onclick="fungaStockListModal()" class="absolute top-6 right-6 text-gray-400 hover:text-rose-500 font-black text-2xl" aria-label="{% translate 'Close' %}">&times;</button>
+        <h3 id="stockListModalTitle" class="text-2xl font-black text-gray-900 mb-2"></h3>
+        <p id="stockListModalDesc" class="text-sm text-gray-500 mb-6"></p>
+        <div id="stockListModalBody" class="rounded-2xl border border-gray-100 bg-gray-50 p-5 text-sm text-gray-600"></div>
+    </div>
+</div>
+
+<div id="activityHistoryModal" aria-hidden="true" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden items-center justify-center z-[215] p-4 transition-opacity duration-300 opacity-0" role="dialog" aria-modal="true" aria-labelledby="activityHistoryModalTitle">
+    <div id="activityHistoryModalCard" class="bg-white rounded-[40px] max-w-4xl w-full p-8 shadow-2xl relative border border-white transform scale-95 opacity-0 transition-all duration-300 max-h-[90vh] overflow-hidden">
+        <div class="flex justify-between items-center mb-5 border-b border-gray-100 pb-4">
+            <div><h3 id="activityHistoryModalTitle" class="text-xl font-black text-gray-900">{% translate 'Activity History' %}</h3><p class="text-xs text-gray-500 font-bold mt-1">{% translate 'Kila activity iliyorekodiwa kwenye mfumo, kwa mhusika, aina na muda.' %}</p></div>
+            <button type="button" onclick="fungaActivityHistoryModal()" class="text-gray-400 hover:text-rose-500 font-black text-2xl" aria-label="{% translate 'Close activity history' %}">&times;</button>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+            <div class="rounded-2xl bg-purple-50 border border-purple-100 px-4 py-3"><div class="text-[9px] uppercase font-black text-purple-500">{% translate 'Jumla ya shughuli' %}</div><div class="text-xl font-black text-purple-900 mt-1">{{ activity_total|default_if_none:0|floatformat:0|intcomma }}</div></div>
+            <div class="rounded-2xl bg-gray-50 border border-gray-100 px-4 py-3"><div class="text-[9px] uppercase font-black text-gray-400">{% translate 'Aina za shughuli' %}</div><div class="text-xl font-black text-gray-900 mt-1">{{ activity_type_count|default_if_none:0|floatformat:0|intcomma }}</div></div>
+            <div class="rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-3"><div class="text-[9px] uppercase font-black text-emerald-600">{% translate 'Activity ya mwisho' %}</div><div class="text-xs font-black text-emerald-800 mt-1">{% if activity_logs|length %}{{ activity_logs.0.muda|date:"d M Y, H:i:s" }}{% else %}Hakuna{% endif %}</div></div>
+        </div>
+        <div class="flex flex-wrap gap-1.5 mb-4">{% for summary in activity_summary %}<span class="text-[9px] font-black px-2.5 py-1 rounded-full bg-gray-50 text-gray-600 border border-gray-100">{{ summary.aina|title }} · {{ summary.total|floatformat:0|intcomma }}</span>{% endfor %}</div>
+        <div class="space-y-2 max-h-[62vh] overflow-y-auto pr-1 custom-scrollbar">
+            {% for log in activity_logs %}
+                <div class="flex items-start justify-between gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-sm transition-all">
+                    <div class="flex items-start gap-3 min-w-0">
+                        {% if 'Mauzo' in log.aina or 'Sale' in log.aina %}<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mt-1.5 shrink-0"></span>{% elif 'Stoo' in log.aina or 'GRN' in log.aina %}<span class="w-2.5 h-2.5 rounded-full bg-amber-500 mt-1.5 shrink-0"></span>{% elif 'Matumizi' in log.aina or 'Expense' in log.aina %}<span class="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1.5 shrink-0"></span>{% else %}<span class="w-2.5 h-2.5 rounded-full bg-purple-500 mt-1.5 shrink-0"></span>{% endif %}
+                        <div class="min-w-0"><p class="text-xs font-black text-gray-800 break-words">{{ log.kitendo }}</p><div class="flex flex-wrap items-center gap-2 mt-1.5 text-[9px]"><span class="px-2 py-0.5 rounded-full bg-white border border-gray-200 text-gray-600 font-bold">{{ log.aina|title }}</span><span class="text-gray-500 font-bold">{% translate 'Aliyefanya:' %} {% if log.mhusika %}{{ log.mhusika.get_full_name|default:log.mhusika.username }}{% else %}{% translate 'System' %}{% endif %}</span></div><p class="text-[9px] text-gray-400 mt-1">{{ log.muda|date:"d M Y, H:i:s" }} · {{ log.muda|timesince }} ago</p></div>
+                    </div>
+                </div>
+            {% empty %}<div class="py-10 text-center text-gray-400 text-sm font-bold">{% translate 'Hakuna activity iliyopatikana.' %}</div>{% endfor %}
+        </div>
+    </div>
+</div>
+
+<div id="salesHistoryModal" aria-hidden="true" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden items-center justify-center z-[215] p-4 transition-opacity duration-300 opacity-0" role="dialog" aria-modal="true" aria-labelledby="salesHistoryModalTitle">
+    <div id="salesHistoryModalCard" class="bg-white rounded-[40px] max-w-6xl w-full p-8 shadow-2xl relative border border-white transform scale-95 opacity-0 transition-all duration-300 max-h-[92vh] overflow-hidden">
+        <div class="flex flex-wrap justify-between items-start gap-4 mb-5 border-b border-gray-100 pb-4">
+            <div>
+                <h3 id="salesHistoryModalTitle" class="text-xl font-black text-gray-900">{% translate 'Sales History' %}</h3>
+                <p id="salesHistoryModalSubtitle" class="text-xs text-gray-500 font-bold mt-1">{% translate "Mauzo yaliyorekodiwa kutoka kwenye database." %}</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="dashboard-history-switch" role="tablist" aria-label="{% translate 'History detail' %}">
+                    <button type="button" class="dashboard-history-tab is-active" data-history-tab="sales" onclick="switchDashboardHistory('sales', false)">{% translate 'Sales' %}</button>
+                    <button type="button" class="dashboard-history-tab" data-history-tab="expenses" onclick="switchDashboardHistory('expenses', false)">{% translate 'Matumizi' %}</button>
+                    <button type="button" class="dashboard-history-tab" data-history-tab="orders" onclick="switchDashboardHistory('orders', false)">{% translate 'Order History' %}</button>
+                </div>
+                <button type="button" onclick="fungaSalesHistoryModal()" class="w-9 h-9 rounded-xl bg-gray-100 text-gray-500 hover:text-rose-500" aria-label="{% translate 'Close history' %}">&times;</button>
+            </div>
+        </div>
+
+        <div id="salesHistoryDetailSales" class="dashboard-history-modal-pane">
+            <div id="dashboardSalesHistoryGroups" class="space-y-3 max-h-[72vh] overflow-y-auto pr-1"></div>
+        </div>
+
+        <div id="salesHistoryDetailExpenses" class="dashboard-history-modal-pane is-hidden">
+            <div class="overflow-x-auto max-h-[72vh] overflow-y-auto">
+                <table class="min-w-[820px] w-full text-left border-collapse">
+                    <thead class="sticky top-0 bg-white z-10"><tr class="text-[10px] text-gray-400 uppercase tracking-wider border-b border-gray-100"><th class="pb-3 font-medium">{% translate 'Category' %}</th><th class="pb-3 font-medium">{% translate 'Maelezo' %}</th><th class="pb-3 font-medium">{% translate "Reference" %}</th><th class="pb-3 font-medium">{% translate 'Aliyesajili' %}</th><th class="pb-3 font-medium">{% translate 'Status' %}</th><th class="pb-3 font-medium">{% translate 'Tarehe' %}</th><th class="pb-3 font-medium text-right">{% translate "Kiasi" %}</th></tr></thead>
+                    <tbody id="dashboardExpensesHistoryBody" class="text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="salesHistoryDetailOrders" class="dashboard-history-modal-pane is-hidden">
+            <div id="dashboardOrdersHistoryGroups" class="space-y-3 max-h-[72vh] overflow-y-auto pr-1"></div>
+        </div>
+    </div>
+</div>
+
+<div id="reorderApprovalModal" aria-hidden="true" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden items-center justify-center z-[220] p-4 transition-opacity duration-300 opacity-0" role="dialog" aria-modal="true" aria-labelledby="reorderModalTitle">
+    <div id="reorderApprovalModalCard" class="bg-white rounded-[40px] max-w-2xl w-full p-8 shadow-2xl relative border border-white transform scale-95 opacity-0 transition-all duration-300 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012 2h2"></path></svg></div>
+                <div><h3 id="reorderModalTitle" class="text-xl font-black text-gray-900">{% if reorder_request %}{{ reorder_request.display_number }}{% else %}{% translate 'Purchase Request' %}{% endif %}</h3><p id="reorderModalSource" class="text-xs text-gray-500 font-bold">{% if reorder_request %}{% translate 'From' %} {{ reorder_request.source_department }}{% endif %}</p></div>
+            </div>
+            <button type="button" onclick="fungaReorderModal()" class="text-gray-400 hover:text-rose-500 font-black text-2xl" aria-label="{% translate 'Close' %}">&times;</button>
+        </div>
+
+        {% if reorder_request %}
+            <div class="space-y-3 mb-6">
+                {% for item in reorder_request.items.all %}
+                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100 gap-4">
+                        <div class="min-w-0"><h4 class="font-bold text-gray-800 text-sm truncate">{{ item.bidhaa.jina_la_bidhaa }}</h4><p class="text-xs text-gray-500">{% translate 'In Stock:' %} {{ item.current_stock|floatformat:0|intcomma }} | {% translate 'Request:' %} {{ item.quantity|floatformat:0|intcomma }}</p></div>
+                        <span class="font-black text-gray-700 text-sm whitespace-nowrap">{{ dashboard_currency }} {{ item.total_amount|floatformat:0|intcomma }}</span>
+                    </div>
+                {% empty %}
+                    <p class="text-sm text-gray-500 text-center py-6">{% translate 'Hakuna bidhaa kwenye request hii.' %}</p>
+                {% endfor %}
+            </div>
+            <div class="flex justify-between items-center mb-5 pt-4 border-t border-gray-100"><span class="text-xs font-bold text-gray-500">{% translate 'Total' %}</span><span class="text-lg font-black text-gray-900">{{ dashboard_currency }} {{ reorder_request.total_amount|default_if_none:0|floatformat:0|intcomma }}</span></div>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="approveReorder('order')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-3.5 rounded-xl text-xs transition-all shadow-md">{% translate 'Approve & Order' %}</button>
+                <button type="button" onclick="approveReorder('reject')" class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold px-5 py-3.5 rounded-xl text-xs transition-all shadow-md">{% translate 'Reject' %}</button>
+            </div>
+        {% else %}
+            <div class="py-10 text-center"><p class="text-sm font-bold text-gray-500">{% translate 'Hakuna purchase request inayopatikana.' %}</p></div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+const DASHBOARD_T = {
+    trend: "{% translate 'Trend' %}",
+    sales: "{% translate 'Mauzo' %}",
+    products: "{% translate 'Bidhaa' %}",
+    unitsSold: "{% translate 'Units Sold' %}",
+    profit: "{% translate 'faida' %}",
+    loss: "{% translate 'hasara' %}",
+    costReturned: "{% translate 'Bei ya kuuzwa imeludisha gharama bila profit.' %}",
+    totalProfit: "{% translate 'Faida ya Jumla' %}",
+    totalLoss: "{% translate 'Hasara ya Jumla' %}",
+    noProfitLoss: "{% translate 'Bila Faida/Wala Hasara' %}",
+    soldBelow: "{% translate 'Iliuzwa chini ya bei ya kawaida.' %}",
+    soldAbove: "{% translate 'Iliuzwa juu ya bei ya kawaida.' %}",
+    soldAtNormal: "{% translate 'Iliuzwa kwenye bei ya kawaida.' %}",
+    noDebt: "{% translate 'Hakuna deni' %}",
+    noValue: "{% translate 'Hakuna' %}",
+    customer: "{% translate 'Customer' %}",
+    attendant: "{% translate 'Attendant' %}",
+    discount: "{% translate 'Discount' %}",
+    markup: "{% translate 'Ongezeko' %}",
+    currentCustomerDebt: "{% translate 'Deni la mteja (current)' %}",
+    quantity: "{% translate 'Idadi' %}",
+    buying: "{% translate 'Buying' %}",
+    offeredPrice: "{% translate 'Bei Iliyotolewa' %}",
+    lineTotal: "{% translate 'Line Total' %}",
+    orderTotal: "{% translate 'Jumla ya order:' %}",
+    payment: "{% translate 'Payment:' %}",
+    noItemsInOrder: "{% translate 'Hakuna items kwenye order.' %}",
+    transaction: "{% translate 'transaction' %}",
+    transactions: "{% translate 'transactions' %}",
+    noProductSales: "{% translate 'Hakuna mauzo ya bidhaa yaliyopatikana.' %}",
+    recorded: "{% translate 'RECORDED' %}",
+    noSalesHistory: "{% translate 'Hakuna sales history iliyopatikana.' %}",
+    noExpenseHistory: "{% translate 'Hakuna historia ya matumizi.' %}",
+    noOrderHistory: "{% translate 'Hakuna order history iliyopatikana.' %}",
+    smartReorderFailed: "{% translate 'Smart reorder imeshindikana.' %}",
+    smartReorderCreated: "{% translate 'Smart reorder imetengenezwa kutoka low-stock data.' %}",
+    smartReorderCreateFailed: "{% translate 'Imeshindikana kutengeneza smart reorder.' %}",
+    stockList: "{% translate 'Stock List' %}",
+    stockInfo: "{% translate 'Taarifa ya stoo kutoka database.' %}",
+    openStoreProducts: "{% translate 'Fungua Stoo & Bidhaa' %}",
+    noPurchaseRequest: "{% translate 'Hakuna purchase request ya kuchakata.' %}",
+    requestFailed: "{% translate 'Request imeshindikana.' %}",
+    requestApproved: "{% translate 'Purchase request imeidhinishwa.' %}",
+    requestRejected: "{% translate 'Purchase request imekataliwa.' %}",
+    requestProcessFailed: "{% translate 'Kuna tatizo wakati wa kuchakata request.' %}",
+    system: "{% translate 'System' %}",
+    ago: "{% translate 'ago' %}",
+    month: "{% translate 'Month' %}",
+    daySunday: "{% translate 'Jumapili' %}",
+    dayMonday: "{% translate 'Jumatatu' %}",
+    dayTuesday: "{% translate 'Jumanne' %}",
+    dayWednesday: "{% translate 'Jumatano' %}",
+    dayThursday: "{% translate 'Alhamisi' %}",
+    dayFriday: "{% translate 'Ijumaa' %}",
+    daySaturday: "{% translate 'Jumamosi' %}",
+    jan: "{% translate 'Jan' %}",
+    feb: "{% translate 'Feb' %}",
+    mar: "{% translate 'Mar' %}",
+    apr: "{% translate 'Apr' %}",
+    may: "{% translate 'Mei' %}",
+    jun: "{% translate 'Jun' %}",
+    jul: "{% translate 'Jul' %}",
+    aug: "{% translate 'Ago' %}",
+    sep: "{% translate 'Sep' %}",
+    oct: "{% translate 'Okt' %}",
+    nov: "{% translate 'Nov' %}",
+    dec: "{% translate 'Des' %}",
+    morning: "{% translate 'Habari ya Asubuhi' %}",
+    afternoon: "{% translate 'Habari ya Mchana' %}",
+    evening: "{% translate 'Habari ya Jioni' %}",
+    night: "{% translate 'Habari ya Usiku' %}",
+    unlockPage: "{% translate 'Unlock Page Scroll' %}",
+    lockPage: "{% translate 'Lock Page Scroll' %}",
+    pageScrollLocked: "{% translate 'Page scroll imefungwa • history bado inaweza kuscroll' %}",
+    pressLock: "{% translate 'Bonyeza Lock kufunga page scroll' %}"
+};
+
+(function () {
+    "use strict";
+
+    let adminChartInstance = null;
+    let cashierChartInstance = null;
+    let activeModal = null;
+    let lastFocusedElement = null;
+
+    const DASHBOARD_CURRENCY = "{{ dashboard_currency|escapejs }}";
+
+    const chartPalette = {
+        line: '#FFD700',
+        bar: '#4B0082',
+        grid: 'rgba(148, 163, 184, 0.16)'
+    };
+
+    function getChartData() {
+        const node = document.getElementById('salesChartData');
+        if (!node) return { labels: [], values: [] };
+        try {
+            const data = JSON.parse(node.textContent || '{}');
+            return {
+                labels: Array.isArray(data.labels) ? data.labels : [],
+                values: Array.isArray(data.values) ? data.values : []
+            };
+        } catch (error) {
+            console.error('Unable to parse sales chart data:', error);
+            return { labels: [], values: [] };
+        }
+    }
+
+    function buildChart(canvasId, chartStore) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || typeof Chart === 'undefined') return null;
+
+        const { labels, values } = getChartData();
+        const cleanValues = values.map(value => Number(value) || 0);
+
+        // Zero-anchor: the line physically begins at 0 and ends at 0.
+        // The bar dataset keeps the real sales values aligned with their labels.
+        const plottedLabels = [''].concat(labels).concat(['']);
+        const lineValues = [0].concat(cleanValues).concat([0]);
+        const barValues = [null].concat(cleanValues).concat([null]);
+
+        const lineDataset = {
+            type: 'line',
+            label: DASHBOARD_T.trend,
+            data: lineValues,
+            borderColor: chartPalette.line,
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: 'rgba(255, 215, 0, 0.10)',
+            tension: 0.3,
+            fill: true,
+            pointRadius: 2.5,
+            pointHoverRadius: 5
+        };
+        const barDataset = {
+            type: 'bar',
+            label: DASHBOARD_T.sales,
+            data: barValues,
+            backgroundColor: chartPalette.bar,
+            borderRadius: 8
+        };
+
+        if (chartStore) chartStore.destroy();
+
+        return new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: { labels: plottedLabels, datasets: [lineDataset, barDataset] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: { padding: { top: 6, right: 8, bottom: 2, left: 2 } },
+                interaction: { intersect: false, mode: 'index' },
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: chartPalette.grid } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    function initCharts() {
+        adminChartInstance = buildChart('adminSalesChart', adminChartInstance);
+        cashierChartInstance = buildChart('cashierSalesChart', cashierChartInstance);
+        toggleChartType('both');
+    }
+
+    window.toggleChartType = function (type) {
+        const chart = adminChartInstance;
+        if (!chart) return;
+
+        const buttons = {
+            both: document.getElementById('btnTypeBoth'),
+            bar: document.getElementById('btnTypeBar'),
+            line: document.getElementById('btnTypeLine')
+        };
+
+        Object.values(buttons).forEach(btn => {
+            if (btn) btn.className = 'px-2 py-1 text-[9px] font-bold text-gray-500 hover:text-gray-900 transition-all rounded-md';
+        });
+
+        const activeButton = buttons[type];
+        if (activeButton) activeButton.className = 'px-2 py-1 text-[9px] font-bold bg-[#31145d] text-white rounded-md shadow-sm transition-all';
+
+        if (type === 'both') {
+            chart.setDatasetVisibility(0, true);
+            chart.setDatasetVisibility(1, true);
+        } else if (type === 'bar') {
+            chart.setDatasetVisibility(0, false);
+            chart.setDatasetVisibility(1, true);
+        } else if (type === 'line') {
+            chart.setDatasetVisibility(0, true);
+            chart.setDatasetVisibility(1, false);
+        }
+        chart.update();
+    };
+
+    function injectAdminDateTimeRow() {
+        // Dashboard surgery: Badilisha salamu chini ya avatar kuwa Jina la Duka,
+        // na chini yake weka Location badala ya tarehe na muda.
+        const greeting = document.getElementById('avatarSalamuYaMuda');
+        if (!greeting) return;
+
+        // 1. Chini ya avatar palipokuwa na 'Habari ya asubuhi' sasa inasoma Jina la Duka
+        greeting.textContent = "{{ request.user.duka.jina_la_duka|default:''|escapejs }}";
+        greeting.classList.remove('font-normal', 'text-gray-500');
+        greeting.classList.add('font-black', 'text-purple-950', 'text-xs', 'tracking-wider', 'uppercase');
+
+        // 2. Chini ya jina la duka inawekwa Location (mfano: Dodoma barabara ya tisa)
+        let locationRow = document.getElementById('dashboardAdminLocationRow');
+        if (!locationRow) {
+            locationRow = document.createElement('div');
+            locationRow.id = 'dashboardAdminLocationRow';
+            locationRow.className = 'flex items-center gap-1 mt-0.5 whitespace-nowrap';
+            locationRow.innerHTML = `
+                <span class="text-[11px]">📍</span>
+                <span class="text-[10px] font-bold text-gray-600 tracking-wide uppercase">{{ duka.anwani_au_mahali|default:''|escapejs }}</span>
+            `;
+            greeting.insertAdjacentElement('afterend', locationRow);
+        }
+    }
+
+    function updateClock() {
+        const now = new Date();
+        const timeText = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+        const fullTimeText = now.toLocaleTimeString(undefined, { hour12: false });
+        const dateText = now.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+        const monthText = now.toLocaleDateString(undefined, { month: '2-digit', year: '2-digit' });
+
+        ['liveTimeStoo', 'liveTimeCashier', 'liveTimeAdmin'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = timeText;
+        });
+        ['liveDateStoo', 'liveDateCashier', 'liveDateAdmin'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = dateText;
+        });
+        const adminMonth = document.getElementById('adminMonth');
+        if (adminMonth) adminMonth.textContent = `${DASHBOARD_T.month} ${monthText}`;
+
+        // UPDATE KADI YETU MPYA YA DASHBOARD
+        const dashTime = document.getElementById('dashLiveTime');
+        if (dashTime) dashTime.textContent = fullTimeText;
+
+        const dashDate = document.getElementById('dashLiveDate');
+        if (dashDate) {
+            const siku = [DASHBOARD_T.daySunday, DASHBOARD_T.dayMonday, DASHBOARD_T.dayTuesday, DASHBOARD_T.dayWednesday, DASHBOARD_T.dayThursday, DASHBOARD_T.dayFriday, DASHBOARD_T.daySaturday];
+            const miezi = [DASHBOARD_T.jan, DASHBOARD_T.feb, DASHBOARD_T.mar, DASHBOARD_T.apr, DASHBOARD_T.may, DASHBOARD_T.jun, DASHBOARD_T.jul, DASHBOARD_T.aug, DASHBOARD_T.sep, DASHBOARD_T.oct, DASHBOARD_T.nov, DASHBOARD_T.dec];
+            dashDate.textContent = `${siku[now.getDay()]}, ${String(now.getDate()).padStart(2, '0')} ${miezi[now.getMonth()]} ${now.getFullYear()}`;
+        }
+
+        const salamu = document.getElementById('salamuYaMudaDash');
+        if (salamu) {
+            const saa = now.getHours();
+            if (saa >= 4 && saa < 12) salamu.textContent = DASHBOARD_T.morning;
+            else if (saa >= 12 && saa < 16) salamu.textContent = DASHBOARD_T.afternoon;
+            else if (saa >= 16 && saa < 23) salamu.textContent = DASHBOARD_T.evening;
+            else salamu.textContent = DASHBOARD_T.night;
+        }
+    }
+
+    function setSalesTargetProgress() {
+        const bar = document.getElementById('salesTargetProgress');
+        if (!bar) return;
+        const percentNode = bar.closest('.relative.z-10')?.querySelector('.text-4xl');
+        const raw = percentNode ? Number(percentNode.textContent.replace('%', '').trim()) : 0;
+        const safePercent = Math.min(Math.max(Number.isFinite(raw) ? raw : 0, 0), 100);
+        bar.style.width = `${safePercent}%`;
+    }
+
+    const dashboardProductProfitRows = [
+        {% for muamala in dashboard_sales_history %}
+        {
+            id: {{ muamala.bidhaa_id|default_if_none:0 }},
+            name: "{{ muamala.bidhaa.jina_la_bidhaa|default:'Bidhaa'|escapejs }}",
+            buying: Number("{{ muamala.bidhaa.bei_ya_kununulia|default_if_none:0 }}") || 0,
+            listed: Number("{{ muamala.bidhaa.bei_ya_kuuzia|default_if_none:0 }}") || 0,
+            sold: Number("{{ muamala.bei_ya_kuuzia_stoo|default_if_none:0 }}") || 0,
+            qty: Number("{{ muamala.idadi|default_if_none:0 }}") || 0,
+            invoice: "{{ muamala.namba_ya_invoice|default:''|escapejs }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    function productProfitMoney(value){
+        return new Intl.NumberFormat('en-US',{maximumFractionDigits:0}).format(Math.round(Number(value)||0));
+    }
+
+    function buildProductProfitRows(){
+        const grouped = new Map();
+        dashboardProductProfitRows.forEach(row => {
+            const key = String(row.id || row.name);
+            const sold = row.sold > 0 ? row.sold : row.listed;
+            const entry = grouped.get(key) || {id:row.id,name:row.name,buying:row.buying,listed:row.listed,qty:0,totalProfit:0,lines:0,lastSold:sold};
+            entry.qty += row.qty;
+            entry.totalProfit += (sold - row.buying) * row.qty;
+            entry.lastSold = sold;
+            entry.lines += 1;
+            grouped.set(key, entry);
+        });
+        return [...grouped.values()];
+    }
+
+    function renderProductProfitModal(){
+        const body = document.getElementById('productProfitTableBody');
+        const summary = document.getElementById('productProfitSummary');
+        if(!body || !summary) return;
+        const rows = buildProductProfitRows();
+        if(!rows.length){
+            body.innerHTML = '<tr><td colspan="7" class="px-4 py-12 text-center text-gray-400 font-bold">Hakuna mauzo ya bidhaa yaliyopatikana.</td></tr>';
+            summary.innerHTML = '';
+            return;
+        }
+        const totalProfit = rows.reduce((sum,row)=>sum+row.totalProfit,0);
+        const totalQty = rows.reduce((sum,row)=>sum+row.qty,0);
+        const profitCount = rows.filter(row=>row.totalProfit>0).length;
+        const lossCount = rows.filter(row=>row.totalProfit<0).length;
+        const resultLabel = totalProfit > 0 ? DASHBOARD_T.totalProfit : totalProfit < 0 ? DASHBOARD_T.totalLoss : DASHBOARD_T.noProfitLoss;
+        const resultClass = totalProfit > 0 ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : totalProfit < 0 ? 'text-rose-700 bg-rose-50 border-rose-100' : 'text-gray-700 bg-gray-50 border-gray-100';
+        summary.innerHTML = `
+            <div class="rounded-2xl border border-purple-100 bg-purple-50 px-4 py-3"><div class="text-[9px] uppercase font-black text-purple-600">Bidhaa</div><div class="text-xl font-black text-purple-900 mt-1">${rows.length}</div></div>
+            <div class="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3"><div class="text-[9px] uppercase font-black text-gray-500">{% translate 'Units Sold' %}</div><div class="text-xl font-black text-gray-900 mt-1">${productProfitMoney(totalQty)}</div></div>
+            <div class="rounded-2xl border px-4 py-3 ${resultClass}"><div class="text-[9px] uppercase font-black">${resultLabel}</div><div class="text-xl font-black mt-1">${DASHBOARD_CURRENCY} ${productProfitMoney(Math.abs(totalProfit))}</div><div class="text-[9px] mt-0.5 opacity-70">${profitCount} ${DASHBOARD_T.profit} · ${lossCount} ${DASHBOARD_T.loss}</div></div>`;
+        body.innerHTML = rows.map(row=>{
+            const profitClass = row.totalProfit > 0 ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : row.totalProfit < 0 ? 'text-rose-700 bg-rose-50 border-rose-100' : 'text-gray-600 bg-gray-50 border-gray-100';
+            const comment = row.totalProfit > 0
+                ? `${DASHBOARD_T.profit} ${DASHBOARD_CURRENCY} ${productProfitMoney(row.totalProfit)} kwa ${productProfitMoney(row.qty)} pcs`
+                : row.totalProfit < 0
+                    ? `${DASHBOARD_T.loss} ${DASHBOARD_CURRENCY} ${productProfitMoney(Math.abs(row.totalProfit))} kwa ${productProfitMoney(row.qty)} pcs`
+                    : DASHBOARD_T.costReturned;
+            const priceNote = row.lastSold < row.listed ? DASHBOARD_T.soldBelow : row.lastSold > row.listed ? DASHBOARD_T.soldAbove : DASHBOARD_T.soldAtNormal;
+            return `<tr class="hover:bg-gray-50/70">
+                <td class="px-4 py-3"><div class="font-black text-gray-800">${escapeHtml(row.name)}</div><div class="text-[9px] text-gray-400">${row.lines} ${row.lines===1 ? DASHBOARD_T.transaction : DASHBOARD_T.transactions}</div></td>
+                <td class="px-4 py-3 font-bold text-gray-700">${DASHBOARD_CURRENCY} ${productProfitMoney(row.buying)}</td>
+                <td class="px-4 py-3 font-bold text-purple-900">${DASHBOARD_CURRENCY} ${productProfitMoney(row.listed)}</td>
+                <td class="px-4 py-3 font-black text-gray-900">${DASHBOARD_CURRENCY} ${productProfitMoney(row.lastSold)}</td>
+                <td class="px-4 py-3 text-center font-black text-gray-700">${productProfitMoney(row.qty)}</td>
+                <td class="px-4 py-3 text-right"><span class="inline-flex px-2.5 py-1.5 rounded-xl border ${profitClass} font-black">${row.totalProfit > 0 ? '+' : row.totalProfit < 0 ? '-' : ''}${DASHBOARD_CURRENCY} ${productProfitMoney(Math.abs(row.totalProfit))}</span></td>
+                <td class="px-4 py-3"><div class="font-bold ${row.totalProfit > 0 ? 'text-emerald-700' : row.totalProfit < 0 ? 'text-rose-700' : 'text-gray-600'}">${comment}</div><div class="text-[9px] text-gray-400 mt-0.5">${priceNote}</div></td>
+            </tr>`;
+        }).join('');
+    }
+
+    function escapeHtml(value){
+        const d=document.createElement('div'); d.textContent=value ?? ''; return d.innerHTML;
+    }
+
+    window.funguaProductProfitModal = function(){
+        renderProductProfitModal();
+        openModal('productProfitModal','productProfitModalCard');
+    };
+
+    window.fungaProductProfitModal = function(){
+        closeModal('productProfitModal','productProfitModalCard');
+    };
+
+    const dashboardSalesHistoryRows = [
+        {% for muamala in dashboard_sales_history %}
+        {
+            invoice: "{{ muamala.namba_ya_invoice|default:''|escapejs }}",
+            customer: "{{ muamala.mteja.majina_kamili|default:'Walk-in'|escapejs }}",
+            staff: "{{ muamala.muuzaji.get_full_name|default:muamala.muuzaji.username|default:'Haijarekodiwa'|escapejs }}",
+            date: "{{ muamala.tarehe_ya_mauzo|date:'d M Y, H:i'|escapejs }}",
+            product: "{{ muamala.bidhaa.jina_la_bidhaa|default:'Bidhaa'|escapejs }}",
+            qty: Number("{{ muamala.idadi|default_if_none:0 }}") || 0,
+            buying: Number("{{ muamala.bidhaa.bei_ya_kununulia|default_if_none:0 }}") || 0,
+            listed: Number("{{ muamala.bidhaa.bei_ya_kuuzia|default_if_none:0 }}") || 0,
+            sold: Number("{{ muamala.bei_ya_kuuzia_stoo|default_if_none:0 }}") || 0,
+            lineTotal: Number("{{ muamala.jumla_pesa_iliyopokelewa|default_if_none:0 }}") || 0,
+            payment: "{{ muamala.get_njia_ya_malipo_display|default:'Haijarekodiwa'|escapejs }}",
+            discount: Number("{{ muamala.punguzo|default_if_none:0 }}") || 0,
+            discountType: "{{ muamala.aina_ya_punguzo|default:'TZS'|escapejs }}",
+            markup: Number("{{ muamala.ongezeko|default_if_none:0 }}") || 0,
+            markupType: "{{ muamala.aina_ya_ongezeko|default:'TZS'|escapejs }}",
+            debt: Number("{{ muamala.mteja.outstanding_balance|default_if_none:0 }}") || 0
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const dashboardExpenseHistoryRows = [
+        {% for matumizi_item in dashboard_expense_history %}
+        {
+            category: "{{ matumizi_item.category|default:'Others'|escapejs }}",
+            description: "{{ matumizi_item.maelezo|default:''|escapejs }}",
+            reference: "{{ matumizi_item.reference|default:'—'|escapejs }}",
+            staff: "{{ matumizi_item.created_by.get_full_name|default:matumizi_item.created_by.username|default:'—'|escapejs }}",
+            status: "{{ matumizi_item.status|default:'PAID'|escapejs }}",
+            date: "{{ matumizi_item.created_at|date:'d M Y, H:i'|escapejs }}",
+            amount: Number("{{ matumizi_item.kiasi|default_if_none:0 }}") || 0
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const dashboardOrderHistoryRows = [
+        {% for order in dashboard_order_history %}
+        {
+            number: "{{ order.display_number|escapejs }}",
+            requester: "{{ order.requested_by.get_full_name|default:order.requested_by.username|default:'—'|escapejs }}",
+            reviewer: "{{ order.reviewed_by.get_full_name|default:order.reviewed_by.username|default:'—'|escapejs }}",
+            source: "{{ order.source_department|default:'Stoo'|escapejs }}",
+            status: "{{ order.status|default:'PENDING'|escapejs }}",
+            date: "{{ order.created_at|date:'d M Y, H:i'|escapejs }}",
+            reviewedAt: "{{ order.reviewed_at|date:'d M Y, H:i'|default:'—'|escapejs }}",
+            notes: "{{ order.notes|default:'—'|escapejs }}",
+            total: Number("{{ order.total_amount|default_if_none:0 }}") || 0,
+            items: [
+                {% for item in order.items.all %}
+                {name:"{{ item.bidhaa.jina_la_bidhaa|escapejs }}",qty:Number("{{ item.quantity|default_if_none:0 }}")||0,unitPrice:Number("{{ item.unit_price|default_if_none:0 }}")||0,total:Number("{{ item.total_amount|default_if_none:0 }}")||0,stock:Number("{{ item.current_stock|default_if_none:0 }}")||0}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    function dashboardMoney(value){
+        return new Intl.NumberFormat('en-US',{maximumFractionDigits:0}).format(Math.round(Number(value)||0));
+    }
+
+    function groupDashboardSales(){
+        const groups = new Map();
+        dashboardSalesHistoryRows.forEach(row=>{
+            const key = row.invoice || `SALE-${row.date}-${row.staff}`;
+            if(!groups.has(key)){
+                groups.set(key,{invoice:row.invoice || '—',customer:row.customer,staff:row.staff,date:row.date,payment:row.payment,discount:row.discount,discountType:row.discountType,markup:row.markup,markupType:row.markupType,debt:row.debt,items:[],gross:0,paid:0});
+            }
+            const g=groups.get(key);
+            g.items.push(row);
+            g.gross += row.sold * row.qty;
+            g.paid += row.lineTotal;
+            if(!g.discount && row.discount) {g.discount=row.discount;g.discountType=row.discountType;}
+            if(!g.markup && row.markup) {g.markup=row.markup;g.markupType=row.markupType;}
+            if(!g.debt && row.debt) g.debt=row.debt;
+        });
+        return [...groups.values()];
+    }
+
+    function renderDashboardSalesHistory(){
+        const box=document.getElementById('dashboardSalesHistoryGroups');
+        if(!box)return;
+        const groups=groupDashboardSales();
+        if(!groups.length){box.innerHTML='<div class="py-14 text-center text-gray-400 font-bold">Hakuna sales history iliyopatikana.</div>';return;}
+        box.innerHTML=groups.map((g,index)=>{
+            const debtText=g.debt>0?`${DASHBOARD_CURRENCY} ${dashboardMoney(g.debt)}`:DASHBOARD_T.noDebt;
+            const debtClass=g.debt>0?'text-rose-700 bg-rose-50 border-rose-100':'text-emerald-700 bg-emerald-50 border-emerald-100';
+            const discountText=g.discount>0?`${DASHBOARD_CURRENCY} ${dashboardMoney(g.discount)}${g.discountType==='PERCENT'?'%':''}`:DASHBOARD_T.noValue;
+            const markupText=g.markup>0?`${DASHBOARD_CURRENCY} ${dashboardMoney(g.markup)}${g.markupType==='PERCENT'?'%':''}`:DASHBOARD_T.noValue;
+            const itemsHtml=g.items.map(item=>`<div class="grid grid-cols-[minmax(180px,1.8fr)_70px_120px_120px_130px] gap-3 items-center px-4 py-3 border-t border-gray-100"><div class="font-black text-gray-800">${escapeHtml(item.product)}</div><div class="text-xs font-black text-gray-600">${dashboardMoney(item.qty)}</div><div class="text-xs font-bold text-gray-600">${DASHBOARD_CURRENCY} ${dashboardMoney(item.buying)}</div><div class="text-xs font-bold text-purple-900">${DASHBOARD_CURRENCY} ${dashboardMoney(item.sold)}</div><div class="text-xs font-black text-gray-900 text-right">${DASHBOARD_CURRENCY} ${dashboardMoney(item.lineTotal)}</div></div>`).join('');
+            return `<details class="rounded-2xl border border-gray-100 bg-white shadow-sm" ${index===0?'open':''}><summary class="list-none cursor-pointer px-4 py-4"><div class="flex flex-wrap items-center justify-between gap-3"><div class="min-w-0"><div class="flex items-center gap-2"><span class="font-black text-gray-900">${escapeHtml(g.invoice || '—')}</span><span class="text-[9px] px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 font-black">{% translate 'RECORDED' %}</span></div><div class="text-xs text-gray-500 mt-1 truncate">${escapeHtml(g.customer)} · ${escapeHtml(g.staff)} · ${escapeHtml(g.date)}</div></div><div class="text-right"><div class="font-black text-purple-900">${DASHBOARD_CURRENCY} ${dashboardMoney(g.paid)}</div><div class="text-[10px] text-gray-400 mt-1">${escapeHtml(g.payment)}</div></div></div></summary><div class="px-4 pb-4"><div class="grid grid-cols-2 md:grid-cols-5 gap-2 mt-2 mb-3"><div class="p-3 rounded-xl bg-gray-50 border border-gray-100"><div class="text-[9px] uppercase font-black text-gray-400">{% translate "Customer" %}</div><div class="text-xs font-black mt-1">${escapeHtml(g.customer)}</div></div><div class="p-3 rounded-xl bg-gray-50 border border-gray-100"><div class="text-[9px] uppercase font-black text-gray-400">{% translate "Attendant" %}</div><div class="text-xs font-black mt-1">${escapeHtml(g.staff)}</div></div><div class="p-3 rounded-xl bg-amber-50 border border-amber-100"><div class="text-[9px] uppercase font-black text-amber-700">{% translate "Discount" %}</div><div class="text-xs font-black mt-1">${discountText}</div></div><div class="p-3 rounded-xl bg-blue-50 border border-blue-100"><div class="text-[9px] uppercase font-black text-blue-700">{% translate "Ongezeko" %}</div><div class="text-xs font-black mt-1">${markupText}</div></div><div class="p-3 rounded-xl border ${debtClass}"><div class="text-[9px] uppercase font-black">{% translate "Deni la mteja (current)" %}</div><div class="text-xs font-black mt-1">${debtText}</div></div></div><div class="rounded-2xl border border-gray-100 overflow-hidden"><div class="grid grid-cols-[minmax(180px,1.8fr)_70px_120px_120px_130px] gap-3 px-4 py-3 bg-gray-50 text-[9px] uppercase tracking-wider font-black text-gray-400"><div>Bidhaa</div><div>{% translate "Idadi" %}</div><div>{% translate "Buying" %}</div><div>{% translate "Bei Iliyotolewa" %}</div><div class="text-right">{% translate "Line Total" %}</div></div>${itemsHtml}</div><div class="mt-3 flex flex-wrap justify-between gap-3 text-xs"><span class="text-gray-500">{% translate "Jumla ya order:" %} <strong class="text-gray-900">${DASHBOARD_CURRENCY} ${dashboardMoney(g.paid)}</strong></span><span class="text-gray-500">{% translate "Payment:" %} <strong class="text-gray-900">${escapeHtml(g.payment)}</strong></span></div></div></details>`;
+        }).join('');
+    }
+
+    function renderDashboardExpensesHistory(){
+        const body=document.getElementById('dashboardExpensesHistoryBody'); if(!body)return;
+        if(!dashboardExpenseHistoryRows.length){body.innerHTML='<tr><td colspan="7" class="py-12 text-center text-gray-400 font-bold">{% translate 'Hakuna historia ya matumizi.' %}</td></tr>';return;}
+        body.innerHTML=dashboardExpenseHistoryRows.map(row=>`<tr class="border-b border-gray-50 hover:bg-gray-50/70"><td class="py-3"><span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 text-[9px] font-black">${escapeHtml(row.category)}</span></td><td class="py-3 text-xs font-bold text-gray-700">${escapeHtml(row.description)}</td><td class="py-3 text-xs text-gray-500">${escapeHtml(row.reference)}</td><td class="py-3 text-xs text-gray-600">${escapeHtml(row.staff)}</td><td class="py-3 text-[9px] font-black ${row.status==='PAID'?'text-emerald-700':'text-amber-700'}">${escapeHtml(row.status)}</td><td class="py-3 text-xs text-gray-500">${escapeHtml(row.date)}</td><td class="py-3 text-right font-black text-gray-900">${DASHBOARD_CURRENCY} ${dashboardMoney(row.amount)}</td></tr>`).join('');
+    }
+
+    function renderDashboardOrdersHistory(){
+        const box=document.getElementById('dashboardOrdersHistoryGroups'); if(!box)return;
+        if(!dashboardOrderHistoryRows.length){box.innerHTML='<div class="py-14 text-center text-gray-400 font-bold">Hakuna order history iliyopatikana.</div>';return;}
+        box.innerHTML=dashboardOrderHistoryRows.map((order,index)=>{
+            const statusClass=order.status==='APPROVED'?'text-emerald-700 bg-emerald-50 border-emerald-100':order.status==='REJECTED'?'text-rose-700 bg-rose-50 border-rose-100':'text-amber-700 bg-amber-50 border-amber-100';
+            const itemHtml=order.items.length?order.items.map(item=>`<div class="grid grid-cols-[minmax(180px,1fr)_80px_130px_130px] gap-3 items-center px-4 py-3 border-t border-gray-100"><div class="font-black text-gray-800">${escapeHtml(item.name)}</div><div class="text-xs font-black text-gray-700">${dashboardMoney(item.qty)}</div><div class="text-xs font-bold text-gray-600">${DASHBOARD_CURRENCY} ${dashboardMoney(item.unitPrice)}</div><div class="text-xs font-black text-right text-gray-900">${DASHBOARD_CURRENCY} ${dashboardMoney(item.total)}</div></div>`).join(''):'<div class="p-5 text-center text-gray-400 text-xs font-bold">${DASHBOARD_T.noItemsInOrder}</div>';
+            return `<details class="rounded-2xl border border-gray-100 bg-white shadow-sm" ${index===0?'open':''}><summary class="list-none cursor-pointer px-4 py-4"><div class="flex flex-wrap items-center justify-between gap-3"><div><div class="flex items-center gap-2"><span class="font-black text-gray-900">${escapeHtml(order.number)}</span><span class="px-2 py-1 rounded-full border ${statusClass} text-[9px] font-black">${escapeHtml(order.status)}</span></div><div class="text-xs text-gray-500 mt-1">${escapeHtml(order.requester)} · ${escapeHtml(order.source)} · ${escapeHtml(order.date)}</div></div><div class="text-right font-black text-purple-900">${DASHBOARD_CURRENCY} ${dashboardMoney(order.total)}</div></div></summary><div class="px-4 pb-4"><div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 mb-3"><div class="p-3 rounded-xl bg-gray-50 border border-gray-100"><div class="text-[9px] uppercase font-black text-gray-400">Requester</div><div class="text-xs font-black mt-1">${escapeHtml(order.requester)}</div></div><div class="p-3 rounded-xl bg-gray-50 border border-gray-100"><div class="text-[9px] uppercase font-black text-gray-400">Reviewer</div><div class="text-xs font-black mt-1">${escapeHtml(order.reviewer)}</div></div><div class="p-3 rounded-xl bg-gray-50 border border-gray-100"><div class="text-[9px] uppercase font-black text-gray-400">Reviewed</div><div class="text-xs font-black mt-1">${escapeHtml(order.reviewedAt)}</div></div><div class="p-3 rounded-xl bg-gray-50 border border-gray-100"><div class="text-[9px] uppercase font-black text-gray-400">Notes</div><div class="text-xs font-black mt-1">${escapeHtml(order.notes)}</div></div></div><div class="rounded-2xl border border-gray-100 overflow-hidden"><div class="grid grid-cols-[minmax(180px,1fr)_80px_130px_130px] gap-3 px-4 py-3 bg-gray-50 text-[9px] uppercase tracking-wider font-black text-gray-400"><div>Bidhaa</div><div>Qty</div><div>Unit Price</div><div class="text-right">Total</div></div>${itemHtml}</div></div></details>`;
+        }).join('');
+    }
+
+    window.openDashboardHistoryModal = function(type='sales'){
+        renderDashboardSalesHistory(); renderDashboardExpensesHistory(); renderDashboardOrdersHistory();
+        switchDashboardHistory(type,false);
+        openModal('salesHistoryModal','salesHistoryModalCard');
+    };
+
+    window.switchDashboardHistory = function(type, openModalAfter){
+        const allowed=['sales','expenses','orders']; if(!allowed.includes(type)) type='sales';
+        window.__dashboardHistoryType = type;
+        document.querySelectorAll('[data-history-tab]').forEach(btn=>btn.classList.toggle('is-active',btn.dataset.historyTab===type));
+        const titles={sales:'Sales History',expenses:'Matumizi History',orders:'Order History'};
+        const subtitles={sales:'Mauzo yaliyorekodiwa kutoka kwenye database, grouped kwa invoice.',expenses:'Historia ya matumizi yaliyosajiliwa kwenye mfumo.',orders:'Historia ya Purchase Requests kutoka Stoo.'};
+        const title=document.getElementById('dashboardHistoryCardTitle'); if(title) title.textContent=titles[type];
+        const modalTitle=document.getElementById('salesHistoryModalTitle'); if(modalTitle) modalTitle.textContent=titles[type];
+        const subtitle=document.getElementById('salesHistoryModalSubtitle'); if(subtitle) subtitle.textContent=subtitles[type];
+        document.querySelectorAll('.dashboard-history-pane').forEach(p=>p.classList.add('is-hidden'));
+        const cardPane=document.getElementById(type==='sales'?'dashboardHistoryPaneSales':type==='expenses'?'dashboardHistoryPaneExpenses':'dashboardHistoryPaneOrders'); if(cardPane) cardPane.classList.remove('is-hidden');
+        document.querySelectorAll('.dashboard-history-modal-pane').forEach(p=>p.classList.add('is-hidden'));
+        const modalPane=document.getElementById(type==='sales'?'salesHistoryDetailSales':type==='expenses'?'salesHistoryDetailExpenses':'salesHistoryDetailOrders'); if(modalPane) modalPane.classList.remove('is-hidden');
+        if(type==='sales') renderDashboardSalesHistory();
+        if(type==='expenses') renderDashboardExpensesHistory();
+        if(type==='orders') renderDashboardOrdersHistory();
+        if(openModalAfter) openDashboardHistoryModal(type);
+    };
+
+    function showToast(message) {
+        const toast = document.getElementById('toastNotification');
+        const text = document.getElementById('toastMessage');
+        if (!toast || !text) return;
+        text.textContent = message || '';
+        toast.classList.remove('-translate-y-20', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        window.clearTimeout(showToast._timer);
+        showToast._timer = window.setTimeout(() => {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('-translate-y-20', 'opacity-0');
+        }, 2500);
+    }
+
+    function openModal(modalId, cardId) {
+        const modal = document.getElementById(modalId);
+        const card = document.getElementById(cardId);
+
+        if (!modal || !card) {
+            console.warn('Modal element haijapatikana:', modalId, cardId);
+            return;
+        }
+
+        lastFocusedElement = document.activeElement;
+        activeModal = modal;
+
+        // Ondoa hidden na force visibility. Hii inazuia hali ya blur/backdrop
+        // kuonekana bila card, hata kama CSS ya base ina override transition classes.
+        modal.classList.remove('hidden', 'opacity-0');
+        modal.classList.add('flex', 'opacity-100');
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+        modal.setAttribute('aria-hidden', 'false');
+
+        card.classList.remove('scale-95', 'opacity-0');
+        card.classList.add('scale-100', 'opacity-100');
+        card.style.opacity = '1';
+        card.style.visibility = 'visible';
+        card.style.transform = 'scale(1)';
+        card.style.position = 'relative';
+        card.style.zIndex = '1';
+
+        if (modalId === 'notificationModal') {
+            modal.style.zIndex = '9999';
+            card.style.zIndex = '10000';
+        }
+
+        requestAnimationFrame(() => {
+            const focusable = card.querySelector(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            if (focusable) focusable.focus();
+        });
+    }
+
+    function closeModal(modalId, cardId) {
+        const modal = document.getElementById(modalId);
+        const card = document.getElementById(cardId);
+
+        if (!modal || !card) return;
+
+        card.style.opacity = '0';
+        card.style.transform = 'scale(0.95)';
+        modal.style.opacity = '0';
+        modal.setAttribute('aria-hidden', 'true');
+
+        window.setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modal.style.display = 'none';
+
+            card.style.opacity = '';
+            card.style.transform = '';
+            card.style.zIndex = '';
+            card.style.position = '';
+
+            if (activeModal === modal) activeModal = null;
+
+            if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+                lastFocusedElement.focus();
+            }
+        }, 250);
+    }
+
+    window.toggleModal = function (modalId, cardId, show) {
+        if (show) openModal(modalId, cardId);
+        else closeModal(modalId, cardId);
+    };
+
+    window.funguaActivityHistoryModal = function () {
+        openModal('activityHistoryModal', 'activityHistoryModalCard');
+    };
+
+    window.fungaActivityHistoryModal = function () {
+        closeModal('activityHistoryModal', 'activityHistoryModalCard');
+    };
+
+    window.funguaSalesHistoryModal = function () {
+        openDashboardHistoryModal(window.__dashboardHistoryType || 'sales');
+    };
+
+    window.fungaSalesHistoryModal = function () {
+        closeModal('salesHistoryModal', 'salesHistoryModalCard');
+    };
+
+    window.funguaReorderModal = function () {
+        openModal('reorderApprovalModal', 'reorderApprovalModalCard');
+    };
+
+    window.fungaReorderModal = function () {
+        closeModal('reorderApprovalModal', 'reorderApprovalModalCard');
+    };
+
+    window.funguaSmartReorderModal = async function () {
+        try {
+            const response = await fetch("{% url 'smart_reorder_create' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Smart reorder imeshindikana.');
+            }
+
+            showToast(DASHBOARD_T.smartReorderCreated);
+            setTimeout(() => window.location.reload(), 700);
+        } catch (error) {
+            console.error(error);
+            showToast(DASHBOARD_T.smartReorderCreateFailed);
+        }
+    };
+
+    window.funguaStockListModal = function (title, filter) {
+        const titleEl = document.getElementById('stockListModalTitle');
+        const descEl = document.getElementById('stockListModalDesc');
+        const bodyEl = document.getElementById('stockListModalBody');
+        if (titleEl) titleEl.textContent = title || DASHBOARD_T.stockList;
+        if (descEl) descEl.textContent = DASHBOARD_T.stockInfo;
+        if (bodyEl) bodyEl.innerHTML = `<p class="font-bold mb-3">Filter: ${String(filter || 'all').replace(/[<>]/g, '')}</p><a href="{% url 'stoo_bidhaa' %}" class="inline-flex px-4 py-2 rounded-xl bg-purple-900 text-amber-400 font-black">Fungua Stoo & Bidhaa</a>`;
+        openModal('stockListModal', 'stockListModalCard');
+    };
+
+    window.fungaStockListModal = function () {
+        closeModal('stockListModal', 'stockListModalCard');
+    };
+
+    window.fungaModal = function () {
+        closeModal('generalModal', 'generalModalCard');
+    };
+
+    window.kamilishaKaziGeneral = function () {
+        closeModal('generalModal', 'generalModalCard');
+    };
+
+    function getCsrfToken() {
+        const name = 'csrftoken=';
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name)) {
+                return decodeURIComponent(cookie.substring(name.length));
+            }
+        }
+        const tokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+        return tokenInput ? tokenInput.value : '';
+    }
+
+    window.approveReorder = async function (action) {
+        const requestId = '{{ reorder_request.id|default:""|escapejs }}';
+        if (!requestId) {
+            showToast(DASHBOARD_T.noPurchaseRequest);
+            return;
+        }
+
+        const endpoint = action === 'order'
+            ? "{% url 'purchase_request_approve' 0 %}".replace('/0/', `/${requestId}/`)
+            : "{% url 'purchase_request_reject' 0 %}".replace('/0/', `/${requestId}/`);
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(DASHBOARD_T.requestFailed);
+            }
+
+            showToast(
+                action === 'order'
+                    ? 'Purchase request imeidhinishwa.'
+                    : 'Purchase request imekataliwa.'
+            );
+
+            setTimeout(() => window.location.reload(), 600);
+        } catch (error) {
+            console.error(error);
+            showToast(DASHBOARD_T.requestProcessFailed);
+        }
+    };
+
+    window.fungaFloatingAlert = function () {
+        const alertBox = document.getElementById('floatingReorderAlert');
+        if (alertBox) {
+            alertBox.classList.remove('translate-y-0', 'opacity-100');
+            alertBox.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+        }
+    };
+
+    // DRY Logic kwa ajili ya kufunga modal yoyote iliyo wazi moja kwa moja
+    function closeActiveModal() {
+        if (!activeModal) return;
+        // Tunachukua ID ya modal kisha tunaunganisha na neno 'Card' kupata kadi yake
+        const cardId = activeModal.id + 'Card'; 
+        closeModal(activeModal.id, cardId);
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (!activeModal) return;
+        if (event.key === 'Escape') closeActiveModal();
+
+        if (event.key === 'Tab') {
+            const focusable = activeModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        }
+    });
+
+    ['notificationModal', 'generalModal', 'stockListModal', 'activityHistoryModal', 'salesHistoryModal', 'reorderApprovalModal', 'productProfitModal'].forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        modal.addEventListener('mousedown', event => {
+            if (event.target === modal) closeActiveModal();
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hii inaokoa RAM kwa 90% na kufanya page i-load chap kwa kuondoa 'body:has()'
+        document.body.classList.add('is-tradecore-dashboard');
+
+        const activityCard = document.getElementById('activityCenterCard');
+        if (activityCard) {
+            activityCard.addEventListener('click', function (event) {
+                if (event.target.closest('a, button, input, select, textarea')) return;
+                window.funguaActivityHistoryModal();
+            });
+            activityCard.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    window.funguaActivityHistoryModal();
+                }
+            });
+        }
+
+        const salesCard = document.getElementById('salesHistoryCard');
+        if (salesCard) {
+            salesCard.addEventListener('click', function (event) {
+                if (event.target.closest('a, button, input, select, textarea')) return;
+                window.funguaSalesHistoryModal();
+            });
+            salesCard.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openDashboardHistoryModal(window.__dashboardHistoryType || 'sales');
+                }
+            });
+        }
+
+        /* =====================================================
+           PAGE SCROLL LOCK + SMART SCROLLBAR
+           Same interaction model as the Customer page.
+        ===================================================== */
+        const dashboardPageScroll =
+            document.getElementById('tradecoreDashboardPage');
+
+        const dashboardPageScrollLockBtn =
+            document.getElementById('toggleDashboardPageScrollLock');
+
+        const dashboardPageScrollLockLabel =
+            document.getElementById('dashboardPageScrollLockLabel');
+
+        const dashboardPageScrollLockHint =
+            document.getElementById('dashboardPageScrollLockHint');
+
+        function updateDashboardPageScrollLockUI(locked) {
+            if (!dashboardPageScroll) return;
+
+            dashboardPageScroll.classList.toggle(
+                'page-scroll-locked',
+                locked
+            );
+
+            dashboardPageScrollLockBtn?.setAttribute(
+                'aria-pressed',
+                locked ? 'true' : 'false'
+            );
+
+            dashboardPageScrollLockBtn?.classList.toggle(
+                'is-locked',
+                locked
+            );
+
+            if (dashboardPageScrollLockLabel) {
+                dashboardPageScrollLockLabel.textContent =
+                    locked ? DASHBOARD_T.unlockPage : DASHBOARD_T.lockPage;
+            }
+
+            if (dashboardPageScrollLockHint) {
+                dashboardPageScrollLockHint.textContent =
+                    locked
+                        ? 'Page scroll imefungwa • history bado inaweza kuscroll'
+                        : 'Bonyeza Lock kufunga page scroll';
+            }
+        }
+
+        dashboardPageScrollLockBtn?.addEventListener(
+            'click',
+            function () {
+                const locked =
+                    !dashboardPageScroll?.classList.contains('page-scroll-locked');
+
+                updateDashboardPageScrollLockUI(locked);
+            }
+        );
+
+        updateDashboardPageScrollLockUI(false);
+
+        /* =====================================================
+           PERSISTENT CARD RESIZE
+           Dimensions are stored locally per browser and restored
+           automatically after refresh. No backend/schema changes.
+        ===================================================== */
+        const dashboardResizeStorageKey = 'tradecore_dashboard_card_sizes_v1';
+        const dashboardResizeTargets = [
+            {
+                key: 'salesChart',
+                selector: '#adminSalesChartCard',
+                minWidth: 360,
+                minHeight: 250,
+                maxHeight: 420
+            },
+            {
+                key: 'activityCenter',
+                selector: '#activityCenterCard',
+                minWidth: 280,
+                minHeight: 250,
+                maxHeight: 480
+            },
+            {
+                key: 'salesHistory',
+                selector: '#salesHistoryCard',
+                minWidth: 520,
+                minHeight: 260,
+                maxHeight: 520
+            }
+        ];
+
+        function readDashboardCardSizes() {
+            try {
+                const parsed = JSON.parse(
+                    localStorage.getItem(dashboardResizeStorageKey) || '{}'
+                );
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function writeDashboardCardSizes(sizes) {
+            try {
+                localStorage.setItem(
+                    dashboardResizeStorageKey,
+                    JSON.stringify(sizes)
+                );
+            } catch (error) {
+                // Storage can be unavailable in private/restricted browser contexts.
+            }
+        }
+
+        const dashboardCardSizes = readDashboardCardSizes();
+
+        dashboardResizeTargets.forEach(function (target) {
+            const card = document.querySelector(target.selector);
+            if (!card) return;
+
+            card.classList.add('dashboard-resizable-card');
+
+            const saved = dashboardCardSizes[target.key];
+            if (saved) {
+                const savedWidth = Number(saved.width);
+                const savedHeight = Number(saved.height);
+
+                if (Number.isFinite(savedWidth) && savedWidth >= target.minWidth) {
+                    card.style.width = `${savedWidth}px`;
+                }
+                if (Number.isFinite(savedHeight) && savedHeight >= target.minHeight) {
+                    const safeHeight = target.maxHeight
+                        ? Math.min(savedHeight, target.maxHeight)
+                        : savedHeight;
+                    card.style.height = `${safeHeight}px`;
+                }
+            }
+
+            if (typeof ResizeObserver === 'undefined') return;
+
+            let saveTimer = null;
+            const observer = new ResizeObserver(function () {
+                if (saveTimer) clearTimeout(saveTimer);
+                saveTimer = setTimeout(function () {
+                    const rect = card.getBoundingClientRect();
+                    if (!rect.width || !rect.height) return;
+
+                    dashboardCardSizes[target.key] = {
+                        width: Math.round(rect.width),
+                        height: Math.round(
+                            target.maxHeight
+                                ? Math.min(rect.height, target.maxHeight)
+                                : rect.height
+                        )
+                    };
+                    writeDashboardCardSizes(dashboardCardSizes);
+                }, 120);
+            });
+
+            observer.observe(card);
+        });
+
+        document
+            .querySelectorAll(
+                '#tradecoreDashboardPage, #salesHistoryCard .dashboard-history-pane, #activityCenterCard .overflow-y-auto'
+            )
+            .forEach(function (scroller) {
+                let scrollIndicatorTimer = null;
+
+                function showScrollIndicator() {
+                    scroller.classList.add('is-scrolling');
+
+                    clearTimeout(scrollIndicatorTimer);
+
+                    scrollIndicatorTimer = setTimeout(function () {
+                        scroller.classList.remove('is-scrolling');
+                    }, 450);
+                }
+
+                scroller.addEventListener(
+                    'scroll',
+                    showScrollIndicator,
+                    { passive: true }
+                );
+
+                scroller.addEventListener(
+                    'wheel',
+                    showScrollIndicator,
+                    { passive: true }
+                );
+
+                scroller.addEventListener(
+                    'touchmove',
+                    showScrollIndicator,
+                    { passive: true }
+                );
+            });
+
+        /* SALES HISTORY WHEEL FIX — route the mouse wheel directly to the
+           visible history pane when it has vertical overflow. This is guarded
+           so page scrolling still works when the pane is already at an edge. */
+        document
+            .querySelectorAll('#salesHistoryCard .dashboard-history-pane')
+            .forEach(function (pane) {
+                pane.addEventListener('wheel', function (event) {
+                    if (Math.abs(event.deltaY) < 0.01) return;
+
+                    const maxScroll = pane.scrollHeight - pane.clientHeight;
+                    if (maxScroll <= 1) return;
+
+                    const atTop = pane.scrollTop <= 0;
+                    const atBottom = pane.scrollTop >= maxScroll - 1;
+
+                    if ((event.deltaY < 0 && atTop) || (event.deltaY > 0 && atBottom)) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    pane.scrollTop += event.deltaY;
+                }, { passive: false });
+            });
+
+        switchDashboardHistory('sales', false);
+        injectAdminDateTimeRow();
+        initCharts();
+        updateClock();
+        setSalesTargetProgress();
+        window.setInterval(updateClock, 1000);
+    });
+})();
+
+document.addEventListener("DOMContentLoaded", function() {
+    function abbreviateNumber(value) {
+        let num = parseFloat(value);
+        if (isNaN(num)) return value;
+        if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+        return new Intl.NumberFormat('en-US').format(num);
+    }
+    
+    // Inabadilisha namba zote kuingia kwenye K na M bila kuharibu mfumo
+    document.querySelectorAll('.k-money').forEach(el => {
+        let rawVal = el.getAttribute('data-raw');
+        if(rawVal) {
+            el.textContent = abbreviateNumber(rawVal);
+        }
+    });
+});
+</script>
+
+{% endblock %}

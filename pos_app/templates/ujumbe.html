@@ -1,0 +1,3866 @@
+{% extends 'base.html' %}
+
+{% load humanize i18n %}
+
+{% block content %}
+
+<style>
+/* =========================================================
+   TRADECORE — APPLE UI CENTERED TOAST
+   Page-only: no Base architecture changes.
+========================================================= */
+.tradecore-toast {
+    display: flex;
+    background: rgba(15, 23, 42, 0.18);
+    -webkit-backdrop-filter: blur(10px) saturate(135%);
+    backdrop-filter: blur(10px) saturate(135%);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity .22s ease, visibility .22s ease;
+}
+
+.tradecore-toast.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+}
+
+.tradecore-toast-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 22px 18px;
+    border: 1px solid rgba(255,255,255,.82);
+    border-radius: 26px;
+    background: rgba(255,255,255,.94);
+    box-shadow: 0 24px 70px rgba(15,23,42,.20), 0 8px 24px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.98);
+    -webkit-backdrop-filter: blur(26px) saturate(165%);
+    backdrop-filter: blur(26px) saturate(165%);
+    transform: translateY(10px) scale(.96);
+    transition: transform .24s cubic-bezier(.22,1,.36,1);
+}
+
+.tradecore-toast.is-visible .tradecore-toast-card {
+    transform: translateY(0) scale(1);
+}
+
+.tradecore-toast-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 19px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,.88);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.98), 0 8px 20px rgba(15,23,42,.08);
+}
+
+.tradecore-toast-icon-success {
+    color: #16a34a;
+    background: rgba(220,252,231,.92);
+}
+
+.tradecore-toast-icon-error {
+    color: #dc2626;
+    background: rgba(254,226,226,.94);
+}
+
+.tradecore-toast-icon-info {
+    color: #6d28d9;
+    background: rgba(237,233,254,.94);
+}
+
+.tradecore-toast-progress {
+    background: #22c55e;
+    transition: transform 2.9s linear;
+}
+
+.tradecore-toast-card[data-toast-type="error"] .tradecore-toast-progress {
+    background: #ef4444;
+}
+
+.tradecore-toast-card[data-toast-type="info"] .tradecore-toast-progress {
+    background: #7c3aed;
+}
+
+@media (max-width: 639px) {
+    .tradecore-toast { padding: 16px; }
+    .tradecore-toast-card { max-width: 340px; padding: 22px 18px 16px; border-radius: 24px; }
+    .tradecore-toast-icon { width: 54px; height: 54px; border-radius: 18px; }
+}
+
+/* =========================================================
+   TRADECORE — UJUMBE PAGE-ONLY WIDTH SURGERY
+   Fix the actual Base layout wrappers used by this page.
+   Shared Base architecture remains untouched.
+   ========================================================= */
+body:has(#messageComposerModal) .app-content {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box !important;
+}
+
+body:has(#messageComposerModal) main {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 42px !important;
+    padding-right: 42px !important;
+    box-sizing: border-box !important;
+}
+
+body:has(#messageComposerModal) .app-content > main {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* Keep a safe fallback for older Base markup without affecting other pages. */
+body:has(#messageComposerModal) .content-wrapper {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 1023px) {
+    body:has(#messageComposerModal) main {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}
+
+@media (max-width: 639px) {
+    body:has(#messageComposerModal) main {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+}
+
+/* =========================================================
+   TRADECORE — CONTACT CENTER APPLE GLASS HEADER
+   Page-only surgery. No Base architecture changes.
+========================================================= */
+body:has(#messageComposerModal) #ujumbeStaticHeader.ujumbe-contact-center-card {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 70 !important;
+    margin-top: 2px !important;
+    padding: 18px 20px !important;
+    border-radius: 28px !important;
+    border: 1px solid rgba(229,231,235,0.92) !important;
+    background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.78)) !important;
+    box-shadow: 0 14px 38px rgba(17,24,39,0.075), inset 0 1px 0 rgba(255,255,255,0.95) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(145%) !important;
+    backdrop-filter: blur(22px) saturate(145%) !important;
+    overflow: hidden !important;
+}
+
+body:has(#messageComposerModal) #ujumbeStaticHeader.ujumbe-contact-center-card::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: inherit !important;
+    pointer-events: none !important;
+    background: linear-gradient(120deg, rgba(124,58,237,0.035), transparent 45%, rgba(245,158,11,0.025)) !important;
+}
+
+body:has(#messageComposerModal) .ujumbe-contact-icon {
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #5b21b6 !important;
+    background: rgba(124,58,237,0.075) !important;
+    border: 1px solid rgba(124,58,237,0.10) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.95) !important;
+}
+
+body:has(#messageComposerModal) .ujumbe-new-message-btn {
+    border: 1px solid rgba(76,29,149,0.10) !important;
+    background: rgba(76,29,149,0.96) !important;
+    color: #fbbf24 !important;
+    padding: 11px 16px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 22px rgba(76,29,149,0.16), inset 0 1px 0 rgba(255,255,255,0.10) !important;
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    white-space: nowrap !important;
+}
+
+body:has(#messageComposerModal) .ujumbe-new-message-btn:hover {
+    background: rgba(91,33,182,0.98) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 11px 26px rgba(76,29,149,0.20), inset 0 1px 0 rgba(255,255,255,0.12) !important;
+}
+
+@media (max-width: 639px) {
+    body:has(#messageComposerModal) #ujumbeStaticHeader.ujumbe-contact-center-card {
+        padding: 15px !important;
+        border-radius: 24px !important;
+    }
+    body:has(#messageComposerModal) .ujumbe-contact-icon {
+        width: 46px !important;
+        height: 46px !important;
+        border-radius: 16px !important;
+    }
+    body:has(#messageComposerModal) .ujumbe-new-message-btn {
+        width: 100% !important;
+    }
+}
+
+/* =========================================================
+   TRADECORE — UJUMBE STATIC HEADER + INTERNAL CONTENT SCROLL
+   Header stays fixed; all lower cards/content live inside one
+   dedicated scroll container. Shared Base remains untouched.
+========================================================= */
+body:has(#messageComposerModal) main {
+    overflow: hidden !important;
+}
+
+body:has(#messageComposerModal) .app-content {
+    overflow: hidden !important;
+}
+
+body:has(#messageComposerModal) #ujumbeContentScroll {
+    /* Tumeondoa 'height' na 'max-height' ili JS iweze kupima kioo na kuruhusu scroll */
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable;
+    padding-right: 8px;
+    padding-bottom: 34px;
+    box-sizing: border-box;
+    position: relative !important;
+    isolation: isolate;
+    
+    /* SURGERY: Kuteleza kwa ulaini (Smooth Scroll) */
+    scroll-behavior: smooth !important;
+    
+    /* SURGERY: Tumepunguza ukubwa wa ukingo unaofifia (Edge Masking) */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0px, black 10px, black calc(100% - 10px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0px, black 10px, black calc(100% - 10px), transparent 100%);
+}
+
+/* SURGERY: Kuua boksi kubwa jeupe la salamu kutoka kwenye base.html */
+body:has(#messageComposerModal) div.relative:has(#salamuYaMuda) {
+    display: none !important;
+}
+
+body:has(#messageComposerModal) #ujumbeContentScroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+body:has(#messageComposerModal) #ujumbeContentScroll::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.22);
+    border-radius: 999px;
+}
+
+body:has(#messageComposerModal) #ujumbeContentScroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+/* =========================================================
+   TRANSPARENT EDGE + PAGE SCROLL LOCK
+   Static header stays visible; lower content keeps its own scroll.
+========================================================= */
+body:has(#messageComposerModal) #ujumbeStaticHeader {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 70 !important;
+    padding-top: 8px !important;
+    padding-bottom: 18px !important;
+    background: rgba(255, 255, 255, 0.65) !important; /* Kioo cheupe chepesi */
+    -webkit-backdrop-filter: blur(24px) saturate(160%) !important; /* Blur kali zaidi */
+    backdrop-filter: blur(24px) saturate(160%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important; /* Mstari wa ukingo wa kioo */
+}
+
+body:has(#messageComposerModal) #ujumbeContentScroll {
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+}
+
+
+
+body.ujumbe-page-scroll-locked {
+    overflow: hidden !important;
+}
+
+html.ujumbe-page-scroll-locked,
+html.ujumbe-page-scroll-locked body {
+    overscroll-behavior: none !important;
+}
+
+body:has(#messageComposerModal) #ujumbePageScrollLock {
+    position: fixed !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 80 !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 999px !important;
+    border: 1px solid rgba(124,58,237,0.16) !important;
+    background: rgba(255,255,255,0.58) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
+    backdrop-filter: blur(18px) saturate(140%) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.78) !important;
+    color: #4c1d95 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+}
+
+body:has(#messageComposerModal) #ujumbePageScrollLock:hover {
+    transform: translateY(-50%) scale(1.04) !important;
+    border-color: rgba(124,58,237,0.28) !important;
+    background: rgba(255,255,255,0.90) !important;
+}
+
+body:has(#messageComposerModal) #ujumbePageScrollLock .lock-label {
+    position: absolute;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    padding: 7px 10px;
+    border-radius: 12px;
+    background: rgba(17,24,39,0.90);
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    transition: opacity 0.15s ease;
+}
+
+body:has(#messageComposerModal) #ujumbePageScrollLock:hover .lock-label {
+    opacity: 1;
+}
+
+@media (max-width: 639px) {
+    body:has(#messageComposerModal) #ujumbePageScrollLock {
+        right: 6px !important;
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    body:has(#messageComposerModal) #ujumbePageScrollLock .lock-label {
+        display: none;
+    }
+}
+
+/* Default page state: locked, so the greeting/title remains static. */
+body:not(.ujumbe-page-scroll-unlocked) {
+    overflow: hidden !important;
+}
+
+body.ujumbe-page-scroll-unlocked {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+</style>
+
+<style>
+/* =========================================================
+   FINAL SURGERY — RECHARGE PANEL STACKING / CONTRAST
+   ========================================================= */
+
+/* Remove the two transparent edge layers if they sit above panel content. */
+body:has(#ujumbeRechargeColumn) #ujumbeScrollTopEdge,
+body:has(#ujumbeRechargeColumn) #ujumbeScrollBottomEdge {
+    display: none !important;
+}
+
+/* Put the recharge column/card above inherited overlays. */
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeColumn {
+    position: relative !important;
+    z-index: 9999 !important;
+    isolation: isolate !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+    mix-blend-mode: normal !important;
+}
+
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeCard {
+    position: sticky !important;
+    top: 1.5rem !important;
+    z-index: 10000 !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    mix-blend-mode: normal !important;
+    isolation: isolate !important;
+}
+
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeColumn::before,
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeColumn::after,
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeCard::before,
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeCard::after {
+    content: none !important;
+    display: none !important;
+}
+
+/* Readable text — panel only. */
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeCard h2 {
+    color: #4c1d95 !important;
+    -webkit-text-fill-color: #4c1d95 !important;
+    opacity: 1 !important;
+}
+
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeCard p,
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeCard label,
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeCard span {
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeCard .text-gray-900 {
+    color: #111827 !important;
+    -webkit-text-fill-color: #111827 !important;
+}
+
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeCard .text-gray-500 {
+    color: #6b7280 !important;
+    -webkit-text-fill-color: #6b7280 !important;
+}
+
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeCard .text-gray-400 {
+    color: #9ca3af !important;
+    -webkit-text-fill-color: #9ca3af !important;
+}
+
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeCard .text-purple-900 {
+    color: #4c1d95 !important;
+    -webkit-text-fill-color: #4c1d95 !important;
+}
+
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeCard input {
+    color: #111827 !important;
+    -webkit-text-fill-color: #111827 !important;
+    opacity: 1 !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+}
+
+body:has(#ujumbeRechargeColumn) #ujumbeRechargeCard input::placeholder {
+    color: #9ca3af !important;
+    -webkit-text-fill-color: #9ca3af !important;
+    opacity: 1 !important;
+}
+</style>
+
+
+
+<!-- =========================================================
+     TRADECORE — COMMUNICATION CENTER
+     Identity: Purple + Gold | Apple-style rounded UI
+========================================================= -->
+
+<!-- =========================================================
+     APPLE UI TOAST — CENTERED STATUS POPUP
+========================================================= -->
+<div id="toastNotification"
+     class="tradecore-toast fixed inset-0 z-[300] hidden items-center justify-center p-5"
+     role="status"
+     aria-live="polite"
+     aria-atomic="true">
+
+    <div id="toastCard"
+         class="tradecore-toast-card w-full max-w-sm"
+         data-toast-type="success">
+
+        <div id="toastIconWrap" class="tradecore-toast-icon tradecore-toast-icon-success">
+            <svg id="toastIconSuccess"
+                 class="w-7 h-7"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2.4"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M5 12.5l4.2 4.2L19 7"/>
+            </svg>
+
+            <svg id="toastIconError"
+                 class="w-7 h-7 hidden"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2.2"
+                      d="M12 8v5m0 3h.01M10.3 3.7l-7 12.1A2 2 0 005 18.8h14a2 2 0 001.7-3L13.7 3.7a2 2 0 00-3.4 0z"/>
+            </svg>
+
+            <svg id="toastIconInfo"
+                 class="w-7 h-7 hidden"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+                <circle cx="12" cy="12" r="9" stroke-width="2.2"/>
+                <path stroke-linecap="round" stroke-width="2.2" d="M12 10v6m0-9h.01"/>
+            </svg>
+        </div>
+
+        <div id="toastTitle"
+             class="mt-4 text-[15px] font-black tracking-tight text-gray-950">
+            {% trans "Umefanikiwa" %}
+        </div>
+
+        <div id="toastMessage"
+             class="mt-1.5 text-[13px] leading-5 font-medium text-gray-500">
+            {% trans "Imekamilika!" %}
+        </div>
+
+        <div class="mt-5 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+            <div id="toastProgress"
+                 class="h-full w-full origin-left rounded-full tradecore-toast-progress"
+                 style="transform: scaleX(1);"></div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- =========================================================
+     PAGE HEADER
+========================================================= -->
+
+<div id="ujumbeStaticHeader"
+     class="ujumbe-contact-center-card relative z-20 mb-3" style="padding: 10px 16px !important;">
+
+    <div class="flex flex-col lg:flex-row lg:items-center
+                justify-between gap-3">
+
+        <div class="flex items-center gap-3 min-w-0">
+
+            <div class="ujumbe-contact-icon flex-shrink-0" style="width: 40px !important; height: 40px !important; border-radius: 12px !important;" aria-hidden="true">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                          d="M8 10h8M8 14h5m7-2a8 8 0 11-16 0c0 1.657.504 3.197 1.366 4.465L4 20l3.45-2.3A8 8 0 0020 12z"/>
+                </svg>
+            </div>
+
+            <div class="min-w-0">
+                <div class="flex items-center gap-2 mb-1.5">
+                    <span class="w-2 h-2 rounded-full bg-purple-600 shadow-sm shadow-purple-500/30"></span>
+                    <span class="text-[10px] font-black uppercase tracking-[0.18em] text-purple-700">
+                        {% trans 'TradeCore Communication' %}
+                    </span>
+                </div>
+
+                <h1 class="text-xl md:text-2xl font-light tracking-tight text-gray-700 leading-tight mt-0.5">
+                    {% trans 'Contact' %} <span class=\"font-black text-purple-900\">{% trans 'Center' %}</span>
+                </h1>
+
+                <p class="text-xs text-gray-500 mt-0.5 max-w-2xl">
+                    {% trans 'Dhibiti SMS, WhatsApp na taarifa za biashara kutoka sehemu moja.' %}
+                </p>
+            </div>
+
+        </div>
+
+        <button type="button"
+                onclick="funguaComposer()"
+                class="ujumbe-new-message-btn flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+            {% trans 'Ujumbe Mpya' %}
+        </button>
+
+    </div>
+
+</div>
+
+
+
+
+<!-- PAGE SCROLL LOCK CONTROL -->
+<button id="ujumbePageScrollLock"
+        type="button"
+        aria-label="{% trans 'Funga scroll ya ukurasa' %}"
+        aria-pressed="true"
+        title="{% trans 'Funga scroll ya ukurasa' %}"
+        onclick="toggleUjumbePageScroll()">
+    <svg id="ujumbeLockIcon"
+         class="w-4.5 h-4.5"
+         fill="none"
+         stroke="currentColor"
+         viewBox="0 0 24 24"
+         aria-hidden="true">
+        <rect x="5" y="10" width="14" height="10" rx="2" stroke-width="2"/>
+        <path d="M8 10V7a4 4 0 018 0v3" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span id="ujumbeLockLabel" class="lock-label">{% trans 'Scroll ya ukurasa imefungwa' %}</span>
+</button>
+
+<!-- =========================================================
+     INTERNAL CONTENT SCROLL CONTAINER
+     Everything below the static page header scrolls here.
+========================================================= -->
+<div id="ujumbeContentScroll"
+     class="relative rounded-[30px]">
+
+<div id="ujumbeScrollTopEdge" class="pointer-events-none" aria-hidden="true"></div>
+<div id="ujumbeScrollBottomEdge" class="pointer-events-none" aria-hidden="true"></div>
+
+
+
+<!-- =========================================================
+     OVERVIEW CARDS
+========================================================= -->
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8 mb-8 relative z-20">
+
+    <!-- SMS -->
+    <div class="bg-gray-900 rounded-[28px] border border-gray-800 p-6 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">{% trans 'SMS Balance' %}</p>
+                <h3 id="ujumbeSmsBalance" class="text-3xl font-black text-white mt-2">{{ sms_balance|default:0|intcomma }}</h3>
+                <p class="text-xs text-gray-500 mt-1">{% trans 'Credits available' %}</p>
+            </div>
+            <div class="w-11 h-11 rounded-2xl bg-white/10 text-amber-400 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+            </div>
+        </div>
+        <div class="mt-5 pt-4 border-t border-gray-800 flex items-center justify-between">
+            <span class="text-[11px] text-gray-400">{% trans 'Recent SMS' %}</span>
+            <span id="ujumbeSmsRecent" class="text-xs font-black text-purple-400">0</span>
+        </div>
+    </div>
+
+    <!-- WHATSAPP -->
+    <div class="bg-white rounded-[28px] border border-gray-100 p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex items-start justify-between">
+            <div>
+                <div class="flex items-center gap-2">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">WhatsApp</p>
+                    <span class="w-2 h-2 rounded-full bg-purple-600"></span>
+                </div>
+                <h3 id="ujumbeWhatsappRecent" class="text-xl font-black text-purple-900 mt-2">0</h3>
+                <p class="text-xs text-gray-500 mt-1">{% trans 'Recent WhatsApp messages' %}</p>
+            </div>
+            <div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.347.298-.52.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51h-.57c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+            </div>
+        </div>
+        <div class="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
+            <span class="text-[11px] text-gray-400">{% trans 'Delivery rate' %}</span>
+            <span id="ujumbeWhatsappRate" class="text-xs font-black text-purple-800">—</span>
+        </div>
+    </div>
+
+    <!-- DAILY REPORT -->
+    <div class="bg-purple-900 rounded-[28px] border border-purple-800 p-6 shadow-md text-white transition-all duration-200">
+        <div class="flex items-start justify-between">
+            <div>
+                <div class="flex items-center gap-2">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-purple-200">{% trans 'Daily Reports' %}</p>
+                    <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                </div>
+                <h3 id="ujumbeDailyStatus" class="text-xl font-black text-white mt-2">{% if daily_report_active %}{% trans "Active" %}{% else %}{% trans "Off" %}{% endif %}</h3>
+                <p class="text-xs text-purple-300 mt-1">{% trans 'Configured status' %}</p>
+            </div>
+            <div class="w-11 h-11 rounded-2xl bg-white/10 text-amber-400 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+        </div>
+        <div class="mt-5 pt-4 border-t border-purple-800/50 flex items-center justify-between">
+            <span class="text-[11px] text-purple-200">{% trans 'Recent reports' %}</span>
+            <span id="ujumbeDailyRecipients" class="text-xs font-black text-amber-400">0</span>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     DAILY BUSINESS REPORT
+========================================================= -->
+
+<div class="bg-white rounded-[30px]
+            border border-purple-100
+            shadow-sm p-6 md:p-7 mb-8 relative z-20">
+
+    <div class="flex flex-col md:flex-row
+                md:items-center justify-between gap-5">
+
+        <div class="flex items-start gap-4">
+
+            <div class="w-12 h-12 rounded-2xl
+                        bg-purple-50
+                        text-purple-900
+                        flex items-center justify-center shrink-0">
+
+                <svg class="w-6 h-6"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 17v-2m3 2v-6m3 6v-4m2
+                             12H7a2 2 0 01-2-2V5a2 2
+                             0 012-2h5.586a1 1 0
+                             01.707.293l5.414 5.414a1
+                             1 0 01.293.707V19a2 2
+                             0 01-2 2z"/>
+                </svg>
+
+            </div>
+
+            <div>
+
+                <div class="flex items-center gap-2 flex-wrap">
+
+                    <h2 class="text-lg font-black text-gray-900">
+                        {% trans 'Daily Business Report' %}
+                    </h2>
+
+                    <span class="bg-purple-900 text-amber-400
+                                 text-[9px] font-black
+                                 px-2.5 py-1 rounded-full
+                                 uppercase tracking-wider">{% trans 'Automatic' %}</span>
+
+                </div>
+
+                <p class="text-xs text-gray-500 mt-1">
+                    {% trans "Ripoti kamili ya biashara hutumwa moja kwa moja kwa Boss kila siku." %}
+                </p>
+
+                <div class="flex flex-wrap items-center gap-3 mt-3">
+
+                    <span class="text-[11px] font-bold
+                                 text-gray-500">
+                        {% trans 'Next:' %} <span class="text-purple-800">—</span>
+                    </span>
+
+                    <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+
+                    <span class="text-[11px] font-bold
+                                 text-gray-500">
+                        WhatsApp + SMS
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="flex gap-2">
+
+            <button type="button"
+                    onclick="funguaReportPreview()"
+                    class="px-4 py-2.5 rounded-xl
+                           border border-gray-200
+                           bg-white text-gray-700
+                           hover:border-purple-200
+                           hover:text-purple-800
+                           text-xs font-black
+                           transition-all">
+
+                {% trans 'Preview' %}
+
+            </button>
+
+            <button type="button"
+                    onclick="funguaReportSettings()"
+                    class="px-4 py-2.5 rounded-xl
+                           bg-purple-900 text-amber-400
+                           hover:bg-purple-800
+                           text-xs font-black
+                           transition-all">
+
+                {% trans 'Manage' %}
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="grid grid-cols-2 md:grid-cols-5
+                gap-3 mt-6">
+
+        <div class="bg-gray-50 rounded-2xl p-3">
+            <p class="text-[9px] uppercase font-black text-gray-400">
+                {% trans 'Sales' %}
+            </p>
+            <p class="text-sm font-black text-gray-900 mt-1">
+                ✓
+            </p>
+        </div>
+
+        <div class="bg-gray-50 rounded-2xl p-3">
+            <p class="text-[9px] uppercase font-black text-gray-400">
+                {% trans 'Payments' %}
+            </p>
+            <p class="text-sm font-black text-gray-900 mt-1">
+                ✓
+            </p>
+        </div>
+
+        <div class="bg-gray-50 rounded-2xl p-3">
+            <p class="text-[9px] uppercase font-black text-gray-400">
+                {% trans 'Staff' %}
+            </p>
+            <p class="text-sm font-black text-gray-900 mt-1">
+                ✓
+            </p>
+        </div>
+
+        <div class="bg-gray-50 rounded-2xl p-3">
+            <p class="text-[9px] uppercase font-black text-gray-400">
+                {% trans 'Products' %}
+            </p>
+            <p class="text-sm font-black text-gray-900 mt-1">
+                ✓
+            </p>
+        </div>
+
+        <div class="bg-gray-50 rounded-2xl p-3">
+            <p class="text-[9px] uppercase font-black text-gray-400">
+                {% trans 'Transactions' %}
+            </p>
+            <p class="text-sm font-black text-gray-900 mt-1">
+                {% trans 'Full' %}
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
+
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6 relative z-20">
+
+
+    <!-- =====================================================
+         CUSTOMER COMMUNICATION
+    ====================================================== -->
+
+    <div class="xl:col-span-8 space-y-6">
+
+
+        <div class="bg-white rounded-[30px]
+                    border border-gray-100
+                    shadow-sm p-6 md:p-7">
+
+            <div class="flex items-center justify-between mb-6">
+
+                <div>
+
+                    <h2 class="text-lg font-black text-gray-900">
+                        {% trans 'Customer Communication' %}
+                    </h2>
+
+                    <p class="text-xs text-gray-500 mt-1">
+                        {% trans 'Ujumbe unaowafikia wateja moja kwa moja.' %}
+                    </p>
+
+                </div>
+
+                <div class="w-10 h-10 rounded-2xl
+                            bg-amber-50 text-amber-600
+                            flex items-center justify-center">
+
+                    <svg class="w-5 h-5"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M8 12h.01M12 12h.01M16 12h.01
+                                 M21 12c0 4.418-4.03 8-9
+                                 8a9.863 9.863 0 01-4.255-.939
+                                 L3 20l1.939-4.745A7.96
+                                 7.96 0 013 12c0-4.418
+                                 4.03-8 9-8s9 3.582
+                                 9 8z"/>
+                    </svg>
+
+                </div>
+
+            </div>
+
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+
+                <!-- AFTER SALE -->
+                <div class="rounded-[24px]
+                            border border-gray-100
+                            bg-gray-50/60
+                            p-5
+                            hover:bg-white
+                            hover:border-purple-100
+                            hover:shadow-sm
+                            transition-all">
+
+                    <div class="flex items-start justify-between gap-3">
+
+                        <div class="w-10 h-10 rounded-2xl
+                                    bg-purple-50 text-purple-800
+                                    flex items-center justify-center">
+
+                            <span class="text-lg">♡</span>
+
+                        </div>
+
+                        <span class="text-[9px] font-black
+                                     uppercase tracking-wider
+                                     text-purple-700
+                                     bg-purple-50 px-2.5 py-1
+                                     rounded-full">
+                            {% trans "Active" %}
+                        </span>
+
+                    </div>
+
+                    <h3 class="font-black text-gray-900 mt-4">
+                        {% trans "Shukrani baada ya Mauzo" %}
+                    </h3>
+
+                    <p class="text-[11px] text-gray-500 mt-1">
+                        {% trans "Mteja hupokea ujumbe baada ya kukamilisha malipo." %}
+                    </p>
+
+                    <div class="flex items-center justify-between mt-5">
+
+                        <span class="text-[10px] text-gray-400">
+                            {% trans "SMS + WhatsApp" %}
+                        </span>
+
+                        <button type="button"
+                                onclick="funguaEditAutoModal(
+                                'Shukrani baada ya Mauzo',
+                                'Habari {Jina}, asante kwa kufanya manunuzi nasi. Tunathamini sana kuwa sehemu ya wateja wetu. Umenunua {Kifaa}. {AI_Product_Care} Karibu tena {Duka}.')"
+                                class="text-xs font-black text-purple-800
+                                       hover:text-amber-600 transition-colors">
+                            Edit
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- AI PRODUCT CARE -->
+                <div class="rounded-[24px]
+                            border border-purple-100
+                            bg-purple-50/60
+                            p-5
+                            hover:bg-purple-50
+                            transition-all">
+
+                    <div class="flex items-start justify-between gap-3">
+
+                        <div class="w-10 h-10 rounded-2xl
+                                    bg-purple-900 text-amber-400
+                                    flex items-center justify-center">
+
+                            <span class="text-lg">✦</span>
+
+                        </div>
+
+                        <span class="bg-purple-900
+                                     text-amber-400
+                                     text-[9px] font-black
+                                     px-2.5 py-1 rounded-full
+                                     uppercase tracking-wider">
+                            {% trans "AI Powered" %}
+                        </span>
+
+                    </div>
+
+                    <h3 class="font-black text-gray-900 mt-4">
+                        {% trans "AI Product Care" %}
+                    </h3>
+
+                    <p class="text-[11px] text-gray-500 mt-1">
+                        {% trans "AI hutengeneza ushauri mfupi kulingana na bidhaa." %}
+                    </p>
+
+                    <div class="flex items-center justify-between mt-5">
+
+                        <span class="text-[10px] text-gray-400">{% trans 'Automatic' %}</span>
+
+                        <button type="button"
+                                onclick="funguaEditAutoModal(
+                                'AI Product Care',
+                                'Asante {Jina} kwa kununua {Kifaa}. {AI_Product_Care} Karibu tena {Duka}.')"
+                                class="text-xs font-black text-purple-800
+                                       hover:text-amber-600 transition-colors">
+                            Edit
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DEBT -->
+                <div class="rounded-[24px]
+                            border border-gray-100
+                            bg-gray-50/60
+                            p-5
+                            hover:bg-white
+                            hover:border-purple-100
+                            hover:shadow-sm
+                            transition-all">
+
+                    <div class="flex items-start justify-between gap-3">
+
+                        <div class="w-10 h-10 rounded-2xl
+                                    bg-amber-50 text-amber-600
+                                    flex items-center justify-center">
+
+                            <span class="text-lg">₮</span>
+
+                        </div>
+
+                        <label class="relative inline-flex
+                                      items-center cursor-pointer">
+
+                            <input type="checkbox"
+                                   checked
+                                   class="sr-only peer">
+
+                            <div class="w-11 h-6 bg-gray-200
+                                        rounded-full
+                                        peer-checked:bg-purple-700
+                                        after:content-['']
+                                        after:absolute after:top-[2px]
+                                        after:left-[2px]
+                                        after:bg-white
+                                        after:border-gray-300
+                                        after:border
+                                        after:rounded-full
+                                        after:h-5 after:w-5
+                                        after:transition-all
+                                        peer-checked:after:translate-x-full">
+                            </div>
+
+                        </label>
+
+                    </div>
+
+                    <h3 class="font-black text-gray-900 mt-4">
+                        {% trans "Kikumbusho cha Deni" %}
+                    </h3>
+
+                    <p class="text-[11px] text-gray-500 mt-1">
+                        {% trans "Kumbusho la malipo hutumwa automatically." %}
+                    </p>
+
+                    <div class="flex items-center justify-between mt-5">
+
+                        <span class="text-[10px] text-gray-400">
+                            {% trans 'Due date reminders' %}
+                        </span>
+
+                        <button type="button"
+                                onclick="funguaEditAutoModal(
+                                'Kikumbusho cha Deni',
+                                'Habari {Jina}, tunakukumbusha kwa heshima kuwa una salio la TSh {Deni}. Tarehe ya malipo ni {Due_Date}. Asante kwa kuendelea kuwa mteja wetu.')"
+                                class="text-xs font-black text-purple-800
+                                       hover:text-amber-600 transition-colors">
+                            Edit
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FOLLOW UP -->
+                <div class="rounded-[24px]
+                            border border-gray-100
+                            bg-gray-50/60
+                            p-5
+                            hover:bg-white
+                            hover:border-purple-100
+                            hover:shadow-sm
+                            transition-all">
+
+                    <div class="flex items-start justify-between gap-3">
+
+                        <div class="w-10 h-10 rounded-2xl
+                                    bg-gray-100 text-gray-600
+                                    flex items-center justify-center">
+
+                            <svg class="w-5 h-5"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M3 8l7.89 5.26a2
+                                         2 0 002.22 0L21
+                                         8M5 19h14a2 2
+                                         0 002-2V7a2 2
+                                         0 00-2-2H5a2
+                                         2 0 00-2 2v10a2
+                                         2 0 002 2z"/>
+                            </svg>
+
+                        </div>
+
+                        <span class="text-[9px] font-black
+                                     uppercase tracking-wider
+                                     text-gray-400
+                                     bg-gray-100 px-2.5 py-1
+                                     rounded-full">
+                            {% trans "Optional" %}
+                        </span>
+
+                    </div>
+
+                    <h3 class="font-black text-gray-900 mt-4">
+                        {% trans 'Customer Follow-up' %}
+                    </h3>
+
+                    <p class="text-[11px] text-gray-500 mt-1">
+                        {% trans "Rudisha wateja baada ya muda fulani tangu manunuzi." %}
+                    </p>
+
+                    <div class="flex items-center justify-between mt-5">
+
+                        <span class="text-[10px] text-gray-400">
+                            {% trans "Currently off" %}
+                        </span>
+
+                        <button type="button"
+                                onclick="showToast(UJUMBE_I18N.settings_opening)"
+                                class="text-xs font-black text-purple-800
+                                       hover:text-amber-600">
+                            {% trans 'Manage' %}
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             BUSINESS AUTOMATIONS
+        ================================================== -->
+
+        <div class="bg-white rounded-[30px]
+                    border border-gray-100
+                    shadow-sm p-6 md:p-7">
+
+            <div class="mb-6">
+
+                <h2 class="text-lg font-black text-gray-900">
+                    {% trans 'Business Automations' %}
+                </h2>
+
+                <p class="text-xs text-gray-500 mt-1">
+                    {% trans "Taarifa muhimu za biashara zinazoweza kumfikia Boss automatically." %}
+                </p>
+
+            </div>
+
+
+            <div class="space-y-3">
+
+
+                <!-- LOW STOCK -->
+                <div class="flex items-center justify-between
+                            gap-4 p-4 rounded-2xl
+                            border border-gray-100
+                            bg-gray-50/50">
+
+                    <div class="flex items-center gap-3 min-w-0">
+
+                        <div class="w-10 h-10 rounded-2xl
+                                    bg-purple-50 text-purple-800
+                                    flex items-center justify-center shrink-0">
+
+                            📦
+
+                        </div>
+
+                        <div class="min-w-0">
+
+                            <h4 class="font-black text-gray-800 text-sm">
+                                {% trans 'Low Stock Alert' %}
+                            </h4>
+
+                            <p class="text-[10px] text-gray-500 mt-1">
+                                {% trans "Mjulisho wa bidhaa zinapofikia reorder level." %}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <label class="relative inline-flex
+                                  items-center cursor-pointer shrink-0">
+
+                        <input type="checkbox"
+                               checked
+                               class="sr-only peer">
+
+                        <div class="w-11 h-6 bg-gray-200
+                                    rounded-full
+                                    peer-checked:bg-purple-700
+                                    after:content-['']
+                                    after:absolute after:top-[2px]
+                                    after:left-[2px]
+                                    after:bg-white
+                                    after:border-gray-300 after:border
+                                    after:rounded-full after:h-5 after:w-5
+                                    after:transition-all
+                                    peer-checked:after:translate-x-full">
+                        </div>
+
+                    </label>
+
+                </div>
+
+
+                <!-- LARGE DISCOUNT -->
+                <div class="flex items-center justify-between
+                            gap-4 p-4 rounded-2xl
+                            border border-gray-100
+                            bg-gray-50/50">
+
+                    <div class="flex items-center gap-3 min-w-0">
+
+                        <div class="w-10 h-10 rounded-2xl
+                                    bg-amber-50 text-amber-600
+                                    flex items-center justify-center shrink-0">
+
+                            %
+
+                        </div>
+
+                        <div class="min-w-0">
+
+                            <h4 class="font-black text-gray-800 text-sm">
+                                {% trans "Large Discount Alert" %}
+                            </h4>
+
+                            <p class="text-[10px] text-gray-500 mt-1">
+                                {% trans "Alert pale discount inapozidi kiwango ulichochagua." %}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <label class="relative inline-flex
+                                  items-center cursor-pointer shrink-0">
+
+                        <input type="checkbox"
+                               checked
+                               class="sr-only peer">
+
+                        <div class="w-11 h-6 bg-gray-200
+                                    rounded-full
+                                    peer-checked:bg-purple-700
+                                    after:content-['']
+                                    after:absolute after:top-[2px]
+                                    after:left-[2px]
+                                    after:bg-white
+                                    after:border-gray-300 after:border
+                                    after:rounded-full after:h-5 after:w-5
+                                    after:transition-all
+                                    peer-checked:after:translate-x-full">
+                        </div>
+
+                    </label>
+
+                </div>
+
+
+                <!-- DAILY REPORT -->
+                <div class="flex items-center justify-between
+                            gap-4 p-4 rounded-2xl
+                            border border-purple-100
+                            bg-purple-50/50">
+
+                    <div class="flex items-center gap-3 min-w-0">
+
+                        <div class="w-10 h-10 rounded-2xl
+                                    bg-purple-900 text-amber-400
+                                    flex items-center justify-center shrink-0">
+
+                            📊
+
+                        </div>
+
+                        <div class="min-w-0">
+
+                            <div class="flex items-center gap-2 flex-wrap">
+
+                                <h4 class="font-black text-gray-800 text-sm">
+                                    {% trans 'Daily Business Report' %}
+                                </h4>
+
+                                <span class="bg-purple-900 text-amber-400
+                                             text-[8px] font-black
+                                             px-2 py-0.5 rounded-full">
+                                    PREMIUM
+                                </span>
+
+                            </div>
+
+                            <p class="text-[10px] text-gray-500 mt-1">
+                                {% trans "Ripoti kamili ya siku hutumwa kwa Boss." %}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <label class="relative inline-flex
+                                  items-center cursor-pointer shrink-0">
+
+                        <input type="checkbox"
+                               checked
+                               class="sr-only peer">
+
+                        <div class="w-11 h-6 bg-gray-200
+                                    rounded-full
+                                    peer-checked:bg-purple-700
+                                    after:content-['']
+                                    after:absolute after:top-[2px]
+                                    after:left-[2px]
+                                    after:bg-white
+                                    after:border-gray-300 after:border
+                                    after:rounded-full after:h-5 after:w-5
+                                    after:transition-all
+                                    peer-checked:after:translate-x-full">
+                        </div>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             MESSAGE HISTORY
+        ================================================== -->
+
+        <div class="bg-white rounded-[30px]
+                    border border-gray-100
+                    shadow-sm p-6 md:p-7">
+
+            <div class="flex items-center justify-between mb-5">
+
+                <div>
+
+                    <h2 class="text-lg font-black text-gray-900">
+                        {% trans 'Mawasiliano ya Hivi Karibuni' %}
+                    </h2>
+
+                    <p class="text-xs text-gray-500 mt-1">
+                        {% trans 'Ujumbe uliotumwa kutoka TradeCore.' %}
+                    </p>
+
+                </div>
+
+                <button type="button"
+                        onclick="funguaMessageHistory()"
+                        class="text-xs font-black text-purple-800 hover:text-amber-600 transition-colors">
+                    {% trans 'View All' %}
+                </button>
+
+            </div>
+
+        <div class="space-y-2">
+
+    {% for message in communication_history %}
+
+    <div
+        class="communication-history-row flex items-center justify-between
+               p-4 rounded-2xl
+               hover:bg-gray-50 transition-all cursor-pointer"
+        data-message-channel="{{ message.channel|escape }}"
+        data-message-status="{{ message.status|escape }}"
+        data-message-type="{{ message.message_type|escape }}"
+        onclick="funguaMessageDetails(
+            '{{ message.get_message_type_display|escapejs }}',
+            '{{ message.recipient|escapejs }}',
+            '{{ message.created_at|date:"d M Y • H:i"|escapejs }}',
+            '{{ message.get_status_display|escapejs }}',
+            '{{ message.message|escapejs }}'
+        )">
+
+        <div class="flex items-center gap-3 min-w-0">
+
+            <div class="w-9 h-9 rounded-xl
+                        {% if message.channel == 'WHATSAPP' %}
+                            bg-purple-50 text-purple-800
+                        {% else %}
+                            bg-amber-50 text-amber-600
+                        {% endif %}
+                        flex items-center justify-center">
+
+                {% if message.channel == "WHATSAPP" %}
+                    WA
+                {% else %}
+                    SMS
+                {% endif %}
+
+            </div>
+
+            <div class="min-w-0">
+
+                <p class="font-black text-gray-800 text-sm truncate">
+                    {{ message.get_message_type_display }}
+                </p>
+
+                <p class="text-[10px] text-gray-400 mt-1 truncate">
+
+                    {% if message.customer %}
+                        {{ message.customer.majina_kamili }} •
+                    {% endif %}
+
+                    {{ message.channel }}
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="text-right shrink-0">
+
+            <p class="text-[10px] font-black
+                {% if message.status == 'DELIVERED' %}
+                    text-emerald-600
+                {% elif message.status == 'FAILED' %}
+                    text-rose-500
+                {% else %}
+                    text-amber-600
+                {% endif %}">
+
+                {% if message.status == "DELIVERED" %}
+                    ✓ Delivered
+                {% elif message.status == "SENT" %}
+                    ✓ Sent
+                {% elif message.status == "FAILED" %}
+                    ✕ Failed
+                {% else %}
+                    Pending
+                {% endif %}
+
+            </p>
+
+            <p class="text-[9px] text-gray-400 mt-1">
+                {{ message.created_at|date:"H:i" }}
+            </p>
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="py-8 text-center">
+
+        <div class="w-9 h-9 mx-auto rounded-xl
+                    bg-purple-50 text-purple-800
+                    flex items-center justify-center mb-2">
+            ✉
+        </div>
+
+        <p class="text-sm font-black text-gray-700">
+            {% trans "Hakuna mawasiliano bado" %}
+        </p>
+
+        <p class="text-[10px] text-gray-400 mt-1">
+            {% trans "Ujumbe utakaotumwa utaonekana hapa." %}
+        </p>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+            
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         RIGHT SIDE
+    ====================================================== -->
+
+    <div id="ujumbeRechargeColumn" class="xl:col-span-4 relative z-[40]" style="background: transparent !important; padding: 0 !important; border: none !important; box-shadow: none !important;">
+
+        <div id="ujumbeRechargeCard" class="bg-white rounded-[30px] border border-gray-100 shadow-sm p-6 sticky top-6" style="background: #ffffff !important; margin: 0 !important; box-shadow: 0 4px 20px rgba(0,0,0,0.04) !important;">
+
+            <div class="flex items-center justify-between mb-5">
+
+                <div>
+
+                    <h2 class="text-lg font-black text-purple-900">
+                        SMS / WhatsApp
+                    </h2>
+
+                    <p class="text-[11px] text-gray-500 mt-1">
+                        {% trans "Nunua credits za mawasiliano." %}
+                    </p>
+
+                </div>
+
+                <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                    +
+                </div>
+
+            </div>
+
+
+            <!-- CHANNEL -->
+            <div class="space-y-3">
+
+                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    {% trans "Channel" %}
+                </label>
+
+
+                <label class="flex items-center p-4 rounded-2xl border border-purple-200 bg-purple-50/60 cursor-pointer">
+
+                    <input type="radio" name="channel" value="16" checked onchange="kadiriaSMS()" class="w-4 h-4 text-purple-700 border-gray-300 focus:ring-purple-700">
+
+                    <div class="ml-3">
+
+                        <span class="block text-sm font-black text-gray-900">
+                            SMS
+                        </span>
+
+                        <span class="block text-[10px] text-gray-500 mt-1">
+                            {% trans "16 TZS kwa kila SMS" %}
+                        </span>
+
+                    </div>
+
+                </label>
+
+
+                <label class="flex items-center p-4 rounded-2xl border border-gray-200 hover:border-purple-200 hover:bg-purple-50/40 cursor-pointer transition-all">
+
+                    <input type="radio" name="channel" value="30" onchange="kadiriaSMS()" class="w-4 h-4 text-purple-700 border-gray-300 focus:ring-purple-700">
+
+                    <div class="ml-3">
+
+                        <span class="block text-sm font-black text-gray-900">
+                            WhatsApp
+                        </span>
+
+                        <span class="block text-[10px] text-gray-500 mt-1">
+                            {% trans "30 TZS kwa kila ujumbe" %}
+                        </span>
+
+                    </div>
+
+                </label>
+
+            </div>
+
+
+            <!-- AMOUNT -->
+            <div class="mt-6">
+
+                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
+                    {% trans "Kiasi cha Recharge" %}
+                </label>
+
+                <div class="relative">
+
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-gray-400">
+                        TZS
+                    </span>
+
+                    <input type="number" id="kiasiInput" oninput="kadiriaSMS()" min="1000" placeholder="2,000" class="w-full pl-14 pr-4 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:border-purple-700 focus:ring-4 focus:ring-purple-700/10 text-lg font-black bg-white transition-all">
+
+                </div>
+
+
+                <div class="mt-3 p-4 rounded-2xl bg-gray-50 border border-gray-100">
+
+                    <div class="flex items-center justify-between">
+
+                        <span class="text-xs text-gray-500">
+                            {% trans "Makadirio ya ujumbe" %}
+                        </span>
+
+                        <span id="makadirioSMS" class="text-lg font-black text-purple-900">
+                            0
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <button type="button" onclick="tengenezaInvoice()" class="w-full mt-5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-black py-4 rounded-2xl shadow-lg shadow-amber-500/20 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm">
+
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+
+                {% trans 'Create Invoice' %}
+
+            </button>
+
+
+            <div class="mt-5 pt-5 border-t border-gray-100">
+
+                <div class="flex items-center justify-between">
+
+                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                        {% trans 'Current Balance' %}
+                    </span>
+
+                    <span class="text-sm font-black text-purple-900">
+                        —
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<!-- =========================================================
+     MESSAGE COMPOSER OVERLAY
+========================================================= -->
+
+<div id="messageOverlay"
+     onclick="fungaComposer()"
+     class="fixed inset-0
+            bg-slate-950/60 backdrop-blur-md
+            z-[90] hidden">
+</div>
+
+
+<!-- COMPOSER -->
+<div id="messageComposerModal"
+     class="fixed inset-0 z-[100]
+            hidden items-center justify-center
+            p-4">
+
+    <div id="messageComposerCard"
+         class="bg-white
+                rounded-[30px]
+                shadow-2xl
+                border border-gray-100
+                w-full max-w-2xl
+                max-h-[92vh]
+                overflow-y-auto
+                transform scale-95 opacity-0
+                transition-all duration-200">
+
+        <div class="p-6 md:p-7">
+
+
+            <div class="flex items-start justify-between gap-4 mb-6">
+
+                <div>
+
+                    <div class="flex items-center gap-2">
+
+                        <span class="w-2 h-2 rounded-full bg-purple-700"></span>
+
+                        <span class="text-[9px] font-black uppercase
+                                     tracking-widest text-purple-700">
+                            {% trans 'New Message' %}
+                        </span>
+
+                    </div>
+
+                    <h3 class="text-xl font-black text-gray-900 mt-2">
+                        {% trans "Tuma Ujumbe" %}
+                    </h3>
+
+                    <p class="text-xs text-gray-500 mt-1">
+                        {% trans "Chagua channel, walengwa na ujumbe." %}
+                    </p>
+
+                </div>
+
+                <button type="button"
+                        onclick="fungaComposer()"
+                        class="w-9 h-9 rounded-full
+                               bg-gray-100 text-gray-500
+                               hover:bg-purple-50
+                               hover:text-purple-800
+                               flex items-center justify-center
+                               text-xl transition-all">
+                    &times;
+                </button>
+
+            </div>
+
+
+            <!-- CHANNEL -->
+            <div class="grid grid-cols-2 gap-3 mb-5">
+
+                <button type="button"
+                        id="composerSmsBtn"
+                        onclick="chaguaComposerChannel('sms')"
+                        class="composer-channel active
+                               p-4 rounded-2xl
+                               border border-purple-200
+                               bg-purple-50
+                               text-left">
+
+                    <div class="text-xs font-black text-purple-900">
+                        SMS
+                    </div>
+
+                    <div class="text-[10px] text-gray-500 mt-1">
+                        {% trans 'Direct message' %}
+                    </div>
+
+                </button>
+
+
+                <button type="button"
+                        id="composerWhatsappBtn"
+                        onclick="chaguaComposerChannel('whatsapp')"
+                        class="composer-channel
+                               p-4 rounded-2xl
+                               border border-gray-200
+                               bg-white
+                               text-left">
+
+                    <div class="text-xs font-black text-gray-900">
+                        WhatsApp
+                    </div>
+
+                    <div class="text-[10px] text-gray-500 mt-1">
+                        {% trans 'Rich message' %}
+                    </div>
+
+                </button>
+
+            </div>
+
+
+            <!-- RECIPIENT -->
+            <div class="mb-5">
+
+                <label class="block text-[10px] font-black
+                              uppercase tracking-widest
+                              text-gray-400 mb-2">
+                    {% trans "Walengwa" %}
+                </label>
+
+                <select id="messageRecipient"
+                        class="w-full px-4 py-3.5
+                               rounded-2xl
+                               border border-gray-200
+                               focus:outline-none
+                               focus:border-purple-700
+                               focus:ring-4
+                               focus:ring-purple-700/10
+                               text-sm font-medium bg-white">
+
+                    <option value="">
+                        {% trans "-- Chagua Mteja / Kundi --" %}
+                    </option>
+
+                    <option value="all">
+                        {% trans "Wateja Wote" %}
+                    </option>
+
+                    <option value="leo">
+                        {% trans "Wateja wa Leo Tu" %}
+                    </option>
+
+                    <option value="deni">
+                        {% trans "Wateja Wanaodaiwa" %}
+                    </option>
+
+                    <optgroup label="Orodha ya Wateja">
+
+                        {% for mteja in wateja_list %}
+
+                            <option value="{{ mteja.namba_ya_simu }}">
+                                {{ mteja.majina_kamili }}
+                                ({{ mteja.namba_ya_simu }})
+                            </option>
+
+                        {% endfor %}
+
+                    </optgroup>
+
+                </select>
+
+            </div>
+
+
+            <!-- MESSAGE -->
+            <div>
+
+                <div class="flex items-center justify-between mb-2">
+
+                    <label class="block text-[10px] font-black
+                                  uppercase tracking-widest
+                                  text-gray-400">
+                        {% trans "Ujumbe" %}
+                    </label>
+
+                    <button type="button"
+                            onclick="onyeshaVariables()"
+                            class="text-[10px] font-black
+                                   text-purple-700
+                                   bg-purple-50
+                                   px-2.5 py-1 rounded-lg">
+                        {% trans "+ Variables" %}
+                    </button>
+
+                </div>
+
+
+                <textarea id="mainMessageTextarea"
+                          rows="6"
+                          placeholder="Habari {Jina}, asante kwa kuwa mteja wetu..."
+                          class="w-full px-4 py-4
+                                 rounded-2xl
+                                 border border-gray-200
+                                 focus:outline-none
+                                 focus:border-purple-700
+                                 focus:ring-4
+                                 focus:ring-purple-700/10
+                                 text-sm font-medium
+                                 bg-white resize-none"></textarea>
+
+
+                <div id="variablesPanel"
+                     class="hidden mt-3 p-4
+                            rounded-2xl
+                            bg-purple-50
+                            border border-purple-100">
+
+                    <p class="text-[10px] font-black
+                              text-purple-900 mb-3">
+                        {% trans "Variables zinazopatikana" %}
+                    </p>
+
+                    <div class="flex flex-wrap gap-2">
+
+                        <button type="button"
+                                onclick="insertVariable('{Jina}')"
+                                class="variable-btn">
+                            {Jina}
+                        </button>
+
+                        <button type="button"
+                                onclick="insertVariable('{Kifaa}')"
+                                class="variable-btn">
+                            {Kifaa}
+                        </button>
+
+                        <button type="button"
+                                onclick="insertVariable('{Risiti}')"
+                                class="variable-btn">
+                            {Risiti}
+                        </button>
+
+                        <button type="button"
+                                onclick="insertVariable('{Deni}')"
+                                class="variable-btn">
+                            {Deni}
+                        </button>
+
+                        <button type="button"
+                                onclick="insertVariable('{Duka}')"
+                                class="variable-btn">
+                            {Duka}
+                        </button>
+
+                        <button type="button"
+                                onclick="insertVariable('{AI_Product_Care}')"
+                                class="variable-btn">
+                            {AI_Product_Care}
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <form id="whatsappSendForm" class="hidden" aria-hidden="true">
+                {% csrf_token %}
+            </form>
+
+
+            <!-- AI -->
+            <div class="mt-4 p-4 rounded-2xl
+                        border border-purple-100
+                        bg-purple-50/60
+                        flex items-center justify-between gap-4">
+
+                <div class="flex items-center gap-3">
+
+                    <div class="w-9 h-9 rounded-xl
+                                bg-purple-900
+                                text-amber-400
+                                flex items-center justify-center">
+                        ✦
+                    </div>
+
+                    <div>
+
+                        <p class="text-xs font-black text-gray-900">
+                            {% trans "Improve with AI" %}
+                        </p>
+
+                        <p class="text-[10px] text-gray-500 mt-1">
+                            {% trans "Boresha ujumbe bila kubadilisha maana." %}
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <button type="button"
+                        onclick="boreshaUjumbeAI()"
+                        class="px-3 py-2 rounded-xl
+                               bg-purple-900
+                               text-amber-400
+                               text-[10px] font-black">
+                    {% trans "Improve" %}
+                </button>
+
+            </div>
+
+
+            <div class="flex gap-3 mt-6">
+
+                <button type="button"
+                        onclick="fungaComposer()"
+                        class="flex-1 py-3.5
+                               rounded-2xl
+                               bg-gray-100
+                               text-gray-700
+                               font-black text-sm">
+                    {% trans "Cancel" %}
+                </button>
+
+                <button type="button"
+                        onclick="tumaUjumbe(composerChannel)"
+                        class="flex-1 py-3.5
+                               rounded-2xl
+                               bg-purple-900
+                               hover:bg-purple-800
+                               text-amber-400
+                               font-black text-sm
+                               shadow-lg shadow-purple-900/15">
+                    {% trans "Tuma Ujumbe" %}
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     EDIT AUTOMATION MODAL
+========================================================= -->
+
+<div id="editAutoModal"
+     class="fixed inset-0
+            bg-slate-950/60 backdrop-blur-md
+            hidden items-center justify-center
+            z-[130] p-4">
+
+    <div id="editAutoModalCard"
+         class="bg-white
+                rounded-[30px]
+                max-w-xl w-full
+                p-6 md:p-7
+                shadow-2xl
+                border border-gray-100
+                transform scale-95 opacity-0
+                transition-all duration-200">
+
+        <div class="flex items-start justify-between
+                    gap-4 mb-6">
+
+            <div>
+
+                <span class="text-[9px] font-black
+                             uppercase tracking-widest
+                             text-purple-700">
+                    {% trans "Automation" %}
+                </span>
+
+                <h3 id="editAutoTitle"
+                    class="text-xl font-black
+                           text-gray-900 mt-2">
+                    {% trans "Hariri Ujumbe" %}
+                </h3>
+
+            </div>
+
+            <button type="button"
+                    onclick="fungaEditAutoModal()"
+                    class="w-9 h-9 rounded-full
+                           bg-gray-100 text-gray-500
+                           hover:bg-purple-50
+                           hover:text-purple-800
+                           flex items-center justify-center
+                           text-xl">
+                &times;
+            </button>
+
+        </div>
+
+
+        <div class="p-4 rounded-2xl
+                    bg-purple-50
+                    border border-purple-100
+                    mb-5">
+
+            <p class="text-[10px] font-black
+                      text-purple-900 mb-2">
+                {% trans "Variables" %}
+            </p>
+
+            <div class="flex flex-wrap gap-2">
+
+                <code class="template-variable">{Jina}</code>
+                <code class="template-variable">{Deni}</code>
+                <code class="template-variable">{Risiti}</code>
+                <code class="template-variable">{Kifaa}</code>
+                <code class="template-variable">{Duka}</code>
+                <code class="template-variable">{AI_Product_Care}</code>
+                <code class="template-variable">{Due_Date}</code>
+
+            </div>
+
+            <p class="text-[9px] text-purple-700 mt-3">
+                {% trans "TradeCore hubadilisha variables hizi automatically wakati ujumbe unatengenezwa." %}
+            </p>
+
+        </div>
+
+
+        <label class="block text-[10px] font-black
+                      uppercase tracking-widest
+                      text-gray-400 mb-2">
+            {% trans 'Message Template' %}
+        </label>
+
+        <textarea id="editAutoTextarea"
+                  rows="7"
+                  class="w-full px-4 py-4
+                         rounded-2xl
+                         border border-gray-200
+                         focus:outline-none
+                         focus:border-purple-700
+                         focus:ring-4
+                         focus:ring-purple-700/10
+                         text-sm font-medium
+                         resize-none"></textarea>
+
+
+        <div class="flex gap-3 mt-5">
+
+            <button type="button"
+                    onclick="fungaEditAutoModal()"
+                    class="flex-1 py-3.5
+                           rounded-2xl
+                           bg-gray-100
+                           text-gray-700
+                           font-black text-sm">
+                {% trans "Cancel" %}
+            </button>
+
+            <button type="button"
+                    onclick="hifadhiAutomation()"
+                    class="flex-1 py-3.5
+                           rounded-2xl
+                           bg-amber-500
+                           hover:bg-amber-400
+                           text-gray-950
+                           font-black text-sm">
+                {% trans 'Hifadhi Mabadiliko' %}
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     DAILY REPORT PREVIEW MODAL
+========================================================= -->
+
+<div id="reportPreviewModal"
+     class="fixed inset-0
+            bg-slate-950/60 backdrop-blur-md
+            hidden items-center justify-center
+            z-[125] p-4">
+
+    <div class="bg-white
+                rounded-[30px]
+                shadow-2xl
+                max-w-2xl w-full
+                max-h-[90vh]
+                overflow-hidden">
+
+        <div class="p-6 border-b border-gray-100
+                    flex items-center justify-between">
+
+            <div>
+
+                <span class="text-[9px] font-black
+                             uppercase tracking-widest
+                             text-purple-700">
+                    {% trans "WhatsApp / SMS Preview" %}
+                </span>
+
+                <h3 class="text-xl font-black text-gray-900 mt-1">
+                    {% trans 'Daily Business Report' %}
+                </h3>
+
+            </div>
+
+            <button type="button"
+                    onclick="fungaReportPreview()"
+                    class="w-9 h-9 rounded-full
+                           bg-gray-100 text-gray-500
+                           flex items-center justify-center
+                           text-xl">
+                &times;
+            </button>
+
+        </div>
+
+
+        <div class="p-5 md:p-6 overflow-y-auto max-h-[65vh]">
+
+            <div class="rounded-[24px]
+                        bg-gray-50
+                        border border-gray-100
+                        p-5">
+
+                <div class="flex items-center gap-2 mb-5">
+
+                    <div class="w-9 h-9 rounded-xl
+                                bg-purple-900
+                                text-amber-400
+                                flex items-center justify-center
+                                font-black">
+                        T
+                    </div>
+
+                    <div>
+
+                        <p class="text-sm font-black text-purple-900">
+                            TRADECORE
+                        </p>
+
+                        <p class="text-[9px] text-gray-400">
+                            {% trans 'Daily Business Report' %}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <p class="text-xs text-gray-500 mb-4">
+                    —
+                </p>
+
+
+                <div class="grid grid-cols-2 gap-3">
+
+                    <div class="bg-white rounded-2xl p-4">
+                        <p class="text-[9px] uppercase
+                                  font-black text-gray-400">
+                            {% trans 'Total Sales' %}
+                        </p>
+                        <p class="text-lg font-black
+                                  text-purple-900 mt-1">
+                            —
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-4">
+                        <p class="text-[9px] uppercase
+                                  font-black text-gray-400">
+                            {% trans 'Transactions' %}
+                        </p>
+                        <p class="text-lg font-black text-gray-900 mt-1">
+                            {{ transaction_count_today|default:"—"|intcomma }}
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-4">
+                        <p class="text-[9px] uppercase
+                                  font-black text-gray-400">
+                            {% trans "Items Sold" %}
+                        </p>
+                        <p class="text-lg font-black text-gray-900 mt-1">
+                            {{ items_sold_today|default:"—"|intcomma }}
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-4">
+                        <p class="text-[9px] uppercase
+                                  font-black text-gray-400">
+                            {% trans 'Customers' %}
+                        </p>
+                        <p class="text-lg font-black text-gray-900 mt-1">
+                            {{ customers_today|default:"—"|intcomma }}
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="mt-5 pt-5 border-t border-gray-200">
+
+                    <p class="text-[9px] uppercase
+                              font-black text-gray-400 mb-3">
+                        {% trans 'Payment Breakdown' %}
+                    </p>
+
+                    <div class="space-y-2 text-xs">
+
+                        <div class="flex justify-between"><span class="text-gray-500">{% trans "Cash" %}</span><span class="font-black">TSh {{ payment_breakdown.CASH|default:"—"|intcomma }}</span></div>
+
+                        <div class="flex justify-between"><span class="text-gray-500">M-Pesa</span><span class="font-black">TSh {{ payment_breakdown.MPESA|default:"—"|intcomma }}</span></div>
+
+                        <div class="flex justify-between"><span class="text-gray-500">{% trans "Bank" %}</span><span class="font-black">TSh {{ payment_breakdown.BANK|default:"—"|intcomma }}</span></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="mt-5 pt-5 border-t border-gray-200">
+
+                    <p class="text-[9px] uppercase
+                              font-black text-gray-400 mb-3">
+                        {% trans 'Sales By Staff' %}
+                    </p>
+
+                    <div class="space-y-2 text-xs">
+                        {% for staff in sales_by_staff %}
+                        <div class="flex justify-between"><span>{{ staff.muuzaji__username|default:"-"|title }}</span><span class="font-black">TSh {{ staff.total|default:"—"|intcomma }}</span></div>
+                        {% empty %}
+                        <div class="text-gray-400">{% trans 'Hakuna mauzo ya staff leo.' %}</div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+
+                <div class="mt-5 pt-5 border-t border-gray-200">
+
+                    <p class="text-[9px] uppercase
+                              font-black text-gray-400 mb-3">
+                        {% trans "Muamala wa Mwisho" %}
+                    </p>
+
+                    <div class="bg-white rounded-2xl p-4">
+                        {% if latest_transaction %}
+                        <div class="flex justify-between gap-3">
+                            <div class="min-w-0">
+                                <p class="text-xs font-black truncate">INV-{{ latest_transaction.id }} • {{ latest_transaction.mteja.majina_kamili|default:"Walk-in" }}</p>
+                                <p class="text-[10px] text-gray-400 mt-1">{{ latest_transaction.tarehe_ya_mauzo|date:"H:i" }} • {{ latest_transaction.bidhaa.jina_la_bidhaa }}</p>
+                            </div>
+                            <p class="text-sm font-black text-purple-900 whitespace-nowrap">TSh {{ latest_transaction.jumla_pesa_iliyopokelewa|default:"—"|intcomma }}</p>
+                        </div>
+                        {% else %}
+                        <div class="text-center text-gray-400 text-xs font-bold py-2">{% trans 'Hakuna muamala leo.' %}</div>
+                        {% endif %}
+
+                        </div>
+
+
+                        <div class="mt-4 rounded-2xl bg-gray-50 border border-gray-100 px-4 py-3 text-[10px] text-gray-400 text-center">
+                            {% trans "Data za bidhaa zitaonekana hapa baada ya kuunganishwa na mauzo halisi." %}
+                        </div>
+
+                        <div class="border-t border-gray-100
+                                    mt-4 pt-3 space-y-1 text-[10px]">
+
+                            <div class="flex justify-between">
+                                <span>{% trans 'Subtotal' %}</span>
+                                <span>—</span>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <span>{% trans 'Discount' %}</span>
+                                <span class="text-gray-600">
+                                    —
+                                </span>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <span>{% trans 'Markup' %}</span>
+                                <span class="text-purple-700">
+                                    —
+                                </span>
+                            </div>
+
+                            <div class="flex justify-between
+                                        font-black text-sm pt-2">
+                                <span>{% trans 'TOTAL' %}</span>
+                                <span class="text-purple-900">
+                                    —
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="p-5 border-t border-gray-100
+                    flex gap-3">
+
+            <button type="button"
+                    onclick="fungaReportPreview()"
+                    class="flex-1 py-3.5
+                           rounded-2xl
+                           bg-gray-100
+                           text-gray-700
+                           font-black text-sm">
+                {% trans "Close" %}
+            </button>
+
+            <button id="sendTestReportButton"
+                    type="button"
+                    onclick="tumaTestReport()"
+                    class="flex-1 py-3.5
+                           rounded-2xl
+                           bg-purple-900
+                           text-amber-400
+                           font-black text-sm">
+                {% trans 'Send Test Report' %}
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     REPORT SETTINGS MODAL
+========================================================= -->
+
+<div id="reportSettingsModal"
+     class="fixed inset-0
+            bg-slate-950/60 backdrop-blur-md
+            hidden items-center justify-center
+            z-[125] p-4">
+
+    <div class="bg-white rounded-[30px]
+                max-w-xl w-full
+                p-6 md:p-7 shadow-2xl">
+
+        <div class="flex justify-between items-start mb-6">
+
+            <div>
+
+                <span class="text-[9px] font-black
+                             uppercase tracking-widest
+                             text-purple-700">
+                    {% trans 'Automation Settings' %}
+                </span>
+
+                <h3 class="text-xl font-black text-gray-900 mt-2">
+                    {% trans 'Daily Business Report' %}
+                </h3>
+
+            </div>
+
+            <button type="button"
+                    onclick="fungaReportSettings()"
+                    class="w-9 h-9 rounded-full
+                           bg-gray-100 text-gray-500
+                           flex items-center justify-center
+                           text-xl">
+                &times;
+            </button>
+
+        </div>
+
+
+        <div class="space-y-4">
+
+            <div class="p-4 rounded-2xl bg-gray-50
+                        border border-gray-100">
+
+                <label class="text-[10px] font-black
+                              uppercase tracking-widest
+                              text-gray-400">
+                    {% trans 'Report Time' %}
+                </label>
+
+                <input type="time"
+                       value="22:00"
+                       class="w-full mt-2 px-4 py-3
+                              rounded-xl
+                              border border-gray-200
+                              focus:outline-none
+                              focus:border-purple-700
+                              font-black">
+
+            </div>
+
+
+            <div class="p-4 rounded-2xl bg-gray-50
+                        border border-gray-100">
+
+                <label class="text-[10px] font-black
+                              uppercase tracking-widest
+                              text-gray-400">
+                    {% trans 'Recipients' %}
+                </label>
+
+                <div class="space-y-2 mt-3">
+
+                    <label class="flex items-center gap-3 text-sm">
+
+                        <input type="checkbox"
+                               checked
+                               class="w-4 h-4 text-purple-700
+                                      rounded border-gray-300">
+
+                        {% trans 'Boss' %}
+
+                    </label>
+
+                    <label class="flex items-center gap-3 text-sm">
+
+                        <input type="checkbox"
+                               checked
+                               class="w-4 h-4 text-purple-700
+                                      rounded border-gray-300">
+
+                        {% trans 'Manager' %}
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <div class="p-4 rounded-2xl bg-purple-50
+                        border border-purple-100">
+
+                <p class="text-[10px] font-black
+                          uppercase tracking-widest
+                          text-purple-900 mb-3">
+                    {% trans 'Include In Report' %}
+                </p>
+
+                <div class="grid grid-cols-2 gap-3 text-xs">
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" checked>
+                        {% trans 'Sales Summary' %}
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" checked>
+                        {% trans 'Payment Breakdown' %}
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" checked>
+                        {% trans 'Staff Performance' %}
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" checked>
+                        {% trans 'Products Sold' %}
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" checked>
+                        {% trans 'Discounts' %}
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" checked>
+                        {% trans 'Markups' %}
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" checked>
+                        {% trans 'Debts' %}
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" checked>
+                        {% trans 'Transaction Details' %}
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <button type="button"
+                onclick="fungaReportSettings(); showToast('Daily Report settings zimehifadhiwa!')"
+                class="w-full mt-5 py-3.5
+                       rounded-2xl
+                       bg-amber-500 hover:bg-amber-400
+                       text-gray-950
+                       font-black text-sm">
+            {% trans 'Hifadhi Mabadiliko' %}
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     MESSAGE DETAILS MODAL
+========================================================= -->
+
+<div id="messageDetailsModal"
+     class="fixed inset-0
+            bg-slate-950/60 backdrop-blur-md
+            hidden items-center justify-center
+            z-[125] p-4">
+
+    <div class="bg-white rounded-[30px]
+                max-w-lg w-full
+                p-6 md:p-7 shadow-2xl">
+
+        <div class="flex justify-between items-start mb-6">
+
+            <div>
+
+                <span class="text-[9px] font-black
+                             uppercase tracking-widest
+                             text-purple-700">
+                    {% trans 'Message Details' %}
+                </span>
+
+                <h3 id="messageDetailTitle"
+                    class="text-xl font-black text-gray-900 mt-2">
+                    {% trans 'Message' %}
+                </h3>
+
+            </div>
+
+            <button type="button"
+                    onclick="fungaMessageDetails()"
+                    class="w-9 h-9 rounded-full
+                           bg-gray-100 text-gray-500
+                           flex items-center justify-center
+                           text-xl">
+                &times;
+            </button>
+
+        </div>
+
+
+        <div class="space-y-3">
+
+            <div class="flex justify-between
+                        text-xs p-3 rounded-xl bg-gray-50">
+
+                <span class="text-gray-400">{% trans 'Recipient' %}</span>
+
+                <span id="messageDetailRecipient"
+                      class="font-black">
+                    -
+                </span>
+
+            </div>
+
+            <div class="flex justify-between
+                        text-xs p-3 rounded-xl bg-gray-50">
+
+                <span class="text-gray-400">{% trans 'Date' %}</span>
+
+                <span id="messageDetailDate"
+                      class="font-black">
+                    -
+                </span>
+
+            </div>
+
+            <div class="flex justify-between
+                        text-xs p-3 rounded-xl bg-gray-50">
+
+                <span class="text-gray-400">{% trans 'Status' %}</span>
+
+                <span id="messageDetailStatus"
+                      class="font-black text-purple-700">
+                    -
+                </span>
+
+            </div>
+
+            <div class="mt-4 p-5 rounded-2xl
+                        bg-gray-50
+                        border border-gray-100">
+
+                <p class="text-[10px] font-black
+                          uppercase tracking-widest
+                          text-gray-400 mb-3">
+                    {% trans 'Message' %}
+                </p>
+
+                <p id="messageDetailBody"
+                   class="text-sm text-gray-700
+                          leading-7 whitespace-pre-line">
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     STYLES
+========================================================= -->
+
+<style>
+
+    .variable-btn {
+        background: white;
+        border: 1px solid #ddd6fe;
+        color: #5b21b6;
+        padding: 6px 10px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 900;
+        transition: all .2s;
+    }
+
+    .variable-btn:hover {
+        background: #5b21b6;
+        color: #fbbf24;
+        border-color: #5b21b6;
+    }
+
+    .template-variable {
+        display: inline-block;
+        background: white;
+        color: #5b21b6;
+        border: 1px solid #ddd6fe;
+        padding: 4px 7px;
+        border-radius: 8px;
+        font-size: 9px;
+        font-weight: 900;
+    }
+
+    .composer-channel {
+        transition: all .2s ease;
+    }
+
+    .composer-channel.active {
+        border-color: #c4b5fd;
+        background: #f5f3ff;
+    }
+
+</style>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+const UJUMBE_I18N = {
+    improveFirst: '{% trans "Andika ujumbe kwanza ili uboreheshwe." %}',
+    improved: '{% trans "Ujumbe umeboreshwa." %}',
+    improvedTitle: '{% trans "Ujumbe umeboreshwa" %}',
+    chooseRecipient: '{% trans "Tafadhali chagua mlengwa." %}',
+    chooseRecipientTitle: '{% trans "Chagua mlengwa" %}',
+    enterMessage: '{% trans "Tafadhali andika ujumbe." %}',
+    messageRequired: '{% trans "Ujumbe unahitajika" %}',
+    whatsappSingle: '{% trans "Kwa sasa tuma WhatsApp kwa mteja mmoja. Bulk messaging itaunganishwa baadaye bila kubadili composer." %}',
+    requestSecurity: '{% trans "Usalama wa request haujapatikana. Refresh ukurasa ujaribu tena." %}',
+    requestSecurityTitle: '{% trans "Usalama wa request" %}',
+    sending: '{% trans "Inatumwa" %}',
+    whatsappSending: '{% trans "WhatsApp inatumwa..." %}',
+    whatsappFailed: '{% trans "WhatsApp haikutumwa." %}',
+    whatsappFailedTitle: '{% trans "Ujumbe haukutumwa" %}',
+    whatsappSent: '{% trans "WhatsApp imetumwa kikamilifu." %}',
+    whatsappSentTitle: '{% trans "Ujumbe umetumwa" %}',
+    providerFailed: '{% trans "Imeshindikana kuwasiliana na WhatsApp provider." %}',
+    providerUnavailable: '{% trans "WhatsApp haijapatikana" %}',
+    smsOpened: '{% trans "Programu ya SMS imefunguliwa." %}',
+    saveDone: '{% trans "Ujumbe umehifadhiwa." %}',
+    reportTest: '{% trans "Test report imetumwa..." %}',
+    reportSaved: '{% trans "Daily Report settings zimehifadhiwa!" %}',
+    editPrefix: '{% trans "Hariri:" %}',
+    minRecharge: '{% trans "Kiasi cha chini cha recharge ni TZS 1,000." %}',
+    invoiceCreating: '{% trans "Invoice inaundwa..." %}',
+    settings_opening: '{% trans "Mipangilio ya ripoti inafunguliwa." %}',
+    message_sent: '{% trans "Ujumbe umetumwa" %}'
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    kadiriaSMS();
+    updateCommunicationOverview();
+
+});
+
+
+/* =========================================================
+   COMMUNICATION OVERVIEW — LIVE FROM RENDERED HISTORY
+   Page-only enhancement. No routes, IDs or backend contracts changed.
+========================================================= */
+function updateCommunicationOverview() {
+    const rows = Array.from(
+        document.querySelectorAll(".communication-history-row")
+    );
+
+    const sms = rows.filter(
+        row => (row.dataset.messageChannel || "").toUpperCase() === "SMS"
+    );
+
+    const whatsapp = rows.filter(
+        row => (row.dataset.messageChannel || "").toUpperCase() === "WHATSAPP"
+    );
+
+    const daily = rows.filter(
+        row => (row.dataset.messageType || "").toUpperCase() === "DAILY_REPORT"
+    );
+
+    const delivered = whatsapp.filter(
+        row => (row.dataset.messageStatus || "").toUpperCase() === "DELIVERED"
+    ).length;
+
+    const waRate = whatsapp.length
+        ? Math.round((delivered / whatsapp.length) * 100) + "%"
+        : "—";
+
+    const smsBox = document.getElementById("ujumbeSmsRecent");
+    const waBox = document.getElementById("ujumbeWhatsappRecent");
+    const waRateBox = document.getElementById("ujumbeWhatsappRate");
+    const dailyBox = document.getElementById("ujumbeDailyRecipients");
+
+    if (smsBox) smsBox.textContent = String(sms.length);
+    if (waBox) waBox.textContent = String(whatsapp.length);
+    if (waRateBox) waRateBox.textContent = waRate;
+    if (dailyBox) dailyBox.textContent = String(daily.length);
+}
+
+
+/* =========================================================
+   APPLE UI TOAST
+========================================================= */
+
+function showToast(message, type = "success", title = "") {
+
+    const toast = document.getElementById("toastNotification");
+    const card = document.getElementById("toastCard");
+    const titleBox = document.getElementById("toastTitle");
+    const messageBox = document.getElementById("toastMessage");
+    const iconWrap = document.getElementById("toastIconWrap");
+    const successIcon = document.getElementById("toastIconSuccess");
+    const errorIcon = document.getElementById("toastIconError");
+    const infoIcon = document.getElementById("toastIconInfo");
+    const progress = document.getElementById("toastProgress");
+
+    if (!toast || !card || !titleBox || !messageBox || !iconWrap) return;
+
+    const normalizedType = ["success", "error", "info"].includes(type)
+        ? type
+        : "success";
+
+    let resolvedTitle = title;
+    if (!resolvedTitle) {
+        if (normalizedType === "success") resolvedTitle = "Umefanikiwa";
+        else if (normalizedType === "error") resolvedTitle = "Haikukamilika";
+        else resolvedTitle = "TradeCore";
+    }
+
+    card.dataset.toastType = normalizedType;
+    titleBox.innerText = resolvedTitle;
+    messageBox.innerText = message;
+
+    iconWrap.className =
+        "tradecore-toast-icon " +
+        (normalizedType === "success"
+            ? "tradecore-toast-icon-success"
+            : normalizedType === "error"
+                ? "tradecore-toast-icon-error"
+                : "tradecore-toast-icon-info");
+
+    successIcon.classList.toggle("hidden", normalizedType !== "success");
+    errorIcon.classList.toggle("hidden", normalizedType !== "error");
+    infoIcon.classList.toggle("hidden", normalizedType !== "info");
+
+    clearTimeout(window.tradecoreToastTimer);
+
+    progress.style.transition = "none";
+    progress.style.transform = "scaleX(1)";
+
+    toast.classList.remove("hidden");
+    toast.classList.add("flex");
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            toast.classList.add("is-visible");
+            progress.offsetWidth;
+            progress.style.transition = "transform 3s linear";
+            progress.style.transform = "scaleX(0)";
+        });
+    });
+
+    window.tradecoreToastTimer = setTimeout(() => {
+        toast.classList.remove("is-visible");
+
+        setTimeout(() => {
+            if (!toast.classList.contains("is-visible")) {
+                toast.classList.add("hidden");
+                toast.classList.remove("flex");
+            }
+        }, 240);
+    }, 3000);
+}
+
+
+/* =========================================================
+   SMS CALCULATOR
+========================================================= */
+
+
+
+/* =========================================================
+   PAGE SCROLL LOCK CONTROL
+========================================================= */
+function applyUjumbePageScrollLock(locked) {
+    const body = document.body;
+    const html = document.documentElement;
+    const button = document.getElementById('ujumbePageScrollLock');
+    const label = document.getElementById('ujumbeLockLabel');
+    const icon = document.getElementById('ujumbeLockIcon');
+
+    if (!body || !html) return;
+
+    body.classList.toggle('ujumbe-page-scroll-locked', locked);
+    body.classList.toggle('ujumbe-page-scroll-unlocked', !locked);
+    html.classList.toggle('ujumbe-page-scroll-locked', locked);
+
+    if (button) {
+        button.setAttribute('aria-pressed', locked ? 'true' : 'false');
+        button.setAttribute(
+            'aria-label',
+            locked ? 'Fungua scroll ya ukurasa' : 'Funga scroll ya ukurasa'
+        );
+        button.setAttribute(
+            'title',
+            locked ? 'Fungua scroll ya ukurasa' : 'Funga scroll ya ukurasa'
+        );
+    }
+
+    if (label) {
+        label.textContent = locked
+            ? 'Scroll ya ukurasa imefungwa'
+            : 'Scroll ya ukurasa imefunguliwa';
+    }
+
+    if (icon) {
+        icon.innerHTML = locked
+            ? '<rect x="5" y="10" width="14" height="10" rx="2" stroke-width="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke-width="2" stroke-linecap="round"/>'
+            : '<rect x="5" y="10" width="14" height="10" rx="2" stroke-width="2"/><path d="M8 10V7a4 4 0 017.5-1.5" stroke-width="2" stroke-linecap="round"/>';
+    }
+}
+
+/* =========================================================
+   UJUMBE — VIEWPORT FIT + TRANSPARENT SCROLL EDGES + HIDE BASE GREETING
+   Page-only enhancement. No Base template/architecture changes.
+========================================================= */
+(function () {
+    function getPageMain() {
+        return document.querySelector('body:has(#messageComposerModal) main');
+    }
+
+    function hideBaseGreeting() {
+        const main = getPageMain();
+        if (!main) return;
+
+        const candidates = Array.from(main.querySelectorAll('div, section, article, header'))
+            .filter(el => {
+                const txt = (el.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+                return txt.includes('good evening') && txt.includes('welcome back');
+            });
+
+        if (!candidates.length) return;
+
+        let target = candidates[candidates.length - 1];
+        const mainWidth = Math.max(main.getBoundingClientRect().width, window.innerWidth);
+
+        for (const el of candidates) {
+            const rect = el.getBoundingClientRect();
+            if (rect.width >= mainWidth * 0.72 && rect.height <= 220) {
+                target = el;
+                break;
+            }
+        }
+
+        // Avoid hiding the whole Contact Center section if Base markup changes.
+        if (target && target !== main) {
+            target.classList.add('ujumbe-base-greeting-hidden');
+        }
+    }
+
+    function fitContentScroll() {
+        const scroll = document.getElementById('ujumbeContentScroll');
+        if (!scroll) return;
+
+        const rect = scroll.getBoundingClientRect();
+        const bottomGap = window.innerWidth <= 639 ? 10 : 14;
+        const available = Math.floor(window.innerHeight - rect.top - bottomGap);
+
+        if (Number.isFinite(available) && available > 0) {
+            scroll.style.height = available + 'px';
+            scroll.style.maxHeight = 'none';
+        }
+    }
+
+    function updateScrollEdges() {
+        const scroll = document.getElementById('ujumbeContentScroll');
+        if (!scroll) return;
+
+        const canScroll = scroll.scrollHeight > scroll.clientHeight + 2;
+        const atTop = scroll.scrollTop <= 2;
+        const atBottom = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 2;
+
+        scroll.classList.toggle('has-top-edge', canScroll && !atTop);
+        scroll.classList.toggle('has-bottom-edge', canScroll && !atBottom);
+    }
+
+    function refreshLayout() {
+        hideBaseGreeting();
+        requestAnimationFrame(() => {
+            fitContentScroll();
+            updateScrollEdges();
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        refreshLayout();
+
+        const scroll = document.getElementById('ujumbeContentScroll');
+        if (scroll) {
+            scroll.addEventListener('scroll', updateScrollEdges, { passive: true });
+        }
+
+        window.addEventListener('resize', refreshLayout, { passive: true });
+
+        // Base greeting may render after this page script, so re-check briefly.
+        let checks = 0;
+        const timer = setInterval(() => {
+            hideBaseGreeting();
+            fitContentScroll();
+            updateScrollEdges();
+            checks += 1;
+            if (checks >= 10) clearInterval(timer);
+        }, 120);
+    });
+})();
+
+function toggleUjumbePageScroll() {
+    const unlocked = document.body.classList.contains('ujumbe-page-scroll-unlocked');
+    applyUjumbePageScrollLock(unlocked);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    applyUjumbePageScrollLock(true);
+});
+
+function kadiriaSMS() {
+
+    const channel =
+        document.querySelector(
+            'input[name="channel"]:checked'
+        );
+
+    const amount =
+        document.getElementById("kiasiInput");
+
+    const output =
+        document.getElementById("makadirioSMS");
+
+    if (!channel || !amount || !output) return;
+
+    const price =
+        Number(channel.value);
+
+    const kiasi =
+        Number(amount.value);
+
+    if (kiasi > 0 && price > 0) {
+
+        const count =
+            Math.floor(kiasi / price);
+
+        output.innerText =
+            count.toLocaleString();
+
+    } else {
+
+        output.innerText = "0";
+
+    }
+
+}
+
+
+/* =========================================================
+   INVOICE
+========================================================= */
+
+function tengenezaInvoice() {
+
+    const input =
+        document.getElementById("kiasiInput");
+
+    if (!input) return;
+
+    const kiasi =
+        Number(input.value);
+
+    if (!kiasi || kiasi < 1000) {
+
+        showToast(
+            "Weka kiasi kisichopungua TZS 1,000."
+        );
+
+        return;
+
+    }
+
+    showToast(
+        "Invoice inatengenezwa..."
+    );
+
+}
+
+
+/* =========================================================
+   COMPOSER
+========================================================= */
+
+function funguaComposer() {
+
+    const overlay =
+        document.getElementById(
+            "messageOverlay"
+        );
+
+    const modal =
+        document.getElementById(
+            "messageComposerModal"
+        );
+
+    const card =
+        document.getElementById(
+            "messageComposerCard"
+        );
+
+    if (!overlay || !modal || !card) return;
+
+    overlay.classList.remove("hidden");
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    document.body.classList.add("overflow-hidden");
+
+    setTimeout(() => {
+
+        card.classList.remove(
+            "scale-95",
+            "opacity-0"
+        );
+
+        card.classList.add(
+            "scale-100",
+            "opacity-100"
+        );
+
+    }, 10);
+
+}
+
+
+function fungaComposer() {
+
+    const overlay =
+        document.getElementById(
+            "messageOverlay"
+        );
+
+    const modal =
+        document.getElementById(
+            "messageComposerModal"
+        );
+
+    const card =
+        document.getElementById(
+            "messageComposerCard"
+        );
+
+    if (!overlay || !modal || !card) return;
+
+    card.classList.remove(
+        "scale-100",
+        "opacity-100"
+    );
+
+    card.classList.add(
+        "scale-95",
+        "opacity-0"
+    );
+
+    setTimeout(() => {
+
+        overlay.classList.add("hidden");
+
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+
+        document.body.classList.remove(
+            "overflow-hidden"
+        );
+
+    }, 180);
+
+}
+
+
+/* =========================================================
+   COMPOSER CHANNEL
+========================================================= */
+
+let composerChannel = "sms";
+
+function chaguaComposerChannel(channel) {
+
+    const sms =
+        document.getElementById(
+            "composerSmsBtn"
+        );
+
+    const whatsapp =
+        document.getElementById(
+            "composerWhatsappBtn"
+        );
+
+    if (!sms || !whatsapp) return;
+
+    composerChannel = channel === "whatsapp" ? "whatsapp" : "sms";
+
+    sms.classList.remove("active");
+    whatsapp.classList.remove("active");
+
+    if (composerChannel === "sms") {
+
+        sms.classList.add("active");
+
+    } else {
+
+        whatsapp.classList.add("active");
+
+    }
+
+}
+
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+function onyeshaVariables() {
+
+    const panel =
+        document.getElementById(
+            "variablesPanel"
+        );
+
+    if (!panel) return;
+
+    panel.classList.toggle("hidden");
+
+}
+
+
+function insertVariable(variable) {
+
+    const textarea =
+        document.getElementById(
+            "mainMessageTextarea"
+        );
+
+    if (!textarea) return;
+
+    const start =
+        textarea.selectionStart;
+
+    const end =
+        textarea.selectionEnd;
+
+    const current =
+        textarea.value;
+
+    textarea.value =
+        current.substring(0, start) +
+        variable +
+        current.substring(end);
+
+    textarea.focus();
+
+    textarea.selectionStart =
+        textarea.selectionEnd =
+        start + variable.length;
+
+}
+
+
+/* =========================================================
+   MESSAGE POLISH — SAFE FRONTEND
+========================================================= */
+function boreshaUjumbeAI() {
+    const textarea = document.getElementById("mainMessageTextarea");
+    if (!textarea) return;
+    let text = textarea.value.trim();
+    if (!text) { showToast("Andika ujumbe kwanza ili uboreheshwe."); return; }
+    text = text.replace(/\s+/g, " ").trim();
+    text = text.charAt(0).toUpperCase() + text.slice(1);
+    if (!/[.!?]$/.test(text)) text += ".";
+    textarea.value = text;
+    textarea.focus();
+    showToast("Ujumbe umeboreshwa.", "success", "Ujumbe umeboreshwa");
+}
+
+
+
+/* =========================================================
+   SEND MESSAGE
+========================================================= */
+
+async function tumaUjumbe(channel) {
+    const recipient = document.getElementById("messageRecipient");
+    const message = document.getElementById("mainMessageTextarea");
+    if (!recipient || !message) return;
+
+    const target = recipient.value.trim();
+    const text = message.value.trim();
+
+    if (!target) {
+        showToast("Tafadhali chagua mlengwa.", "error", "Chagua mlengwa");
+        return;
+    }
+
+    if (!text) {
+        showToast("Tafadhali andika ujumbe.", "error", "Ujumbe unahitajika");
+        return;
+    }
+
+    if (target === "all" || target === "leo" || target === "deni") {
+        showToast("Kwa sasa tuma WhatsApp kwa mteja mmoja. Bulk messaging itaunganishwa baadaye bila kubadili composer.");
+        return;
+    }
+
+    if (channel === "whatsapp") {
+        const csrfInput = document.querySelector(
+            '#whatsappSendForm input[name="csrfmiddlewaretoken"]'
+        );
+
+        if (!csrfInput || !csrfInput.value) {
+            showToast("Usalama wa request haujapatikana. Refresh ukurasa ujaribu tena.", "error", "Usalama wa request");
+            return;
+        }
+
+        showToast("WhatsApp inatumwa...", "info", "Inatumwa");
+
+        try {
+            const body = new URLSearchParams();
+            body.set("recipient", target);
+            body.set("message", text);
+
+            const response = await fetch("{% url 'whatsapp_send_api' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrfInput.value,
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "application/json",
+                    "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+                },
+                body,
+            });
+
+            let data = {};
+            try {
+                data = await response.json();
+            } catch (error) {
+                data = {};
+            }
+
+            if (!response.ok || !data.ok) {
+                showToast(data.message || "WhatsApp haikutumwa.", "error", "Ujumbe haukutumwa");
+                return;
+            }
+
+            showToast(data.message || "WhatsApp imetumwa kikamilifu.", "success", UJUMBE_I18N.message_sent);
+            fungaComposer();
+            setTimeout(() => window.location.reload(), 2500);
+            return;
+
+        } catch (error) {
+            console.error("WhatsApp send failed", error);
+            showToast("Imeshindikana kuwasiliana na WhatsApp provider.", "error", "WhatsApp haijapatikana");
+            return;
+        }
+    }
+
+    let phone = target.replace(/\D/g, "");
+    if (phone.startsWith("0")) phone = "255" + phone.slice(1);
+    else if (phone.startsWith("7")) phone = "255" + phone;
+
+    window.location.href = `sms:+${phone}?body=${encodeURIComponent(text)}`;
+    showToast("Programu ya SMS imefunguliwa.", "success", "SMS");
+    fungaComposer();
+}
+
+
+
+/* =========================================================
+   AUTOMATION EDIT
+========================================================= */
+
+function funguaEditAutoModal(
+    title,
+    currentText
+) {
+
+    const modal =
+        document.getElementById(
+            "editAutoModal"
+        );
+
+    const card =
+        document.getElementById(
+            "editAutoModalCard"
+        );
+
+    const titleBox =
+        document.getElementById(
+            "editAutoTitle"
+        );
+
+    const textarea =
+        document.getElementById(
+            "editAutoTextarea"
+        );
+
+    if (!modal || !card || !titleBox || !textarea) return;
+
+    titleBox.innerText =
+        "Hariri: " + title;
+
+    textarea.value =
+        currentText || "";
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    document.body.classList.add("overflow-hidden");
+
+    setTimeout(() => {
+
+        card.classList.remove(
+            "scale-95",
+            "opacity-0"
+        );
+
+        card.classList.add(
+            "scale-100",
+            "opacity-100"
+        );
+
+    }, 10);
+
+}
+
+
+function fungaEditAutoModal() {
+
+    const modal =
+        document.getElementById(
+            "editAutoModal"
+        );
+
+    const card =
+        document.getElementById(
+            "editAutoModalCard"
+        );
+
+    if (!modal || !card) return;
+
+    card.classList.remove(
+        "scale-100",
+        "opacity-100"
+    );
+
+    card.classList.add(
+        "scale-95",
+        "opacity-0"
+    );
+
+    setTimeout(() => {
+
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+
+        document.body.classList.remove(
+            "overflow-hidden"
+        );
+
+    }, 180);
+
+}
+
+
+function hifadhiAutomation() {
+
+    /*
+       HAPA utaunganisha POST kwenda Django.
+    */
+
+    fungaEditAutoModal();
+
+    showToast(
+        "Ujumbe umehifadhiwa."
+    );
+
+}
+
+
+/* =========================================================
+   DAILY REPORT TEST SEND
+   Uses the existing Django + Momo endpoint. No UI rebuild.
+========================================================= */
+async function tumaTestReport() {
+
+    const button = document.getElementById("sendTestReportButton");
+    const csrfInput = document.querySelector(
+        '#whatsappSendForm input[name="csrfmiddlewaretoken"]'
+    );
+
+    if (!button || !csrfInput?.value) {
+        showToast(
+            "Usalama wa request haujapatikana. Refresh ukurasa ujaribu tena.",
+            "error",
+            "Usalama wa request"
+        );
+        return;
+    }
+
+    if (button.disabled) return;
+
+    const originalText = button.innerText;
+    button.disabled = true;
+    button.innerText = "Inatuma...";
+    showToast("Test report inatumwa kupitia Momo WhatsApp...", "info", "Inatumwa");
+
+    try {
+        const response = await fetch("{% url 'send_daily_report' %}", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "X-CSRFToken": csrfInput.value,
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json",
+            },
+        });
+
+        let data = {};
+        try {
+            data = await response.json();
+        } catch (error) {
+            data = {};
+        }
+
+        if (!response.ok || data.status !== "success") {
+            showToast(
+                data.message || "Test report haikutumwa.",
+                "error",
+                "Report haijatumwa"
+            );
+            return;
+        }
+
+        showToast(
+            data.message || "Test report imetumwa kupitia Momo WhatsApp.",
+            "success",
+            "Report imetumwa"
+        );
+
+        setTimeout(() => {
+            fungaReportPreview();
+            window.location.reload();
+        }, 900);
+
+    } catch (error) {
+        console.error("Daily report test send failed", error);
+        showToast(
+            "Imeshindikana kuwasiliana na TradeCore backend.",
+            "error",
+            "Report haijatumwa"
+        );
+    } finally {
+        button.disabled = false;
+        button.innerText = originalText;
+    }
+}
+
+
+/* =========================================================
+   DAILY REPORT PREVIEW
+========================================================= */
+
+function funguaReportPreview() {
+
+    const modal =
+        document.getElementById(
+            "reportPreviewModal"
+        );
+
+    if (!modal) return;
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    document.body.classList.add(
+        "overflow-hidden"
+    );
+
+}
+
+
+function fungaReportPreview() {
+
+    const modal =
+        document.getElementById(
+            "reportPreviewModal"
+        );
+
+    if (!modal) return;
+
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+
+    document.body.classList.remove(
+        "overflow-hidden"
+    );
+
+}
+
+
+/* =========================================================
+   REPORT SETTINGS
+========================================================= */
+
+function funguaReportSettings() {
+
+    const modal =
+        document.getElementById(
+            "reportSettingsModal"
+        );
+
+    if (!modal) return;
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    document.body.classList.add(
+        "overflow-hidden"
+    );
+
+}
+
+
+function fungaReportSettings() {
+
+    const modal =
+        document.getElementById(
+            "reportSettingsModal"
+        );
+
+    if (!modal) return;
+
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+
+    document.body.classList.remove(
+        "overflow-hidden"
+    );
+
+}
+
+
+/* =========================================================
+   MESSAGE DETAILS
+========================================================= */
+
+function funguaMessageDetails(
+    title,
+    recipient,
+    date,
+    status,
+    body
+) {
+
+    const modal =
+        document.getElementById(
+            "messageDetailsModal"
+        );
+
+    if (!modal) return;
+
+    document.getElementById(
+        "messageDetailTitle"
+    ).innerText = title;
+
+    document.getElementById(
+        "messageDetailRecipient"
+    ).innerText = recipient;
+
+    document.getElementById(
+        "messageDetailDate"
+    ).innerText = date;
+
+    document.getElementById(
+        "messageDetailStatus"
+    ).innerText = status;
+
+    document.getElementById(
+        "messageDetailBody"
+    ).innerText = body;
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    document.body.classList.add(
+        "overflow-hidden"
+    );
+
+}
+
+
+function fungaMessageDetails() {
+
+    const modal =
+        document.getElementById(
+            "messageDetailsModal"
+        );
+
+    if (!modal) return;
+
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+
+    document.body.classList.remove(
+        "overflow-hidden"
+    );
+
+}
+
+
+function funguaMessageHistory() {
+
+    const modal =
+        document.getElementById(
+            "messageHistoryModal"
+        );
+
+    if (!modal) return;
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    document.body.classList.add(
+        "overflow-hidden"
+    );
+}
+
+
+function fungaMessageHistory() {
+
+    const modal =
+        document.getElementById(
+            "messageHistoryModal"
+        );
+
+    if (!modal) return;
+
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+
+    document.body.classList.remove(
+        "overflow-hidden"
+    );
+}
+
+
+function tafutaHistory() {
+
+    const input =
+        document.getElementById(
+            "historySearchInput"
+        );
+
+    if (!input) return;
+
+    const term =
+        input.value
+            .toLowerCase()
+            .trim();
+
+
+    document
+        .querySelectorAll(
+            ".history-row"
+        )
+        .forEach(row => {
+
+            const searchable =
+                (
+                    row.getAttribute(
+                        "data-search"
+                    ) || ""
+                ).toLowerCase();
+
+
+            row.style.display =
+                searchable.includes(term)
+                    ? ""
+                    : "none";
+
+        });
+}
+
+/* =========================================================
+   ESC KEY — CLOSE MODALS
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key !== "Escape") return;
+
+        fungaComposer();
+        fungaEditAutoModal();
+        fungaReportPreview();
+        fungaReportSettings();
+        fungaMessageDetails();
+
+    }
+);
+
+</script>
+
+{% endblock %}

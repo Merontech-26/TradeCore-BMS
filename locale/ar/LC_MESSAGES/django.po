@@ -1,0 +1,5135 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: TradeCore 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-04 05:44+0300\n"
+"PO-Revision-Date: 2026-10-04 15:00+0300\n"
+"Last-Translator: Meron Tech\n"
+"Language: ar\n"
+"Language-Team: ar <LL@li.org>\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=0 && n%100<=2 ?"
+" 4 : 5);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: pos_app/templates/matumizi.html:2147
+msgid " · unaweza kubadilisha manually"
+msgstr " · يمكنك تغييره يدويًا"
+
+#: pos_app/templates/billing.html:160
+msgid "&copy; 2026 Meron Tech"
+msgstr "&copy; 2026 Meron Tech"
+
+#: pos_app/templates/login.html:336
+msgid "&copy; 2026 Meron Tech. All rights reserved."
+msgstr "&copy; 2026 Meron Tech. جميع الحقوق محفوظة."
+
+#: pos_app/templates/ripoti.html:546 pos_app/templates/ripoti.html:606 pos_app/templates/ripoti.html:663
+#: pos_app/templates/ripoti.html:728
+msgid "&times;"
+msgstr "&times;"
+
+#: pos_app/templates/mauzo.html:209
+msgid "+ Mteja Mpya"
+msgstr "+ جديد العميل"
+
+#: pos_app/templates/mauzo.html:260
+msgid "+ Ongezeko"
+msgstr "+ هامش ربح"
+
+#: pos_app/templates/mauzo.html:257
+msgid "- Punguzo"
+msgstr "- خصم"
+
+#: pos_app/templates/billing.html:117
+msgid "/mwezi"
+msgstr "/شهريًا"
+
+#: pos_app/templates/ripoti.html:2063 pos_app/templates/ripoti.html:2121
+#, python-format
+msgid "0%% →"
+msgstr "0%% →"
+
+#: pos_app/templates/registration.html:1442 pos_app/templates/registration.html:1535
+msgid "07XXXXXXXX"
+msgstr "07XXXXXXXX"
+
+#: pos_app/templates/registration.html:1389
+msgid "30 Days"
+msgstr "30 يومًا"
+
+#: pos_app/templates/registration.html:1370
+msgid "30 days of TradeCore"
+msgstr "30 أيام من TradeCore"
+
+#: pos_app/templates/registration.html:1624
+msgid "30-DAY DEMO"
+msgstr "تجربة لمدة 30 يومًا"
+
+#: pos_app/templates/billing.html:78
+msgid "30-Day Demo"
+msgstr "تجربة لمدة 30 يومًا"
+
+#: pos_app/templates/receipt.html:554
+msgid "A4 Portrait"
+msgstr "A4 عمودي"
+
+#: pos_app/templates/mauzo.html:495
+msgid "AI image haijaweza kutengenezwa."
+msgstr "تعذر إنشاء صورة الذكاء الاصطناعي."
+
+#: pos_app/templates/inventory.html:542
+msgid "ALL"
+msgstr "الكل"
+
+#: pos_app/templates/registration.html:1415
+msgid "Account"
+msgstr "الحساب"
+
+#: pos_app/templates/registration.html:1390
+msgid "Account moja → Duka moja → data yake mwenyewe. Taarifa za biashara nyingine hazipaswi kuchanganyika."
+msgstr "حساب واحد → متجر واحد → بياناته الخاصة. يجب ألا تختلط بيانات الأنشطة التجارية الأخرى."
+
+#: pos_app/templates/registration.html:1675
+msgid "Account yako inabaki na mazingira yake ya biashara."
+msgstr "يبقى حسابك ضمن بيئة نشاطك التجاري الخاصة."
+
+#: pos_app/templates/wafanyakazi.html:117
+msgid "Action"
+msgstr "الإجراء"
+
+#: pos_app/templates/inventory.html:622 pos_app/templates/wateja.html:878
+msgid "Actions"
+msgstr "الإجراءات"
+
+#: pos_app/templates/ujumbe.html:701 pos_app/templates/wafanyakazi.html:70 pos_app/templates/wafanyakazi.html:159
+msgid "Active"
+msgstr "نشط"
+
+#: pos_app/templates/dashboard.html:996
+msgid "Activities"
+msgstr "الأنشطة"
+
+#: pos_app/templates/dashboard.html:1169
+msgid "Activity History"
+msgstr "سجل الأنشطة"
+
+#: pos_app/templates/dashboard.html:1175
+msgid "Activity ya mwisho"
+msgstr "آخر نشاط"
+
+#: pos_app/templates/inventory.html:827
+msgid "Adjustment"
+msgstr "تسوية"
+
+#: pos_app/templates/registration.html:1355 pos_app/templates/registration.html:1679
+msgid "Advertisement slides"
+msgstr "شرائح إعلانية"
+
+#: pos_app/templates/mauzo.html:191 pos_app/templates/mauzo.html:480
+msgid "Agizo la Sasa"
+msgstr "الحالي الطلب"
+
+#: pos_app/templates/base.html:868 pos_app/templates/dashboard.html:1323 pos_app/templates/mauzo.html:549
+msgid "Ago"
+msgstr "أغسطس"
+
+#: pos_app/templates/matumizi.html:2170
+msgid "Agosti"
+msgstr "أغسطس"
+
+#: pos_app/templates/mauzo.html:445
+msgid "Aina"
+msgstr "النوع"
+
+#: pos_app/templates/inventory.html:750 pos_app/templates/registration.html:1495
+msgid "Aina ya Biashara"
+msgstr "النشاط التجاري النوع"
+
+#: pos_app/templates/dashboard.html:1174
+msgid "Aina za shughuli"
+msgstr "أنواع الأنشطة"
+
+#: pos_app/templates/wafanyakazi.html:331
+msgid "Akaunti"
+msgstr "الحساب"
+
+#: pos_app/templates/billing.html:89
+msgid "Akaunti Moja (1 User)"
+msgstr "حساب واحد (مستخدم واحد)"
+
+#: pos_app/templates/wafanyakazi.html:186
+msgid "Akaunti Yako"
+msgstr "حسابك"
+
+#: pos_app/templates/base.html:327 pos_app/templates/base.html:468
+msgid "Akaunti na madeni"
+msgstr "الحساب والديون"
+
+#: pos_app/templates/wafanyakazi.html:466
+msgid "Akaunti ya Benki:"
+msgstr "الحساب البنكي:"
+
+#: pos_app/templates/inventory.html:453
+msgid "Alerts zimesasishwa."
+msgstr "تم تحديث التنبيهات."
+
+#: pos_app/templates/base.html:862 pos_app/templates/dashboard.html:1313 pos_app/templates/matumizi.html:2157
+#: pos_app/templates/mauzo.html:548
+msgid "Alhamisi"
+msgstr "الخميس"
+
+#: pos_app/templates/matumizi.html:1969
+msgid "Aliyeandika / Aliyesajili"
+msgstr "الكاتب / المسجّل"
+
+#: pos_app/templates/dashboard.html:1183
+msgid "Aliyefanya:"
+msgstr "نفّذها:"
+
+#: pos_app/templates/dashboard.html:1049 pos_app/templates/dashboard.html:1215 pos_app/templates/matumizi.html:987
+#: pos_app/templates/matumizi.html:1472
+msgid "Aliyesajili"
+msgstr "المسجّل"
+
+#: pos_app/templates/receipt.html:719
+msgid "All rights reserved."
+msgstr "جميع الحقوق محفوظة."
+
+#: pos_app/templates/dashboard.html:1028
+msgid "Amount (TZS)"
+msgstr "المبلغ (TZS)"
+
+#: pos_app/templates/ripoti.html:2260
+msgid "Analysis chart"
+msgstr "التحليل المخطط"
+
+#: pos_app/templates/ripoti.html:1191
+msgid "Analysis:"
+msgstr "التحليل:"
+
+#: pos_app/templates/ripoti.html:437
+msgid "Analysis: Gross Sales"
+msgstr "التحليل: إجمالي المبيعات"
+
+#: pos_app/templates/mauzo.html:40
+msgid "Andika jina / barcode..."
+msgstr "أدخل الاسم / الباركود..."
+
+#: pos_app/templates/inventory.html:433
+msgid "Andika jina la bidhaa ili kupata pendekezo."
+msgstr "أدخل اسم المنتج للحصول على اقتراح."
+
+#: pos_app/templates/inventory.html:910
+msgid "Andika maelezo ya adjustment..."
+msgstr "اكتب تفاصيل التعديل..."
+
+#: pos_app/templates/matumizi.html:2139
+msgid "Andika matumizi; Smart Category itapendekeza category kutokana na maelezo na historia."
+msgstr "اكتب المصروف؛ ستقترح الفئة الذكية فئة بناءً على التفاصيل والسجل."
+
+#: pos_app/templates/mauzo.html:537
+msgid "Andika sababu ya kukataa mzigo."
+msgstr "اكتب سبب رفض الشحنة."
+
+#: pos_app/templates/inventory.html:419
+msgid "Andika swali kwanza."
+msgstr "اكتب السؤال أولًا."
+
+#: pos_app/templates/registration.html:1466
+msgid "Angalau characters 8"
+msgstr "8 أحرف على الأقل"
+
+#: pos_app/templates/inventory.html:657 pos_app/templates/wateja.html:2201
+msgid "Angalia"
+msgstr "عرض"
+
+#: pos_app/templates/mauzo.html:642
+msgid "Angalia mauzo yaliyokamilika."
+msgstr "عرض مكتمل المبيعات."
+
+#: pos_app/templates/registration.html:1667
+msgid "Angalia mauzo, faida na activity bila kupoteza muda."
+msgstr "اعرض المبيعات والأرباح والأنشطة دون إضاعة الوقت."
+
+#: pos_app/templates/base.html:317
+msgid "Angalia stock"
+msgstr "عرض المخزون"
+
+#: pos_app/templates/base.html:330
+msgid "Angalia takwimu"
+msgstr "عرض الإحصاءات"
+
+#: pos_app/templates/wateja.html:1934
+msgid "Anwani"
+msgstr "العنوان"
+
+#: pos_app/templates/receipt.html:746
+msgid "Anwani / Mahali"
+msgstr "العنوان / الموقع"
+
+#: pos_app/templates/registration.html:1525
+msgid "Anwani ya Biashara"
+msgstr "عنوان النشاط التجاري"
+
+#: pos_app/templates/registration.html:11
+msgid "Anza Demo"
+msgstr "ابدأ التجربة"
+
+#: pos_app/templates/registration.html:1370
+msgid "Anza bila kuhitaji setup ndefu ya kwanza."
+msgstr "ابدأ دون الحاجة إلى إعداد أولي طويل."
+
+#: pos_app/templates/dashboard.html:1250
+msgid "Approve & Order"
+msgstr "اعتماد وطلب"
+
+#: pos_app/templates/base.html:867 pos_app/templates/dashboard.html:1319 pos_app/templates/mauzo.html:549
+msgid "Apr"
+msgstr "أبريل"
+
+#: pos_app/templates/matumizi.html:2166
+msgid "Aprili"
+msgstr "أبريل"
+
+#: pos_app/templates/base.html:482
+msgid "Arifa"
+msgstr "الإشعارات"
+
+#: pos_app/templates/base.html:482
+msgid "Arifa za mfumo"
+msgstr "إشعارات النظام"
+
+#: pos_app/templates/registration.html:1594
+msgid "Asante kwa kufanya manunuzi nasi!"
+msgstr "شكرًا لتسوقك معنا!"
+
+#: pos_app/templates/base.html:793
+msgid "Asubuhi Njema"
+msgstr "صباح الخير"
+
+#: pos_app/templates/dashboard.html:1028 pos_app/templates/dashboard.html:1277 pos_app/templates/dashboard.html:1709
+msgid "Attendant"
+msgstr "المسؤول"
+
+#: pos_app/templates/login.html:297
+msgid "Authorized business access only"
+msgstr "الوصول المصرح به للنشاط التجاري فقط"
+
+#: pos_app/templates/registration.html:1508 pos_app/templates/registration.html:1819
+msgid "Auto Parts"
+msgstr "قطع غيار السيارات"
+
+#: pos_app/templates/wafanyakazi.html:113
+msgid "Avatar"
+msgstr "الصورة الرمزية"
+
+#: pos_app/templates/registration.html:1665
+msgid "BUSINESS CONTROL"
+msgstr "التحكم في الأعمال"
+
+#: pos_app/templates/wafanyakazi.html:414
+msgid "Badili Hali"
+msgstr "تغيير الحالة"
+
+#: pos_app/templates/base.html:272
+msgid "Badili Picha / Wasifu"
+msgstr "تغيير الصورة / الملف الشخصي"
+
+#: pos_app/templates/base.html:660
+msgid "Badilisha Picha ya Wasifu"
+msgstr "تغيير صورة الملف الشخصي"
+
+#: pos_app/templates/base.html:739
+msgid "Baki Hapa"
+msgstr "البقاء هنا"
+
+#: pos_app/templates/dashboard.html:834
+msgid "Bakiza"
+msgstr "متبقٍ"
+
+#: pos_app/templates/wateja.html:2120
+msgid "Balances kutoka database."
+msgstr "الأرصدة من قاعدة البيانات."
+
+#: pos_app/templates/wafanyakazi.html:460
+msgid "Bank & Mobile Money Payout"
+msgstr "صرف عبر البنك والأموال عبر الهاتف"
+
+#: pos_app/templates/dashboard.html:980 pos_app/templates/ripoti.html:452 pos_app/templates/ripoti.html:1057
+msgid "Bar"
+msgstr "أعمدة"
+
+#: pos_app/templates/inventory.html:622
+msgid "Barcode"
+msgstr "الباركود"
+
+#: pos_app/templates/inventory.html:783
+msgid "Barcode Generated"
+msgstr "تم إنشاء الباركود"
+
+#: pos_app/templates/inventory.html:755 pos_app/templates/mauzo.html:510
+msgid "Barcode Imescan"
+msgstr "تم مسح الباركود"
+
+#: pos_app/templates/inventory.html:457
+msgid "Barcode haijapatikana."
+msgstr "لم يتم العثور على الباركود."
+
+#: pos_app/templates/inventory.html:427
+msgid "Barcode haijatengenezwa."
+msgstr "لم يتم إنشاء الباركود."
+
+#: pos_app/templates/inventory.html:425
+msgid "Barcode haijatumika. Unaweza kusajili bidhaa hii."
+msgstr "لم يتم التعرف على الباركود. يمكنك تسجيل هذا المنتج."
+
+#: pos_app/templates/inventory.html:460
+msgid "Barcode haijawekwa."
+msgstr "لم يتم إدخال الباركود."
+
+#: pos_app/templates/mauzo.html:494
+msgid "Barcode haikupatikana au bidhaa imeisha stoo!"
+msgstr "لم يتم العثور على الباركود أو نفد المنتج من المخزون!"
+
+#: pos_app/templates/mauzo.html:509
+msgid "Barcode hii haipo kwenye mzigo huu."
+msgstr "هذا الباركود غير موجود في هذه الشحنة."
+
+#: pos_app/templates/mauzo.html:522
+msgid "Barcode hii haipo kwenye mzigo unaopokelewa."
+msgstr "هذا الباركود غير موجود في الشحنة المستلمة."
+
+#: pos_app/templates/inventory.html:783
+msgid "Barcode imehifadhiwa kwa mafanikio."
+msgstr "تم حفظ الباركود بنجاح."
+
+#: pos_app/templates/inventory.html:454
+msgid "Barcode imescanwa."
+msgstr "تم مسح الباركود."
+
+#: pos_app/templates/inventory.html:657
+msgid "Barcode ya Kiwandani"
+msgstr "باركود المصنع"
+
+#: pos_app/templates/mauzo.html:523
+msgid "Barcode:"
+msgstr "الباركود:"
+
+#: pos_app/templates/inventory.html:622
+msgid "Bei"
+msgstr "السعر"
+
+#: pos_app/templates/dashboard.html:1116
+msgid "Bei & Faida kwa Bidhaa"
+msgstr "الأسعار والربح حسب المنتج"
+
+#: pos_app/templates/dashboard.html:1283 pos_app/templates/dashboard.html:1709
+msgid "Bei Iliyotolewa"
+msgstr "السعر المعروض"
+
+#: pos_app/templates/mauzo.html:47
+msgid "Bei hadi"
+msgstr "السعر إلى"
+
+#: pos_app/templates/mauzo.html:46
+msgid "Bei kuanzia"
+msgstr "السعر من"
+
+#: pos_app/templates/dashboard.html:1131
+msgid "Bei ya Kununua"
+msgstr "سعر الشراء"
+
+#: pos_app/templates/inventory.html:661
+msgid "Bei ya Kununulia *"
+msgstr "الشراء السعر *"
+
+#: pos_app/templates/dashboard.html:1132
+msgid "Bei ya Kuuza"
+msgstr "سعر البيع"
+
+#: pos_app/templates/inventory.html:663
+msgid "Bei ya Kuuzia *"
+msgstr "البيع السعر *"
+
+#: pos_app/templates/dashboard.html:1267
+msgid "Bei ya kuuzwa imeludisha gharama bila profit."
+msgstr "أعاد سعر البيع التكلفة دون ربح."
+
+#: pos_app/templates/wafanyakazi.html:322
+msgid "Benki"
+msgstr "البنك"
+
+#: pos_app/templates/dashboard.html:1130 pos_app/templates/dashboard.html:1263 pos_app/templates/inventory.html:622
+#: pos_app/templates/receipt.html:654 pos_app/templates/ripoti.html:683 pos_app/templates/ripoti.html:2133
+#: pos_app/templates/ripoti.html:2152
+msgid "Bidhaa"
+msgstr "المنتج"
+
+#: pos_app/templates/inventory.html:865 pos_app/templates/inventory.html:882 pos_app/templates/inventory.html:895
+#: pos_app/templates/inventory.html:908
+msgid "Bidhaa Zilizochaguliwa"
+msgstr "محدد المنتجات"
+
+#: pos_app/templates/inventory.html:458
+msgid "Bidhaa haijapatikana."
+msgstr "المنتج غير موجود."
+
+#: pos_app/templates/inventory.html:472
+msgid "Bidhaa haipo kwenye mfumo."
+msgstr "المنتج غير موجود في النظام."
+
+#: pos_app/templates/mauzo.html:486
+msgid "Bidhaa hii haina stock kwenye Duka."
+msgstr "هذا المنتج غير متوفر في مخزون المتجر."
+
+#: pos_app/templates/inventory.html:756
+msgid "Bidhaa imetambulika"
+msgstr "تم التعرف على المنتج"
+
+#: pos_app/templates/inventory.html:455
+msgid "Bidhaa imetambuliwa."
+msgstr "تم التعرف على المنتج."
+
+#: pos_app/templates/inventory.html:704
+msgid "Bidhaa inabaki kwenye mfumo na historia zake; haitakuwa na stock."
+msgstr "سيبقى المنتج في النظام مع سجله، لكن دون مخزون."
+
+#: pos_app/templates/inventory.html:563
+msgid "Bidhaa za Store"
+msgstr "المستودع المنتجات"
+
+#: pos_app/templates/base.html:450
+msgid "Bidhaa, stock na barcode"
+msgstr "المنتجات والمخزون والباركود"
+
+#: pos_app/templates/dashboard.html:1270
+msgid "Bila Faida/Wala Hasara"
+msgstr "دون ربح أو خسارة"
+
+#: pos_app/templates/base.html:345 pos_app/templates/base.html:407 pos_app/templates/base.html:491
+msgid "Bila Mtandao na Usawazishaji"
+msgstr "دون اتصال ومزامنة"
+
+#: pos_app/templates/wafanyakazi.html:79 pos_app/templates/wafanyakazi.html:163
+msgid "Blocked"
+msgstr "محظور"
+
+#: pos_app/templates/mauzo.html:238
+msgid "Bofya bidhaa upande wa kushoto."
+msgstr "انقر على منتج في الجهة اليسرى."
+
+#: pos_app/templates/mauzo.html:203
+msgid "Bonyeza Current Order kuona invoice."
+msgstr "اضغط على الطلب الحالي لعرض الفاتورة."
+
+#: pos_app/templates/dashboard.html:1335
+msgid "Bonyeza Lock kufunga page scroll"
+msgstr "اضغط على القفل لقفل تمرير الصفحة"
+
+#: pos_app/templates/base.html:376
+msgid "Bonyeza Share kwenye Safari, kisha chagua"
+msgstr "اضغط على مشاركة في Safari، ثم اختر"
+
+#: pos_app/templates/base.html:368
+msgid "Bonyeza kitufe cha Sakinisha ili kivinjari kifungue dirisha lake la kawaida la kusakinisha TradeCore."
+msgstr "اضغط على زر التثبيت لفتح نافذة التثبيت القياسية لـ TradeCore في المتصفح."
+
+#: pos_app/templates/wateja.html:672
+msgid "Bonyeza kuona wadaiwa"
+msgstr "اضغط لعرض المدينين"
+
+#: pos_app/templates/base.html:242 pos_app/templates/base.html:654 pos_app/templates/base.html:779
+msgid "Bosi Mkuu"
+msgstr "المدير العام"
+
+#: pos_app/templates/receipt.html:866
+msgid "Browser imezuia print window. Ruhusu pop-ups kwa TradeCore kisha ujaribu tena."
+msgstr "حظر المتصفح نافذة الطباعة. اسمح بالنوافذ المنبثقة لـ TradeCore ثم حاول مرة أخرى."
+
+#: pos_app/templates/registration.html:1419
+msgid "Business"
+msgstr "النشاط التجاري"
+
+#: pos_app/templates/inventory.html:766 pos_app/templates/ripoti.html:231
+msgid "Business Intelligence"
+msgstr "ذكاء الأعمال"
+
+#: pos_app/templates/registration.html:1376
+msgid "Business profile iliyo kamili"
+msgstr "إكمال النشاط التجاري الملف الشخصي"
+
+#: pos_app/templates/registration.html:1629
+msgid "Business type"
+msgstr "نوع النشاط التجاري"
+
+#: pos_app/templates/dashboard.html:1282 pos_app/templates/dashboard.html:1709
+msgid "Buying"
+msgstr "الشراء"
+
+#: pos_app/templates/dashboard.html:1117
+msgid "Buying, selling price, bei halisi iliyouziwa na gross profit/loss."
+msgstr "سعر الشراء وسعر البيع والسعر الفعلي للبيع وإجمالي الربح/الخسارة."
+
+#: pos_app/templates/inventory.html:919
+msgid "Camera ya simu au Bluetooth/USB scanner."
+msgstr "كاميرا الهاتف أو ماسح Bluetooth/USB."
+
+#: pos_app/templates/matumizi.html:1356 pos_app/templates/matumizi.html:1752
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: pos_app/templates/ripoti.html:411
+msgid "Cash Flow"
+msgstr "التدفق النقدي"
+
+#: pos_app/templates/dashboard.html:811
+msgid "Cashier Station"
+msgstr "محطة أمين الصندوق"
+
+#: pos_app/templates/inventory.html:515
+msgid "Categories"
+msgstr "الفئات"
+
+#: pos_app/templates/inventory.html:750
+msgid "Categories & Smart"
+msgstr "الفئات & ذكي"
+
+#: pos_app/templates/matumizi.html:1315
+msgid "Categories zote"
+msgstr "جميع الفئات"
+
+#: pos_app/templates/dashboard.html:1049 pos_app/templates/dashboard.html:1215 pos_app/templates/matumizi.html:975
+#: pos_app/templates/matumizi.html:1313 pos_app/templates/matumizi.html:1460 pos_app/templates/matumizi.html:1856
+msgid "Category"
+msgstr "الفئة"
+
+#: pos_app/templates/matumizi.html:2140
+msgid "Category imechaguliwa manually."
+msgstr "تم اختيار الفئة يدويًا."
+
+#: pos_app/templates/matumizi.html:2141
+msgid "Category imezidi herufi 50."
+msgstr "تجاوزت الفئة 50 حرفًا."
+
+#: pos_app/templates/matumizi.html:2145
+msgid "Category manual: "
+msgstr "الفئة يدوي: "
+
+#: pos_app/templates/registration.html:1571
+msgid "Chagua"
+msgstr "اختيار"
+
+#: pos_app/templates/inventory.html:848
+msgid "Chagua Bidhaa za Kuhamisha"
+msgstr "اختر المنتجات المطلوب نقلها"
+
+#: pos_app/templates/billing.html:8
+msgid "Chagua Kifurushi"
+msgstr "اختر خطة"
+
+#: pos_app/templates/registration.html:1498
+msgid "Chagua aina"
+msgstr "اختر النوع"
+
+#: pos_app/templates/registration.html:1733
+msgid "Chagua aina ya biashara."
+msgstr "اختر نوع النشاط التجاري."
+
+#: pos_app/templates/inventory.html:750
+msgid "Chagua aina ya biashara; TradeCore itaandaa categories zake."
+msgstr "اختر نوع النشاط التجاري؛ وستجهز TradeCore فئاته."
+
+#: pos_app/templates/inventory.html:416
+msgid "Chagua bidhaa kwanza, kisha scan."
+msgstr "اختر منتجًا أولًا، ثم امسحه."
+
+#: pos_app/templates/inventory.html:448
+msgid "Chagua bidhaa kwenye jedwali kwanza."
+msgstr "اختر المنتجات من الجدول أولًا."
+
+#: pos_app/templates/mauzo.html:16
+msgid "Chagua bidhaa na ukamilishe malipo kwa haraka."
+msgstr "اختر المنتجات وأكمل الدفع بسرعة."
+
+#: pos_app/templates/inventory.html:1304
+msgid "Chagua bidhaa zote"
+msgstr "اختيار جميع المنتجات"
+
+#: pos_app/templates/wateja.html:1432
+msgid "Chagua faili"
+msgstr "اختر ملفًا"
+
+#: pos_app/templates/inventory.html:428
+msgid "Chagua kategoria kwanza."
+msgstr "اختر الفئة أولًا."
+
+#: pos_app/templates/inventory.html:820
+msgid "Chagua kitendo kisha scan bidhaa moja au nyingi."
+msgstr "اختر an الإجراء, ثم مسح واحد أو المزيد المنتجات."
+
+#: pos_app/templates/inventory.html:923
+msgid "Chagua kutoka Grid"
+msgstr "اختر من الشبكة"
+
+#: pos_app/templates/mauzo.html:310
+msgid "Chagua njia ambayo mteja anatumia kulipa."
+msgstr "اختر طريقة الدفع التي يستخدمها العميل."
+
+#: pos_app/templates/wateja.html:1221
+msgid "Chagua taarifa unayotaka kutumia kwenye search."
+msgstr "اختر البيانات التي تريد استخدامها في البحث."
+
+#: pos_app/templates/inventory.html:852
+msgid "Chagua zinazoonekana"
+msgstr "اختر العناصر الظاهرة"
+
+#: pos_app/templates/base.html:713
+msgid "Chaguo la Kifaa"
+msgstr "خيارات الجهاز"
+
+#: pos_app/templates/ripoti.html:290
+msgid "Chapisha / PDF"
+msgstr "طباعة / PDF"
+
+#: pos_app/templates/ripoti.html:447
+msgid "Chart type"
+msgstr "نوع المخطط"
+
+#: pos_app/templates/inventory.html:1305
+msgid "Checkbox ya juu inachagua bidhaa zote zinazoonekana kwenye table."
+msgstr "يحدد مربع الاختيار العلوي جميع المنتجات الظاهرة في الجدول."
+
+#: pos_app/templates/mauzo.html:496
+msgid "Checkout form haijapatikana."
+msgstr "لم يتم العثور على نموذج الدفع."
+
+#: pos_app/templates/wafanyakazi.html:226
+msgid "Cheo / Jukumu"
+msgstr "المنصب / الدور"
+
+#: pos_app/templates/matumizi.html:1348
+msgid "Clear"
+msgstr "مسح"
+
+#: pos_app/templates/dashboard.html:1121 pos_app/templates/dashboard.html:1149 pos_app/templates/dashboard.html:1159
+#: pos_app/templates/dashboard.html:1234
+msgid "Close"
+msgstr "إغلاق"
+
+#: pos_app/templates/dashboard.html:1170
+msgid "Close activity history"
+msgstr "إغلاق النشاط السجل"
+
+#: pos_app/templates/dashboard.html:1204
+msgid "Close history"
+msgstr "إغلاق السجل"
+
+#: pos_app/templates/dashboard.html:1091
+msgid "Close notification"
+msgstr "إغلاق الإشعار"
+
+#: pos_app/templates/dashboard.html:1136
+msgid "Comment"
+msgstr "ملاحظة"
+
+#: pos_app/templates/dashboard.html:1153
+msgid "Complete Action"
+msgstr "إكمال الإجراء"
+
+#: pos_app/templates/registration.html:1500 pos_app/templates/registration.html:1816
+msgid "Computers & Electronics"
+msgstr "الحواسيب والإلكترونيات"
+
+#: pos_app/templates/ujumbe.html:702
+msgid "Configured status"
+msgstr "حالة الإعداد"
+
+#: pos_app/templates/matumizi.html:1706
+msgid "Confirmed"
+msgstr "مؤكد"
+
+#: pos_app/templates/mauzo.html:383
+msgid "Connect scanner, kisha scan..."
+msgstr "وصّل الماسح، ثم امسح..."
+
+#: pos_app/templates/wateja.html:2358
+msgid "Contacts"
+msgstr "جهات الاتصال"
+
+#: pos_app/templates/inventory.html:827
+msgid "Correction / damaged / lost"
+msgstr "تصحيح / تالف / مفقود"
+
+#: pos_app/templates/inventory.html:906
+msgid "Correction ya stock yenye sababu iliyoandikwa."
+msgstr "تصحيح للمخزون مع ذكر السبب."
+
+#: pos_app/templates/registration.html:1502 pos_app/templates/registration.html:1817
+msgid "Cosmetics & Beauty"
+msgstr "مستحضرات التجميل والجمال"
+
+#: pos_app/templates/registration.html:1397 pos_app/templates/registration.html:1705
+msgid "Create Your TradeCore Account"
+msgstr "أنشئ حساب TradeCore الخاص بك"
+
+#: pos_app/templates/login.html:290
+msgid "Create an account"
+msgstr "إنشاء حساب"
+
+#: pos_app/templates/ujumbe.html:660
+msgid "Credits available"
+msgstr "أرصدة متاح"
+
+#: pos_app/templates/dashboard.html:756
+msgid "Critical"
+msgstr "حرج"
+
+#: pos_app/templates/registration.html:1599
+msgid "Currency"
+msgstr "العملة"
+
+#: pos_app/templates/dashboard.html:1028 pos_app/templates/dashboard.html:1276 pos_app/templates/dashboard.html:1709
+#: pos_app/templates/wateja.html:862
+msgid "Customer"
+msgstr "العميل"
+
+#: pos_app/templates/ripoti.html:510 pos_app/templates/ripoti.html:657
+msgid "Customer Daily Report"
+msgstr "التقرير اليومي للعملاء"
+
+#: pos_app/templates/wateja.html:326
+msgid "Customer Management"
+msgstr "إدارة العملاء"
+
+#: pos_app/templates/wateja.html:1966
+msgid "Customer Purchase History"
+msgstr "سجل مشتريات العميل"
+
+#: pos_app/templates/wateja.html:742 pos_app/templates/wateja.html:1216
+msgid "Customer Search"
+msgstr "بحث العملاء"
+
+#: pos_app/templates/wateja.html:2348
+msgid "Customer history JSON failed:"
+msgstr "فشل JSON لسجل العميل:"
+
+#: pos_app/templates/wateja.html:587
+msgid "Customers With Balance"
+msgstr "العملاء مع الرصيد"
+
+#: pos_app/templates/dashboard.html:904
+msgid "Daily Overview"
+msgstr "نظرة يومية"
+
+#: pos_app/templates/ripoti.html:283
+msgid "Daily Report"
+msgstr "التقرير اليومي"
+
+#: pos_app/templates/ujumbe.html:698
+msgid "Daily Reports"
+msgstr "التقارير اليومية"
+
+#: pos_app/templates/inventory.html:1314
+msgid "Danger Zone"
+msgstr "منطقة الخطر"
+
+#: pos_app/templates/base.html:211
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+#: pos_app/templates/dashboard.html:1016
+msgid "Dashboard history"
+msgstr "سجل لوحة التحكم"
+
+#: pos_app/templates/registration.html:1382
+msgid "Dashboard tayari kwa biashara"
+msgstr "لوحة تحكم جاهزة لأعمالك"
+
+#: pos_app/templates/base.html:444 pos_app/templates/base.html:520
+msgid "Dashibodi"
+msgstr "لوحة التحكم"
+
+#: pos_app/templates/registration.html:1674
+msgid "Data yako. Biashara yako."
+msgstr "الخاص بك البيانات. نشاطك التجاري."
+
+#: pos_app/templates/ripoti.html:235 pos_app/templates/wateja.html:332
+msgid "Database Live"
+msgstr "قاعدة البيانات مباشر"
+
+#: pos_app/templates/dashboard.html:1028
+msgid "Date & Time"
+msgstr "التاريخ والوقت"
+
+#: pos_app/templates/wateja.html:874
+msgid "Debt / Balance"
+msgstr "الدين / الرصيد"
+
+#: pos_app/templates/ujumbe.html:688
+msgid "Delivery rate"
+msgstr "التسليم النسبة"
+
+#: pos_app/templates/registration.html:1618
+msgid "Demo note:"
+msgstr "ملاحظة التجربة:"
+
+#: pos_app/templates/registration.html:1388
+msgid "Demo period"
+msgstr "فترة التجربة"
+
+#: pos_app/templates/wateja.html:1940
+msgid "Deni la Sasa"
+msgstr "الدين الحالي"
+
+#: pos_app/templates/dashboard.html:1280 pos_app/templates/dashboard.html:1709
+msgid "Deni la mteja (current)"
+msgstr "دين العميل (الحالي)"
+
+#: pos_app/templates/wateja.html:1946
+msgid "Deposit"
+msgstr "العربون"
+
+#: pos_app/templates/base.html:868 pos_app/templates/dashboard.html:1327 pos_app/templates/mauzo.html:549
+msgid "Des"
+msgstr "ديسمبر"
+
+#: pos_app/templates/matumizi.html:2174
+msgid "Desemba"
+msgstr "ديسمبر"
+
+#: pos_app/templates/wateja.html:1539
+msgid "Details"
+msgstr "التفاصيل"
+
+#: pos_app/templates/mauzo.html:498
+msgid "Device iko offline; sale imewekwa kwenye queue."
+msgstr "الجهاز غير متصل؛ تمت إضافة عملية البيع إلى قائمة الانتظار."
+
+#: pos_app/templates/dashboard.html:1278 pos_app/templates/dashboard.html:1709
+msgid "Discount"
+msgstr "الخصم"
+
+#: pos_app/templates/inventory.html:802
+msgid "Done"
+msgstr "تم"
+
+#: pos_app/templates/receipt.html:568
+msgid "Download PDF"
+msgstr "تنزيل PDF"
+
+#: pos_app/templates/inventory.html:733
+msgid "Duka / POS"
+msgstr "المتجر / POS"
+
+#: pos_app/templates/base.html:176
+msgid "Duka Lililothibitishwa"
+msgstr "المتجر الموثّق"
+
+#: pos_app/templates/billing.html:93
+msgid "Duka Moja (1 Branch)"
+msgstr "متجر واحد (فرع واحد)"
+
+#: pos_app/templates/wateja.html:1528
+msgid "Duplicates / Invalid"
+msgstr "مكررة / غير صالحة"
+
+#: pos_app/templates/receipt.html:756 pos_app/templates/wateja.html:1247 pos_app/templates/wateja.html:1915
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+#: pos_app/templates/login.html:255
+msgid "Email or Username"
+msgstr "البريد الإلكتروني أو اسم المستخدم"
+
+#: pos_app/templates/registration.html:1541
+msgid "Email ya Biashara"
+msgstr "بريد النشاط التجاري"
+
+#: pos_app/templates/ripoti.html:517 pos_app/templates/ripoti.html:722
+msgid "Employee Daily Report"
+msgstr "التقرير اليومي للموظفين"
+
+#: pos_app/templates/inventory.html:440
+msgid "Endelea kukamilisha bidhaa."
+msgstr "تابع لإكمال المنتج."
+
+#: pos_app/templates/inventory.html:789
+msgid "Excel Import"
+msgstr "Excel استيراد"
+
+#: pos_app/templates/inventory.html:442
+msgid "Excel haijaweza kuingizwa."
+msgstr "تعذر استيراد ملف Excel."
+
+#: pos_app/templates/inventory.html:791
+msgid "Excel imeingizwa kwa mafanikio."
+msgstr "تم استيراد Excel بنجاح."
+
+#: pos_app/templates/matumizi.html:929
+msgid "Expand"
+msgstr "توسيع"
+
+#: pos_app/templates/ripoti.html:796
+msgid "Faida baada ya COGS na matumizi"
+msgstr "الربح بعد تكلفة البضائع والمصروفات"
+
+#: pos_app/templates/dashboard.html:1268
+msgid "Faida ya Jumla"
+msgstr "إجمالي الربح"
+
+#: pos_app/templates/wateja.html:1512
+msgid "Failed"
+msgstr "فشل"
+
+#: pos_app/templates/mauzo.html:281
+msgid "Fanya Malipo"
+msgstr "إجراء الدفع"
+
+#: pos_app/templates/inventory.html:1286
+msgid "Fanya Operation kwa Kategoria"
+msgstr "تنفيذ عملية حسب الفئة"
+
+#: pos_app/templates/registration.html:1499 pos_app/templates/registration.html:1816
+msgid "Fashion & Clothing"
+msgstr "الأزياء والملابس"
+
+#: pos_app/templates/base.html:867 pos_app/templates/dashboard.html:1317 pos_app/templates/mauzo.html:549
+msgid "Feb"
+msgstr "فبراير"
+
+#: pos_app/templates/matumizi.html:2164
+msgid "Februari"
+msgstr "فبراير"
+
+#: pos_app/templates/base.html:436
+msgid "Fikia sehemu zote za TradeCore bila kupoteza kazi uliyo nayo."
+msgstr "الوصول إلى جميع أقسام TradeCore دون فقدان المهمة الحالية."
+
+#: pos_app/templates/wateja.html:1294
+msgid "Filter Suggestions"
+msgstr "اقتراحات التصفية"
+
+#: pos_app/templates/matumizi.html:547
+msgid "Finance"
+msgstr "المالية"
+
+#: pos_app/templates/inventory.html:911
+msgid "Finish Adjustment"
+msgstr "إتمام التسوية"
+
+#: pos_app/templates/inventory.html:884
+msgid "Finish Stock In"
+msgstr "إتمام إدخال المخزون"
+
+#: pos_app/templates/inventory.html:898
+msgid "Finish Stock Take"
+msgstr "إتمام جرد المخزون"
+
+#: pos_app/templates/inventory.html:867
+msgid "Finish Transfer"
+msgstr "إتمام التحويل"
+
+#: pos_app/templates/inventory.html:924
+msgid "Focus Scanner"
+msgstr "تركيز الماسح"
+
+#: pos_app/templates/login.html:276
+msgid "Forgot password?"
+msgstr "هل نسيت كلمة المرور؟"
+
+#: pos_app/templates/base.html:307 pos_app/templates/base.html:361 pos_app/templates/base.html:410
+#: pos_app/templates/base.html:438 pos_app/templates/inventory.html:783 pos_app/templates/mauzo.html:889
+#: pos_app/templates/receipt.html:732 pos_app/templates/ripoti.html:574 pos_app/templates/wateja.html:1229
+#: pos_app/templates/wateja.html:1355 pos_app/templates/wateja.html:1618 pos_app/templates/wateja.html:1837
+#: pos_app/templates/wateja.html:2040
+msgid "Funga"
+msgstr "إغلاق"
+
+#: pos_app/templates/ujumbe.html:620 pos_app/templates/ujumbe.html:622
+msgid "Funga scroll ya ukurasa"
+msgstr "قفل تمرير الصفحة"
+
+#: pos_app/templates/base.html:964
+msgid "Fungua"
+msgstr "فتح"
+
+#: pos_app/templates/base.html:312 pos_app/templates/base.html:456
+msgid "Fungua POS"
+msgstr "فتح نقطة البيع"
+
+#: pos_app/templates/dashboard.html:1300
+msgid "Fungua Stoo & Bidhaa"
+msgstr "فتح المخزون & المنتجات"
+
+#: pos_app/templates/registration.html:1362
+msgid ""
+"Fungua account yako na upate mazingira yako mwenyewe ya biashara. Bidhaa, wateja, mauzo, stoo na ripoti vitabaki "
+"ndani ya Duka lako."
+msgstr ""
+"أنشئ حسابك واحصل على مساحة العمل الخاصة بنشاطك التجاري. ستبقى المنتجات والعملاء والمبيعات والمخزون والتقارير داخل "
+"متجرك."
+
+#: pos_app/templates/mauzo.html:394
+msgid "Fungua cart"
+msgstr "فتح السلة"
+
+#: pos_app/templates/base.html:305
+msgid "Fungua kazi unayotumia mara nyingi."
+msgstr "افتح المهام التي تستخدمها كثيرًا."
+
+#: pos_app/templates/billing.html:120
+msgid "Fungulia uwezo kamili wa TradeCore. Usimamizi usio na mipaka."
+msgstr "افتح كامل إمكانات TradeCore. إدارة بلا حدود."
+
+#: pos_app/templates/registration.html:1509 pos_app/templates/registration.html:1819
+msgid "Furniture & Home"
+msgstr "الأثاث والمنزل"
+
+#: pos_app/templates/wafanyakazi.html:183 pos_app/templates/wateja.html:1304
+msgid "Futa"
+msgstr "حذف"
+
+#: pos_app/templates/inventory.html:1296
+msgid "Futa Category Hii"
+msgstr "حذف هذه الفئة"
+
+#: pos_app/templates/inventory.html:710
+msgid "Futa Kabisa"
+msgstr "حذف نهائيًا"
+
+#: pos_app/templates/wafanyakazi.html:432
+msgid "Futa Mfanyakazi"
+msgstr "حذف الموظف"
+
+#: pos_app/templates/base.html:666
+msgid "Futa Picha Iliyoingizwa"
+msgstr "حذف الصورة المضافة"
+
+#: pos_app/templates/inventory.html:1277
+msgid "Futa Zilizochaguliwa"
+msgstr "حذف المحدد"
+
+#: pos_app/templates/inventory.html:1320
+msgid "Futa Zote"
+msgstr "حذف الكل"
+
+#: pos_app/templates/inventory.html:1262
+msgid "Futa bidhaa, toa stock, au fanya operation kwa category bila kuchagua moja moja."
+msgstr "احذف المنتجات أو أخرج المخزون أو نفّذ عملية حسب الفئة دون اختيار العناصر واحدًا تلو الآخر."
+
+#: pos_app/templates/inventory.html:1316
+msgid "Futa kabisa au weka stock ya bidhaa zote kuwa 0."
+msgstr "احذف بالكامل أو اضبط مخزون جميع المنتجات إلى 0."
+
+#: pos_app/templates/registration.html:1510 pos_app/templates/registration.html:1819
+msgid "General Retail"
+msgstr "تجزئة عامة"
+
+#: pos_app/templates/inventory.html:667 pos_app/templates/inventory.html:714 pos_app/templates/inventory.html:867
+#: pos_app/templates/inventory.html:884 pos_app/templates/inventory.html:898 pos_app/templates/inventory.html:911
+#: pos_app/templates/receipt.html:782 pos_app/templates/wafanyakazi.html:418 pos_app/templates/wafanyakazi.html:436
+msgid "Ghairi"
+msgstr "إلغاء"
+
+#: pos_app/templates/dashboard.html:774
+msgid "Goods Received"
+msgstr "البضائع المستلمة"
+
+#: pos_app/templates/inventory.html:567
+msgid "Grid"
+msgstr "الشبكة"
+
+#: pos_app/templates/dashboard.html:946
+msgid "Gross Profit"
+msgstr "إجمالي الربح"
+
+#: pos_app/templates/dashboard.html:1135
+msgid "Gross Result"
+msgstr "النتيجة الإجمالية"
+
+#: pos_app/templates/ripoti.html:317 pos_app/templates/ripoti.html:774
+msgid "Gross Sales"
+msgstr "إجمالي المبيعات"
+
+#: pos_app/templates/dashboard.html:1142
+msgid ""
+"Gross profit inahesabiwa kwa tofauti ya bei ya kuuza dhidi ya buying price × quantity; haijumuishi gharama nyingine "
+"kama usafirishaji, kodi au matumizi."
+msgstr ""
+"يُحسب إجمالي الربح على أنه الفرق بين سعر البيع وسعر الشراء × الكمية؛ ولا يشمل تكاليف أخرى مثل النقل أو الضرائب أو "
+"المصروفات."
+
+#: pos_app/templates/inventory.html:541
+msgid "HEALTHY"
+msgstr "سليم"
+
+#: pos_app/templates/dashboard.html:1328
+msgid "Habari ya Asubuhi"
+msgstr "صباح الخير"
+
+#: pos_app/templates/dashboard.html:795
+msgid "Habari ya Asubuhi,"
+msgstr "صباح الخير،"
+
+#: pos_app/templates/dashboard.html:1330
+msgid "Habari ya Jioni"
+msgstr "مساء الخير"
+
+#: pos_app/templates/dashboard.html:797
+msgid "Habari ya Jioni,"
+msgstr "مساء الخير،"
+
+#: pos_app/templates/dashboard.html:1329
+msgid "Habari ya Mchana"
+msgstr "نهارك سعيد"
+
+#: pos_app/templates/dashboard.html:796
+msgid "Habari ya Mchana,"
+msgstr "نهارك سعيد،"
+
+#: pos_app/templates/dashboard.html:1331
+msgid "Habari ya Usiku"
+msgstr "مساء الخير"
+
+#: pos_app/templates/mauzo.html:524
+msgid "Haijapatikana"
+msgstr "لم يتم العثور عليه"
+
+#: pos_app/templates/wafanyakazi.html:152
+msgid "Hajawahi ingia"
+msgstr "لم يسجّل الدخول مطلقًا"
+
+#: pos_app/templates/mauzo.html:4338
+msgid "Hakiki bidhaa zote kabla ya kupokea."
+msgstr "راجع جميع المنتجات قبل الاستلام."
+
+#: pos_app/templates/dashboard.html:1275
+msgid "Hakuna"
+msgstr "لا يوجد"
+
+#: pos_app/templates/wateja.html:1017
+msgid "Hakuna Deni"
+msgstr "لا الدين"
+
+#: pos_app/templates/dashboard.html:1186
+msgid "Hakuna activity iliyopatikana."
+msgstr "لم يتم العثور على نشاط."
+
+#: pos_app/templates/inventory.html:451
+msgid "Hakuna alerts za stock kwa sasa."
+msgstr "لا توجد تنبيهات للمخزون حاليًا."
+
+#: pos_app/templates/receipt.html:672
+msgid "Hakuna bidhaa"
+msgstr "لا المنتجات"
+
+#: pos_app/templates/mauzo.html:177
+msgid "Hakuna bidhaa iliyokwisha stoo."
+msgstr "لا توجد منتجات نافدة في المخزون."
+
+#: pos_app/templates/inventory.html:613 pos_app/templates/inventory.html:644
+msgid "Hakuna bidhaa iliyosajiliwa."
+msgstr "لم يتم تسجيل أي منتجات."
+
+#: pos_app/templates/inventory.html:417 pos_app/templates/mauzo.html:543
+msgid "Hakuna bidhaa inayolingana."
+msgstr "لا يوجد منتج مطابق."
+
+#: pos_app/templates/dashboard.html:1245
+msgid "Hakuna bidhaa kwenye request hii."
+msgstr "لا توجد منتجات في هذا الطلب."
+
+#: pos_app/templates/dashboard.html:854
+msgid "Hakuna bidhaa ya mauzo iliyopatikana kwa leo."
+msgstr "لم يتم العثور على منتجات مباعة اليوم."
+
+#: pos_app/templates/inventory.html:447
+msgid "Hakuna bidhaa zilizochaguliwa."
+msgstr "لم يتم اختيار أي منتجات."
+
+#: pos_app/templates/inventory.html:418
+msgid "Hakuna bidhaa."
+msgstr "لا توجد منتجات."
+
+#: pos_app/templates/wateja.html:2361
+msgid "Hakuna contact mpya"
+msgstr "لا توجد جهات اتصال جديدة"
+
+#: pos_app/templates/ripoti.html:1758
+msgid "Hakuna data"
+msgstr "لا توجد بيانات"
+
+#: pos_app/templates/dashboard.html:1274
+msgid "Hakuna deni"
+msgstr "لا توجد ديون"
+
+#: pos_app/templates/dashboard.html:1060 pos_app/templates/dashboard.html:1293 pos_app/templates/dashboard.html:1715
+msgid "Hakuna historia ya matumizi."
+msgstr "لا يوجد سجل للمصروفات."
+
+#: pos_app/templates/dashboard.html:1081
+msgid "Hakuna historia ya order."
+msgstr "لا يوجد سجل للطلبات."
+
+#: pos_app/templates/dashboard.html:1287
+msgid "Hakuna items kwenye order."
+msgstr "لا توجد عناصر في الطلب."
+
+#: pos_app/templates/inventory.html:422
+msgid "Hakuna jibu."
+msgstr "لا توجد إجابة."
+
+#: pos_app/templates/inventory.html:450
+msgid "Hakuna mabadiliko yaliyofanyika."
+msgstr "لم يتم إجراء أي تغييرات."
+
+#: pos_app/templates/wateja.html:2017
+msgid "Hakuna manunuzi yaliyorekodiwa."
+msgstr "لا توجد مشتريات مسجلة."
+
+#: pos_app/templates/matumizi.html:799
+msgid "Hakuna matumizi mwezi huu"
+msgstr "لا المصروفات هذا الشهر"
+
+#: pos_app/templates/dashboard.html:1290
+msgid "Hakuna mauzo ya bidhaa yaliyopatikana."
+msgstr "لم يتم العثور على مبيعات للمنتجات."
+
+#: pos_app/templates/mauzo.html:490 pos_app/templates/mauzo.html:518
+msgid "Hakuna mauzo ya kuhifadhi."
+msgstr "لا البيع إلى حفظ."
+
+#: pos_app/templates/mauzo.html:492
+msgid "Hakuna mauzo yaliyohold."
+msgstr "لا توجد مبيعات معلّقة."
+
+#: pos_app/templates/ripoti.html:1765
+msgid "Hakuna mauzo yaliyopatikana."
+msgstr "لم يتم العثور على مبيعات."
+
+#: pos_app/templates/mauzo.html:863
+msgid "Hakuna mauzo yaliyopita"
+msgstr "لا توجد مبيعات سابقة"
+
+#: pos_app/templates/mauzo.html:824
+msgid "Hakuna mauzo yaliyorekodiwa."
+msgstr "لم يتم تسجيل أي مبيعات."
+
+#: pos_app/templates/base.html:416
+msgid "Hakuna mauzo yanayosubiri"
+msgstr "لا توجد مبيعات معلّقة"
+
+#: pos_app/templates/dashboard.html:895
+msgid "Hakuna miamala iliyofanyika bado leo."
+msgstr "لم تُسجّل أي معاملات اليوم بعد."
+
+#: pos_app/templates/inventory.html:466
+msgid "Hakuna movement iliyopatikana."
+msgstr "لم يتم العثور على حركة."
+
+#: pos_app/templates/wateja.html:2224
+msgid "Hakuna mteja mwenye deni."
+msgstr "لا يوجد عميل عليه دين."
+
+#: pos_app/templates/mauzo.html:542
+msgid "Hakuna mzigo unaosubiri"
+msgstr "لا معلّق الشحنة"
+
+#: pos_app/templates/mauzo.html:541 pos_app/templates/mauzo.html:4417
+msgid "Hakuna mzigo unaosubiri kupokelewa."
+msgstr "لا توجد شحنة تنتظر الاستلام."
+
+#: pos_app/templates/base.html:426
+msgid "Hakuna nakala mbili: kila mauzo ya bila mtandao yana Transaction ID ya kipekee."
+msgstr "لا توجد معاملات مكررة: لكل عملية بيع دون اتصال معرّف معاملة فريد."
+
+#: pos_app/templates/dashboard.html:1294
+msgid "Hakuna order history iliyopatikana."
+msgstr "لم يتم العثور على سجل الطلبات."
+
+#: pos_app/templates/dashboard.html:1254
+msgid "Hakuna purchase request inayopatikana."
+msgstr "لا يوجد طلب شراء متاح."
+
+#: pos_app/templates/dashboard.html:1301
+msgid "Hakuna purchase request ya kuchakata."
+msgstr "لا يوجد طلب شراء لمعالجته."
+
+#: pos_app/templates/dashboard.html:1292
+msgid "Hakuna sales history iliyopatikana."
+msgstr "لم يتم العثور على سجل المبيعات."
+
+#: pos_app/templates/base.html:956
+msgid "Hakuna stock alert au order kwa sasa."
+msgstr "لا توجد تنبيهات للمخزون أو طلبات حاليًا."
+
+#: pos_app/templates/inventory.html:467
+msgid "Hakuna stock take iliyopatikana."
+msgstr "لم يتم العثور على جرد للمخزون."
+
+#: pos_app/templates/matumizi.html:1620
+msgid "Hakuna taarifa yoyote."
+msgstr "لا توجد بيانات."
+
+#: pos_app/templates/wafanyakazi.html:194
+msgid "Hakuna wafanyakazi waliosajiliwa kwa sasa."
+msgstr "لا يوجد موظفون مسجلون حاليًا."
+
+#: pos_app/templates/wateja.html:1170
+msgid "Hakuna wateja waliopatikana."
+msgstr "لم يتم العثور على عملاء."
+
+#: pos_app/templates/inventory.html:1272
+msgid "Hakuna zilizochaguliwa"
+msgstr "لم يتم تحديد أي عناصر"
+
+#: pos_app/templates/base.html:712
+msgid "Hali ya Giza (Usiku)"
+msgstr "الوضع الداكن (ليلي)"
+
+#: pos_app/templates/matumizi.html:2058
+msgid "Hali ya Malipo"
+msgstr "حالة الدفع"
+
+#: pos_app/templates/base.html:711
+msgid "Hali ya Mwanga (Mchana)"
+msgstr "الوضع الفاتح (نهاري)"
+
+#: pos_app/templates/inventory.html:825
+msgid "Hamisha Store ↔ Duka"
+msgstr "تحويل المستودع ↔ المتجر"
+
+#: pos_app/templates/inventory.html:837
+msgid "Hamisha bidhaa kutoka Store kwenda location nyingine."
+msgstr "انقل المنتجات من المستودع إلى موقع آخر."
+
+#: pos_app/templates/registration.html:1504 pos_app/templates/registration.html:1817
+msgid "Hardware & Building Materials"
+msgstr "الأدوات ومواد البناء"
+
+#: pos_app/templates/dashboard.html:1269
+msgid "Hasara ya Jumla"
+msgstr "إجمالي الخسارة"
+
+#: pos_app/templates/dashboard.html:755
+msgid "Healthy"
+msgstr "سليم"
+
+#: pos_app/templates/inventory.html:826
+msgid "Hesabu stock ya kweli"
+msgstr "جرد المخزون الفعلي"
+
+#: pos_app/templates/mauzo.html:525
+msgid "Hifadhi"
+msgstr "حفظ"
+
+#: pos_app/templates/inventory.html:667
+msgid "Hifadhi Bidhaa"
+msgstr "حفظ المنتج"
+
+#: pos_app/templates/base.html:726
+msgid "Hifadhi Mipangilio"
+msgstr "حفظ الإعدادات"
+
+#: pos_app/templates/base.html:676 pos_app/templates/base.html:1019 pos_app/templates/base.html:1101
+#: pos_app/templates/base.html:1106
+msgid "Hifadhi Picha"
+msgstr "حفظ الصورة"
+
+#: pos_app/templates/matumizi.html:2122 pos_app/templates/receipt.html:783
+msgid "Hifadhi Taarifa"
+msgstr "حفظ البيانات"
+
+#: pos_app/templates/mauzo.html:77 pos_app/templates/mauzo.html:513
+msgid "Hifadhi kwa Muda"
+msgstr "حفظ مؤقتًا"
+
+#: pos_app/templates/dashboard.html:1199
+msgid "History detail"
+msgstr "تفاصيل السجل"
+
+#: pos_app/templates/inventory.html:413
+msgid "Hitilafu imetokea."
+msgstr "حدث خطأ."
+
+#: pos_app/templates/inventory.html:445
+msgid "Hitilafu wakati wa import."
+msgstr "استيراد خطأ."
+
+#: pos_app/templates/receipt.html:730
+msgid "Hizi ndizo taarifa zitakazotoka kwenye receipt halisi na PDF."
+msgstr "هذه هي البيانات التي ستظهر في الإيصال الفعلي وملف PDF."
+
+#: pos_app/templates/dashboard.html:866
+msgid "Hold Sales"
+msgstr "مبيعات معلّقة"
+
+#: pos_app/templates/base.html:798 pos_app/templates/base.html:802
+msgid "Hongera!"
+msgstr "تهانينا!"
+
+#: pos_app/templates/inventory.html:710
+msgid "Hufuta product master kabisa. Database itazuia kama ina historia iliyolindwa."
+msgstr "يحذف المنتج نهائيًا. ستمنع قاعدة البيانات ذلك إذا كان له سجل محمي."
+
+#: pos_app/templates/mauzo.html:161
+msgid "IMEKWISHA"
+msgstr "نافد"
+
+#: pos_app/templates/inventory.html:592
+msgid "IN"
+msgstr "في"
+
+#: pos_app/templates/dashboard.html:1281 pos_app/templates/dashboard.html:1709
+msgid "Idadi"
+msgstr "العدد"
+
+#: pos_app/templates/inventory.html:664
+msgid "Idadi ya Stoo *"
+msgstr "المخزون الكمية *"
+
+#: pos_app/templates/base.html:863 pos_app/templates/dashboard.html:1314 pos_app/templates/matumizi.html:2158
+#: pos_app/templates/mauzo.html:548
+msgid "Ijumaa"
+msgstr "الجمعة"
+
+#: pos_app/templates/dashboard.html:1271
+msgid "Iliuzwa chini ya bei ya kawaida."
+msgstr "تم البيع بأقل من السعر المعتاد."
+
+#: pos_app/templates/dashboard.html:1272
+msgid "Iliuzwa juu ya bei ya kawaida."
+msgstr "تم البيع بأعلى من السعر المعتاد."
+
+#: pos_app/templates/dashboard.html:1273
+msgid "Iliuzwa kwenye bei ya kawaida."
+msgstr "تم البيع بالسعر المعتاد."
+
+#: pos_app/templates/dashboard.html:1133
+msgid "Iliyouziwa"
+msgstr "السعر المباع"
+
+#: pos_app/templates/billing.html:77
+msgid "Imeisha Muda"
+msgstr "منتهي"
+
+#: pos_app/templates/mauzo.html:752
+msgid "Imekamilika"
+msgstr "مكتمل"
+
+#: pos_app/templates/mauzo.html:9 pos_app/templates/wafanyakazi.html:41
+msgid "Imekamilika!"
+msgstr "اكتمل!"
+
+#: pos_app/templates/matumizi.html:2080
+msgid "Imelipwa"
+msgstr "مدفوع"
+
+#: pos_app/templates/inventory.html:426
+msgid "Imeshindikana kuangalia barcode."
+msgstr "تعذر التحقق من الباركود."
+
+#: pos_app/templates/inventory.html:452
+msgid "Imeshindikana kuhuisha alerts."
+msgstr "تعذر تحديث التنبيهات."
+
+#: pos_app/templates/base.html:924
+msgid "Imeshindikana kupata taarifa."
+msgstr "تعذر جلب المعلومات."
+
+#: pos_app/templates/mauzo.html:504
+msgid "Imeshindikana kupokea mzigo."
+msgstr "فشل استلام الشحنة."
+
+#: pos_app/templates/dashboard.html:1297
+msgid "Imeshindikana kutengeneza smart reorder."
+msgstr "تعذر إنشاء إعادة الطلب الذكية."
+
+#: pos_app/templates/base.html:1100
+msgid "Imeshindwa kuhifadhi picha:"
+msgstr "تعذر حفظ الصورة:"
+
+#: pos_app/templates/base.html:550
+msgid "Imewezeshwa na"
+msgstr "مدعوم بواسطة"
+
+#: pos_app/templates/inventory.html:808
+msgid "Import Assistant"
+msgstr "مساعد الاستيراد"
+
+#: pos_app/templates/inventory.html:724
+msgid "Import Bidhaa"
+msgstr "استيراد المنتجات"
+
+#: pos_app/templates/inventory.html:790
+msgid "Import Complete"
+msgstr "اكتمل الاستيراد"
+
+#: pos_app/templates/wateja.html:1478
+msgid "Import Completed"
+msgstr "اكتمل الاستيراد"
+
+#: pos_app/templates/inventory.html:512
+msgid "Import Excel"
+msgstr "استيراد Excel"
+
+#: pos_app/templates/inventory.html:509 pos_app/templates/inventory.html:729
+msgid "Import Mzigo"
+msgstr "استيراد الشحنة"
+
+#: pos_app/templates/inventory.html:743
+msgid "Import Mzigo na Sasisha Stock"
+msgstr "استيراد الشحنة وتحديث المخزون"
+
+#: pos_app/templates/wateja.html:400 pos_app/templates/wateja.html:1389 pos_app/templates/wateja.html:1440
+msgid "Import Wateja"
+msgstr "استيراد العملاء"
+
+#: pos_app/templates/inventory.html:439 pos_app/templates/inventory.html:444
+msgid "Import imefanikiwa."
+msgstr "نجح الاستيراد."
+
+#: pos_app/templates/wateja.html:1483
+msgid "Import imekamilika"
+msgstr "استيراد مكتمل"
+
+#: pos_app/templates/inventory.html:438
+msgid "Import imekamilika kwa sehemu."
+msgstr "اكتمل الاستيراد جزئيًا."
+
+#: pos_app/templates/inventory.html:437
+msgid "Import imekamilika."
+msgstr "اكتمل الاستيراد."
+
+#: pos_app/templates/inventory.html:441
+msgid "Import imeshindikana."
+msgstr "استيراد فشل."
+
+#: pos_app/templates/inventory.html:794 pos_app/templates/wateja.html:1494
+msgid "Imported"
+msgstr "تم الاستيراد"
+
+#: pos_app/templates/inventory.html:676
+msgid "In Stock"
+msgstr "في المخزون"
+
+#: pos_app/templates/dashboard.html:1241
+msgid "In Stock:"
+msgstr "في المخزون:"
+
+#: pos_app/templates/mauzo.html:3118
+msgid "Inaandaliwa"
+msgstr "جارٍ الإعداد"
+
+#: pos_app/templates/base.html:1078
+msgid "Inahifadhi... Subiri kidogo"
+msgstr "جارٍ الحفظ... يرجى الانتظار قليلًا"
+
+#: pos_app/templates/inventory.html:443
+msgid "Inaingiza data..."
+msgstr "جارٍ استيراد البيانات..."
+
+#: pos_app/templates/mauzo.html:538
+msgid "Inakataa..."
+msgstr "جارٍ الرفض..."
+
+#: pos_app/templates/inventory.html:465
+msgid "Inapakia taarifa za bidhaa..."
+msgstr "جارٍ تحميل بيانات المنتج..."
+
+#: pos_app/templates/mauzo.html:514 pos_app/templates/mauzo.html:4312
+msgid "Inapakia..."
+msgstr "جارٍ التحميل..."
+
+#: pos_app/templates/receipt.html:925
+msgid "Inapakua PDF..."
+msgstr "جارٍ تنزيل PDF..."
+
+#: pos_app/templates/billing.html:110
+msgid "Inapendekezwa"
+msgstr "موصى به"
+
+#: pos_app/templates/mauzo.html:503
+msgid "Inapokea..."
+msgstr "جارٍ الاستلام..."
+
+#: pos_app/templates/inventory.html:1419
+msgid "Inatafuta alerts..."
+msgstr "جارٍ البحث عن التنبيهات..."
+
+#: pos_app/templates/login.html:404
+msgid "Inatuma Link..."
+msgstr "جارٍ إرسال الرابط..."
+
+#: pos_app/templates/wafanyakazi.html:486
+msgid "Inatuma ombi la malipo... Tafadhali thibitisha!"
+msgstr "جارٍ إرسال طلب الدفع... يرجى التأكيد!"
+
+#: pos_app/templates/registration.html:1780
+msgid "Inaunda Duka…"
+msgstr "جارٍ إنشاء المتجر…"
+
+#: pos_app/templates/inventory.html:798
+msgid "Incomplete"
+msgstr "غير مكتمل"
+
+#: pos_app/templates/registration.html:1336
+msgid "Ingia"
+msgstr "تسجيل الدخول"
+
+#: pos_app/templates/login.html:317
+msgid "Ingiza email yako hapa chini. Tutakutumia link ya kutengeneza nenosiri jipya kwenye email yako."
+msgstr "أدخل بريدك الإلكتروني أدناه. سنرسل لك رابطًا لإنشاء كلمة مرور جديدة عبر بريدك الإلكتروني."
+
+#: pos_app/templates/matumizi.html:1339
+msgid "Ingiza vigezo unavyotaka kutafuta."
+msgstr "أدخل معايير البحث التي تريدها."
+
+#: pos_app/templates/base.html:1633
+msgid "Injini ya TradeCore ya Seva"
+msgstr "محرك خادم TradeCore"
+
+#: pos_app/templates/login.html:346
+msgid "Intelligent POS"
+msgstr "نقطة بيع ذكية"
+
+#: pos_app/templates/inventory.html:1260
+msgid "Inventory Control"
+msgstr "التحكم في المخزون"
+
+#: pos_app/templates/dashboard.html:748
+msgid "Inventory Health Assessment"
+msgstr "تقييم حالة المخزون"
+
+#: pos_app/templates/dashboard.html:922
+msgid "Inventory Value"
+msgstr "قيمة المخزون"
+
+#: pos_app/templates/mauzo.html:481
+msgid "Invoice"
+msgstr "الفاتورة"
+
+#: pos_app/templates/wateja.html:1127 pos_app/templates/wateja.html:2315
+msgid "Invoice / Pro-forma"
+msgstr "فاتورة / فاتورة أولية"
+
+#: pos_app/templates/mauzo.html:237
+msgid "Invoice Haina Bidhaa"
+msgstr "الفاتورة لا تحتوي على منتجات"
+
+#: pos_app/templates/mauzo.html:479
+msgid "Invoice Kwa"
+msgstr "الفاتورة لـ"
+
+#: pos_app/templates/mauzo.html:228
+msgid "Invoice Kwa:"
+msgstr "الفاتورة لـ:"
+
+#: pos_app/templates/receipt.html:616
+msgid "Invoice No"
+msgstr "الفاتورة لا"
+
+#: pos_app/templates/dashboard.html:1028
+msgid "Invoice No."
+msgstr "رقم الفاتورة"
+
+#: pos_app/templates/mauzo.html:489
+msgid "Invoice ipo wazi sasa."
+msgstr "الفاتورة مفتوحة الآن."
+
+#: pos_app/templates/mauzo.html:45
+msgid "Ipo Stock"
+msgstr "في المخزون"
+
+#: pos_app/templates/registration.html:1611 pos_app/templates/registration.html:1832
+msgid "Itatumia simu ya biashara"
+msgstr "سيستخدم هاتف النشاط التجاري"
+
+#: pos_app/templates/wateja.html:1992
+msgid "Items Bought"
+msgstr "المنتجات المشتراة"
+
+#: pos_app/templates/receipt.html:704
+msgid "JUMLA KUU"
+msgstr "الإجمالي الكلي"
+
+#: pos_app/templates/base.html:867 pos_app/templates/dashboard.html:1316 pos_app/templates/mauzo.html:549
+msgid "Jan"
+msgstr "يناير"
+
+#: pos_app/templates/matumizi.html:2163
+msgid "Januari"
+msgstr "يناير"
+
+#: pos_app/templates/mauzo.html:547
+msgid "Jaribu Tena"
+msgstr "حاول مرة أخرى"
+
+#: pos_app/templates/base.html:984 pos_app/templates/inventory.html:446
+msgid "Jaribu tena."
+msgstr "حاول مرة أخرى."
+
+#: pos_app/templates/registration.html:1723
+msgid "Jaza jina lako kamili."
+msgstr "أدخل اسمك الكامل."
+
+#: pos_app/templates/base.html:736
+msgid "Je, unataka kutoka?"
+msgstr "هل تريد تسجيل الخروج؟"
+
+#: pos_app/templates/wateja.html:1238
+msgid "Jina"
+msgstr "الاسم"
+
+#: pos_app/templates/mauzo.html:411 pos_app/templates/registration.html:1432
+msgid "Jina Kamili"
+msgstr "الاسم الكامل"
+
+#: pos_app/templates/inventory.html:659
+msgid "Jina la Bidhaa *"
+msgstr "المنتج الاسم *"
+
+#: pos_app/templates/base.html:690 pos_app/templates/registration.html:1487
+msgid "Jina la Duka / Biashara"
+msgstr "المستودع / النشاط التجاري الاسم"
+
+#: pos_app/templates/wafanyakazi.html:214
+msgid "Jina la Mtumiaji (Username)"
+msgstr "اسم المستخدم (اسم الدخول)"
+
+#: pos_app/templates/registration.html:1623 pos_app/templates/registration.html:1825
+msgid "Jina la biashara"
+msgstr "اسم النشاط التجاري"
+
+#: pos_app/templates/receipt.html:741
+msgid "Jina la biashara / duka"
+msgstr "النشاط التجاري / المستودع الاسم"
+
+#: pos_app/templates/inventory.html:468
+msgid "Jina la supplier linahitajika."
+msgstr "المورد الاسم مطلوب."
+
+#: pos_app/templates/registration.html:1376
+msgid "Jina, location, simu, TIN, logo na receipt details."
+msgstr "الاسم والموقع والهاتف وTIN والشعار وتفاصيل الإيصال."
+
+#: pos_app/templates/base.html:795
+msgid "Jioni Njema"
+msgstr "مساء الخير"
+
+#: pos_app/templates/registration.html:1666
+msgid "Jua kinachoendelea kwenye biashara."
+msgstr "اعرف ما يحدث في نشاطك التجاري."
+
+#: pos_app/templates/base.html:868 pos_app/templates/dashboard.html:1322 pos_app/templates/mauzo.html:549
+msgid "Jul"
+msgstr "يوليو"
+
+#: pos_app/templates/matumizi.html:2169
+msgid "Julai"
+msgstr "يوليو"
+
+#: pos_app/templates/base.html:864 pos_app/templates/dashboard.html:1315 pos_app/templates/matumizi.html:2159
+#: pos_app/templates/mauzo.html:548
+msgid "Jumamosi"
+msgstr "السبت"
+
+#: pos_app/templates/base.html:860 pos_app/templates/dashboard.html:1311 pos_app/templates/matumizi.html:2155
+#: pos_app/templates/mauzo.html:548
+msgid "Jumanne"
+msgstr "الثلاثاء"
+
+#: pos_app/templates/base.html:858 pos_app/templates/dashboard.html:1309 pos_app/templates/matumizi.html:2153
+#: pos_app/templates/mauzo.html:548
+msgid "Jumapili"
+msgstr "الأحد"
+
+#: pos_app/templates/base.html:861 pos_app/templates/dashboard.html:1312 pos_app/templates/matumizi.html:2156
+#: pos_app/templates/mauzo.html:548
+msgid "Jumatano"
+msgstr "الأربعاء"
+
+#: pos_app/templates/base.html:859 pos_app/templates/dashboard.html:1310 pos_app/templates/matumizi.html:2154
+#: pos_app/templates/mauzo.html:548
+msgid "Jumatatu"
+msgstr "الاثنين"
+
+#: pos_app/templates/receipt.html:656 pos_app/templates/ripoti.html:746 pos_app/templates/ripoti.html:2108
+#: pos_app/templates/ripoti.html:2167
+msgid "Jumla"
+msgstr "الإجمالي"
+
+#: pos_app/templates/mauzo.html:271
+msgid "Jumla Kuu"
+msgstr "الإجمالي الكلي"
+
+#: pos_app/templates/mauzo.html:248
+msgid "Jumla Ndogo"
+msgstr "المجموع الفرعي"
+
+#: pos_app/templates/inventory.html:531
+msgid "Jumla ya Bidhaa"
+msgstr "الإجمالي المنتجات"
+
+#: pos_app/templates/mauzo.html:320
+msgid "Jumla ya Kulipwa"
+msgstr "إجمالي المبلغ المستحق"
+
+#: pos_app/templates/ripoti.html:620
+msgid "Jumla ya Makusanyo"
+msgstr "إجمالي التحصيلات"
+
+#: pos_app/templates/ripoti.html:777
+msgid "Jumla ya bei ya kuuza kabla ya gharama za bidhaa na matumizi."
+msgstr "إجمالي قيمة البيع قبل تكلفة المنتجات والمصروفات."
+
+#: pos_app/templates/receipt.html:681
+msgid "Jumla ya bidhaa"
+msgstr "إجمالي المنتجات"
+
+#: pos_app/templates/ripoti.html:791
+msgid "Jumla ya matumizi yaliyorekodiwa ndani ya kipindi."
+msgstr "إجمالي المصروفات المسجلة خلال الفترة."
+
+#: pos_app/templates/dashboard.html:1285 pos_app/templates/dashboard.html:1709
+msgid "Jumla ya order:"
+msgstr "إجمالي الطلب:"
+
+#: pos_app/templates/ripoti.html:784
+msgid "Jumla ya pesa iliyorekodiwa kwenye mauzo baada ya adjustments."
+msgstr "إجمالي الأموال المسجلة في المبيعات بعد التسويات."
+
+#: pos_app/templates/dashboard.html:1173
+msgid "Jumla ya shughuli"
+msgstr "الإجمالي الأنشطة"
+
+#: pos_app/templates/base.html:867 pos_app/templates/dashboard.html:1321 pos_app/templates/mauzo.html:549
+msgid "Jun"
+msgstr "يونيو"
+
+#: pos_app/templates/matumizi.html:2168
+msgid "Juni"
+msgstr "يونيو"
+
+#: pos_app/templates/mauzo.html:4299
+msgid "Kagua"
+msgstr "مراجعة"
+
+#: pos_app/templates/mauzo.html:4324
+msgid "Kagua na Pokea Mzigo"
+msgstr "مراجعة واستلام الشحنة"
+
+#: pos_app/templates/inventory.html:808
+msgid "Kamilisha Bidhaa"
+msgstr "إكمال المنتج"
+
+#: pos_app/templates/mauzo.html:309
+msgid "Kamilisha Malipo"
+msgstr "إكمال الدفع"
+
+#: pos_app/templates/mauzo.html:426 pos_app/templates/wateja.html:1775
+msgid "Kamilisha Usajili"
+msgstr "إكمال التسجيل"
+
+#: pos_app/templates/base.html:806
+msgid "Karibu"
+msgstr "مرحبًا"
+
+#: pos_app/templates/mauzo.html:4340
+msgid "Kataa Mzigo"
+msgstr "رفض الشحنة"
+
+#: pos_app/templates/inventory.html:546 pos_app/templates/inventory.html:622 pos_app/templates/inventory.html:660
+msgid "Kategoria"
+msgstr "الفئة"
+
+#: pos_app/templates/inventory.html:548
+msgid "Kategoria Zote"
+msgstr "الكل الفئات"
+
+#: pos_app/templates/inventory.html:429
+msgid "Kategoria haijaongezwa."
+msgstr "لم تتم إضافة الفئة."
+
+#: pos_app/templates/inventory.html:430
+msgid "Kategoria hii tayari inafaa."
+msgstr "هذه الفئة مناسبة بالفعل."
+
+#: pos_app/templates/inventory.html:435
+msgid "Kategoria imechaguliwa."
+msgstr "تم اختيار الفئة."
+
+#: pos_app/templates/inventory.html:676 pos_app/templates/inventory.html:859 pos_app/templates/mauzo.html:44
+msgid "Kategoria zote"
+msgstr "الكل الفئات"
+
+#: pos_app/templates/base.html:618
+msgid "Kazi njema na mauzo mema leo!"
+msgstr "عمل موفق ومبيعات موفقة اليوم!"
+
+#: pos_app/templates/dashboard.html:1215 pos_app/templates/matumizi.html:1480 pos_app/templates/mauzo.html:460
+#: pos_app/templates/ripoti.html:684 pos_app/templates/ripoti.html:2152
+msgid "Kiasi"
+msgstr "المبلغ"
+
+#: pos_app/templates/dashboard.html:1049 pos_app/templates/matumizi.html:995 pos_app/templates/matumizi.html:2028
+msgid "Kiasi (TZS)"
+msgstr "المبلغ (TZS)"
+
+#: pos_app/templates/wafanyakazi.html:236
+msgid "Kiasi cha Mshahara"
+msgstr "مبلغ الراتب"
+
+#: pos_app/templates/wafanyakazi.html:472
+msgid "Kiasi cha Mshahara (TZS)"
+msgstr "مبلغ الراتب (TZS)"
+
+#: pos_app/templates/inventory.html:464
+msgid "Kiasi si sahihi."
+msgstr "غير صالح الكمية."
+
+#: pos_app/templates/dashboard.html:1169
+msgid "Kila activity iliyorekodiwa kwenye mfumo, kwa mhusika, aina na muda."
+msgstr "كل نشاط مسجل في النظام، مع المنفذ والنوع والوقت."
+
+#: pos_app/templates/ripoti.html:2037
+msgid "Kipindi cha ripoti"
+msgstr "التقرير الفترة"
+
+#: pos_app/templates/mauzo.html:15
+msgid "Kituo cha"
+msgstr "المحطة"
+
+#: pos_app/templates/mauzo.html:508
+msgid "Kosa la kukataa mzigo."
+msgstr "خطأ في رفض الشحنة."
+
+#: pos_app/templates/mauzo.html:546
+msgid "Kosa la mtandao."
+msgstr "الشبكة خطأ."
+
+#: pos_app/templates/registration.html:1739
+msgid "Kubali masharti ya demo kabla ya kutengeneza account."
+msgstr "وافق على شروط التجربة قبل إنشاء الحساب."
+
+#: pos_app/templates/mauzo.html:4341
+msgid "Kubali zote"
+msgstr "قبول الكل"
+
+#: pos_app/templates/dashboard.html:1096
+#, python-format
+msgid "Kuna <strong>%(counter)s</strong> purchase request inayohitaji kuangaliwa."
+msgid_plural "Kuna <strong>%(counter)s</strong> purchase requests zinazohitaji kuangaliwa."
+msgstr[0] "<strong>%(counter)s</strong> طلب شراء يحتاج إلى المراجعة."
+msgstr[1] "<strong>%(counter)s</strong> طلبات شراء تحتاج إلى المراجعة."
+msgstr[2] ""
+msgstr[3] ""
+msgstr[4] ""
+msgstr[5] ""
+
+#: pos_app/templates/mauzo.html:519
+msgid "Kuna mauzo yanaendelea. Yaweke Hold kwanza kabla ya kurejesha hili?"
+msgstr "هناك مبيعات قيد التنفيذ. علّقها أولًا قبل المتابعة هنا؟"
+
+#: pos_app/templates/mauzo.html:544
+msgid "Kuna tatizo la kuunganisha receiving center"
+msgstr "حدثت مشكلة في الاتصال بمركز الاستلام"
+
+#: pos_app/templates/base.html:1105
+msgid "Kuna tatizo la mtandao."
+msgstr "هناك مشكلة في الشبكة."
+
+#: pos_app/templates/dashboard.html:1305
+msgid "Kuna tatizo wakati wa kuchakata request."
+msgstr "حدثت مشكلة أثناء معالجة الطلب."
+
+#: pos_app/templates/inventory.html:839
+msgid "Kutoka"
+msgstr "من"
+
+#: pos_app/templates/base.html:392
+msgid ""
+"Kwa majaribio ya IP ya ndani, kivinjari kinaweza kukataa usakinishaji wa PWA. Tumia HTTPS kwenye domain ya production"
+" au tumia Ongeza kwenye Skrini ya Mwanzo inapopatikana."
+msgstr ""
+"في اختبارات عنوان IP المحلي، قد يرفض المتصفح تثبيت PWA. استخدم HTTPS على نطاق الإنتاج أو اختر «إضافة إلى الشاشة "
+"الرئيسية» عند توفرها."
+
+#: pos_app/templates/inventory.html:840
+msgid "Kwenda"
+msgstr "إلى"
+
+#: pos_app/templates/base.html:961
+msgid "LIVE STOCK"
+msgstr "المخزون المباشر"
+
+#: pos_app/templates/inventory.html:590
+msgid "LOW"
+msgstr "منخفض"
+
+#: pos_app/templates/inventory.html:540
+msgid "LOW STOCK"
+msgstr "منخفض المخزون"
+
+#: pos_app/templates/matumizi.html:762
+msgid "Largest Expense"
+msgstr "أكبر مصروف"
+
+#: pos_app/templates/dashboard.html:1097 pos_app/templates/inventory.html:808
+msgid "Later"
+msgstr "لاحقًا"
+
+#: pos_app/templates/dashboard.html:836
+msgid "Lengo la leo limefikiwa."
+msgstr "تم الوصول إلى هدف اليوم."
+
+#: pos_app/templates/registration.html:1707
+msgid "Let's Set Up Your TradeCore Workspace"
+msgstr "لنُعد مساحة عمل TradeCore الخاصة بك"
+
+#: pos_app/templates/dashboard.html:981 pos_app/templates/ripoti.html:458 pos_app/templates/ripoti.html:1069
+msgid "Line"
+msgstr "خط"
+
+#: pos_app/templates/dashboard.html:1284 pos_app/templates/dashboard.html:1709
+msgid "Line Total"
+msgstr "إجمالي السطر"
+
+#: pos_app/templates/wafanyakazi.html:173
+msgid "Lipa"
+msgstr "دفع"
+
+#: pos_app/templates/wafanyakazi.html:171 pos_app/templates/wafanyakazi.html:459
+msgid "Lipa Mshahara"
+msgstr "دفع الراتب"
+
+#: pos_app/templates/matumizi.html:1171
+msgid "Lipa Sasa"
+msgstr "ادفع الآن"
+
+#: pos_app/templates/billing.html:147
+msgid "Lipia Sasa (Lipa Namba)"
+msgstr "ادفع الآن (رقم الدفع)"
+
+#: pos_app/templates/inventory.html:568
+msgid "List"
+msgstr "القائمة"
+
+#: pos_app/templates/dashboard.html:875
+msgid "Live"
+msgstr "مباشر"
+
+#: pos_app/templates/inventory.html:493
+msgid "Live inventory & stock control"
+msgstr "إدارة المخزون والتحكم فيه مباشرة"
+
+#: pos_app/templates/inventory.html:564
+msgid "Live inventory · Store + Duka"
+msgstr "المخزون المباشر · المستودع + المتجر"
+
+#: pos_app/templates/wateja.html:1250 pos_app/templates/wateja.html:1921
+msgid "Location"
+msgstr "الموقع"
+
+#: pos_app/templates/registration.html:1517 pos_app/templates/wateja.html:1738
+msgid "Location / Eneo"
+msgstr "الموقع / المنطقة"
+
+#: pos_app/templates/registration.html:1623 pos_app/templates/registration.html:1826
+msgid "Location ya biashara"
+msgstr "موقع النشاط التجاري"
+
+#: pos_app/templates/inventory.html:893
+msgid "Location: Store"
+msgstr "الموقع: المستودع"
+
+#: pos_app/templates/dashboard.html:694
+msgid "Lock / unlock dashboard page scroll"
+msgstr "قفل / إلغاء قفل تمرير صفحة لوحة التحكم"
+
+#: pos_app/templates/dashboard.html:706 pos_app/templates/dashboard.html:1333 pos_app/templates/wateja.html:785
+msgid "Lock Page Scroll"
+msgstr "قفل تمرير الصفحة"
+
+#: pos_app/templates/wafanyakazi.html:115
+msgid "Login Status"
+msgstr "تسجيل الدخول الحالة"
+
+#: pos_app/templates/receipt.html:771
+msgid "Logo (optional)"
+msgstr "الشعار المرئي (اختياري)"
+
+#: pos_app/templates/registration.html:1568
+msgid "Logo preview"
+msgstr "معاينة الشعار"
+
+#: pos_app/templates/registration.html:1564
+msgid "Logo ya Biashara"
+msgstr "شعار النشاط التجاري"
+
+#: pos_app/templates/inventory.html:721
+msgid "Low & Out of Stock"
+msgstr "منخفض / نفد المخزون"
+
+#: pos_app/templates/inventory.html:533
+msgid "Low / Out of Stock"
+msgstr "منخفض / نفد المخزون"
+
+#: pos_app/templates/dashboard.html:767 pos_app/templates/inventory.html:676
+msgid "Low Stock"
+msgstr "مخزون منخفض"
+
+#: pos_app/templates/inventory.html:775
+msgid "Low stock"
+msgstr "مخزون منخفض"
+
+#: pos_app/templates/base.html:1641
+msgid "Lugha"
+msgstr "اللغة"
+
+#: pos_app/templates/ripoti.html:1529
+msgid "Mabadiliko dhidi ya kipindi kilichopita"
+msgstr "تغيير vs السابق الفترة"
+
+#: pos_app/templates/matumizi.html:2165
+msgid "Machi"
+msgstr "مارس"
+
+#: pos_app/templates/dashboard.html:1049 pos_app/templates/dashboard.html:1215 pos_app/templates/inventory.html:665
+#: pos_app/templates/inventory.html:736 pos_app/templates/inventory.html:879 pos_app/templates/matumizi.html:1464
+msgid "Maelezo"
+msgstr "التفاصيل"
+
+#: pos_app/templates/inventory.html:910
+msgid "Maelezo ya Adjustment"
+msgstr "تفاصيل التعديل"
+
+#: pos_app/templates/inventory.html:937
+msgid "Maelezo ya Bidhaa"
+msgstr "المنتج التفاصيل"
+
+#: pos_app/templates/matumizi.html:979 pos_app/templates/matumizi.html:1923
+msgid "Maelezo ya Matumizi"
+msgstr "تفاصيل المصروف"
+
+#: pos_app/templates/inventory.html:897
+msgid "Maelezo ya Stock Take"
+msgstr "تفاصيل جرد المخزون"
+
+#: pos_app/templates/inventory.html:736 pos_app/templates/inventory.html:879
+msgid "Maelezo ya mzigo..."
+msgstr "تفاصيل الشحنة..."
+
+#: pos_app/templates/inventory.html:842
+msgid "Maelezo ya sababu"
+msgstr "تفاصيل السبب"
+
+#: pos_app/templates/receipt.html:633 pos_app/templates/receipt.html:635 pos_app/templates/receipt.html:637
+#: pos_app/templates/receipt.html:639
+msgid "Mahali"
+msgstr "الموقع"
+
+#: pos_app/templates/mauzo.html:422
+msgid "Mahali / Eneo"
+msgstr "الموقع / المنطقة"
+
+#: pos_app/templates/inventory.html:766
+msgid "Majibu yanatoka kwenye data iliyopo kwenye mfumo."
+msgstr "الإجابات مبنية على البيانات الموجودة في النظام."
+
+#: pos_app/templates/inventory.html:414
+msgid "Majibu yasiyotarajiwa kutoka kwenye seva."
+msgstr "استجابة غير متوقعة من الخادم."
+
+#: pos_app/templates/wateja.html:1678
+msgid "Majina Kamili"
+msgstr "الأسماء الكاملة"
+
+#: pos_app/templates/base.html:804
+msgid "Malipo yako"
+msgstr "الخاص بك الدفع"
+
+#: pos_app/templates/matumizi.html:1707
+msgid "Malipo yamethibitishwa"
+msgstr "تم تأكيد الدفع"
+
+#: pos_app/templates/mauzo.html:535
+msgid "Manual · Kubali"
+msgstr "يدوي · قبول"
+
+#: pos_app/templates/wateja.html:1969
+msgid "Manunuzi na Risiti Zote"
+msgstr "جميع المشتريات والإيصالات"
+
+#: pos_app/templates/base.html:867 pos_app/templates/dashboard.html:1318 pos_app/templates/mauzo.html:549
+msgid "Mar"
+msgstr "مارس"
+
+#: pos_app/templates/mauzo.html:253
+msgid "Marekebisho Ya Bei"
+msgstr "تعديل السعر"
+
+#: pos_app/templates/wateja.html:1952
+msgid "Marketing"
+msgstr "التسويق"
+
+#: pos_app/templates/base.html:694
+msgid "Matawi ya Mfumo"
+msgstr "فروع النظام"
+
+#: pos_app/templates/base.html:119 pos_app/templates/base.html:131 pos_app/templates/base.html:216
+#: pos_app/templates/base.html:322 pos_app/templates/base.html:462 pos_app/templates/base.html:509
+#: pos_app/templates/base.html:510 pos_app/templates/matumizi.html:559 pos_app/templates/matumizi.html:1323
+#: pos_app/templates/matumizi.html:1404 pos_app/templates/wafanyakazi.html:284
+msgid "Matumizi"
+msgstr "المصروفات"
+
+#: pos_app/templates/matumizi.html:908
+msgid "Matumizi Yote"
+msgstr "الكل المصروفات"
+
+#: pos_app/templates/ripoti.html:789
+msgid "Matumizi ya kipindi"
+msgstr "الفترة المصروفات"
+
+#: pos_app/templates/base.html:129 pos_app/templates/base.html:214 pos_app/templates/base.html:312
+#: pos_app/templates/base.html:456 pos_app/templates/base.html:506 pos_app/templates/base.html:507
+#: pos_app/templates/base.html:516 pos_app/templates/base.html:517 pos_app/templates/base.html:523
+#: pos_app/templates/base.html:524 pos_app/templates/dashboard.html:1262 pos_app/templates/receipt.html:644
+#: pos_app/templates/wafanyakazi.html:263
+msgid "Mauzo"
+msgstr "المبيعات"
+
+#: pos_app/templates/billing.html:126
+msgid "Mauzo & Stoo Bila Kikomo"
+msgstr "بلا حدود المبيعات & المخزون"
+
+#: pos_app/templates/mauzo.html:15
+msgid "Mauzo (POS)"
+msgstr "المبيعات (POS)"
+
+#: pos_app/templates/mauzo.html:56
+msgid "Mauzo Yaliyohifadhiwa"
+msgstr "محفوظة المبيعات"
+
+#: pos_app/templates/mauzo.html:28
+msgid "Mauzo Yamekamilika"
+msgstr "المبيعات مكتمل"
+
+#: pos_app/templates/ripoti.html:775
+msgid "Mauzo ghafi"
+msgstr "إجمالي المبيعات"
+
+#: pos_app/templates/mauzo.html:497
+msgid "Mauzo hayakuwekwa kwenye queue. Jaribu tena."
+msgstr "لم تتم إضافة المبيعات إلى قائمة الانتظار. حاول مرة أخرى."
+
+#: pos_app/templates/mauzo.html:828
+msgid "Mauzo mapya yataonekana hapa moja kwa moja."
+msgstr "ستظهر المبيعات الجديدة هنا تلقائيًا."
+
+#: pos_app/templates/mauzo.html:493
+msgid "Mauzo ya Hold yamerudishwa."
+msgstr "تمت استعادة المبيعات المعلّقة."
+
+#: pos_app/templates/mauzo.html:73 pos_app/templates/mauzo.html:638
+msgid "Mauzo ya Nyuma"
+msgstr "المبيعات السابقة"
+
+#: pos_app/templates/inventory.html:773
+msgid "Mauzo ya Pepsi"
+msgstr "مبيعات بيبسي"
+
+#: pos_app/templates/ripoti.html:442
+msgid "Mauzo ya kipindi kilichochaguliwa"
+msgstr "مبيعات الفترة المحددة"
+
+#: pos_app/templates/mauzo.html:56
+msgid "Mauzo yaliyohifadhiwa kwa muda."
+msgstr "تم حفظ المبيعات مؤقتًا."
+
+#: pos_app/templates/mauzo.html:867
+msgid "Mauzo yaliyokamilika yataonekana hapa."
+msgstr "ستظهر المبيعات المكتملة هنا."
+
+#: pos_app/templates/ripoti.html:782
+msgid "Mauzo yaliyorekodiwa"
+msgstr "المبيعات المسجلة"
+
+#: pos_app/templates/dashboard.html:1196
+msgid "Mauzo yaliyorekodiwa kutoka kwenye database."
+msgstr "المبيعات المسجلة من قاعدة البيانات."
+
+#: pos_app/templates/mauzo.html:491
+msgid "Mauzo yamehifadhiwa kwenye Hold."
+msgstr "تم حفظ البيع في الانتظار."
+
+#: pos_app/templates/registration.html:1659
+msgid "Mauzo, stoo, wateja na ripoti kwenye mfumo mmoja."
+msgstr "المبيعات, المخزون, العملاء, و التقارير في واحد النظام."
+
+#: pos_app/templates/base.html:134 pos_app/templates/base.html:220 pos_app/templates/base.html:333
+#: pos_app/templates/base.html:474
+msgid "Mawasiliano"
+msgstr "الاتصالات"
+
+#: pos_app/templates/base.html:794
+msgid "Mchana Mwema"
+msgstr "نهارك سعيد"
+
+#: pos_app/templates/ripoti.html:600
+msgid "Mchanganuo wa Malipo"
+msgstr "تفصيل المدفوعات"
+
+#: pos_app/templates/base.html:867 pos_app/templates/dashboard.html:1320 pos_app/templates/matumizi.html:2167
+#: pos_app/templates/mauzo.html:549
+msgid "Mei"
+msgstr "مايو"
+
+#: pos_app/templates/mauzo.html:417
+msgid "Mf. 0700000000"
+msgstr "مثال: 0700000000"
+
+#: pos_app/templates/mauzo.html:423
+msgid "Mf. Dodoma Mjini"
+msgstr "مثال: Dodoma Mjini"
+
+#: pos_app/templates/mauzo.html:412
+msgid "Mf. Juma Meron"
+msgstr "مثال: Juma Meron"
+
+#: pos_app/templates/login.html:323
+msgid "Mf. juma@example.com"
+msgstr "مثال: juma@example.com"
+
+#: pos_app/templates/registration.html:1527
+msgid "Mfano: Barabara ya 9, karibu na..."
+msgstr "مثال: الطريق التاسع، بالقرب من..."
+
+#: pos_app/templates/registration.html:1519
+msgid "Mfano: Dodoma Mjini"
+msgstr "مثال: Dodoma Mjini"
+
+#: pos_app/templates/receipt.html:747
+msgid "Mfano: Dodoma — Barabara ya tisa, upande wa kushoto"
+msgstr "مثال: دودوما — الطريق التاسع، جهة اليسار"
+
+#: pos_app/templates/registration.html:1489
+msgid "Mfano: Meron Electro"
+msgstr "مثال: Meron Electro"
+
+#: pos_app/templates/receipt.html:742
+msgid "Mfano: Meron Tech"
+msgstr "مثال: Meron Tech"
+
+#: pos_app/templates/registration.html:1434
+msgid "Mfano: Octavian Msasimela"
+msgstr "مثال: Octavian Msasimela"
+
+#: pos_app/templates/registration.html:1579
+msgid "Mfano: Simamia biashara yako"
+msgstr "مثال: أدر نشاطك التجاري"
+
+#: pos_app/templates/mauzo.html:539 pos_app/templates/mauzo.html:4335
+msgid "Mfano: quantity haifanani..."
+msgstr "مثال: الكمية غير متطابقة..."
+
+#: pos_app/templates/base.html:248 pos_app/templates/base.html:779 pos_app/templates/ripoti.html:744
+#: pos_app/templates/ripoti.html:2167
+msgid "Mfanyakazi"
+msgstr "الموظف"
+
+#: pos_app/templates/wafanyakazi.html:465
+msgid "Mfanyakazi:"
+msgstr "الموظف:"
+
+#: pos_app/templates/base.html:956
+msgid "Mfumo utaonyesha taarifa mpya hapa."
+msgstr "سيعرض النظام المعلومات الجديدة هنا."
+
+#: pos_app/templates/inventory.html:471
+msgid "Mgozigo mmoja umeletwa."
+msgstr "تم استلام شحنة واحدة."
+
+#: pos_app/templates/receipt.html:648
+msgid "Mhudumu"
+msgstr "الموظف"
+
+#: pos_app/templates/base.html:246 pos_app/templates/base.html:654 pos_app/templates/base.html:779
+msgid "Mhudumu wa Stoo"
+msgstr "أمين المستودع"
+
+#: pos_app/templates/ripoti.html:745 pos_app/templates/ripoti.html:2167
+msgid "Miamala"
+msgstr "المعاملات"
+
+#: pos_app/templates/dashboard.html:881
+msgid "Miamala ya Hivi Punde"
+msgstr "المعاملات الأخيرة"
+
+#: pos_app/templates/base.html:141 pos_app/templates/base.html:348 pos_app/templates/base.html:488
+msgid "Mipangilio"
+msgstr "الإعدادات"
+
+#: pos_app/templates/base.html:726
+msgid "Mipangilio imehifadhiwa kikamilifu!"
+msgstr "تم حفظ الإعدادات بنجاح!"
+
+#: pos_app/templates/base.html:684
+msgid "Mipangilio ya Mfumo"
+msgstr "النظام الإعدادات"
+
+#: pos_app/templates/wafanyakazi.html:251
+msgid "Mipangilio ya Ziada (Advanced Permissions)"
+msgstr "الإعدادات المتقدمة (الصلاحيات المتقدمة)"
+
+#: pos_app/templates/ripoti.html:464
+msgid "Mix"
+msgstr "مختلط"
+
+#: pos_app/templates/dashboard.html:979
+msgid "Mixed"
+msgstr "مختلط"
+
+#: pos_app/templates/mauzo.html:4312
+msgid "Mizigo Inayoingia"
+msgstr "الشحنات الواردة"
+
+#: pos_app/templates/mauzo.html:529
+msgid "Mizigo imewasili"
+msgstr "وصلت الشحنات"
+
+#: pos_app/templates/mauzo.html:530
+msgid "Mizigo inasubiri kupokelewa dukani."
+msgstr "الشحنات تنتظر الاستلام في المتجر."
+
+#: pos_app/templates/inventory.html:470
+msgid "Mizigo mingi imeletwa."
+msgstr "تم استلام عدة شحنات."
+
+#: pos_app/templates/mauzo.html:515 pos_app/templates/mauzo.html:540 pos_app/templates/mauzo.html:4312
+msgid "Mizigo ya Stoo"
+msgstr "شحنات المستودع"
+
+#: pos_app/templates/registration.html:1507 pos_app/templates/registration.html:1818
+msgid "Mobile Phones & Accessories"
+msgstr "الهواتف المحمولة وملحقاتها"
+
+#: pos_app/templates/base.html:183
+msgid "Moja kwa Moja"
+msgstr "مباشر"
+
+#: pos_app/templates/dashboard.html:1308
+msgid "Month"
+msgstr "شهر"
+
+#: pos_app/templates/matumizi.html:704
+msgid "Monthly Expenses"
+msgstr "المصروفات الشهرية"
+
+#: pos_app/templates/wafanyakazi.html:304
+msgid "Mpe U-Bosi (Anapata Vyote)"
+msgstr "منح صلاحيات المدير (يحصل على كل شيء)"
+
+#: pos_app/templates/billing.html:138
+msgid "Msaada wa Moja kwa Moja (24/7)"
+msgstr "مباشر الدعم (24/7)"
+
+#: pos_app/templates/wafanyakazi.html:350
+msgid "Mshahara umerekodiwa kikamilifu!"
+msgstr "تم تسجيل الراتب بنجاح!"
+
+#: pos_app/templates/receipt.html:622 pos_app/templates/ripoti.html:679 pos_app/templates/ripoti.html:2152
+msgid "Mteja"
+msgstr "العميل"
+
+#: pos_app/templates/mauzo.html:478
+msgid "Mteja wa Kawaida"
+msgstr "عميل عادي"
+
+#: pos_app/templates/mauzo.html:323
+msgid "Mteja:"
+msgstr "العميل:"
+
+#: pos_app/templates/mauzo.html:500
+msgid "Muamala huu ulikwishahifadhiwa. Hakuna duplicate iliyotengenezwa."
+msgstr "تم حفظ هذه المعاملة بالفعل. لم يتم إنشاء نسخة مكررة."
+
+#: pos_app/templates/base.html:417
+msgid "Muamala ukikatika internet, TradeCore utauweka hapa."
+msgstr "عند انقطاع الإنترنت أثناء المعاملة، ستضع TradeCore المعاملة هنا."
+
+#: pos_app/templates/mauzo.html:501
+msgid "Muamala umehifadhiwa kikamilifu na risiti inaandaliwa."
+msgstr "تم حفظ المعاملة بنجاح ويجري إعداد الإيصال."
+
+#: pos_app/templates/mauzo.html:29
+msgid "Muamala umehifadhiwa kikamilifu."
+msgstr "تم حفظ المعاملة بنجاح."
+
+#: pos_app/templates/matumizi.html:971 pos_app/templates/matumizi.html:1456 pos_app/templates/ripoti.html:682
+#: pos_app/templates/ripoti.html:2152
+msgid "Muda"
+msgstr "الوقت"
+
+#: pos_app/templates/billing.html:102
+msgid "Muda Umeisha"
+msgstr "انتهت المدة"
+
+#: pos_app/templates/billing.html:68
+msgid ""
+"Muda wako wa siku 30 za majaribio umekamilika. Chagua kifurushi hapa chini ili uendelee kusimamia biashara yako bila "
+"kikomo."
+msgstr "انتهت فترة التجربة لمدة 30 يومًا. اختر خطة أدناه لمواصلة إدارة نشاطك التجاري بلا حدود."
+
+#: pos_app/templates/base.html:444
+msgid "Muhtasari wa biashara"
+msgstr "ملخص النشاط التجاري"
+
+#: pos_app/templates/base.html:709
+msgid "Muonekano"
+msgstr "المظهر"
+
+#: pos_app/templates/base.html:488
+msgid "Muonekano na chaguo"
+msgstr "المظهر والخيارات"
+
+#: pos_app/templates/base.html:244 pos_app/templates/base.html:654 pos_app/templates/base.html:779
+msgid "Muuza"
+msgstr "البائع"
+
+#: pos_app/templates/ripoti.html:276
+msgid "Mwaka Huu"
+msgstr "هذا العام"
+
+#: pos_app/templates/base.html:521
+msgid "Mwanzo"
+msgstr "الرئيسية"
+
+#: pos_app/templates/dashboard.html:874
+msgid "Mwenendo wa Mauzo (Leo)"
+msgstr "اتجاه المبيعات (اليوم)"
+
+#: pos_app/templates/ripoti.html:495
+msgid "Mwezi"
+msgstr "الشهر"
+
+#: pos_app/templates/ripoti.html:271 pos_app/templates/ripoti.html:1724
+msgid "Mwezi Huu"
+msgstr "هذا الشهر"
+
+#: pos_app/templates/mauzo.html:536
+msgid "Mzigo"
+msgstr "الشحنة"
+
+#: pos_app/templates/mauzo.html:4298
+msgid "Mzigo 1 unasubiri kupokelewa dukani."
+msgstr "هناك شحنة واحدة تنتظر الاستلام في المتجر."
+
+#: pos_app/templates/mauzo.html:506
+msgid "Mzigo haujakataliwa."
+msgstr "لم يتم رفض الشحنة."
+
+#: pos_app/templates/mauzo.html:533
+msgid "Mzigo hauna bidhaa."
+msgstr "الشحنة لا تحتوي على منتجات."
+
+#: pos_app/templates/mauzo.html:545
+msgid "Mzigo huu haupo tena kwenye pending list. Refresh."
+msgstr "لم تعد هذه الشحنة موجودة في قائمة المعلّقة. حدّث الصفحة."
+
+#: pos_app/templates/mauzo.html:526 pos_app/templates/mauzo.html:4298
+msgid "Mzigo mpya umewasili"
+msgstr "وصلت شحنة جديدة"
+
+#: pos_app/templates/inventory.html:824
+msgid "Mzigo mpya unaingia Store"
+msgstr "شحنة جديدة تدخل إلى المستودع"
+
+#: pos_app/templates/inventory.html:875
+msgid "Mzigo mpya unaingia moja kwa moja Store."
+msgstr "تدخل الشحنة الجديدة إلى المستودع مباشرةً."
+
+#: pos_app/templates/mauzo.html:507
+msgid "Mzigo umekataliwa; stock imerudishwa Store."
+msgstr "رُفضت الشحنة؛ وأُعيد المخزون إلى المستودع."
+
+#: pos_app/templates/mauzo.html:527 pos_app/templates/mauzo.html:4306
+msgid "Mzigo umepokelewa"
+msgstr "تم استلام الشحنة"
+
+#: pos_app/templates/mauzo.html:528
+msgid "Mzigo unasubiri kupokelewa dukani."
+msgstr "الشحنة تنتظر الاستلام في المتجر."
+
+#: pos_app/templates/base.html:962
+msgid "NEW ORDER"
+msgstr "طلب جديد"
+
+#: pos_app/templates/registration.html:1609
+msgid "Namba itakayoonekana kwenye receipt"
+msgstr "الرقم الذي سيظهر على الإيصال"
+
+#: pos_app/templates/registration.html:1440 pos_app/templates/wateja.html:1709
+msgid "Namba ya Simu"
+msgstr "الهاتف الرقم"
+
+#: pos_app/templates/wafanyakazi.html:467
+msgid "Namba ya Simu:"
+msgstr "رقم الهاتف:"
+
+#: pos_app/templates/receipt.html:964
+msgid "Namba ya WhatsApp haijawekwa."
+msgstr "لم يتم إدخال رقم WhatsApp."
+
+#: pos_app/templates/wafanyakazi.html:114
+msgid "Name"
+msgstr "الاسم"
+
+#: pos_app/templates/wafanyakazi.html:421
+msgid "Ndio, Endelea"
+msgstr "نعم، متابعة"
+
+#: pos_app/templates/wafanyakazi.html:442
+msgid "Ndio, Futa"
+msgstr "نعم، حذف"
+
+#: pos_app/templates/matumizi.html:1762
+msgid "Ndiyo, Lipa"
+msgstr "نعم، ادفع"
+
+#: pos_app/templates/base.html:161
+msgid "Nembo"
+msgstr "الشعار"
+
+#: pos_app/templates/registration.html:1464
+msgid "Nenosiri"
+msgstr "كلمة المرور"
+
+#: pos_app/templates/wafanyakazi.html:218
+msgid "Nenosiri (Password)"
+msgstr "كلمة المرور"
+
+#: pos_app/templates/registration.html:1728
+msgid "Nenosiri liwe angalau characters 8."
+msgstr "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل."
+
+#: pos_app/templates/registration.html:1729
+msgid "Nenosiri na confirmation hazilingani."
+msgstr "كلمة المرور والتأكيد غير متطابقين."
+
+#: pos_app/templates/ripoti.html:388 pos_app/templates/ripoti.html:795
+msgid "Net Profit"
+msgstr "صافي الربح"
+
+#: pos_app/templates/ripoti.html:798
+msgid "Net Sales minus Cost of Goods Sold minus Expenses."
+msgstr "صافي المبيعات ناقص تكلفة البضائع المباعة ناقص المصروفات."
+
+#: pos_app/templates/mauzo.html:502
+msgid "Network imekatika."
+msgstr "انقطع الاتصال بالشبكة."
+
+#: pos_app/templates/dashboard.html:864
+msgid "New Customer"
+msgstr "عميل جديد"
+
+#: pos_app/templates/wateja.html:529
+msgid "New Customers"
+msgstr "عملاء جدد"
+
+#: pos_app/templates/dashboard.html:861
+msgid "New Sale"
+msgstr "بيع جديد"
+
+#: pos_app/templates/wateja.html:464
+msgid "New Today"
+msgstr "جديد اليوم"
+
+#: pos_app/templates/login.html:288
+msgid "New to TradeCore?"
+msgstr "جديد إلى TradeCore?"
+
+#: pos_app/templates/ripoti.html:2057 pos_app/templates/ripoti.html:2118
+msgid "New ↗"
+msgstr "جديد ↗"
+
+#: pos_app/templates/login.html:348
+msgid "Next-generation Business Management System powering your workflow."
+msgstr "نظام إدارة أعمال من الجيل التالي يدعم سير عملك."
+
+#: pos_app/templates/registration.html:1636
+msgid "Ninakubali kutengeneza account ya TradeCore na kutumia demo ya siku 30 kwa taarifa nilizoingiza."
+msgstr "أوافق على إنشاء حساب TradeCore واستخدام التجربة لمدة 30 يومًا بالبيانات التي أدخلتها."
+
+#: pos_app/templates/wafanyakazi.html:477
+msgid "Njia ya Kutuma Malipo"
+msgstr "طريقة إرسال الدفع"
+
+#: pos_app/templates/mauzo.html:328
+msgid "Njia ya Malipo"
+msgstr "طريقة الدفع"
+
+#: pos_app/templates/ripoti.html:415
+msgid "Njia za Malipo"
+msgstr "طرق الدفع"
+
+#: pos_app/templates/dashboard.html:1007
+msgid "No activities recorded yet."
+msgstr "لم تُسجّل أي أنشطة بعد."
+
+#: pos_app/templates/registration.html:1630 pos_app/templates/registration.html:1830
+msgid "Not provided"
+msgstr "غير متوفر"
+
+#: pos_app/templates/base.html:868 pos_app/templates/dashboard.html:1326 pos_app/templates/mauzo.html:549
+msgid "Nov"
+msgstr "نوفمبر"
+
+#: pos_app/templates/matumizi.html:2173
+msgid "Novemba"
+msgstr "نوفمبر"
+
+#: pos_app/templates/registration.html:1673
+msgid "ONE BUSINESS"
+msgstr "واحد النشاط التجاري"
+
+#: pos_app/templates/inventory.html:588
+msgid "OUT"
+msgstr "نافد"
+
+#: pos_app/templates/ujumbe.html:701
+msgid "Off"
+msgstr "متوقف"
+
+#: pos_app/templates/wafanyakazi.html:145
+msgid "Offline"
+msgstr "غير متصل"
+
+#: pos_app/templates/base.html:868 pos_app/templates/dashboard.html:1325 pos_app/templates/mauzo.html:549
+msgid "Okt"
+msgstr "أكتوبر"
+
+#: pos_app/templates/matumizi.html:2172
+msgid "Oktoba"
+msgstr "أكتوبر"
+
+#: pos_app/templates/base.html:391
+msgid "Ombi la usakinishaji halipatikani hapa"
+msgstr "طلب التثبيت غير متاح هنا"
+
+#: pos_app/templates/inventory.html:695
+msgid "Ondoa bidhaa"
+msgstr "إزالة المنتج"
+
+#: pos_app/templates/inventory.html:853
+msgid "Ondoa zote"
+msgstr "إزالة الكل"
+
+#: pos_app/templates/registration.html:1389
+msgid "One Business"
+msgstr "نشاط تجاري واحد"
+
+#: pos_app/templates/mauzo.html:384
+msgid "Ongeza"
+msgstr "إضافة"
+
+#: pos_app/templates/base.html:340
+msgid "Ongeza TradeCore kwenye skrini ya mwanzo ya simu."
+msgstr "أضف TradeCore إلى الشاشة الرئيسية للهاتف."
+
+#: pos_app/templates/mauzo.html:482
+msgid "Ongeza bidhaa kwanza."
+msgstr "أضف المنتجات أولًا."
+
+#: pos_app/templates/base.html:376
+msgid "Ongeza kwenye Skrini ya Mwanzo"
+msgstr "إضافة إلى الشاشة الرئيسية"
+
+#: pos_app/templates/registration.html:1570
+msgid "Ongeza logo yako"
+msgstr "أضف شعارك"
+
+#: pos_app/templates/dashboard.html:1279 pos_app/templates/dashboard.html:1709 pos_app/templates/receipt.html:697
+msgid "Ongezeko"
+msgstr "الزيادة"
+
+#: pos_app/templates/mauzo.html:485
+msgid "Ongezeko limewekwa kikamilifu!"
+msgstr "تم تطبيق هامش الربح بنجاح!"
+
+#: pos_app/templates/dashboard.html:811
+msgid "Online"
+msgstr "متصل"
+
+#: pos_app/templates/wafanyakazi.html:88
+msgid "Online Now"
+msgstr "متصل الآن"
+
+#: pos_app/templates/wafanyakazi.html:142
+msgid "Online Sasa"
+msgstr "متصل الآن"
+
+#: pos_app/templates/login.html:282
+msgid "Open System"
+msgstr "فتح النظام"
+
+#: pos_app/templates/inventory.html:415
+msgid "Operesheni imeshindikana."
+msgstr "فشلت العملية."
+
+#: pos_app/templates/registration.html:1551
+msgid "Optional — mfano 123456789"
+msgstr "اختياري — مثال 123456789"
+
+#: pos_app/templates/dashboard.html:1019 pos_app/templates/dashboard.html:1202
+msgid "Order History"
+msgstr "سجل الطلبات"
+
+#: pos_app/templates/dashboard.html:1070
+msgid "Order No."
+msgstr "رقم الطلب"
+
+#: pos_app/templates/matumizi.html:1409
+msgid "Orodha kutoka database."
+msgstr "القائمة من قاعدة البيانات."
+
+#: pos_app/templates/wafanyakazi.html:48
+msgid "Orodha ya watumiaji wote wa mfumo na hali zao."
+msgstr "قائمة جميع مستخدمي النظام وحالاتهم."
+
+#: pos_app/templates/dashboard.html:757
+msgid "Out"
+msgstr "نافد"
+
+#: pos_app/templates/dashboard.html:771 pos_app/templates/inventory.html:676
+msgid "Out of Stock"
+msgstr "نفد المخزون"
+
+#: pos_app/templates/wateja.html:657
+msgid "Outstanding Balance"
+msgstr "الرصيد المستحق"
+
+#: pos_app/templates/registration.html:1627
+msgid "Owner"
+msgstr "المالك"
+
+#: pos_app/templates/registration.html:1570
+msgid "PNG, JPG au WEBP. Hiari, unaweza kuiweka baadaye kwenye Settings."
+msgstr "PNG أو JPG أو WEBP. اختياري، ويمكنك إضافته لاحقًا من الإعدادات."
+
+#: pos_app/templates/registration.html:1382
+msgid "POS, Inventory, Customers, Reports na Communication."
+msgstr "نقاط البيع والمخزون والعملاء والتقارير والاتصالات."
+
+#: pos_app/templates/dashboard.html:708 pos_app/templates/wateja.html:792
+msgid "Page scroll iko ON"
+msgstr "تمرير الصفحة مفعّل"
+
+#: pos_app/templates/dashboard.html:1334
+msgid "Page scroll imefungwa • history bado inaweza kuscroll"
+msgstr "تم قفل تمرير الصفحة • يمكن تمرير السجل."
+
+#: pos_app/templates/matumizi.html:1191 pos_app/templates/matumizi.html:1595
+msgid "Paid"
+msgstr "مدفوع"
+
+#: pos_app/templates/billing.html:66
+msgid "Pata zaidi na"
+msgstr "احصل على المزيد مع"
+
+#: pos_app/templates/matumizi.html:1731
+msgid "Payment confirmation"
+msgstr "تأكيد الدفع"
+
+#: pos_app/templates/dashboard.html:1286 pos_app/templates/dashboard.html:1709
+msgid "Payment:"
+msgstr "الدفع:"
+
+#: pos_app/templates/inventory.html:431
+msgid "Pendekezo la kategoria limepatikana."
+msgstr "تم العثور على اقتراح للفئة."
+
+#: pos_app/templates/matumizi.html:1141 pos_app/templates/matumizi.html:1581 pos_app/templates/matumizi.html:2101
+msgid "Pending"
+msgstr "معلّق"
+
+#: pos_app/templates/matumizi.html:847
+msgid "Pending Bills"
+msgstr "فواتير معلّقة"
+
+#: pos_app/templates/dashboard.html:775
+msgid "Pending POs"
+msgstr "أوامر الشراء المعلّقة"
+
+#: pos_app/templates/inventory.html:772
+msgid "Pepsi iko wapi?"
+msgstr "أين توجد بيبسي؟"
+
+#: pos_app/templates/registration.html:1503 pos_app/templates/registration.html:1817
+msgid "Pharmacy / Health Shop"
+msgstr "صيدلية / متجر صحي"
+
+#: pos_app/templates/registration.html:1628 pos_app/templates/wateja.html:866
+msgid "Phone"
+msgstr "الهاتف"
+
+#: pos_app/templates/wafanyakazi.html:242
+msgid "Picha (Profile)"
+msgstr "صورة (الملف الشخصي)"
+
+#: pos_app/templates/base.html:485
+msgid "Picha na akaunti"
+msgstr "الملف الشخصي والحساب"
+
+#: pos_app/templates/base.html:604
+msgid "Picha ya karibu"
+msgstr "صورة مقرّبة"
+
+#: pos_app/templates/ripoti.html:470
+msgid "Pie"
+msgstr "دائري"
+
+#: pos_app/templates/dashboard.html:764
+msgid "Pieces"
+msgstr "القطع"
+
+#: pos_app/templates/wateja.html:2058
+msgid "Piga"
+msgstr "اتصال"
+
+#: pos_app/templates/receipt.html:718 pos_app/templates/registration.html:1687
+msgid "Powered by"
+msgstr "مدعوم بواسطة"
+
+#: pos_app/templates/wateja.html:870
+msgid "Pre-order Deposit"
+msgstr "عربون الطلب المسبق"
+
+#: pos_app/templates/billing.html:114
+msgid "Premium Plan"
+msgstr "الخطة المميزة"
+
+#: pos_app/templates/matumizi.html:605
+msgid "Print / PDF"
+msgstr "طباعة / PDF"
+
+#: pos_app/templates/receipt.html:559
+msgid "Print Receipt"
+msgstr "طباعة الإيصال"
+
+#: pos_app/templates/matumizi.html:1672
+msgid "Print Ripoti"
+msgstr "طباعة التقرير"
+
+#: pos_app/templates/receipt.html:550 pos_app/templates/receipt.html:551
+msgid "Print size"
+msgstr "حجم الطباعة"
+
+#: pos_app/templates/registration.html:1636
+msgid "Privacy"
+msgstr "الخصوصية"
+
+#: pos_app/templates/login.html:349
+msgid "Process transactions seamlessly with advanced analytics."
+msgstr "عالج المعاملات بسلاسة باستخدام تحليلات متقدمة."
+
+#: pos_app/templates/receipt.html:688
+msgid "Punguzo"
+msgstr "الخصم"
+
+#: pos_app/templates/mauzo.html:484
+msgid "Punguzo limewekwa kikamilifu!"
+msgstr "تم تطبيق الخصم بنجاح!"
+
+#: pos_app/templates/dashboard.html:1095
+msgid "Purchase Request"
+msgstr "طلب شراء"
+
+#: pos_app/templates/dashboard.html:1303
+msgid "Purchase request imeidhinishwa."
+msgstr "تم اعتماد طلب الشراء."
+
+#: pos_app/templates/dashboard.html:1304
+msgid "Purchase request imekataliwa."
+msgstr "تم رفض طلب الشراء."
+
+#: pos_app/templates/receipt.html:714
+msgid "QR ya risiti"
+msgstr "رمز QR للإيصال"
+
+#: pos_app/templates/dashboard.html:1134 pos_app/templates/receipt.html:655
+msgid "Qty"
+msgstr "الكمية"
+
+#: pos_app/templates/inventory.html:1285
+msgid "Quick Category Action"
+msgstr "سريع الفئة الإجراء"
+
+#: pos_app/templates/inventory.html:828
+msgid "Quick Lookup"
+msgstr "بحث سريع"
+
+#: pos_app/templates/dashboard.html:1032 pos_app/templates/dashboard.html:1291 pos_app/templates/dashboard.html:1709
+msgid "RECORDED"
+msgstr "مسجّل"
+
+#: pos_app/templates/receipt.html:615
+msgid "RISITI YA MAUZO"
+msgstr "إيصال المبيعات"
+
+#: pos_app/templates/receipt.html:544
+msgid "Receipt"
+msgstr "الإيصال"
+
+#: pos_app/templates/registration.html:1561
+msgid "Receipt & business identity"
+msgstr "هوية الإيصال والنشاط التجاري"
+
+#: pos_app/templates/registration.html:1593
+msgid "Receipt Footer"
+msgstr "تذييل الإيصال"
+
+#: pos_app/templates/dashboard.html:867 pos_app/templates/wateja.html:1986
+msgid "Receipts"
+msgstr "الإيصالات"
+
+#: pos_app/templates/ujumbe.html:667
+msgid "Recent SMS"
+msgstr "الأخير SMS"
+
+#: pos_app/templates/dashboard.html:868
+msgid "Recent Sales"
+msgstr "المبيعات الأخيرة"
+
+#: pos_app/templates/ujumbe.html:681
+msgid "Recent WhatsApp messages"
+msgstr "رسائل WhatsApp الأخيرة"
+
+#: pos_app/templates/ujumbe.html:709
+msgid "Recent reports"
+msgstr "الأخير التقارير"
+
+#: pos_app/templates/dashboard.html:1215 pos_app/templates/matumizi.html:1468
+msgid "Reference"
+msgstr "المرجع"
+
+#: pos_app/templates/inventory.html:735 pos_app/templates/inventory.html:878
+msgid "Reference / PO"
+msgstr "المرجع / PO"
+
+#: pos_app/templates/matumizi.html:983
+msgid "Reference / Receipt"
+msgstr "المرجع / الإيصال"
+
+#: pos_app/templates/inventory.html:1416
+msgid "Refresh"
+msgstr "تحديث"
+
+#: pos_app/templates/wateja.html:1886
+msgid "Registered: —"
+msgstr "مسجّل: —"
+
+#: pos_app/templates/registration.html:1412
+msgid "Registration progress"
+msgstr "تقدم التسجيل"
+
+#: pos_app/templates/dashboard.html:1251
+msgid "Reject"
+msgstr "رفض"
+
+#: pos_app/templates/base.html:322
+msgid "Rekodi gharama"
+msgstr "تسجيل المصروفات"
+
+#: pos_app/templates/matumizi.html:1708
+msgid "Rekodi inabadilishwa kuwa Paid."
+msgstr "سيتم تغيير السجل إلى مدفوع."
+
+#: pos_app/templates/base.html:462
+msgid "Rekodi na lipa gharama"
+msgstr "تسجيل المصروفات ودفعها"
+
+#: pos_app/templates/matumizi.html:1621
+msgid "Rekodi unazotafuta hazijapatikana kwenye kipengele hiki."
+msgstr "لم يتم العثور على السجلات التي تبحث عنها في هذا القسم."
+
+#: pos_app/templates/login.html:272
+msgid "Remember me"
+msgstr "تذكرني"
+
+#: pos_app/templates/ripoti.html:1058
+msgid "Report • Bar"
+msgstr "التقرير • أعمدة"
+
+#: pos_app/templates/ripoti.html:1070
+msgid "Report • Line"
+msgstr "التقرير • خطي"
+
+#: pos_app/templates/dashboard.html:867
+msgid "Reprint Receipt"
+msgstr "إعادة طباعة الإيصال"
+
+#: pos_app/templates/dashboard.html:1302
+msgid "Request imeshindikana."
+msgstr "الطلب فشل."
+
+#: pos_app/templates/dashboard.html:1241
+msgid "Request:"
+msgstr "الطلب:"
+
+#: pos_app/templates/dashboard.html:1070
+msgid "Requester"
+msgstr "مقدّم الطلب"
+
+#: pos_app/templates/login.html:277
+msgid "Reset it here"
+msgstr "إعادة تعيين it هنا"
+
+#: pos_app/templates/registration.html:1505 pos_app/templates/registration.html:1818
+msgid "Restaurant / Food"
+msgstr "مطعم / طعام"
+
+#: pos_app/templates/dashboard.html:1097
+msgid "Review Order"
+msgstr "مراجعة الطلب"
+
+#: pos_app/templates/base.html:135 pos_app/templates/base.html:221 pos_app/templates/base.html:330
+#: pos_app/templates/base.html:477 pos_app/templates/wafanyakazi.html:291
+msgid "Ripoti"
+msgstr "التقارير"
+
+#: pos_app/templates/ripoti.html:240
+msgid "Ripoti &"
+msgstr "التقارير &"
+
+#: pos_app/templates/ripoti.html:283
+msgid "Ripoti kamili ya kila siku"
+msgstr "التقرير اليومي الكامل"
+
+#: pos_app/templates/ripoti.html:2165
+msgid "Ripoti ya Wafanyakazi (Employee Daily Report)"
+msgstr "الموظف التقرير (التقرير اليومي للموظفين)"
+
+#: pos_app/templates/ripoti.html:2150
+msgid "Ripoti ya Wateja (Customer Daily Report)"
+msgstr "العميل التقرير (التقرير اليومي للعملاء)"
+
+#: pos_app/templates/billing.html:134
+msgid "Ripoti za Kina & Analytics"
+msgstr "تقارير وتحليلات متقدمة"
+
+#: pos_app/templates/wateja.html:2020
+msgid "Risiti zilizotolewa kwa mteja huyu zitaonekana hapa."
+msgstr "ستظهر هنا الإيصالات الصادرة لهذا العميل."
+
+#: pos_app/templates/wateja.html:1522
+msgid "Rows Read"
+msgstr "الصفوف المقروءة"
+
+#: pos_app/templates/wateja.html:2362
+msgid "Rows zimesomwa lakini hakuna contact mpya iliyoingizwa."
+msgstr "تمت قراءة الصفوف، لكن لم يتم إدخال جهة اتصال جديدة."
+
+#: pos_app/templates/receipt.html:589
+msgid "Rudi"
+msgstr "رجوع"
+
+#: pos_app/templates/registration.html:1472
+msgid "Rudia Nenosiri"
+msgstr "أعد كلمة المرور"
+
+#: pos_app/templates/registration.html:1474
+msgid "Rudia nenosiri"
+msgstr "أعد كلمة المرور"
+
+#: pos_app/templates/wafanyakazi.html:298
+msgid "SMS"
+msgstr "SMS"
+
+#: pos_app/templates/ujumbe.html:658
+msgid "SMS Balance"
+msgstr "SMS الرصيد"
+
+#: pos_app/templates/inventory.html:841
+msgid "Sababu ya Transfer"
+msgstr "سبب التحويل"
+
+#: pos_app/templates/mauzo.html:4334
+msgid "Sababu ya kukataa"
+msgstr "سبب الرفض"
+
+#: pos_app/templates/mauzo.html:81 pos_app/templates/mauzo.html:512
+msgid "Safisha"
+msgstr "تنظيف"
+
+#: pos_app/templates/inventory.html:499 pos_app/templates/inventory.html:654
+msgid "Sajili Bidhaa"
+msgstr "تسجيل المنتج"
+
+#: pos_app/templates/matumizi.html:626 pos_app/templates/matumizi.html:1807
+msgid "Sajili Matumizi"
+msgstr "السجل المصروف"
+
+#: pos_app/templates/wafanyakazi.html:403
+msgid "Sajili Mfanyakazi"
+msgstr "تسجيل الموظف"
+
+#: pos_app/templates/wafanyakazi.html:53 pos_app/templates/wafanyakazi.html:206
+msgid "Sajili Mfanyakazi Mpya"
+msgstr "تسجيل موظف جديد"
+
+#: pos_app/templates/mauzo.html:406 pos_app/templates/wateja.html:428 pos_app/templates/wateja.html:1601
+msgid "Sajili Mteja Mpya"
+msgstr "تسجيل عميل جديد"
+
+#: pos_app/templates/base.html:342
+msgid "Sakinisha"
+msgstr "تثبيت"
+
+#: pos_app/templates/base.html:339 pos_app/templates/base.html:358 pos_app/templates/base.html:397
+#: pos_app/templates/base.html:496
+msgid "Sakinisha TradeCore"
+msgstr "تثبيت TradeCore"
+
+#: pos_app/templates/dashboard.html:1017 pos_app/templates/dashboard.html:1200
+msgid "Sales"
+msgstr "المبيعات"
+
+#: pos_app/templates/dashboard.html:935
+msgid "Sales (Mo)"
+msgstr "المبيعات (Mo)"
+
+#: pos_app/templates/dashboard.html:1014 pos_app/templates/dashboard.html:1195
+msgid "Sales History"
+msgstr "سجل المبيعات"
+
+#: pos_app/templates/dashboard.html:977
+msgid "Sales Trend (Today)"
+msgstr "اتجاه المبيعات (اليوم)"
+
+#: pos_app/templates/ripoti.html:397
+msgid "Sales − COGS − Expenses"
+msgstr "المبيعات − تكلفة البضاعة المباعة − المصروفات"
+
+#: pos_app/templates/base.html:702
+msgid "Sauti za Risiti na Arifa"
+msgstr "أصوات الإيصالات والإشعارات"
+
+#: pos_app/templates/inventory.html:750
+msgid "Save"
+msgstr "حفظ"
+
+#: pos_app/templates/inventory.html:808
+msgid "Save & Next"
+msgstr "حفظ والانتقال للتالي"
+
+#: pos_app/templates/wateja.html:1549 pos_app/templates/wateja.html:2336
+msgid "Sawa"
+msgstr "حسنًا"
+
+#: pos_app/templates/base.html:424
+msgid "Sawazisha sasa"
+msgstr "مزامنة الآن"
+
+#: pos_app/templates/inventory.html:921 pos_app/templates/mauzo.html:98
+msgid "Scan"
+msgstr "مسح"
+
+#: pos_app/templates/inventory.html:919
+msgid "Scan Barcode"
+msgstr "مسح الباركود"
+
+#: pos_app/templates/mauzo.html:521
+msgid "Scan Imeshindikana"
+msgstr "مسح فشل"
+
+#: pos_app/templates/inventory.html:498
+msgid "Scan Stoo"
+msgstr "مسح المخزون"
+
+#: pos_app/templates/inventory.html:424
+msgid "Scan au andika barcode kwanza."
+msgstr "امسح الباركود أو اكتبه أولًا."
+
+#: pos_app/templates/mauzo.html:98
+msgid "Scan barcode kwa kamera"
+msgstr "امسح الباركود بالكاميرا"
+
+#: pos_app/templates/inventory.html:654
+msgid "Scan barcode ya kiwandani au acha mfumo utengeneze yake."
+msgstr "امسح باركود المصنع أو اترك النظام ينشئ واحدًا."
+
+#: pos_app/templates/inventory.html:461
+msgid "Scan bidhaa ili kuiongeza."
+msgstr "امسح المنتج لإضافته."
+
+#: pos_app/templates/inventory.html:892
+msgid "Scan bidhaa, weka physical count, kisha finish."
+msgstr "امسح المنتجات وأدخل العدد الفعلي ثم أكمل."
+
+#: pos_app/templates/inventory.html:456
+msgid "Scan imeshindikana."
+msgstr "مسح فشل."
+
+#: pos_app/templates/receipt.html:715
+msgid "Scan kuthibitisha risiti"
+msgstr "امسح لتأكيد الإيصال"
+
+#: pos_app/templates/inventory.html:828
+msgid "Scan uone taarifa za bidhaa"
+msgstr "امسح لرؤية بيانات المنتج"
+
+#: pos_app/templates/inventory.html:820
+msgid "Scan ya Stoo"
+msgstr "المخزون مسح"
+
+#: pos_app/templates/mauzo.html:386
+msgid "Scanner nyingi za Bluetooth/USB hutuma barcode kama keyboard. Uki-connect, focus input hii kisha scan."
+msgstr "ترسل معظم ماسحات Bluetooth/USB الباركود كلوحة مفاتيح. عند توصيلها، ضع المؤشر في هذا الحقل ثم امسح."
+
+#: pos_app/templates/mauzo.html:381 pos_app/templates/mauzo.html:517
+msgid "Scanner ya Bluetooth/USB"
+msgstr "ماسح Bluetooth/USB"
+
+#: pos_app/templates/ujumbe.html:633
+msgid "Scroll ya ukurasa imefungwa"
+msgstr "تم قفل تمرير الصفحة"
+
+#: pos_app/templates/inventory.html:497 pos_app/templates/matumizi.html:1279
+msgid "Search"
+msgstr "بحث"
+
+#: pos_app/templates/matumizi.html:941 pos_app/templates/matumizi.html:2136
+msgid "Search expenses..."
+msgstr "بحث المصروفات..."
+
+#: pos_app/templates/matumizi.html:2138
+msgid "Search imeondolewa. Unaona records zote zilizopakiwa."
+msgstr "تم مسح البحث. أنت ترى جميع السجلات المحمّلة."
+
+#: pos_app/templates/login.html:8
+msgid "Secure Login"
+msgstr "تسجيل دخول آمن"
+
+#: pos_app/templates/inventory.html:449
+msgid "Sehemu ya operesheni imefanikiwa."
+msgstr "تم تنفيذ العملية بنجاح."
+
+#: pos_app/templates/inventory.html:463
+msgid "Sehemu za kuhifadhi ni tofauti."
+msgstr "مواقع التخزين مختلفة."
+
+#: pos_app/templates/inventory.html:1307
+msgid "Select All"
+msgstr "تحديد الكل"
+
+#: pos_app/templates/inventory.html:1303
+msgid "Selected Scope"
+msgstr "النطاق المحدد"
+
+#: pos_app/templates/base.html:868 pos_app/templates/dashboard.html:1324 pos_app/templates/mauzo.html:549
+msgid "Sep"
+msgstr "سبتمبر"
+
+#: pos_app/templates/matumizi.html:2171
+msgid "Septemba"
+msgstr "سبتمبر"
+
+#: pos_app/templates/inventory.html:928
+msgid "Serial 9600"
+msgstr "Serial 9600"
+
+#: pos_app/templates/mauzo.html:505
+msgid "Server haijathibitisha kuingizwa kwa stock ya Duka."
+msgstr "لم يؤكد الخادم إدخال المخزون إلى المتجر."
+
+#: pos_app/templates/mauzo.html:499
+msgid "Server imerudisha hitilafu ya muamala."
+msgstr "أعاد الخادم خطأ في المعاملة."
+
+#: pos_app/templates/registration.html:1706
+msgid "Set Up Your Business"
+msgstr "تعيين Up نشاطك التجاري"
+
+#: pos_app/templates/inventory.html:729
+msgid "Shipment Import"
+msgstr "استيراد الشحنات"
+
+#: pos_app/templates/login.html:426
+msgid "Signing you in..."
+msgstr "جارٍ تسجيل الدخول..."
+
+#: pos_app/templates/ripoti.html:493 pos_app/templates/ripoti.html:680 pos_app/templates/ripoti.html:2152
+msgid "Siku"
+msgstr "أيام"
+
+#: pos_app/templates/ripoti.html:1722
+msgid "Siku Leo"
+msgstr "اليوم"
+
+#: pos_app/templates/registration.html:1347
+msgid "Simamia"
+msgstr "إدارة"
+
+#: pos_app/templates/registration.html:1333 pos_app/templates/registration.html:1354
+msgid "Simamia biashara yako"
+msgstr "أدر نشاطك التجاري"
+
+#: pos_app/templates/registration.html:1658
+msgid "Simamia biashara yako kwa urahisi."
+msgstr "أدر نشاطك التجاري بسهولة."
+
+#: pos_app/templates/mauzo.html:416 pos_app/templates/receipt.html:609 pos_app/templates/receipt.html:628
+#: pos_app/templates/receipt.html:751 pos_app/templates/wateja.html:1241 pos_app/templates/wateja.html:1903
+msgid "Simu"
+msgstr "الهاتف"
+
+#: pos_app/templates/registration.html:1533
+msgid "Simu ya Biashara"
+msgstr "هاتف النشاط التجاري"
+
+#: pos_app/templates/wafanyakazi.html:336
+msgid "Simu ya Malipo"
+msgstr "الدفع الهاتف"
+
+#: pos_app/templates/mauzo.html:370
+msgid "Skani Barcode"
+msgstr "مسح الباركود"
+
+#: pos_app/templates/mauzo.html:531
+msgid "Skani barcode au tumia Manual"
+msgstr "امسح الباركود أو استخدم الإدخال اليدوي"
+
+#: pos_app/templates/mauzo.html:516 pos_app/templates/mauzo.html:4327
+msgid "Skani barcode moja = kipande kimoja · Manual = kubali quantity yote"
+msgstr "مسح باركود واحد = قطعة واحدة · يدوي = قبول الكمية كاملة"
+
+#: pos_app/templates/wateja.html:1503
+msgid "Skipped"
+msgstr "تم التجاوز"
+
+#: pos_app/templates/matumizi.html:1864
+msgid "Smart"
+msgstr "ذكي"
+
+#: pos_app/templates/login.html:220
+msgid "Smart Business. Simple Management. Optimize your workflow today."
+msgstr "ذكي النشاط التجاري. بسيط الإدارة. حسّن الخاص بك سير العمل اليوم."
+
+#: pos_app/templates/matumizi.html:1880
+msgid "Smart Category — itaamuliwa kutokana na maelezo"
+msgstr "فئة ذكية — سيتم تحديدها من التفاصيل"
+
+#: pos_app/templates/matumizi.html:2146
+msgid "Smart Category: "
+msgstr "ذكي الفئة: "
+
+#: pos_app/templates/inventory.html:434
+msgid "Smart Engine"
+msgstr "المحرك الذكي"
+
+#: pos_app/templates/login.html:346
+msgid "Smart Inventory"
+msgstr "المخزون الذكي"
+
+#: pos_app/templates/inventory.html:436
+msgid "Smart Server"
+msgstr "ذكي الخادم"
+
+#: pos_app/templates/dashboard.html:1295
+msgid "Smart reorder imeshindikana."
+msgstr "إعادة الطلب الذكية فشل."
+
+#: pos_app/templates/dashboard.html:1296
+msgid "Smart reorder imetengenezwa kutoka low-stock data."
+msgstr "تم إنشاء إعادة الطلب الذكية من بيانات المخزون المنخفض."
+
+#: pos_app/templates/registration.html:1506 pos_app/templates/registration.html:1818
+msgid "Stationery & Bookshop"
+msgstr "القرطاسية والمكتبة"
+
+#: pos_app/templates/dashboard.html:1070 pos_app/templates/dashboard.html:1215 pos_app/templates/matumizi.html:991
+#: pos_app/templates/matumizi.html:1476 pos_app/templates/wafanyakazi.html:116
+msgid "Status"
+msgstr "الحالة"
+
+#: pos_app/templates/registration.html:1752
+msgid "Step"
+msgstr "الخطوة"
+
+#: pos_app/templates/registration.html:1400
+msgid "Step 1 / 3"
+msgstr "الخطوة 1 / 3"
+
+#: pos_app/templates/inventory.html:622
+msgid "Stock"
+msgstr "المخزون"
+
+#: pos_app/templates/inventory.html:1319
+msgid "Stock 0 Zote"
+msgstr "تعيين الكل المخزون إلى 0"
+
+#: pos_app/templates/mauzo.html:45
+msgid "Stock Imeisha"
+msgstr "الخروج من المخزون"
+
+#: pos_app/templates/inventory.html:824
+msgid "Stock In"
+msgstr "إدخال المخزون"
+
+#: pos_app/templates/dashboard.html:776
+msgid "Stock Issued"
+msgstr "المخزون المصروف"
+
+#: pos_app/templates/dashboard.html:1298
+msgid "Stock List"
+msgstr "قائمة المخزون"
+
+#: pos_app/templates/mauzo.html:45
+msgid "Stock Ndogo"
+msgstr "منخفض المخزون"
+
+#: pos_app/templates/inventory.html:826
+msgid "Stock Take"
+msgstr "جرد المخزون"
+
+#: pos_app/templates/inventory.html:459
+msgid "Stock haijapatikana."
+msgstr "المخزون غير موجود."
+
+#: pos_app/templates/mauzo.html:488
+msgid "Stock iliyopo imefika mwisho."
+msgstr "نفد المخزون المتاح."
+
+#: pos_app/templates/mauzo.html:4306
+msgid "Stock imeongezwa dukani."
+msgstr "تمت إضافة المخزون إلى المتجر."
+
+#: pos_app/templates/inventory.html:676 pos_app/templates/mauzo.html:45
+msgid "Stock zote"
+msgstr "الكل المخزون"
+
+#: pos_app/templates/mauzo.html:142
+msgid "Stock:"
+msgstr "المخزون:"
+
+#: pos_app/templates/base.html:450 pos_app/templates/base.html:513 pos_app/templates/base.html:514
+#: pos_app/templates/wafanyakazi.html:270
+msgid "Stoo"
+msgstr "المخزون"
+
+#: pos_app/templates/base.html:116 pos_app/templates/base.html:213 pos_app/templates/base.html:317
+msgid "Stoo & Bidhaa"
+msgstr "المخزون والمنتجات"
+
+#: pos_app/templates/dashboard.html:750
+msgid "Stoo Health"
+msgstr "حالة المخزون"
+
+#: pos_app/templates/inventory.html:1315
+msgid "Stoo Nzima"
+msgstr "المخزون بالكامل"
+
+#: pos_app/templates/inventory.html:733 pos_app/templates/inventory.html:839 pos_app/templates/inventory.html:840
+msgid "Store"
+msgstr "المستودع"
+
+#: pos_app/templates/dashboard.html:725
+msgid "Store Inventory"
+msgstr "مخزون المستودع"
+
+#: pos_app/templates/registration.html:1501 pos_app/templates/registration.html:1816
+msgid "Supermarket / Grocery"
+msgstr "سوبرماركت / بقالة"
+
+#: pos_app/templates/inventory.html:734 pos_app/templates/inventory.html:877
+msgid "Supplier"
+msgstr "المورد"
+
+#: pos_app/templates/inventory.html:421
+msgid "Swali halijafanikiwa."
+msgstr "تعذر معالجة السؤال."
+
+#: pos_app/templates/dashboard.html:1306
+msgid "System"
+msgstr "النظام"
+
+#: pos_app/templates/login.html:231
+msgid "System Operational"
+msgstr "النظام يعمل"
+
+#: pos_app/templates/receipt.html:611 pos_app/templates/receipt.html:761
+msgid "TIN No"
+msgstr "رقم TIN"
+
+#: pos_app/templates/registration.html:1549
+msgid "TIN Number"
+msgstr "TIN الرقم"
+
+#: pos_app/templates/registration.html:1556
+msgid "TIN ni optional kwa demo. Location, jina la biashara na simu ya biashara ni muhimu kwa profile na receipt."
+msgstr "رقم TIN اختياري للتجربة. الموقع واسم النشاط التجاري وهاتف النشاط التجاري مهمون للملف الشخصي والإيصال."
+
+#: pos_app/templates/registration.html:1618
+msgid "TIN, logo, tagline na email ya biashara ni optional. Unaweza kuendelea bila hayo na kuyakamilisha baada ya kuingia."
+msgstr ""
+"رقم TIN والشعار والوصف التعريفي والبريد الإلكتروني للنشاط التجاري اختيارية. يمكنك المتابعة بدونها وإكمالها بعد تسجيل "
+"الدخول."
+
+#: pos_app/templates/inventory.html:604
+msgid "TOTAL"
+msgstr "الإجمالي"
+
+#: pos_app/templates/billing.html:80
+msgid "TZS 0"
+msgstr "TZS 0"
+
+#: pos_app/templates/ripoti.html:626
+msgid "TZS —"
+msgstr "TZS —"
+
+#: pos_app/templates/registration.html:1602
+msgid "TZS — Tanzanian Shilling"
+msgstr "TZS — الشلن التنزاني"
+
+#: pos_app/templates/registration.html:1479
+msgid "Taarifa hizi zinahusu account yako. Password itahifadhiwa na Django kwa usalama; hatuombi uiweke sehemu nyingine."
+msgstr "هذه البيانات تخص حسابك. ستُحفظ كلمة المرور بأمان بواسطة Django؛ ولا نطلب منك إدخالها في مكان آخر."
+
+#: pos_app/templates/matumizi.html:913
+msgid "Taarifa kutoka database"
+msgstr "بيانات من قاعدة البيانات."
+
+#: pos_app/templates/wateja.html:826
+msgid "Taarifa kutoka database."
+msgstr "بيانات من قاعدة البيانات."
+
+#: pos_app/templates/dashboard.html:1299
+msgid "Taarifa ya stoo kutoka database."
+msgstr "بيانات المخزون من قاعدة البيانات."
+
+#: pos_app/templates/inventory.html:682
+msgid "Taarifa za Bidhaa"
+msgstr "بيانات المنتج"
+
+#: pos_app/templates/wafanyakazi.html:314
+msgid "Taarifa za Malipo (Bank/Simu)"
+msgstr "الدفع التفاصيل (البنك/الهاتف)"
+
+#: pos_app/templates/billing.html:97
+msgid "Taarifa za Msingi"
+msgstr "المعلومات الأساسية"
+
+#: pos_app/templates/receipt.html:573 pos_app/templates/receipt.html:729
+msgid "Taarifa za Risiti"
+msgstr "بيانات الإيصال"
+
+#: pos_app/templates/registration.html:1429
+msgid "Taarifa za account"
+msgstr "بيانات الحساب"
+
+#: pos_app/templates/registration.html:1484
+msgid "Taarifa za biashara"
+msgstr "بيانات النشاط التجاري"
+
+#: pos_app/templates/inventory.html:469
+msgid "Taarifa za bidhaa hazijakamilika."
+msgstr "بيانات المنتج غير مكتملة."
+
+#: pos_app/templates/wateja.html:1762
+msgid "Taarifa za mteja zinahifadhiwa moja kwa moja kwenye database."
+msgstr "تُحفظ بيانات العميل مباشرة في قاعدة البيانات."
+
+#: pos_app/templates/matumizi.html:1362 pos_app/templates/wafanyakazi.html:105 pos_app/templates/wateja.html:753
+msgid "Tafuta"
+msgstr "بحث"
+
+#: pos_app/templates/matumizi.html:1282
+msgid "Tafuta Matumizi"
+msgstr "بحث عن المصروفات"
+
+#: pos_app/templates/wateja.html:1218
+msgid "Tafuta Mteja"
+msgstr "بحث العميل"
+
+#: pos_app/templates/mauzo.html:378
+msgid "Tafuta barcode ndani ya frame."
+msgstr "ابحث عن الباركود داخل الإطار."
+
+#: pos_app/templates/inventory.html:920
+msgid "Tafuta barcode ndani ya frame..."
+msgstr "ابحث عن الباركود داخل الإطار..."
+
+#: pos_app/templates/mauzo.html:96
+msgid "Tafuta bidhaa kwa jina au barcode..."
+msgstr "بحث المنتجات by الاسم أو الباركود..."
+
+#: pos_app/templates/inventory.html:556
+msgid "Tafuta bidhaa kwa jina, barcode au ID..."
+msgstr "ابحث عن المنتجات بالاسم أو الباركود أو المعرّف..."
+
+#: pos_app/templates/mauzo.html:698
+msgid "Tafuta kwa invoice, mteja au kiasi..."
+msgstr "بحث by الفاتورة, العميل, أو المبلغ..."
+
+#: pos_app/templates/registration.html:1577
+msgid "Tagline"
+msgstr "الشعار التعريفي"
+
+#: pos_app/templates/receipt.html:766
+msgid "Tagline (optional)"
+msgstr "الشعار (اختياري)"
+
+#: pos_app/templates/mauzo.html:487
+msgid "Tahadhari! Mzigo wa stoo umefika mwisho."
+msgstr "تنبيه! وصلت كمية الشحنة في المستودع إلى الحد الأدنى."
+
+#: pos_app/templates/base.html:477
+msgid "Takwimu za biashara"
+msgstr "إحصاءات النشاط التجاري"
+
+#: pos_app/templates/registration.html:1356 pos_app/templates/registration.html:1680
+msgid "Tangazo 1"
+msgstr "الإعلان 1"
+
+#: pos_app/templates/registration.html:1357 pos_app/templates/registration.html:1681
+msgid "Tangazo 2"
+msgstr "الإعلان 2"
+
+#: pos_app/templates/registration.html:1358 pos_app/templates/registration.html:1682
+msgid "Tangazo 3"
+msgstr "الإعلان 3"
+
+#: pos_app/templates/dashboard.html:1049 pos_app/templates/dashboard.html:1070 pos_app/templates/dashboard.html:1215
+#: pos_app/templates/matumizi.html:967 pos_app/templates/matumizi.html:1452 pos_app/templates/ripoti.html:681
+#: pos_app/templates/ripoti.html:2152
+msgid "Tarehe"
+msgstr "التاريخ"
+
+#: pos_app/templates/matumizi.html:1302
+msgid "Tarehe kuanzia"
+msgstr "التاريخ من"
+
+#: pos_app/templates/matumizi.html:1307
+msgid "Tarehe mpaka"
+msgstr "التاريخ إلى"
+
+#: pos_app/templates/matumizi.html:2137
+msgid "Tarehe ya kuanzia haiwezi kuwa baada ya tarehe ya mwisho."
+msgstr "لا يمكن أن يكون تاريخ البدء بعد تاريخ الانتهاء."
+
+#: pos_app/templates/inventory.html:487
+msgid "Tarehe ya leo"
+msgstr "تاريخ اليوم"
+
+#: pos_app/templates/dashboard.html:822
+msgid "Target ya Mauzo ya Leo"
+msgstr "هدف مبيعات اليوم"
+
+#: pos_app/templates/dashboard.html:838
+msgid "Target ya mauzo haijawekwa."
+msgstr "لم يتم تحديد هدف للمبيعات."
+
+#: pos_app/templates/mauzo.html:334
+msgid "Taslimu"
+msgstr "نقدًا"
+
+#: pos_app/templates/base.html:696
+msgid "Tawi Kuu (Dodoma City)"
+msgstr "الفرع الرئيسي (مدينة دودوما)"
+
+#: pos_app/templates/base.html:697
+msgid "Tawi la Mkoani"
+msgstr "الفرع الإقليمي"
+
+#: pos_app/templates/registration.html:1336
+msgid "Tayari una akaunti?"
+msgstr "لديك حساب بالفعل؟"
+
+#: pos_app/templates/matumizi.html:858
+msgid "Tazama Madeni"
+msgstr "عرض الديون"
+
+#: pos_app/templates/matumizi.html:666 pos_app/templates/matumizi.html:720
+msgid "Tazama Orodha"
+msgstr "عرض القائمة"
+
+#: pos_app/templates/ripoti.html:519
+msgid "Tazama Ripoti ya Wafanyakazi"
+msgstr "عرض الموظف التقرير"
+
+#: pos_app/templates/ripoti.html:512
+msgid "Tazama Ripoti ya Wateja"
+msgstr "عرض العميل التقرير"
+
+#: pos_app/templates/registration.html:1585
+msgid "Terminal Name"
+msgstr "اسم الجهاز"
+
+#: pos_app/templates/registration.html:1636
+msgid "Terms"
+msgstr "الشروط"
+
+#: pos_app/templates/wateja.html:2049
+msgid "Text"
+msgstr "نص"
+
+#: pos_app/templates/inventory.html:532
+msgid "Thamani ya Stoo (Selling)"
+msgstr "قيمة المخزون (سعر البيع)"
+
+#: pos_app/templates/receipt.html:553
+msgid "Thermal 58mm"
+msgstr "حراري 58 مم"
+
+#: pos_app/templates/receipt.html:552
+msgid "Thermal 80mm"
+msgstr "حراري 80 مم"
+
+#: pos_app/templates/mauzo.html:466 pos_app/templates/mauzo.html:4335
+msgid "Thibitisha"
+msgstr "تأكيد"
+
+#: pos_app/templates/wafanyakazi.html:352 pos_app/templates/wafanyakazi.html:491
+msgid "Thibitisha & Tuma Pesa"
+msgstr "تأكيد وإرسال الأموال"
+
+#: pos_app/templates/mauzo.html:4342
+msgid "Thibitisha Bidhaa Zote"
+msgstr "تأكيد الكل المنتجات"
+
+#: pos_app/templates/base.html:744
+msgid "Thibitisha Kutoka"
+msgstr "تأكيد تسجيل الخروج"
+
+#: pos_app/templates/matumizi.html:1736
+msgid "Thibitisha malipo"
+msgstr "تأكيد الدفع"
+
+#: pos_app/templates/matumizi.html:2144
+msgid "Thibitisha malipo. Rekodi hii itabadilika kutoka Pending kuwa Paid."
+msgstr "أكد الدفع. سيتغير هذا السجل من معلّق إلى مدفوع."
+
+#: pos_app/templates/mauzo.html:359
+msgid "Thibitisha na Tuma"
+msgstr "تأكيد & ترسل"
+
+#: pos_app/templates/inventory.html:1273
+msgid "Tiki bidhaa kwenye table kwanza."
+msgstr "حدد المنتجات في الجدول أولًا."
+
+#: pos_app/templates/wateja.html:1642 pos_app/templates/wateja.html:1659
+msgid "Title"
+msgstr "العنوان"
+
+#: pos_app/templates/matumizi.html:656
+msgid "Today\\"
+msgstr "اليوم\\"
+
+#: pos_app/templates/base.html:144 pos_app/templates/base.html:231
+msgid "Toka"
+msgstr "تسجيل الخروج"
+
+#: pos_app/templates/billing.html:157
+msgid "Toka (Logout)"
+msgstr "تسجيل الخروج"
+
+#: pos_app/templates/base.html:498
+msgid "Toka kwenye TradeCore"
+msgstr "تسجيل الخروج من TradeCore"
+
+#: pos_app/templates/ripoti.html:491
+msgid "Top 3 Trending"
+msgstr "الأكثر 3 الرائج"
+
+#: pos_app/templates/dashboard.html:844
+msgid "Top Selling Product Today"
+msgstr "المنتج الأكثر مبيعًا اليوم"
+
+#: pos_app/templates/dashboard.html:1248
+msgid "Total"
+msgstr "الإجمالي"
+
+#: pos_app/templates/dashboard.html:1070
+msgid "Total (TZS)"
+msgstr "الإجمالي (TZS)"
+
+#: pos_app/templates/wafanyakazi.html:61
+msgid "Total Employees"
+msgstr "إجمالي الموظفين"
+
+#: pos_app/templates/ripoti.html:369 pos_app/templates/ripoti.html:788
+msgid "Total Expenses"
+msgstr "إجمالي المصروفات"
+
+#: pos_app/templates/dashboard.html:763
+msgid "Total Items"
+msgstr "إجمالي المنتجات"
+
+#: pos_app/templates/ripoti.html:342 pos_app/templates/ripoti.html:781
+msgid "Total Net Sales"
+msgstr "إجمالي صافي المبيعات"
+
+#: pos_app/templates/wateja.html:1998
+msgid "Total Spent"
+msgstr "إجمالي الإنفاق"
+
+#: pos_app/templates/login.html:350
+msgid "Track your stock levels and supply chain in real-time."
+msgstr "تابع مستويات المخزون وسلسلة التوريد في الوقت الفعلي."
+
+#: pos_app/templates/registration.html:1345
+msgid "TradeCore 30-Day Demo"
+msgstr "تجربة TradeCore لمدة 30 يومًا"
+
+#: pos_app/templates/login.html:239
+msgid "TradeCore BMS v1.0.0"
+msgstr "TradeCore BMS v1.0.0"
+
+#: pos_app/templates/login.html:214 pos_app/templates/login.html:219
+msgid "TradeCore Business Management System"
+msgstr "TradeCore نظام إدارة الأعمال"
+
+#: pos_app/templates/login.html:236
+msgid "TradeCore Logo"
+msgstr "شعار TradeCore"
+
+#: pos_app/templates/base.html:612 pos_app/templates/base.html:654
+msgid "TradeCore POS"
+msgstr "TradeCore POS"
+
+#: pos_app/templates/registration.html:1655
+msgid "TradeCore POS and business management"
+msgstr "TradeCore POS و النشاط التجاري الإدارة"
+
+#: pos_app/templates/billing.html:113
+msgid "TradeCore Plus"
+msgstr "TradeCore Plus"
+
+#: pos_app/templates/registration.html:1350
+msgid "TradeCore business management in a retail store"
+msgstr "TradeCore النشاط التجاري الإدارة في a التجزئة المستودع"
+
+#: pos_app/templates/registration.html:1352
+msgid "TradeCore dashboard and business management"
+msgstr "TradeCore لوحة التحكم و النشاط التجاري الإدارة"
+
+#: pos_app/templates/registration.html:1671
+msgid "TradeCore dashboard and reporting"
+msgstr "لوحة تحكم وتقارير TradeCore"
+
+#: pos_app/templates/registration.html:1652
+msgid "TradeCore feature advertisements"
+msgstr "إعلانات ميزات TradeCore"
+
+#: pos_app/templates/registration.html:1351
+msgid "TradeCore for market and retail businesses"
+msgstr "TradeCore لأعمال الأسواق وتجارة التجزئة"
+
+#: pos_app/templates/inventory.html:423
+msgid "TradeCore haikupata jibu."
+msgstr "لم تجد TradeCore إجابة."
+
+#: pos_app/templates/inventory.html:432
+msgid "TradeCore imejifunza kutoka kwenye uchaguzi wako."
+msgstr "تعلمت TradeCore من اختيارك."
+
+#: pos_app/templates/inventory.html:420
+msgid "TradeCore inachambua data..."
+msgstr "تحلل TradeCore البيانات..."
+
+#: pos_app/templates/base.html:408
+msgid "TradeCore inalinda muamala wowote uliowekwa bila internet."
+msgstr "تحمي TradeCore أي معاملة يتم إنشاؤها دون اتصال بالإنترنت."
+
+#: pos_app/templates/registration.html:1663
+msgid "TradeCore inventory and sales management"
+msgstr "إدارة مخزون ومبيعات TradeCore"
+
+#: pos_app/templates/registration.html:1349
+msgid "TradeCore product advertisements"
+msgstr "إعلانات منتجات TradeCore"
+
+#: pos_app/templates/receipt.html:594
+msgid "TradeCore receipt"
+msgstr "إيصال TradeCore"
+
+#: pos_app/templates/base.html:383
+msgid "TradeCore tayari imesakinishwa"
+msgstr "تم تثبيت TradeCore بالفعل"
+
+#: pos_app/templates/ripoti.html:518
+msgid "Transactions na mauzo ya kila mhudumu leo."
+msgstr "المعاملات والمبيعات لكل موظف اليوم."
+
+#: pos_app/templates/inventory.html:825
+msgid "Transfer"
+msgstr "تحويل"
+
+#: pos_app/templates/inventory.html:837
+msgid "Transfer Stock"
+msgstr "تحويل المخزون"
+
+#: pos_app/templates/inventory.html:462
+msgid "Transfer si sahihi."
+msgstr "غير صالح تحويل."
+
+#: pos_app/templates/inventory.html:774
+msgid "Transfers za leo"
+msgstr "تحويلات اليوم"
+
+#: pos_app/templates/dashboard.html:1261
+msgid "Trend"
+msgstr "الاتجاه"
+
+#: pos_app/templates/ripoti.html:492
+msgid "Trending period"
+msgstr "الرائج الفترة"
+
+#: pos_app/templates/ripoti.html:1751
+msgid "Trending:"
+msgstr "الرائج:"
+
+#: pos_app/templates/registration.html:1398
+msgid "Tujulishe wewe ni nani, biashara yako ni ipi, kisha tuitengeneze receipt identity yako."
+msgstr "أخبرنا من أنت وما هو نشاطك التجاري، ثم سنجهز هوية إيصالاتك."
+
+#: pos_app/templates/login.html:326
+msgid "Tuma Link ya Reset"
+msgstr "إرسال رابط إعادة التعيين"
+
+#: pos_app/templates/matumizi.html:1905
+msgid "Tumia"
+msgstr "استخدام"
+
+#: pos_app/templates/wateja.html:1309
+msgid "Tumia Search"
+msgstr "استخدم البحث"
+
+#: pos_app/templates/base.html:359
+msgid "Tumia TradeCore kama programu kwenye simu yako."
+msgstr "استخدم TradeCore كتطبيق على هاتفك."
+
+#: pos_app/templates/mauzo.html:371
+msgid "Tumia camera ya simu au scanner inayofanya kama keyboard."
+msgstr "استخدم كاميرا الهاتف أو ماسحًا يعمل كلوحة مفاتيح."
+
+#: pos_app/templates/matumizi.html:1285
+msgid "Tumia tarehe, category au maelezo ya matumizi."
+msgstr "استخدم التاريخ أو الفئة أو تفاصيل المصروفات."
+
+#: pos_app/templates/dashboard.html:997
+msgid "Types"
+msgstr "الأنواع"
+
+#: pos_app/templates/inventory.html:927
+msgid "USB/Bluetooth scanners za keyboard/HID zinakubaliwa moja kwa moja."
+msgstr "تُقبل ماسحات USB/Bluetooth التي تعمل كلوحة مفاتيح/HID مباشرة."
+
+#: pos_app/templates/ripoti.html:242
+msgid "Uchambuzi"
+msgstr "التحليل"
+
+#: pos_app/templates/inventory.html:522
+msgid "Udhibiti wa Kufuta"
+msgstr "التحكم في الحذف"
+
+#: pos_app/templates/registration.html:1595
+msgid "Ujumbe huu utaonekana chini ya receipt. Unaweza kuubadilisha baadaye."
+msgstr "ستظهر هذه الرسالة أسفل الإيصال. يمكنك تغييرها لاحقًا."
+
+#: pos_app/templates/base.html:333 pos_app/templates/base.html:474
+msgid "Ujumbe na arifa"
+msgstr "الرسائل والإشعارات"
+
+#: pos_app/templates/receipt.html:776
+msgid "Ujumbe wa mwisho wa receipt"
+msgstr "رسالة تذييل الإيصال"
+
+#: pos_app/templates/base.html:737
+msgid "Ukitoka utatakiwa kuingiza tena nywila ili kuingia kwenye TradeCore POS."
+msgstr "بعد تسجيل الخروج، ستحتاج إلى إدخال كلمة المرور مرة أخرى للوصول إلى TradeCore POS."
+
+#: pos_app/templates/base.html:718
+msgid "Ukubwa wa Maneno"
+msgstr "حجم النص"
+
+#: pos_app/templates/billing.html:83
+msgid "Ulipata nafasi ya kujaribu mifumo yote kwa siku 30 mfululizo."
+msgstr "أُتيحت لك فرصة تجربة جميع الميزات لمدة 30 يومًا متتالية."
+
+#: pos_app/templates/inventory.html:769
+msgid "Uliza"
+msgstr "اسأل"
+
+#: pos_app/templates/inventory.html:518 pos_app/templates/inventory.html:766
+msgid "Uliza TradeCore"
+msgstr "اسأل TradeCore"
+
+#: pos_app/templates/inventory.html:777
+msgid "Uliza swali hapo juu."
+msgstr "اكتب السؤال أعلاه."
+
+#: pos_app/templates/base.html:800
+msgid "Umefanikiwa"
+msgstr "تم بنجاح"
+
+#: pos_app/templates/base.html:803
+msgid "Umefanikiwa Kupata Kifurushi cha Premium"
+msgstr "لقد حصلت بنجاح على الخطة المميزة"
+
+#: pos_app/templates/login.html:316
+msgid "Umesahau Nenosiri?"
+msgstr "هل نسيت كلمة المرور؟"
+
+#: pos_app/templates/base.html:799
+msgid "Umezawadiwa Siku 30 za Bure"
+msgstr "لقد حصلت على 30 يومًا مجانية"
+
+#: pos_app/templates/login.html:250
+msgid "Unable to sign in... The username or password you entered is incorrect. Try again!"
+msgstr "تعذر تسجيل الدخول... اسم المستخدم أو كلمة المرور التي أدخلتها غير صحيحة. حاول مرة أخرى!"
+
+#: pos_app/templates/base.html:384
+msgid "Unaendesha TradeCore kama programu. Hakuna usakinishaji mwingine unaohitajika."
+msgstr "أنت تستخدم TradeCore كتطبيق. لا يلزم تثبيت آخر."
+
+#: pos_app/templates/matumizi.html:1741
+msgid "Unataka kubadilisha matumizi haya kutoka Pending kuwa Paid?"
+msgstr "هل تريد تغيير هذه المصروفات من معلّقة إلى مدفوعة؟"
+
+#: pos_app/templates/dashboard.html:1264
+msgid "Units Sold"
+msgstr "الوحدات المباعة"
+
+#: pos_app/templates/dashboard.html:1332
+msgid "Unlock Page Scroll"
+msgstr "إلغاء قفل تمرير الصفحة"
+
+#: pos_app/templates/mauzo.html:4324
+msgid "Upokeaji wa Mizigo"
+msgstr "الشحنة استلام"
+
+#: pos_app/templates/base.html:367
+msgid "Usakinishaji uko tayari"
+msgstr "التثبيت جاهز"
+
+#: pos_app/templates/base.html:792
+msgid "Usiku Mwema"
+msgstr "مساء سعيد"
+
+#: pos_app/templates/matumizi.html:557 pos_app/templates/wafanyakazi.html:47 pos_app/templates/wateja.html:341
+msgid "Usimamizi wa"
+msgstr "الإدارة من"
+
+#: pos_app/templates/dashboard.html:1021
+msgid "View All"
+msgstr "عرض الكل"
+
+#: pos_app/templates/dashboard.html:992
+msgid "View all"
+msgstr "عرض الكل"
+
+#: pos_app/templates/mauzo.html:195
+msgid "Vipengee 0"
+msgstr "0 عناصر"
+
+#: pos_app/templates/base.html:304 pos_app/templates/base.html:528
+msgid "Vitendo vya Haraka"
+msgstr "إجراءات سريعة"
+
+#: pos_app/templates/base.html:122 pos_app/templates/base.html:219 pos_app/templates/base.html:471
+#: pos_app/templates/wafanyakazi.html:47
+msgid "Wafanyakazi"
+msgstr "الموظفون"
+
+#: pos_app/templates/base.html:471
+msgid "Wafanyakazi na ruhusa"
+msgstr "الموظفون & الصلاحيات"
+
+#: pos_app/templates/ripoti.html:2140
+msgid "Walk-in"
+msgstr "زائر"
+
+#: pos_app/templates/mauzo.html:213 pos_app/templates/mauzo.html:229 pos_app/templates/mauzo.html:323
+#: pos_app/templates/mauzo.html:576 pos_app/templates/receipt.html:624
+msgid "Walk-in Customer"
+msgstr "عميل زائر"
+
+#: pos_app/templates/base.html:703
+msgid "Washa sauti unapoingiza mzigo au kuuza"
+msgstr "تشغيل الصوت عند استلام الشحنة أو البيع"
+
+#: pos_app/templates/base.html:191 pos_app/templates/base.html:281 pos_app/templates/base.html:485
+#: pos_app/templates/base.html:537 pos_app/templates/base.html:538 pos_app/templates/base.html:647
+msgid "Wasifu"
+msgstr "الملف الشخصي"
+
+#: pos_app/templates/base.html:133 pos_app/templates/base.html:218 pos_app/templates/base.html:327
+#: pos_app/templates/base.html:468 pos_app/templates/base.html:533 pos_app/templates/base.html:534
+#: pos_app/templates/wafanyakazi.html:277 pos_app/templates/wateja.html:345 pos_app/templates/wateja.html:820
+msgid "Wateja"
+msgstr "العملاء"
+
+#: pos_app/templates/wateja.html:2115
+msgid "Wateja Wanaodaiwa"
+msgstr "العملاء المدينون"
+
+#: pos_app/templates/ripoti.html:511
+msgid "Wateja na mauzo yaliyofanyika leo."
+msgstr "العملاء والمبيعات التي تمت اليوم."
+
+#: pos_app/templates/billing.html:130
+msgid "Watumiaji (Users) Bila Kikomo"
+msgstr "بلا حدود المستخدمون"
+
+#: pos_app/templates/mauzo.html:437
+msgid "Weka Marekebisho"
+msgstr "إجراء التعديلات"
+
+#: pos_app/templates/inventory.html:704 pos_app/templates/inventory.html:1276
+msgid "Weka Stock 0"
+msgstr "تعيين المخزون إلى 0"
+
+#: pos_app/templates/inventory.html:1295
+msgid "Weka Stock 0 kwa Category"
+msgstr "تعيين الفئة المخزون إلى 0"
+
+#: pos_app/templates/registration.html:1732
+msgid "Weka jina la biashara."
+msgstr "أدخل اسم النشاط التجاري."
+
+#: pos_app/templates/mauzo.html:483
+msgid "Weka kiasi sahihi kwanza."
+msgstr "أدخل كمية صحيحة أولًا."
+
+#: pos_app/templates/registration.html:1734
+msgid "Weka location / eneo la biashara."
+msgstr "أدخل موقع / منطقة النشاط التجاري."
+
+#: pos_app/templates/receipt.html:956
+msgid "Weka namba ya WhatsApp ya mteja (mf. 0712345678):"
+msgstr "أدخل رقم WhatsApp للعميل (مثال 0712345678):"
+
+#: pos_app/templates/registration.html:1724
+msgid "Weka namba ya simu."
+msgstr "أدخل الخاص بك الهاتف الرقم."
+
+#: pos_app/templates/registration.html:1735
+msgid "Weka simu ya biashara."
+msgstr "أدخل هاتف النشاط التجاري."
+
+#: pos_app/templates/registration.html:1725
+msgid "Weka username ya account."
+msgstr "أدخل اسم مستخدم الحساب."
+
+#: pos_app/templates/login.html:241
+msgid "Welcome to Trade"
+msgstr "مرحبًا بك في TradeCore"
+
+#: pos_app/templates/receipt.html:585 pos_app/templates/wateja.html:1244 pos_app/templates/wateja.html:1909
+msgid "WhatsApp"
+msgstr "WhatsApp"
+
+#: pos_app/templates/ripoti.html:494
+msgid "Wiki"
+msgstr "أسبوع"
+
+#: pos_app/templates/ripoti.html:266 pos_app/templates/ripoti.html:1723
+msgid "Wiki Hii"
+msgstr "هذا الأسبوع"
+
+#: pos_app/templates/registration.html:1423
+msgid "Workspace"
+msgstr "مساحة العمل"
+
+#: pos_app/templates/wateja.html:1235
+msgid "Wote"
+msgstr "الكل"
+
+#: pos_app/templates/dashboard.html:906
+msgid "Your Business Summary"
+msgstr "ملخص نشاطك التجاري"
+
+#: pos_app/templates/base.html:435 pos_app/templates/base.html:542 pos_app/templates/base.html:543
+msgid "Zaidi"
+msgstr "المزيد"
+
+#: pos_app/templates/mauzo.html:152
+msgid "Zilizokwisha (Sold Out)"
+msgstr "النافدة (مباع بالكامل)"
+
+#: pos_app/templates/mauzo.html:104
+msgid "Zote"
+msgstr "الكل"
+
+#: pos_app/templates/dashboard.html:1307
+msgid "ago"
+msgstr "منذ"
+
+#: pos_app/templates/registration.html:1347
+msgid "biashara yako."
+msgstr "نشاطك التجاري."
+
+#: pos_app/templates/inventory.html:473
+msgid "bidhaa"
+msgstr "المنتج"
+
+#: pos_app/templates/dashboard.html:1265
+msgid "faida"
+msgstr "الربح"
+
+#: pos_app/templates/dashboard.html:1266
+msgid "hasara"
+msgstr "الخسارة"
+
+#: pos_app/templates/base.html:375
+msgid "iPhone / iPad"
+msgstr "iPhone / iPad"
+
+#: pos_app/templates/registration.html:1543
+msgid "info@business.com"
+msgstr "info@business.com"
+
+#: pos_app/templates/dashboard.html:834
+msgid "kufikia lengo la leo."
+msgstr "للوصول إلى هدف اليوم."
+
+#: pos_app/templates/wafanyakazi.html:346
+msgid "kuruhusu (Allow)"
+msgstr "سماح"
+
+#: pos_app/templates/wafanyakazi.html:345
+msgid "kuzuia (Block)"
+msgstr "حظر"
+
+#: pos_app/templates/base.html:980
+msgid "live alert"
+msgstr "تنبيه مباشر"
+
+#: pos_app/templates/base.html:980
+msgid "live alerts"
+msgstr "تنبيهات مباشرة"
+
+#: pos_app/templates/registration.html:1458
+msgid "mfano: joni_trade"
+msgstr "مثال: joni_trade"
+
+#: pos_app/templates/registration.html:1636
+msgid "na"
+msgstr "و"
+
+#: pos_app/templates/base.html:980
+msgid "stock na order"
+msgstr "المخزون و الطلب"
+
+#: pos_app/templates/mauzo.html:520 pos_app/templates/mauzo.html:532
+msgid "tayari imekamilika"
+msgstr "اكتملت بالفعل"
+
+#: pos_app/templates/dashboard.html:1288
+msgid "transaction"
+msgstr "معاملة"
+
+#: pos_app/templates/dashboard.html:1289
+msgid "transactions"
+msgstr "معاملات"
+
+#: pos_app/templates/base.html:800
+msgid "umepewa siku 30 za matumizi ya bure za TradeCore. Karibu sana!"
+msgstr "لقد مُنحت 30 يومًا من الاستخدام المجاني لـ TradeCore. مرحبًا بك!"
+
+#: pos_app/templates/receipt.html:664
+msgid "unit"
+msgstr "وحدة"
+
+#: pos_app/templates/inventory.html:474
+msgid "units"
+msgstr "وحدات"
+
+#: pos_app/templates/mauzo.html:4330
+msgid "vipande"
+msgstr "قطع"
+
+#: pos_app/templates/mauzo.html:534
+msgid "vipande vimethibitishwa"
+msgstr "قطع مؤكدة"
+
+#: pos_app/templates/registration.html:1636
+msgid "vitaunganishwa kwenye production."
+msgstr "ستُربط ببيئة الإنتاج."
+
+#: pos_app/templates/base.html:804
+msgid "yamekamilika. TradeCore Premium imeamilishwa kwa biashara yako."
+msgstr "اكتملت. تم تفعيل TradeCore مميز لنشاطك التجاري."
+
+#: pos_app/templates/base.html:491
+msgid "yanayosubiri"
+msgstr "المعلّقة"
+
+#: pos_app/templates/registration.html:1450
+msgid "you@example.com"
+msgstr "you@example.com"
+
+#: pos_app/templates/login.html:256
+msgid "you@example.com or username"
+msgstr "you@example.com أو اسم المستخدم"
+
+#: pos_app/templates/wateja.html:2359
+msgid "zimeingia successfully. Zingine zilirukwa."
+msgstr "تم إدخالها بنجاح. وتم تجاوز الباقي."
+
+#: pos_app/templates/wateja.html:2360
+msgid "zimeingizwa kwenye database kikamilifu."
+msgstr "تم إدخالها في قاعدة البيانات بالكامل."
+
+#: pos_app/templates/matumizi.html:1932
+msgid "↺ Tumia matumizi yaliyopita..."
+msgstr "↺ استخدام المصروفات السابقة..."
+
+#: pos_app/templates/wafanyakazi.html:351
+msgid "✅ Malipo yamerekodiwa kikamilifu!"
+msgstr "✅ تم تسجيل الدفع بنجاح!"
+
+#: pos_app/templates/mauzo.html:511
+msgid "✓ Imekamilika"
+msgstr "✓ مكتمل"
+
+#: pos_app/templates/wafanyakazi.html:232
+msgid "⭐ Admin / Bosi Mkuu"
+msgstr "⭐ المسؤول / المدير العام"
+
+#: pos_app/templates/matumizi.html:1886
+msgid "＋ Add category manually..."
+msgstr "＋ إضافة فئة يدويًا..."
+
+#: pos_app/templates/wafanyakazi.html:479
+msgid "🏛️ Tuma Moja kwa Moja Benki"
+msgstr "🏛️ ترسل مباشرةً إلى البنك"
+
+#: pos_app/templates/wafanyakazi.html:231
+msgid "👔 Meneja (Manager)"
+msgstr "👔 المدير"
+
+#: pos_app/templates/wafanyakazi.html:481
+msgid "💵 Rekodi Malipo ya Cash Mkononi"
+msgstr "💵 السجل نقدًا الدفع"
+
+#: pos_app/templates/wafanyakazi.html:230
+msgid "📦 Msimamizi wa Stoo"
+msgstr "📦 أمين المستودع"
+
+#: pos_app/templates/wafanyakazi.html:480
+msgid "📱 Tuma kwa Simu (STK Push)"
+msgstr "📱 إرسال إلى الهاتف (STK Push)"
+
+#: pos_app/templates/wafanyakazi.html:228
+msgid "🛒 Mhudumu (Cashier)"
+msgstr "🛒 الموظف (أمين الصندوق)"
+
+#: pos_app/templates/wafanyakazi.html:229
+msgid "🤝 Muuzaji (Sales Rep)"
+msgstr "🤝 مندوب المبيعات"
+
+msgid "Sell"
+msgstr "بيع"
+
+msgid "Profit"
+msgstr "الربح"
+
+msgid "Activity Center"
+msgstr "مركز النشاط"
+
+msgid "Invoice To"
+msgstr "فاتورة إلى"
+
+msgid "Mhudumu:"
+msgstr "الموظف:"
+
+msgid "Rejesha"
+msgstr "إرجاع"
+
+msgid "Chagua Mteja"
+msgstr "اختيار العميل"
+
+msgid "Thibitisha / Funga"
+msgstr "تأكيد / إغلاق"
+
+msgid "Mpya"
+msgstr "جديد"
+
+msgid "From"
+msgstr "من"
+
+msgid "Cash Flow / Njia za Malipo"
+msgstr "التدفق النقدي / طرق الدفع"
+
+msgid "Hakuna data ya malipo."
+msgstr "لا توجد بيانات دفع."
+
+msgid "Top 3 Trending (Wiki Hii)"
+msgstr "أفضل 3 منتجات رائجة (هذا الأسبوع)"
+
+msgid "Quantity"
+msgstr "الكمية"
+
+msgid "Mabadiliko"
+msgstr "التغيير"
+
+msgid "Hakuna data ya mauzo."
+msgstr "لا توجد بيانات مبيعات."
+
+msgid "Hakuna mauzo ya wateja."
+msgstr "لا توجد مبيعات للعملاء."
+
+msgid "Hakuna mauzo ya wafanyakazi."
+msgstr "لا توجد مبيعات للموظفين."
+
+msgid "Ripoti Rasmi ya Biashara"
+msgstr "تقرير الأعمال الرسمي"
+
+msgid "Imechapishwa:"
+msgstr "نُشر:"
+
+msgid "Muhtasari wa Fedha"
+msgstr "الملخص المالي"
+
+msgid "Uchambuzi wa Grafu"
+msgstr "تحليل الرسم البياني"
+
+msgid "Sahihi ya Muandaaji"
+msgstr "توقيع المُعد"
+
+msgid "Sahihi ya Meneja / Boss"
+msgstr "توقيع المدير / المسؤول"
+
+msgid "Imesindikwa na Mfumo wa TradeCore Business Intelligence"
+msgstr "تمت معالجته بواسطة TradeCore Business Intelligence"
+
+msgid "Tafuta mfanyakazi kwa jina au jukumu..."
+msgstr "ابحث عن الموظف بالاسم أو الدور..."
+
+msgid "Tiki chini kama unataka kumuongezea mtu uwezo nje ya cheo chake (Mfano Cashier aweze kuona Wateja)."
+msgstr "حدّد أدناه لمنح المستخدم صلاحيات إضافية خارج دوره (مثل السماح لأمين الصندوق برؤية العملاء)."
+
+msgid "-- Hakuna --"
+msgstr "-- لا يوجد --"
+
+msgid "← Rudi"
+msgstr "← رجوع"
+
+msgid "Endelea →"
+msgstr "متابعة →"
+
+msgid "Tengeneza Duka ✓"
+msgstr "إنشاء المتجر ✓"
+
+msgid "Password"
+msgstr "كلمة المرور"
+
+msgid "TradeCore Communication"
+msgstr "اتصالات TradeCore"
+
+msgid "Daily Business Report"
+msgstr "تقرير الأعمال اليومي"
+
+msgid "Customer Communication"
+msgstr "التواصل مع العملاء"
+
+msgid "Due date reminders"
+msgstr "تذكيرات مواعيد الاستحقاق"
+
+msgid "Customer Follow-up"
+msgstr "متابعة العملاء"
+
+msgid "Business Automations"
+msgstr "أتمتة الأعمال"
+
+msgid "Low Stock Alert"
+msgstr "تنبيه انخفاض المخزون"
+
+msgid "Create Invoice"
+msgstr "إنشاء فاتورة"
+
+msgid "Current Balance"
+msgstr "الرصيد الحالي"
+
+msgid "New Message"
+msgstr "رسالة جديدة"
+
+msgid "Direct message"
+msgstr "رسالة مباشرة"
+
+msgid "Rich message"
+msgstr "رسالة غنية"
+
+msgid "Message Template"
+msgstr "قالب الرسالة"
+
+msgid "Total Sales"
+msgstr "إجمالي المبيعات"
+
+msgid "Customers"
+msgstr "العملاء"
+
+msgid "Payment Breakdown"
+msgstr "تفصيل المدفوعات"
+
+msgid "Sales By Staff"
+msgstr "المبيعات حسب الموظف"
+
+msgid "Send Test Report"
+msgstr "إرسال تقرير تجريبي"
+
+msgid "Report Time"
+msgstr "وقت التقرير"
+
+msgid "Include In Report"
+msgstr "تضمين في التقرير"
+
+msgid "Sales Summary"
+msgstr "ملخص المبيعات"
+
+msgid "Message Details"
+msgstr "تفاصيل الرسالة"
+
+msgid "Contact"
+msgstr "جهات الاتصال"
+
+msgid "Center"
+msgstr "المركز"
+
+msgid "Dhibiti SMS, WhatsApp na taarifa za biashara kutoka sehemu moja."
+msgstr "أدر رسائل SMS وWhatsApp وإشعارات الأعمال من مكان واحد."
+
+msgid "Preview"
+msgstr "معاينة"
+
+msgid "Manage"
+msgstr "إدارة"
+
+msgid "Payments"
+msgstr "المدفوعات"
+
+msgid "Staff"
+msgstr "الموظفون"
+
+msgid "Products"
+msgstr "المنتجات"
+
+msgid "Transactions"
+msgstr "المعاملات"
+
+msgid "Full"
+msgstr "كامل"
+
+msgid "Ujumbe unaowafikia wateja moja kwa moja."
+msgstr "رسائل تصل إلى العملاء مباشرة."
+
+msgid "Mawasiliano ya Hivi Karibuni"
+msgstr "الاتصالات الأخيرة"
+
+msgid "Ujumbe uliotumwa kutoka TradeCore."
+msgstr "الرسائل المرسلة من TradeCore."
+
+msgid "Automation Settings"
+msgstr "إعدادات الأتمتة"
+
+msgid "Recipients"
+msgstr "المستلمون"
+
+msgid "Boss"
+msgstr "المدير"
+
+msgid "Manager"
+msgstr "المدير"
+
+msgid "Staff Performance"
+msgstr "أداء الموظفين"
+
+msgid "Products Sold"
+msgstr "المنتجات المباعة"
+
+msgid "Discounts"
+msgstr "الخصومات"
+
+msgid "Markups"
+msgstr "زيادات الأسعار"
+
+msgid "Debts"
+msgstr "الديون"
+
+msgid "Transaction Details"
+msgstr "تفاصيل المعاملة"
+
+msgid "Hifadhi Mabadiliko"
+msgstr "حفظ التغييرات"
+
+msgid "Message"
+msgstr "الرسالة"
+
+msgid "Hakuna muamala leo."
+msgstr "لا توجد معاملة اليوم."
+
+msgid "Data za bidhaa zitaonekana hapa baada ya kuunganishwa na mauzo halisi."
+msgstr "ستظهر بيانات المنتجات هنا بعد ربطها بالمبيعات الفعلية."
+
+msgid "Andika category mpya, mfano: Office Supplies"
+msgstr "أدخل فئة جديدة، مثل مستلزمات المكتب"
+
+msgid "Mfano: Kununua mafuta ya jenereta kwa backup ya umeme..."
+msgstr "مثال: شراء وقود للمولد الاحتياطي..."
+
+msgid "kisha itaonekana kwenye list ya category."
+msgstr "ثم ستظهر في قائمة الفئات."
+
+msgid "Automatic"
+msgstr "تلقائي"
+
+msgid "Next:"
+msgstr "التالي:"
+
+msgid "Hakuna mauzo ya staff leo."
+msgstr "لا توجد مبيعات للموظفين اليوم."
+
+msgid "Subtotal"
+msgstr "المجموع الفرعي"
+
+msgid "Markup"
+msgstr "زيادة السعر"
+
+msgid "Recipient"
+msgstr "المستلم"
+
+msgid "Date"
+msgstr "التاريخ"
+
+msgid "Bei ya Usafirishaji wa Mzigo"
+msgstr "تكلفة نقل الشحنة"
+
+msgid "Inventory Action"
+msgstr "إجراء المخزون"
+
+msgid "Supported: XLSX / XLSM"
+msgstr "مدعوم: XLSX / XLSM"
+
+msgid "Destination"
+msgstr "الوجهة"
+
+msgid "Excel ya Mzigo"
+msgstr "ملف Excel للمخزون"
+
+msgid "System stock"
+msgstr "مخزون النظام"
+
+msgid "Stock Adjustment"
+msgstr "تسوية المخزون"
+
+msgid "Result"
+msgstr "النتيجة"
+
+msgid "Stock Alert"
+msgstr "تنبيه المخزون"
+
+msgid "Live Inventory"
+msgstr "المخزون المباشر"
+
+msgid "Alerts za Stoo"
+msgstr "تنبيهات المخزون"
+
+msgid "Kamilisha Muamala"
+msgstr "إكمال المعاملة"
+
+msgid "Je, una uhakika unataka"
+msgstr "هل أنت متأكد أنك تريد"
+
+msgid "mfanyakazi"
+msgstr "الموظف"
+
+msgid "Je, una uhakika unataka kumfuta"
+msgstr "هل أنت متأكد أنك تريد حذف هذا الموظف"
+
+msgid "kabisa kwenye mfumo!"
+msgstr "نهائيًا من النظام!"
+
+msgid "0% →"
+msgstr "0% →"
+
+msgid "Category mpya itahifadhiwa kwenye history mara matumizi haya yakihifadhiwa,"
+msgstr "سيتم حفظ الفئة الجديدة في السجل عند حفظ هذا المصروف،"
+
+msgid ""
+"Chagua kipindi na uchambue\n"
+"            mauzo, matumizi, faida na cash flow."
+msgstr ""
+"اختر فترة وقم بتحليل\n"
+"            المبيعات والمصروفات والأرباح والتدفق النقدي."
+
+msgid "Duka"
+msgstr "المتجر"
+
+msgid "Hakuna mauzo yoyote yaliyofanyika."
+msgstr "لم يتم تسجيل أي مبيعات بعد."
+
+msgid "Matumizi ya Leo"
+msgstr "مصروفات اليوم"
+
+msgid "Matumizi ya Mwezi Huu"
+msgstr "مصروفات هذا الشهر"
+
+msgid "Njiani"
+msgstr "قيد النقل"
+
+msgid "Ujumbe Mpya"
+msgstr "رسالة جديدة"
+
+msgid "Weka invoice, receipt,"
+msgstr "أدخل الفاتورة والإيصال،"
+
+msgid "Ripoti kamili ya biashara hutumwa moja kwa moja kwa Boss kila siku."
+msgstr "Ripoti kamili ya biashara hutumwa moja kwa moja kwa Boss kila siku."
+
+msgid "AFTER SALE"
+msgstr "بعد البيع"
+
+msgid "Shukrani baada ya Mauzo"
+msgstr "Shukrani baada ya Mauzo"
+
+msgid "Mteja hupokea ujumbe baada ya kukamilisha malipo."
+msgstr "Mteja hupokea ujumbe baada ya kukamilisha malipo."
+
+msgid "SMS + WhatsApp"
+msgstr "SMS + WhatsApp"
+
+msgid "AI Powered"
+msgstr "مدعوم بالذكاء الاصطناعي"
+
+msgid "AI Product Care"
+msgstr "العناية بالمنتج بالذكاء الاصطناعي"
+
+msgid "AI hutengeneza ushauri mfupi kulingana na bidhaa."
+msgstr "AI hutengeneza ushauri mfupi kulingana na bidhaa."
+
+msgid "DEBT"
+msgstr "الدين"
+
+msgid "Kikumbusho cha Deni"
+msgstr "Kikumbusho cha Deni"
+
+msgid "Kumbusho la malipo hutumwa automatically."
+msgstr "Kumbusho la malipo hutumwa automatically."
+
+msgid "FOLLOW UP"
+msgstr "المتابعة"
+
+msgid "Optional"
+msgstr "اختياري"
+
+msgid "Rudisha wateja baada ya muda fulani tangu manunuzi."
+msgstr "Rudisha wateja baada ya muda fulani tangu manunuzi."
+
+msgid "Currently off"
+msgstr "Currently off"
+
+msgid "Taarifa muhimu za biashara zinazoweza kumfikia Boss automatically."
+msgstr "Taarifa muhimu za biashara zinazoweza kumfikia Boss automatically."
+
+msgid "Mjulisho wa bidhaa zinapofikia reorder level."
+msgstr "Mjulisho wa bidhaa zinapofikia reorder level."
+
+msgid "LARGE DISCOUNT"
+msgstr "خصم كبير"
+
+msgid "Large Discount Alert"
+msgstr "تنبيه الخصم الكبير"
+
+msgid "Alert pale discount inapozidi kiwango ulichochagua."
+msgstr "Alert pale discount inapozidi kiwango ulichochagua."
+
+msgid "Ripoti kamili ya siku hutumwa kwa Boss."
+msgstr "Ripoti kamili ya siku hutumwa kwa Boss."
+
+msgid "Delivered"
+msgstr "تم التسليم"
+
+msgid "Sent"
+msgstr "تم الإرسال"
+
+msgid "Hakuna mawasiliano bado"
+msgstr "Hakuna mawasiliano bado"
+
+msgid "Ujumbe utakaotumwa utaonekana hapa."
+msgstr "Ujumbe utakaotumwa utaonekana hapa."
+
+msgid "Nunua credits za mawasiliano."
+msgstr "اشترِ أرصدة للتواصل."
+
+msgid "Channel"
+msgstr "Channel"
+
+msgid "16 TZS kwa kila SMS"
+msgstr "16 TZS kwa kila SMS"
+
+msgid "30 TZS kwa kila ujumbe"
+msgstr "30 TZS kwa kila ujumbe"
+
+msgid "Kiasi cha Recharge"
+msgstr "مبلغ إعادة التعبئة"
+
+msgid "Makadirio ya ujumbe"
+msgstr "تقدير عدد الرسائل"
+
+msgid "Tuma Ujumbe"
+msgstr "إرسال الرسالة"
+
+msgid "Chagua channel, walengwa na ujumbe."
+msgstr "اختر القناة والمستلمين والرسالة."
+
+msgid "Walengwa"
+msgstr "المستلمون"
+
+msgid "-- Chagua Mteja / Kundi --"
+msgstr "-- Chagua Mteja / Kundi --"
+
+msgid "Wateja Wote"
+msgstr "جميع العملاء"
+
+msgid "Wateja wa Leo Tu"
+msgstr "عملاء اليوم فقط"
+
+msgid "Orodha ya Wateja"
+msgstr "قائمة العملاء"
+
+msgid "Ujumbe"
+msgstr "Ujumbe"
+
+msgid "+ Variables"
+msgstr "+ Variables"
+
+msgid "Variables zinazopatikana"
+msgstr "المتغيرات المتاحة"
+
+msgid "Improve with AI"
+msgstr "تحسين بالذكاء الاصطناعي"
+
+msgid "Boresha ujumbe bila kubadilisha maana."
+msgstr "حسّن الرسالة دون تغيير معناها."
+
+msgid "Improve"
+msgstr "تحسين"
+
+msgid "Automation"
+msgstr "أتمتة"
+
+msgid "Hariri Ujumbe"
+msgstr "تحرير الرسالة"
+
+msgid "Variables"
+msgstr "Variables"
+
+msgid "TradeCore hubadilisha variables hizi automatically wakati ujumbe unatengenezwa."
+msgstr "يستبدل TradeCore هذه المتغيرات تلقائيًا عند إنشاء الرسالة."
+
+msgid "WhatsApp / SMS Preview"
+msgstr "معاينة WhatsApp / SMS"
+
+msgid "Items Sold"
+msgstr "العناصر المباعة"
+
+msgid "Cash"
+msgstr "نقدًا"
+
+msgid "Bank"
+msgstr "البنك"
+
+msgid "Muamala wa Mwisho"
+msgstr "Muamala wa Mwisho"
+
+msgid "Andika ujumbe kwanza ili uboreheshwe."
+msgstr "اكتب رسالة أولًا لتحسينها."
+
+msgid "Ujumbe umeboreshwa."
+msgstr "تم تحسين الرسالة."
+
+msgid "Ujumbe umeboreshwa"
+msgstr "تم تحسين الرسالة"
+
+msgid "Tafadhali chagua mlengwa."
+msgstr "يرجى اختيار مستلم."
+
+msgid "Chagua mlengwa"
+msgstr "اختر مستلمًا"
+
+msgid "Tafadhali andika ujumbe."
+msgstr "يرجى كتابة رسالة."
+
+msgid "Ujumbe unahitajika"
+msgstr "الرسالة مطلوبة"
+
+msgid "Kwa sasa tuma WhatsApp kwa mteja mmoja. Bulk messaging itaunganishwa baadaye bila kubadili composer."
+msgstr "Kwa sasa tuma WhatsApp kwa mteja mmoja. Bulk messaging itaunganishwa baadaye bila kubadili composer."
+
+msgid "Usalama wa request haujapatikana. Refresh ukurasa ujaribu tena."
+msgstr "Usalama wa request haujapatikana. Refresh ukurasa ujaribu tena."
+
+msgid "Usalama wa request"
+msgstr "Usalama wa request"
+
+msgid "Inatumwa"
+msgstr "جارٍ الإرسال"
+
+msgid "WhatsApp inatumwa..."
+msgstr "جارٍ إرسال WhatsApp…"
+
+msgid "WhatsApp haikutumwa."
+msgstr "تعذر إرسال WhatsApp."
+
+msgid "Ujumbe haukutumwa"
+msgstr "لم تُرسل الرسالة"
+
+msgid "WhatsApp imetumwa kikamilifu."
+msgstr "تم إرسال WhatsApp بنجاح."
+
+msgid "Ujumbe umetumwa"
+msgstr "تم إرسال الرسالة"
+
+msgid "Imeshindikana kuwasiliana na WhatsApp provider."
+msgstr "Imeshindikana kuwasiliana na WhatsApp provider."
+
+msgid "WhatsApp haijapatikana"
+msgstr "WhatsApp haijapatikana"
+
+msgid "Programu ya SMS imefunguliwa."
+msgstr "تم فتح تطبيق الرسائل النصية."
+
+msgid "Ujumbe umehifadhiwa."
+msgstr "تم حفظ الرسالة."
+
+msgid "Test report imetumwa..."
+msgstr "جارٍ إرسال التقرير التجريبي…"
+
+msgid "Daily Report settings zimehifadhiwa!"
+msgstr "تم حفظ إعدادات التقرير اليومي!"
+
+msgid "Hariri:"
+msgstr "تحرير:"
+
+msgid "Kiasi cha chini cha recharge ni TZS 1,000."
+msgstr "الحد الأدنى لإعادة التعبئة هو 1,000 TZS."
+
+msgid "Invoice inaundwa..."
+msgstr "جارٍ إنشاء الفاتورة…"
+
+msgid "Mipangilio ya ripoti inafunguliwa."
+msgstr "جارٍ فتح إعدادات التقرير."
+

@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+{% load static %}
+{% load i18n %}
+<html lang="{{ LANGUAGE_CODE|default:'sw' }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#f7f5fa">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>TradeCore — {% trans 'Anza Demo' %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tcPurple: '#5b21b6',
+                        tcPurpleDark: '#3b146f',
+                        tcGold: '#d4af37'
+                    },
+                    boxShadow: {
+                        apple: '0 20px 60px rgba(39, 20, 68, .10)',
+                        soft: '0 10px 30px rgba(39, 20, 68, .07)'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        :root {
+            --tc-purple: #5b21b6;
+            --tc-purple-2: #7c3aed;
+            --tc-purple-dark: #3b146f;
+            --tc-gold: #d4af37;
+            --tc-ink: #17131d;
+            --tc-muted: #766f80;
+            --tc-line: rgba(31,25,45,.09);
+            --tc-bg: #f7f5fa;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html {
+            background: #f3f4f6;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+            color: var(--tc-ink);
+
+            /* Match the login page background texture exactly.
+               Keep the advertising image inside the left card only. */
+            background-color: #f3f4f6;
+            background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-position: 0 0;
+
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        button, input, select, textarea { font: inherit; }
+        input::placeholder { color: #a69fac; }
+
+        .tc-readonly-preview {
+            width: 100%;
+            min-height: 48px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 0 13px;
+            border: 1px solid rgba(31,25,45,.08);
+            background: rgba(255,255,255,.68);
+            color: #8a8292;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .tc-readonly-preview.filled { color: #2b2532; }
+        .tc-readonly-preview svg { width: 15px; height: 15px; flex: 0 0 auto; color: #9c94a3; }
+
+
+        .tc-page-shell {
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .tc-topbar {
+            width: min(1120px, 100%);
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 4px 4px;
+        }
+
+        .tc-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .tc-brand-mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(145deg, #3f156f, #7c3aed);
+            color: #fff;
+            border: 1px solid rgba(245,180,27,.26);
+            box-shadow: 0 10px 24px rgba(91,33,182,.20);
+        }
+
+        .tc-brand-mark svg { width: 22px; height: 22px; }
+
+        .tc-brand-name {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -.035em;
+        }
+
+        .tc-brand-sub {
+            margin-top: 1px;
+            font-size: 9px;
+            font-weight: 600;
+            color: #8a8294;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .tc-top-link {
+            color: #625a69;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .tc-top-link strong { color: var(--tc-purple); }
+
+        .tc-layout {
+            width: min(1120px, 100%);
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(290px, .86fr) minmax(420px, 1.14fr);
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        .tc-hero,
+        .tc-form-card {
+            border: 1px solid rgba(229,231,235,.78);
+            background: #ffffff;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            box-shadow: 0 20px 60px rgba(39,20,68,.08);
+        }
+
+        .tc-hero {
+            position: relative;
+            overflow: hidden;
+            min-height: 720px;
+            border-radius: 34px;
+            padding: 34px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: #ffffff;
+        }
+
+        .tc-orb {
+            position: absolute;
+            border-radius: 999px;
+            filter: blur(2px);
+            pointer-events: none;
+        }
+        .tc-orb.one, .tc-orb.two { display: none; }
+
+        .tc-eyebrow {
+            display: flex;
+            margin: 0 auto; /* Hii ndio inasukuma ikae katikati */
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            width: fit-content;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: rgba(91,33,182,.06);
+            border: 1px solid rgba(91,33,182,.10);
+            color: var(--tc-purple);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: .13em;
+            text-transform: uppercase;
+        }
+        .tc-eyebrow-dot { width: 7px; height: 7px; border-radius: 999px; background: var(--tc-gold); box-shadow: 0 0 0 4px rgba(212,175,55,.14); }
+
+        .tc-hero h1 {
+            margin: 24px 0 12px;
+            max-width: 500px;
+            font-size: clamp(42px, 5vw, 64px);
+            line-height: .96;
+            letter-spacing: -.065em;
+            font-weight: 950;
+        }
+        .tc-hero h1 span {
+            background: linear-gradient(90deg, var(--tc-purple-dark), var(--tc-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .tc-hero-copy {
+            max-width: 510px;
+            margin: 0;
+            color: var(--tc-muted);
+            font-size: 13px;
+            line-height: 1.7;
+            font-weight: 650;
+        }
+
+        .tc-ad-stage {
+            position: relative;
+            margin-top: 22px;
+            height: 248px;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,.82);
+            background: #e5e7eb;
+            box-shadow: 0 18px 34px rgba(39,20,68,.10), inset 0 1px 0 rgba(255,255,255,.88);
+        }
+        .tc-ad-slide {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transform: scale(1.018);
+            transition: opacity .65s ease, transform 4.8s ease;
+            display: block;
+        }
+        .tc-ad-slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .tc-ad-shade {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(23,19,29,.00) 52%, rgba(23,19,29,.20) 100%);
+            pointer-events: none;
+        }
+        .tc-ad-label {
+            position: absolute;
+            left: 12px;
+            bottom: 12px;
+            z-index: 2;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: rgba(20,14,31,.54);
+            border: 1px solid rgba(255,255,255,.25);
+            color: #fff;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: .11em;
+            text-transform: uppercase;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        .tc-ad-dots {
+            position: absolute;
+            right: 12px;
+            bottom: 14px;
+            z-index: 2;
+            display: flex;
+            gap: 5px;
+        }
+        .tc-ad-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            border: 0;
+            padding: 0;
+            background: rgba(255,255,255,.50);
+            box-shadow: 0 1px 4px rgba(0,0,0,.15);
+            cursor: pointer;
+        }
+        .tc-ad-dot.active {
+            width: 18px;
+            background: #f5b41b;
+        }
+        .tc-ad-note {
+            margin: 11px 0 0;
+            color: #766f80;
+            font-size: 10px;
+            line-height: 1.55;
+            font-weight: 700;
+        }
+
+        .tc-benefits {
+            margin-top: 30px;
+            display: grid;
+            gap: 10px;
+        }
+        .tc-benefit {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 11px 12px;
+            border-radius: 18px;
+            background: rgba(255,255,255,.62);
+            border: 1px solid rgba(31,25,45,.06);
+        }
+        .tc-benefit-icon {
+            width: 34px;
+            height: 34px;
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: #f0eafd;
+            color: var(--tc-purple);
+        }
+        .tc-benefit-icon.gold { background: rgba(212,175,55,.12); color: #9a7415; border: 1px solid rgba(212,175,55,.18); }
+        .tc-benefit strong { display: block; font-size: 10px; font-weight: 700; }
+        .tc-benefit span { display: block; margin-top: 2px; color: #8b8392; font-size: 9px; font-weight: 700; line-height: 1.35; }
+
+         .tc-trial {
+            margin-top: 28px;
+            padding: 14px;
+            border-radius: 20px;
+            background: linear-gradient(145deg, rgba(60,24,112,.98), rgba(106,50,194,.97));
+            color: #fff;
+            border: 1px solid rgba(212,175,55,.34);
+            box-shadow: 0 16px 30px rgba(76,29,149,.20), 0 0 0 1px rgba(212,175,55,.06) inset;
+        }
+        .tc-trial-label { font-size: 8px; font-weight: 900; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.66); }
+        .tc-trial-main { margin-top: 4px; font-size: 22px; font-weight: 850; letter-spacing: -.04em; }
+        .tc-trial-main .gold { color: #e5c76b; text-shadow: 0 1px 10px rgba(212,175,55,.12); }
+        .tc-trial-copy { margin-top: 3px; font-size: 9px; line-height: 1.45; color: rgba(255,255,255,.76); font-weight: 700; }
+
+        .tc-form-card {
+            border-radius: 34px;
+            padding: 34px 45px; /* Hii itaweka padding kubwa zaidi pembeni (40px) na juu/chini (34px) */
+            min-width: 0;
+        }
+
+        .tc-form-head {
+            display: flex;
+            flex-direction: column; /* Inashusha badge ya step iende chini */
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .tc-form-head h2 { margin: 0; font-size: 23px; letter-spacing: -.045em; font-weight: 700; }
+        .tc-form-head p { margin: 6px 0 0; color: #898191; font-size: 10px; font-weight: 700; line-height: 1.45; max-width: 90%; }
+
+        .tc-step-badge {
+            flex: 0 0 auto;
+            padding: 7px 9px;
+            border-radius: 999px;
+            background: rgba(91,33,182,.07);
+            border: 1px solid rgba(91,33,182,.10);
+            color: var(--tc-purple);
+            font-size: 8px;
+            font-weight: 950;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .tc-progress {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+        .tc-progress::before {
+            content: "";
+            position: absolute;
+            left: 9%;
+            right: 9%;
+            top: 15px;
+            height: 2px;
+            background: rgba(31,25,45,.08);
+            z-index: 0;
+        }
+        .tc-progress-step { position: relative; z-index: 1; text-align: center; }
+        .tc-progress-dot {
+            width: 31px;
+            height: 31px;
+            margin: 0 auto 5px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #efecf3;
+            color: #8a8292;
+            border: 3px solid rgba(255,255,255,.90);
+            box-shadow: 0 3px 10px rgba(31,25,45,.05);
+            font-size: 9px;
+            font-weight: 950;
+            transition: all .2s ease;
+        }
+        .tc-progress-step.active .tc-progress-dot,
+        .tc-progress-step.done .tc-progress-dot {
+            background: linear-gradient(145deg, #4c1d95, #7c3aed);
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(91,33,182,.22);
+        }
+        .tc-progress-step.done .tc-progress-dot { color: #f5c34d; }
+        .tc-progress-label { color: #8e8796; font-size: 8px; font-weight: 600; }
+        .tc-progress-step.active .tc-progress-label { color: var(--tc-purple); }
+
+        .tc-step-panel { display: none; animation: tcIn .22s ease both; }
+        .tc-step-panel.active { display: block; }
+        @keyframes tcIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .tc-section-title { margin: 0 0 12px; font-size: 10px; font-weight: 950; letter-spacing: .12em; text-transform: uppercase; color: #8c8594; }
+        .tc-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+        .tc-full { grid-column: 1 / -1; }
+
+        .tc-field { min-width: 0; }
+        .tc-label {
+            display: block;
+            margin-bottom: 6px;
+            color: #625b69;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        .tc-required { color: var(--tc-purple); }
+
+        .tc-input-wrap { position: relative; }
+        .tc-input,
+        .tc-select,
+        .tc-textarea {
+            width: 100%;
+            border: 1px solid rgba(31,25,45,.10);
+            outline: none;
+            background: rgba(255,255,255,.80);
+            color: var(--tc-ink);
+            border-radius: 16px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 4px 12px rgba(31,25,45,.02);
+            transition: border-color .15s ease, box-shadow .15s ease, background .15s ease, transform .15s ease;
+        }
+        .tc-input { height: 46px; padding: 0 42px 0 14px; font-size: 11px; font-weight: 500; }
+        .tc-select { height: 46px; padding: 0 38px 0 14px; font-size: 11px; font-weight: 500; appearance: none; }
+        .tc-textarea { min-height: 92px; resize: vertical; padding: 12px 14px; font-size: 11px; font-weight: 500; line-height: 1.5; }
+        .tc-input:focus,
+        .tc-select:focus,
+        .tc-textarea:focus { border-color: rgba(91,33,182,.42); background: rgba(255,255,255,.96); box-shadow: 0 0 0 4px rgba(91,33,182,.07), inset 0 1px 0 rgba(255,255,255,1); }
+        .tc-input-wrap svg { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #aaa2b0; pointer-events: none; }
+        .tc-input-wrap.password svg { pointer-events: auto; cursor: pointer; }
+
+        .tc-help { margin-top: 5px; color: #9b93a1; font-size: 8px; line-height: 1.4; font-weight: 700; }
+
+        .tc-upload {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px;
+            border-radius: 18px;
+            background: rgba(255,255,255,.66);
+            border: 1px dashed rgba(91,33,182,.18);
+        }
+        .tc-logo-preview {
+            width: 52px;
+            height: 52px;
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            border-radius: 16px;
+            background: linear-gradient(145deg, #f0eafd, #fff);
+            border: 1px solid rgba(91,33,182,.10);
+            color: var(--tc-purple);
+        }
+        .tc-logo-preview img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .tc-upload-copy { flex: 1 1 auto; min-width: 0; }
+        .tc-upload-copy strong { display: block; font-size: 9px; font-weight: 600; }
+        .tc-upload-copy span { display: block; margin-top: 3px; color: #8c8594; font-size: 8px; line-height: 1.4; font-weight: 700; }
+        .tc-upload-btn {
+            flex: 0 0 auto;
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 12px;
+            border: 1px solid rgba(91,33,182,.12);
+            border-radius: 12px;
+            background: rgba(255,255,255,.92);
+            color: var(--tc-purple);
+            font-size: 9px;
+            font-weight: 950;
+            cursor: pointer;
+        }
+        .tc-upload input { display: none; }
+
+        .tc-mini-note {
+            padding: 11px 12px;
+            border-radius: 16px;
+            background: #fffaf0;
+            border: 1px solid #f8e9ba;
+            color: #765f24;
+            font-size: 8px;
+            line-height: 1.5;
+            font-weight: 800;
+        }
+
+        .tc-review {
+            padding: 16px;
+            border-radius: 22px;
+            background: linear-gradient(145deg, rgba(76,29,149,.97), rgba(124,58,237,.96));
+            color: #fff;
+            box-shadow: 0 16px 30px rgba(76,29,149,.16);
+        }
+        .tc-review-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+        .tc-review h3 { margin: 0; font-size: 17px; font-weight: 950; letter-spacing: -.035em; }
+        .tc-review p { margin: 4px 0 0; color: rgba(255,255,255,.70); font-size: 8px; font-weight: 700; }
+        .tc-review-badge { padding: 7px 9px; border-radius: 999px; background: rgba(212,175,55,.13); border: 1px solid rgba(212,175,55,.28); font-size: 8px; font-weight: 900; color: #e6c96c; }
+        .tc-review-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 7px; margin-top: 13px; }
+        .tc-review-item { padding: 9px; border-radius: 14px; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.08); }
+        .tc-review-item span { display: block; color: rgba(255,255,255,.56); font-size: 7px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+        .tc-review-item strong { display: block; margin-top: 3px; font-size: 9px; font-weight: 950; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .tc-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(31,25,45,.07);
+        }
+        .tc-action-group {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        #backBtn { min-width: 86px; }
+        #nextBtn { min-width: 116px; }
+        #submitBtn { min-width: 150px; }
+        .tc-btn span, .tc-btn svg {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+        }
+        .tc-btn {
+            min-height: 46px;
+            border: 0;
+            border-radius: 15px;
+            padding: 0 17px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 600;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            white-space: nowrap;
+            text-align: center;
+            vertical-align: middle;
+            transition: transform .14s ease, opacity .14s ease, box-shadow .14s ease, background .14s ease;
+        }
+        .tc-btn:active { transform: scale(.985); }
+        .tc-btn.secondary { background: #efecf2; color: #5e5766; }
+        .tc-btn.primary { background: linear-gradient(145deg, #4c1d95, #7c3aed); color: #fff; box-shadow: 0 12px 24px rgba(91,33,182,.20); }
+        .tc-btn.gold { background: linear-gradient(145deg, #c89b2c, #e7c766); color: #251b08; box-shadow: 0 12px 24px rgba(160,126,34,.20), 0 1px 0 rgba(255,255,255,.38) inset; }
+        .tc-btn:disabled { opacity: .48; cursor: not-allowed; box-shadow: none; }
+
+        .tc-consent {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 12px;
+            color: #8a8290;
+            font-size: 8px;
+            line-height: 1.5;
+            font-weight: 700;
+        }
+        .tc-consent input { margin-top: 2px; accent-color: var(--tc-purple); }
+        .tc-consent a { color: var(--tc-purple); font-weight: 900; text-decoration: none; }
+
+        .tc-error {
+            margin-top: 5px;
+            color: #be123c;
+            font-size: 8px;
+            line-height: 1.35;
+            font-weight: 850;
+        }
+
+        .tc-form-message {
+            margin-bottom: 14px;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: #fff2f4;
+            color: #b42345;
+            border: 1px solid #ffdce4;
+            font-size: 9px;
+            line-height: 1.45;
+            font-weight: 800;
+        }
+
+        .tc-footer-note {
+            margin-top: 16px;
+            text-align: center;
+            color: #968e9d;
+            font-size: 8px;
+            font-weight: 700;
+        }
+        .tc-footer-note strong { color: #5d5666; }
+
+        @media (max-width: 900px) {
+            .tc-layout { grid-template-columns: 1fr; }
+            .tc-hero { min-height: 0; }
+        }
+
+        @media (max-width: 640px) {
+            .tc-page-shell { padding: 12px; }
+            .tc-topbar { margin-bottom: 10px; padding: 2px 2px; }
+            .tc-brand-mark { width: 38px; height: 38px; border-radius: 13px; }
+            .tc-brand-name { font-size: 14px; }
+            .tc-brand-sub { font-size: 8px; }
+            .tc-top-link { font-size: 9px; }
+            .tc-hero, .tc-form-card { border-radius: 26px; }
+            .tc-hero { padding: 24px; }
+            .tc-form-card { padding: 18px; }
+            .tc-hero h1 { font-size: 42px; margin-top: 20px; }
+            .tc-hero-copy { font-size: 11px; }
+            .tc-ad-stage { height: 220px; }
+            .tc-grid { grid-template-columns: 1fr; }
+            .tc-full { grid-column: auto; }
+            .tc-form-head h2 { font-size: 20px; }
+            .tc-form-head p { font-size: 9px; }
+            .tc-actions { align-items: stretch; }
+            .tc-action-group { flex: 1 1 auto; }
+            .tc-btn { flex: 1 1 0; min-width: 0 !important; }
+        }
+
+        @media (max-width: 390px) {
+            .tc-page-shell { padding: 8px; }
+            .tc-top-link { display: none; }
+            .tc-hero { padding: 20px; }
+            .tc-ad-stage { height: 198px; border-radius: 20px; }
+            .tc-form-card { padding: 15px; }
+            .tc-progress-label { font-size: 7px; }
+            .tc-input, .tc-select { height: 44px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { scroll-behavior: auto !important; animation-duration: .001ms !important; transition-duration: .001ms !important; }
+        }
+    
+        /* ============================================================
+           TRADECORE REGISTRATION — 1/4 TOP IMAGE + 3/4 DOTTED WHITE
+           ============================================================ */
+        body {
+            position: relative;
+            overflow-x: hidden;
+            background-color: #ffffff;
+            background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-position: 0 0;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            z-index: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 29vh;
+            min-height: 190px;
+            max-height: 300px;
+            background-image:
+                linear-gradient(
+                    to bottom,
+                    rgba(255,255,255,.10) 0%,
+                    rgba(255,255,255,.20) 38%,
+                    rgba(255,255,255,.64) 80%,
+                    rgba(255,255,255,1) 100%
+                ),
+                url("{% static 'login_bg_1.jpg' %}");
+            background-size: cover;
+            background-position: center 30%;
+            background-repeat: no-repeat;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            z-index: 0;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(
+                to bottom,
+                transparent 0,
+                transparent 22%,
+                rgba(255,255,255,.96) 29%,
+                rgba(255,255,255,1) 35%
+            );
+        }
+
+        .tc-layout,
+        .tc-topbar,
+        .tc-footer {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Keep registration cards clean white like the login card. */
+        .tc-hero,
+        .tc-form-card {
+            background: #ffffff !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        @media (max-width: 767px) {
+            body::before {
+                height: 24vh;
+                min-height: 145px;
+                max-height: 225px;
+                background-position: center 24%;
+            }
+
+            body::after {
+                background: linear-gradient(
+                    to bottom,
+                    transparent 0,
+                    transparent 18%,
+                    rgba(255,255,255,.97) 25%,
+                    rgba(255,255,255,1) 31%
+                );
+            }
+        }
+
+
+        /* ============================================================
+           FINAL VISUAL SURGERY
+           - Uploaded TradeCore image as the top ~1/4 background
+           - Lower ~3/4 stays white + dotted
+           - Right registration details vertically balanced
+           - Gold accent used more clearly
+           - "Ingia" kept visible on mobile
+           ============================================================ */
+        html { background: #ffffff; }
+
+        body {
+            background-color: #ffffff !important;
+            background-image: radial-gradient(#d1d5db 1px, transparent 1px) !important;
+            background-size: 24px 24px !important;
+            background-position: 0 0 !important;
+        }
+
+        body::before {
+            height: clamp(235px, 27vh, 320px) !important;
+            min-height: 235px !important;
+            max-height: 320px !important;
+            background-image:
+                linear-gradient(
+                    to bottom,
+                    rgba(14,12,18,.04) 0%,
+                    rgba(14,12,18,.08) 34%,
+                    rgba(255,255,255,.24) 58%,
+                    rgba(255,255,255,.78) 82%,
+                    rgba(255,255,255,1) 100%
+                ),
+                url("{% static 'registration_tradecore_bg.png' %}") !important;
+            background-size: cover !important;
+            background-position: center 37% !important;
+        }
+
+        body::after {
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                transparent 23%,
+                rgba(255,255,255,.80) 30%,
+                rgba(255,255,255,.97) 35%,
+                rgba(255,255,255,1) 40%
+            ) !important;
+        }
+
+        .tc-topbar {
+            position: relative !important;
+            z-index: 20 !important;
+            margin-bottom: 0 !important;
+        }
+
+        .tc-brand-name {
+            color: #ffffff !important;
+            text-shadow: 0 1px 12px rgba(0,0,0,.22);
+        }
+        .tc-brand-gold {
+            color: #f3c64d !important;
+        }
+        .tc-brand-sub {
+            color: rgba(255,255,255,.78) !important;
+        }
+
+        .tc-top-link {
+            display: inline-flex !important;
+            align-items: center;
+            min-height: 34px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            color: #ffffff !important;
+            background: rgba(22,18,29,.30);
+            border: 1px solid rgba(255,255,255,.24);
+            box-shadow: 0 8px 20px rgba(0,0,0,.10);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            white-space: nowrap;
+            text-shadow: 0 1px 8px rgba(0,0,0,.20);
+        }
+        .tc-top-link strong {
+            color: #f3c64d !important;
+        }
+
+        .tc-layout {
+            position: relative !important;
+            z-index: 5 !important;
+            margin-top: 10px !important;
+            align-items: stretch;
+        }
+
+        .tc-form-card {
+            position: relative;
+            border-top: 3px solid #d4af37 !important;
+            box-shadow:
+                0 24px 70px rgba(39,20,68,.10),
+                0 0 0 1px rgba(212,175,55,.08) !important;
+        }
+
+        .tc-form-card::after {
+            content: "";
+            position: absolute;
+            right: 22px;
+            bottom: 22px;
+            width: 150px;
+            height: 150px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(212,175,55,.12) 0%, rgba(212,175,55,0) 72%);
+            pointer-events: none;
+        }
+
+        #tradecoreRegisterForm {
+            display: flex !important;
+            flex-direction: column !important;
+            min-height: 620px;
+        }
+
+        .tc-step-panel.active {
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            flex: 1 1 auto;
+            min-height: 420px;
+        }
+
+        .tc-form-head {
+            position: relative;
+        }
+        .tc-form-head::after {
+            content: "";
+            width: 42px;
+            height: 3px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #b98b20, #e8c75d);
+            position: absolute;
+            left: 0;
+            bottom: -10px;
+        }
+
+        .tc-step-badge {
+            background: rgba(212,175,55,.12) !important;
+            border-color: rgba(212,175,55,.28) !important;
+            color: #8b6816 !important;
+        }
+
+        .tc-required {
+            color: #c49a2b !important;
+        }
+
+        .tc-progress::before {
+            background: linear-gradient(
+                90deg,
+                rgba(212,175,55,.55) 0%,
+                rgba(212,175,55,.18) 33%,
+                rgba(31,25,45,.08) 33%,
+                rgba(31,25,45,.08) 100%
+            ) !important;
+        }
+
+        .tc-progress-step.active .tc-progress-dot {
+            box-shadow:
+                0 8px 18px rgba(91,33,182,.22),
+                0 0 0 3px rgba(212,175,55,.14) !important;
+        }
+
+        .tc-actions {
+            margin-top: 18px !important;
+            padding-top: 18px !important;
+            position: relative;
+            z-index: 2;
+        }
+
+        #nextBtn,
+        #submitBtn {
+            border: 1px solid rgba(212,175,55,.34) !important;
+        }
+
+        #nextBtn {
+            background: linear-gradient(145deg, #bd8f22, #e9c95f) !important;
+            color: #241b08 !important;
+            box-shadow:
+                0 12px 24px rgba(160,126,34,.18),
+                0 1px 0 rgba(255,255,255,.42) inset !important;
+        }
+
+        .tc-trial {
+            border-color: rgba(212,175,55,.48) !important;
+        }
+
+        .tc-footer-note {
+            position: relative;
+            z-index: 2;
+            margin-bottom: 2px;
+        }
+
+        .tc-feature-box {
+            position: relative;
+            margin-top: 12px;
+            height: 92px;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid rgba(31,25,45,.08);
+            border-bottom: 3px solid #d4af37;
+            background: #fff;
+            box-shadow: 0 10px 26px rgba(39,20,68,.07);
+            z-index: 3;
+        }
+        .tc-feature-box-slides,
+        .tc-feature-box-slide {
+            width: 100%;
+            height: 100%;
+        }
+        .tc-feature-box-slide {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            grid-template-columns: 118px 1fr;
+            align-items: center;
+            gap: 14px;
+            padding: 7px 38px 7px 7px;
+            opacity: 0;
+            transform: translateX(8px);
+            pointer-events: none;
+            transition: opacity .65s ease, transform .65s ease;
+        }
+        .tc-feature-box-slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+        .tc-feature-box-slide img {
+            width: 118px;
+            height: 76px;
+            object-fit: cover;
+            border-radius: 13px;
+            box-shadow: 0 6px 16px rgba(0,0,0,.08);
+        }
+        .tc-feature-box-copy {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 3px;
+        }
+        .tc-feature-box-kicker {
+            color: #aa7b17;
+            font-size: 7px;
+            font-weight: 950;
+            letter-spacing: .16em;
+        }
+        .tc-feature-box-copy strong {
+            color: #241d2d;
+            font-size: 11px;
+            line-height: 1.15;
+            font-weight: 950;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .tc-feature-box-copy > span:last-child {
+            color: #7d7585;
+            font-size: 8px;
+            line-height: 1.3;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .tc-feature-box-controls {
+            position: absolute;
+            right: 9px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 4;
+        }
+        .tc-feature-box-dot {
+            width: 6px;
+            height: 6px;
+            padding: 0;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(93,86,102,.20);
+            cursor: pointer;
+        }
+        .tc-feature-box-dot.active {
+            width: 6px;
+            height: 16px;
+            background: #d4af37;
+        }
+
+        .tc-hero {
+            border-bottom: 3px solid #d4af37 !important;
+        }
+        .tc-form-card {
+            border-bottom: 3px solid #d4af37 !important;
+        }
+
+        @media (max-width: 640px) {
+            .tc-feature-box {
+                height: 86px;
+                border-radius: 16px;
+            }
+            .tc-feature-box-slide {
+                grid-template-columns: 92px 1fr;
+                gap: 10px;
+                padding: 6px 30px 6px 6px;
+            }
+            .tc-feature-box-slide img {
+                width: 92px;
+                height: 70px;
+                border-radius: 11px;
+            }
+            .tc-feature-box-copy strong { font-size: 10px; }
+            .tc-feature-box-copy > span:last-child { font-size: 7px; }
+        }
+
+        @media (max-width: 900px) {
+            .tc-layout {
+                margin-top: 82px !important;
+            }
+            #tradecoreRegisterForm {
+                min-height: auto;
+            }
+            .tc-step-panel.active {
+                min-height: 0;
+                justify-content: flex-start !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body::before {
+                height: clamp(170px, 24vh, 225px) !important;
+                min-height: 170px !important;
+                max-height: 225px !important;
+                background-position: center 34% !important;
+            }
+
+            body::after {
+                background: linear-gradient(
+                    to bottom,
+                    transparent 0%,
+                    transparent 19%,
+                    rgba(255,255,255,.82) 25%,
+                    rgba(255,255,255,.97) 30%,
+                    rgba(255,255,255,1) 36%
+                ) !important;
+            }
+
+            .tc-layout {
+                margin-top: 56px !important;
+            }
+
+            .tc-top-link {
+                display: inline-flex !important;
+                min-height: 32px;
+                padding: 7px 9px;
+                font-size: 9px !important;
+            }
+
+            .tc-brand-sub {
+                display: none;
+            }
+
+            #tradecoreRegisterForm {
+                min-height: auto;
+            }
+
+            .tc-step-panel.active {
+                min-height: 0;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .tc-top-link {
+                display: inline-flex !important;
+                font-size: 8px !important;
+                padding: 7px 8px;
+            }
+        }
+
+
+        /* ============================================================
+           DESKTOP CAROUSEL — BULLETPROOF FLEXBOX ANCHOR
+           ============================================================ */
+        @media (min-width: 901px) {
+            .tc-layout {
+                align-items: stretch !important;
+            }
+
+            .tc-form-card {
+                display: flex !important;
+                flex-direction: column !important;
+                min-height: 720px !important;
+                padding-bottom: 26px !important;
+            }
+
+            #tradecoreRegisterForm {
+                display: flex !important;
+                flex-direction: column !important;
+                flex: 1 1 auto !important; /* Hii inasukuma form ichukue nafasi na kutupa tangazo chini */
+            }
+
+            .tc-step-panel.active {
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                flex: 1 1 auto !important;
+            }
+
+            .tc-feature-box {
+                display: block !important;
+                position: relative !important;
+                width: 100% !important;
+                height: 78px !important;
+                min-height: 78px !important;
+                margin-top: auto !important; /* Hapa ndio uchawi ulipo, inagandisha tangazo chini salama */
+                margin-bottom: 0 !important;
+                flex: none !important;
+                z-index: 10 !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+
+            .tc-feature-box-slides {
+                position: relative !important;
+                width: 100% !important;
+                height: 100% !important;
+            }
+
+            .tc-feature-box-slide {
+                position: absolute !important;
+                inset: 0 !important;
+                height: 100% !important;
+            }
+
+            .tc-feature-box-slide img {
+                width: 104px !important;
+                height: 64px !important;
+            }
+
+            .tc-footer-note {
+                margin-top: 14px !important;
+                flex: none !important;
+            }
+        }
+
+
+        /* ============================================================
+           CAROUSEL HEADER SURGERY
+           - Strengthen the visual hierarchy above the left carousel.
+           - Keep the existing carousel markup, JS, form architecture
+             and all other page components untouched.
+           ============================================================ */
+        .tc-hero-intro {
+            margin-top: 12px;
+        }
+
+        .tc-hero-intro h1 {
+            margin: 0 auto;
+            text-align: center; /* Inaweka maneno katikati kulingana na kadi */
+            max-width: 430px;
+            font-family: 'Helvetica', 'Helvetica Neue', Arial, sans-serif !important; /* Font ya Helvetica imewekwa hapa */
+            font-size: clamp(27px, 3vw, 36px);
+            line-height: .98;
+            letter-spacing: -.055em;
+            font-weight: 950;
+            color: #17131d;
+        }
+
+        .tc-hero-intro h1 span {
+            background: linear-gradient(90deg, var(--tc-purple-dark), var(--tc-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .tc-ad-stage {
+            margin-top: 14px;
+        }
+
+        @media (max-width: 640px) {
+            .tc-hero-intro {
+                margin-top: 10px;
+            }
+
+            .tc-hero-intro h1 {
+                font-size: 27px;
+            }
+
+            .tc-ad-stage {
+                margin-top: 12px;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .tc-hero-intro h1 {
+                font-size: 25px;
+            }
+        }
+
+</style>
+
+<style id="tc-clean-carousel-layout">
+/* ============================================================
+   TRADECORE — CLEAN FLEXBOX CAROUSEL LAYOUT
+   ============================================================ */
+@media (min-width: 901px) {
+    .tc-form-card {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 720px !important;
+        overflow: visible !important;
+        padding-bottom: 26px !important;
+    }
+
+    #tradecoreRegisterForm {
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        padding-bottom: 35px !important; /* Hii inaongeza nafasi safi kati ya kitufe na carousel */
+    }
+
+    .tc-step-panel.active {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        padding-top: 2px !important;
+    }
+
+    .tc-feature-box {
+        display: block !important;
+        position: relative !important;
+        width: 100% !important;
+        height: 78px !important;
+        min-height: 78px !important;
+        margin-top: auto !important;
+        margin-bottom: 0 !important;
+        flex: 0 0 78px !important;
+        z-index: 10 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    .tc-footer-note {
+        position: relative !important;
+        margin-top: 14px !important;
+        flex: 0 0 auto !important;
+        z-index: 10 !important;
+    }
+}
+
+@media (max-width: 900px) {
+    .tc-feature-box {
+        position: relative !important;
+        width: 100% !important;
+        margin-top: 16px !important;
+    }
+    .tc-footer-note {
+        position: relative !important;
+        margin-top: 14px !important;
+    }
+}
+</style>
+
+</head>
+<body>
+<div class="tc-page-shell">
+    <div class="tc-topbar">
+        <a href="{% url 'login' %}" class="tc-brand" aria-label="TradeCore">
+            <span class="tc-brand-mark">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                    <path d="M4 7.5 12 4l8 3.5L12 11 4 7.5Z"></path>
+                    <path d="M4 12.5 12 16l8-3.5"></path>
+                    <path d="M4 17.5 12 21l8-3.5"></path>
+                </svg>
+            </span>
+            <span>
+                <span class="tc-brand-name"><span>Trade</span><span class="tc-brand-gold">Core</span></span>
+                <span class="tc-brand-sub">{% trans 'Simamia biashara yako' %}</span>
+            </span>
+        </a>
+        <a href="{% url 'login' %}" class="tc-top-link">{% trans 'Tayari una akaunti?' %} <strong>{% trans 'Ingia' %}</strong></a>
+    </div>
+
+    <div class="tc-layout">
+        <aside class="tc-hero">
+            <div class="tc-orb one"></div>
+            <div class="tc-orb two"></div>
+
+            <div>
+                <span class="tc-eyebrow"><span class="tc-eyebrow-dot"></span>{% trans 'TradeCore 30-Day Demo' %}</span>
+                <div class="tc-hero-intro">
+                    <h1>{% trans 'Simamia' %} <span>{% trans 'biashara yako.' %}</span></h1>
+                </div>
+                <div class="tc-ad-stage" id="tcAdStage" aria-label="{% trans 'TradeCore product advertisements' %}">
+                    <img class="tc-ad-slide active" src="{% static 'login_bg_2.jpg' %}" alt="{% trans 'TradeCore business management in a retail store' %}">
+                    <img class="tc-ad-slide" src="{% static 'login_bg_3.jpg' %}" alt="{% trans 'TradeCore for market and retail businesses' %}">
+                    <img class="tc-ad-slide" src="{% static 'login_bg_1.jpg' %}" alt="{% trans 'TradeCore dashboard and business management' %}">
+                    <div class="tc-ad-shade"></div>
+                    <div class="tc-ad-label">{% trans 'Simamia biashara yako' %}</div>
+                    <div class="tc-ad-dots" aria-label="{% trans 'Advertisement slides' %}">
+                        <button type="button" class="tc-ad-dot active" data-ad-dot="0" aria-label="{% trans 'Tangazo 1' %}"></button>
+                        <button type="button" class="tc-ad-dot" data-ad-dot="1" aria-label="{% trans 'Tangazo 2' %}"></button>
+                        <button type="button" class="tc-ad-dot" data-ad-dot="2" aria-label="{% trans 'Tangazo 3' %}"></button>
+                    </div>
+                </div>
+                <p class="tc-hero-copy">
+                    {% trans 'Fungua account yako na upate mazingira yako mwenyewe ya biashara. Bidhaa, wateja, mauzo, stoo na ripoti vitabaki ndani ya Duka lako.' %}
+                </p>
+
+                <div class="tc-benefits">
+                    <div class="tc-benefit">
+                        <div class="tc-benefit-icon">
+                            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M5 12l4 4L19 6"></path></svg>
+                        </div>
+                        <div><strong>{% trans '30 days of TradeCore' %}</strong><span>{% trans 'Anza bila kuhitaji setup ndefu ya kwanza.' %}</span></div>
+                    </div>
+                    <div class="tc-benefit">
+                        <div class="tc-benefit-icon gold">
+                            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 7h16v13H4z"></path><path d="M8 7V5h8v2"></path><path d="M8 12h8"></path></svg>
+                        </div>
+                        <div><strong>{% trans 'Business profile iliyo kamili' %}</strong><span>{% trans 'Jina, location, simu, TIN, logo na receipt details.' %}</span></div>
+                    </div>
+                    <div class="tc-benefit">
+                        <div class="tc-benefit-icon">
+                            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M7 15l3-4 3 2 4-6"></path></svg>
+                        </div>
+                        <div><strong>{% trans 'Dashboard tayari kwa biashara' %}</strong><span>{% trans 'POS, Inventory, Customers, Reports na Communication.' %}</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tc-trial">
+                <div class="tc-trial-label">{% trans 'Demo period' %}</div>
+                <div class="tc-trial-main"><span>{% trans '30 Days' %}</span> · <span class="gold">{% trans 'One Business' %}</span></div>
+                <div class="tc-trial-copy">{% trans 'Account moja → Duka moja → data yake mwenyewe. Taarifa za biashara nyingine hazipaswi kuchanganyika.' %}</div>
+            </div>
+        </aside>
+
+        <main class="tc-form-card">
+            <div class="tc-form-head">
+                <div>
+                    <h2 id="formStepTitle">{% trans 'Create Your TradeCore Account' %}</h2>
+                    <p>{% trans 'Tujulishe wewe ni nani, biashara yako ni ipi, kisha tuitengeneze receipt identity yako.' %}</p>
+                </div>
+                <span class="tc-step-badge" id="stepBadge">{% trans 'Step 1 / 3' %}</span>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="tc-form-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form id="tradecoreRegisterForm" method="POST" action="{% url 'register' %}" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                <div class="tc-progress" aria-label="{% trans 'Registration progress' %}">
+                    <div class="tc-progress-step active" data-step-indicator="1">
+                        <div class="tc-progress-dot">1</div>
+                        <div class="tc-progress-label">{% trans 'Account' %}</div>
+                    </div>
+                    <div class="tc-progress-step" data-step-indicator="2">
+                        <div class="tc-progress-dot">2</div>
+                        <div class="tc-progress-label">{% trans 'Business' %}</div>
+                    </div>
+                    <div class="tc-progress-step" data-step-indicator="3">
+                        <div class="tc-progress-dot">3</div>
+                        <div class="tc-progress-label">{% trans 'Workspace' %}</div>
+                    </div>
+                </div>
+
+                <!-- STEP 1 -->
+                <section class="tc-step-panel active" data-step-panel="1">
+                    <p class="tc-section-title">{% trans 'Taarifa za account' %}</p>
+                    <div class="tc-grid">
+                        <div class="tc-field tc-full">
+                            <label class="tc-label" for="full_name">{% trans 'Jina Kamili' %} <span class="tc-required">*</span></label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="full_name" name="full_name" type="text" autocomplete="name" placeholder="{% trans 'Mfano: Octavian Msasimela' %}" required>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="phone">{% trans 'Namba ya Simu' %} <span class="tc-required">*</span></label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="{% trans '07XXXXXXXX' %}" required>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4h3l1.2 4-2 1.3a14 14 0 0 0 5.5 5.5L16 13l4 1.2v3c0 1-.8 1.8-1.8 1.8C10.4 19 5 13.6 5 5.8 5 4.8 5.8 4 7 4Z"></path></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="email">Email <span class="tc-required">*</span></label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="email" name="email" type="email" autocomplete="email" placeholder="{% trans 'you@example.com' %}" required>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v12H4z"></path><path d="m4 7 8 6 8-6"></path></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="username">Username <span class="tc-required">*</span></label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="username" name="username" type="text" autocomplete="username" placeholder="{% trans 'mfano: joni_trade' %}" required>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"></circle><path d="M9 9h.01M15 9h.01M8 15c1.3-1.6 2.7-2.4 4-2.4s2.7.8 4 2.4"></path></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="password">{% trans 'Nenosiri' %} <span class="tc-required">*</span></label>
+                            <div class="tc-input-wrap password">
+                                <input class="tc-input" id="password" name="password" type="password" autocomplete="new-password" placeholder="{% trans 'Angalau characters 8' %}" required>
+                                <svg id="togglePassword" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="confirm_password">{% trans 'Rudia Nenosiri' %} <span class="tc-required">*</span></label>
+                            <div class="tc-input-wrap password">
+                                <input class="tc-input" id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" placeholder="{% trans 'Rudia nenosiri' %}" required>
+                                <svg id="toggleConfirmPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tc-help">{% trans 'Taarifa hizi zinahusu account yako. Password itahifadhiwa na Django kwa usalama; hatuombi uiweke sehemu nyingine.' %}</div>
+                </section>
+
+                <!-- STEP 2 -->
+                <section class="tc-step-panel" data-step-panel="2">
+                    <p class="tc-section-title">{% trans 'Taarifa za biashara' %}</p>
+                    <div class="tc-grid">
+                        <div class="tc-field tc-full">
+                            <label class="tc-label" for="business_name">{% trans 'Jina la Duka / Biashara' %} <span class="tc-required">*</span></label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="business_name" name="business_name" type="text" placeholder="{% trans 'Mfano: Meron Electro' %}" required>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h16v11H4z"></path><path d="M7 8V5h10v3"></path><path d="M8 12h8"></path></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="business_type">{% trans 'Aina ya Biashara' %} <span class="tc-required">*</span></label>
+                            <div class="tc-input-wrap">
+                                <select class="tc-select" id="business_type" name="business_type" required>
+                                    <option value="">{% trans 'Chagua aina' %}</option>
+                                    <option value="FASHION">{% trans 'Fashion & Clothing' %}</option>
+                                    <option value="COMPUTERS">{% trans 'Computers & Electronics' %}</option>
+                                    <option value="SUPERMARKET">{% trans 'Supermarket / Grocery' %}</option>
+                                    <option value="COSMETICS">{% trans 'Cosmetics & Beauty' %}</option>
+                                    <option value="PHARMACY">{% trans 'Pharmacy / Health Shop' %}</option>
+                                    <option value="HARDWARE">{% trans 'Hardware & Building Materials' %}</option>
+                                    <option value="RESTAURANT">{% trans 'Restaurant / Food' %}</option>
+                                    <option value="STATIONERY">{% trans 'Stationery & Bookshop' %}</option>
+                                    <option value="PHONES">{% trans 'Mobile Phones & Accessories' %}</option>
+                                    <option value="AUTOPARTS">{% trans 'Auto Parts' %}</option>
+                                    <option value="FURNITURE">{% trans 'Furniture & Home' %}</option>
+                                    <option value="GENERAL">{% trans 'General Retail' %}</option>
+                                </select>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m7 10 5 5 5-5"></path></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="location">{% trans 'Location / Eneo' %} <span class="tc-required">*</span></label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="location" name="location" type="text" placeholder="{% trans 'Mfano: Dodoma Mjini' %}" required>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11Z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field tc-full">
+                            <label class="tc-label" for="business_address">{% trans 'Anwani ya Biashara' %}</label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="business_address" name="business_address" type="text" placeholder="{% trans 'Mfano: Barabara ya 9, karibu na...' %}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h16"></path><path d="M6 20V8l6-4 6 4v12"></path><path d="M9 20v-5h6v5"></path></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="business_phone">{% trans 'Simu ya Biashara' %} <span class="tc-required">*</span></label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="business_phone" name="business_phone" type="tel" inputmode="tel" placeholder="{% trans '07XXXXXXXX' %}" required>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4h3l1.2 4-2 1.3a14 14 0 0 0 5.5 5.5L16 13l4 1.2v3c0 1-.8 1.8-1.8 1.8C10.4 19 5 13.6 5 5.8 5 4.8 5.8 4 7 4Z"></path></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="business_email">{% trans 'Email ya Biashara' %}</label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="business_email" name="business_email" type="email" placeholder="{% trans 'info@business.com' %}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v12H4z"></path><path d="m4 7 8 6 8-6"></path></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="tin">{% trans 'TIN Number' %}</label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="tin" name="tin" type="text" placeholder="{% trans 'Optional — mfano 123456789' %}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h5"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tc-help">{% trans 'TIN ni optional kwa demo. Location, jina la biashara na simu ya biashara ni muhimu kwa profile na receipt.' %}</div>
+                </section>
+
+                <!-- STEP 3 -->
+                <section class="tc-step-panel" data-step-panel="3">
+                    <p class="tc-section-title">{% trans 'Receipt & business identity' %}</p>
+                    <div class="tc-grid">
+                        <div class="tc-field tc-full">
+                            <label class="tc-label">{% trans 'Logo ya Biashara' %}</label>
+                            <div class="tc-upload">
+                                <div class="tc-logo-preview" id="logoPreviewBox">
+                                    <svg id="logoPlaceholderIcon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"></rect><circle cx="9" cy="9" r="1.7"></circle><path d="m6 17 4.5-4.5 3.5 3 2-2 2 2.5"></path></svg>
+                                    <img id="logoPreview" alt="{% trans 'Logo preview' %}">
+                                </div>
+                                <div class="tc-upload-copy"><strong>{% trans 'Ongeza logo yako' %}</strong><span>{% trans 'PNG, JPG au WEBP. Hiari, unaweza kuiweka baadaye kwenye Settings.' %}</span></div>
+                                <label class="tc-upload-btn" for="logo">{% trans 'Chagua' %}</label>
+                                <input id="logo" name="logo" type="file" accept="image/png,image/jpeg,image/webp">
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="tagline">{% trans 'Tagline' %}</label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="tagline" name="tagline" type="text" placeholder="{% trans 'Mfano: Simamia biashara yako' %}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 5h14v10H9l-4 4V5Z"></path></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="terminal_name">{% trans 'Terminal Name' %}</label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="terminal_name" name="terminal_name" type="text" placeholder="POS-01">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 17h6"></path></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field tc-full">
+                            <label class="tc-label" for="receipt_footer">{% trans 'Receipt Footer' %}</label>
+                            <textarea class="tc-textarea" id="receipt_footer" name="receipt_footer" placeholder="{% trans 'Asante kwa kufanya manunuzi nasi!' %}">{% trans 'Asante kwa kufanya manunuzi nasi!' %}</textarea>
+                            <div class="tc-help">{% trans 'Ujumbe huu utaonekana chini ya receipt. Unaweza kuubadilisha baadaye.' %}</div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="currency">{% trans 'Currency' %}</label>
+                            <div class="tc-input-wrap">
+                                <select class="tc-select" id="currency" name="currency">
+                                    <option value="TZS" selected>{% trans 'TZS — Tanzanian Shilling' %}</option>
+                                </select>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v16M15.5 7.5c-.8-1-2.1-1.5-3.8-1.5-2 0-3.7 1-3.7 2.7 0 4.1 7.5 1.8 7.5 5.9 0 1.8-1.5 2.9-4 2.9-1.8 0-3.2-.6-4-1.7"></path></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="receipt_phone_preview">{% trans 'Namba itakayoonekana kwenye receipt' %}</label>
+                            <div class="tc-readonly-preview" id="receipt_phone_preview" aria-live="polite">
+                                <span>{% trans 'Itatumia simu ya biashara' %}</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4h3l1.2 4-2 1.3a14 14 0 0 0 5.5 5.5L16 13l4 1.2v3c0 1-.8 1.8-1.8 1.8C10.4 19 5 13.6 5 5.8 5 4.8 5.8 4 7 4Z"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tc-mini-note" style="margin-top: 12px;">
+                        <strong>{% trans 'Demo note:' %}</strong> {% trans 'TIN, logo, tagline na email ya biashara ni optional. Unaweza kuendelea bila hayo na kuyakamilisha baada ya kuingia.' %}
+                    </div>
+
+                    <div class="tc-review" style="margin-top: 14px;">
+                        <div class="tc-review-top">
+                            <div><h3 id="reviewBusinessName">{% trans 'Jina la biashara' %}</h3><p id="reviewLocation">{% trans 'Location ya biashara' %}</p></div>
+                            <div class="tc-review-badge">{% trans '30-DAY DEMO' %}</div>
+                        </div>
+                        <div class="tc-review-grid">
+                            <div class="tc-review-item"><span>{% trans 'Owner' %}</span><strong id="reviewOwner">—</strong></div>
+                            <div class="tc-review-item"><span>{% trans 'Phone' %}</span><strong id="reviewPhone">—</strong></div>
+                            <div class="tc-review-item"><span>{% trans 'Business type' %}</span><strong id="reviewType">—</strong></div>
+                            <div class="tc-review-item"><span>TIN</span><strong id="reviewTin">{% trans 'Not provided' %}</strong></div>
+                        </div>
+                    </div>
+
+                    <label class="tc-consent">
+                        <input id="agree" name="agree" type="checkbox" required>
+                        <span>{% trans 'Ninakubali kutengeneza account ya TradeCore na kutumia demo ya siku 30 kwa taarifa nilizoingiza.' %} <a href="javascript:void(0)">{% trans 'Terms' %}</a> {% trans 'na' %} <a href="javascript:void(0)">{% trans 'Privacy' %}</a> {% trans 'vitaunganishwa kwenye production.' %}</span>
+                    </label>
+                </section>
+
+                <div id="validationMessage" class="tc-error" role="alert" aria-live="polite"></div>
+
+                <div class="tc-actions">
+                    <button type="button" class="tc-btn secondary" id="backBtn" style="display:none;">{% trans '← Rudi' %}</button>
+                    <div class="tc-action-group">
+                        <button type="button" class="tc-btn primary" id="nextBtn">{% trans 'Endelea →' %}</button>
+                        <button type="submit" class="tc-btn gold" id="submitBtn" style="display:none;">{% trans 'Tengeneza Duka ✓' %}</button>
+                    </div>
+                </div>
+
+            </form>
+
+            <div class="tc-feature-box" id="tcBottomAd" aria-label="{% trans 'TradeCore feature advertisements' %}">
+                <div class="tc-feature-box-slides">
+                    <div class="tc-feature-box-slide active" data-bottom-slide="0">
+                        <img src="{% static 'login_bg_1.jpg' %}" alt="{% trans 'TradeCore POS and business management' %}">
+                        <div class="tc-feature-box-copy">
+                            <span class="tc-feature-box-kicker">TRADECORE</span>
+                            <strong>{% trans 'Simamia biashara yako kwa urahisi.' %}</strong>
+                            <span>{% trans 'Mauzo, stoo, wateja na ripoti kwenye mfumo mmoja.' %}</span>
+                        </div>
+                    </div>
+                    <div class="tc-feature-box-slide" data-bottom-slide="1">
+                        <img src="{% static 'login_bg_2.jpg' %}" alt="{% trans 'TradeCore inventory and sales management' %}">
+                        <div class="tc-feature-box-copy">
+                            <span class="tc-feature-box-kicker">{% trans 'BUSINESS CONTROL' %}</span>
+                            <strong>{% trans 'Jua kinachoendelea kwenye biashara.' %}</strong>
+                            <span>{% trans 'Angalia mauzo, faida na activity bila kupoteza muda.' %}</span>
+                        </div>
+                    </div>
+                    <div class="tc-feature-box-slide" data-bottom-slide="2">
+                        <img src="{% static 'login_bg_3.jpg' %}" alt="{% trans 'TradeCore dashboard and reporting' %}">
+                        <div class="tc-feature-box-copy">
+                            <span class="tc-feature-box-kicker">{% trans 'ONE BUSINESS' %}</span>
+                            <strong>{% trans 'Data yako. Biashara yako.' %}</strong>
+                            <span>{% trans 'Account yako inabaki na mazingira yake ya biashara.' %}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="tc-feature-box-controls" aria-label="{% trans 'Advertisement slides' %}">
+                    <button type="button" class="tc-feature-box-dot active" data-bottom-dot="0" aria-label="{% trans 'Tangazo 1' %}"></button>
+                    <button type="button" class="tc-feature-box-dot" data-bottom-dot="1" aria-label="{% trans 'Tangazo 2' %}"></button>
+                    <button type="button" class="tc-feature-box-dot" data-bottom-dot="2" aria-label="{% trans 'Tangazo 3' %}"></button>
+                </div>
+            </div>
+
+
+            <div class="tc-footer-note">{% trans 'Powered by' %} <strong>Meron Tech</strong> · TradeCore</div>
+        </main>
+    </div>
+</div>
+
+<script>
+(function(){
+    const form = document.getElementById('tradecoreRegisterForm');
+    const panels = [...document.querySelectorAll('[data-step-panel]')];
+    const indicators = [...document.querySelectorAll('[data-step-indicator]')];
+    const stepBadge = document.getElementById('stepBadge');
+    const backBtn = document.getElementById('backBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const validationMessage = document.getElementById('validationMessage');
+    let currentStep = 1;
+
+    const stepTitles = {
+        1: "{% trans 'Create Your TradeCore Account' %}",
+        2: "{% trans 'Set Up Your Business' %}",
+        3: "{% trans "Let's Set Up Your TradeCore Workspace" %}"
+    };
+
+    function showMessage(message){
+        validationMessage.textContent = message || '';
+        validationMessage.style.display = message ? 'block' : 'none';
+    }
+
+    function requiredValue(id){
+        const el = document.getElementById(id);
+        return el && el.value.trim();
+    }
+
+    function validateStep(step){
+        showMessage('');
+        if(step === 1){
+            if(!requiredValue('full_name')) return showMessage("{% trans 'Jaza jina lako kamili.' %}"), false;
+            if(!requiredValue('phone')) return showMessage("{% trans 'Weka namba ya simu.' %}"), false;
+            if(!requiredValue('username')) return showMessage("{% trans 'Weka username ya account.' %}"), false;
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm_password').value;
+            if(pass.length < 8) return showMessage("{% trans 'Nenosiri liwe angalau characters 8.' %}"), false;
+            if(pass !== confirm) return showMessage("{% trans 'Nenosiri na confirmation hazilingani.' %}"), false;
+        }
+        if(step === 2){
+            if(!requiredValue('business_name')) return showMessage("{% trans 'Weka jina la biashara.' %}"), false;
+            if(!requiredValue('business_type')) return showMessage("{% trans 'Chagua aina ya biashara.' %}"), false;
+            if(!requiredValue('location')) return showMessage("{% trans 'Weka location / eneo la biashara.' %}"), false;
+            if(!requiredValue('business_phone')) return showMessage("{% trans 'Weka simu ya biashara.' %}"), false;
+        }
+        if(step === 3){
+            const agree = document.getElementById('agree');
+            if(!agree.checked) return showMessage("{% trans 'Kubali masharti ya demo kabla ya kutengeneza account.' %}"), false;
+        }
+        return true;
+    }
+
+    function renderStep(step){
+        currentStep = step;
+        panels.forEach(panel => panel.classList.toggle('active', Number(panel.dataset.stepPanel) === step));
+        indicators.forEach(ind => {
+            const n = Number(ind.dataset.stepIndicator);
+            ind.classList.toggle('active', n === step);
+            ind.classList.toggle('done', n < step);
+        });
+        stepBadge.textContent = `{% trans 'Step' %} ${step} / 3`;
+        const formStepTitle = document.getElementById('formStepTitle');
+        if (formStepTitle) {
+            formStepTitle.textContent = stepTitles[step] || stepTitles[1];
+        }
+        backBtn.style.display = step > 1 ? 'inline-flex' : 'none';
+        nextBtn.style.display = step < 3 ? 'inline-flex' : 'none';
+        submitBtn.style.display = step === 3 ? 'inline-flex' : 'none';
+        window.scrollTo({top: 0, behavior: 'smooth'});
+        if(step === 3) syncReview();
+    }
+
+    nextBtn.addEventListener('click', function(){
+        if(!validateStep(currentStep)) return;
+        renderStep(Math.min(3, currentStep + 1));
+    });
+
+    backBtn.addEventListener('click', function(){
+        showMessage('');
+        renderStep(Math.max(1, currentStep - 1));
+    });
+
+    form.addEventListener('submit', function(event){
+        if(!validateStep(3)){
+            event.preventDefault();
+            return;
+        }
+        submitBtn.disabled = true;
+        submitBtn.textContent = "{% trans 'Inaunda Duka…' %}";
+    });
+
+    function bindToggle(inputId, iconId){
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if(!input || !icon) return;
+        icon.addEventListener('click', function(){
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+    }
+    bindToggle('password','togglePassword');
+    bindToggle('confirm_password','toggleConfirmPassword');
+
+    const logoInput = document.getElementById('logo');
+    const logoPreview = document.getElementById('logoPreview');
+    const logoPlaceholderIcon = document.getElementById('logoPlaceholderIcon');
+    logoInput.addEventListener('change', function(){
+        const file = this.files && this.files[0];
+        if(!file) return;
+        if(!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = function(e){
+            logoPreview.src = e.target.result;
+            logoPreview.style.display = 'block';
+            logoPlaceholderIcon.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    const businessType = document.getElementById('business_type');
+    const businessPhone = document.getElementById('business_phone');
+    const receiptPhonePreview = document.getElementById('receipt_phone_preview');
+
+    function prettyType(value){
+        const map = {
+            FASHION:"{% trans 'Fashion & Clothing' %}", COMPUTERS:"{% trans 'Computers & Electronics' %}", SUPERMARKET:"{% trans 'Supermarket / Grocery' %}",
+            COSMETICS:"{% trans 'Cosmetics & Beauty' %}", PHARMACY:"{% trans 'Pharmacy / Health Shop' %}", HARDWARE:"{% trans 'Hardware & Building Materials' %}",
+            RESTAURANT:"{% trans 'Restaurant / Food' %}", STATIONERY:"{% trans 'Stationery & Bookshop' %}", PHONES:"{% trans 'Mobile Phones & Accessories' %}",
+            AUTOPARTS:"{% trans 'Auto Parts' %}", FURNITURE:"{% trans 'Furniture & Home' %}", GENERAL:"{% trans 'General Retail' %}"
+        };
+        return map[value] || '—';
+    }
+
+    function syncReview(){
+        document.getElementById('reviewBusinessName').textContent = requiredValue('business_name') || "{% trans 'Jina la biashara' %}";
+        document.getElementById('reviewLocation').textContent = requiredValue('location') || "{% trans 'Location ya biashara' %}";
+        document.getElementById('reviewOwner').textContent = requiredValue('full_name') || '—';
+        document.getElementById('reviewPhone').textContent = requiredValue('business_phone') || '—';
+        document.getElementById('reviewType').textContent = prettyType(businessType.value);
+        document.getElementById('reviewTin').textContent = requiredValue('tin') || "{% trans 'Not provided' %}";
+        const receiptPhone = requiredValue('business_phone');
+        receiptPhonePreview.querySelector('span').textContent = receiptPhone || "{% trans 'Itatumia simu ya biashara' %}";
+        receiptPhonePreview.classList.toggle('filled', !!receiptPhone);
+    }
+
+    ['business_name','location','full_name','business_phone','tin'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.addEventListener('input', syncReview);
+    });
+    businessType.addEventListener('change', syncReview);
+    syncReview();
+
+    // Lightweight registration-page ad carousel. Uses the existing TradeCore
+    // marketing creatives already bundled in /static; no external image CDN.
+    const adSlides = [...document.querySelectorAll('.tc-ad-slide')];
+    const adDots = [...document.querySelectorAll('.tc-ad-dot')];
+    let adIndex = 0;
+    let adTimer = null;
+
+    function showAd(index){
+        if(!adSlides.length) return;
+        adIndex = (index + adSlides.length) % adSlides.length;
+        adSlides.forEach((slide, i) => slide.classList.toggle('active', i === adIndex));
+        adDots.forEach((dot, i) => dot.classList.toggle('active', i === adIndex));
+    }
+
+    function restartAdTimer(){
+        if(adTimer) clearInterval(adTimer);
+        if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        adTimer = setInterval(() => showAd(adIndex + 1), 5200);
+    }
+
+    adDots.forEach((dot, i) => dot.addEventListener('click', () => {
+        showAd(i);
+        restartAdTimer();
+    }));
+    restartAdTimer();
+
+    // Bottom horizontal feature carousel: image + copy change together.
+    const bottomSlides = [...document.querySelectorAll('.tc-feature-box-slide')];
+    const bottomDots = [...document.querySelectorAll('.tc-feature-box-dot')];
+    let bottomIndex = 0;
+    let bottomTimer = null;
+
+    function showBottomAd(index){
+        if(!bottomSlides.length) return;
+        bottomIndex = (index + bottomSlides.length) % bottomSlides.length;
+        bottomSlides.forEach((slide, i) => slide.classList.toggle('active', i === bottomIndex));
+        bottomDots.forEach((dot, i) => dot.classList.toggle('active', i === bottomIndex));
+    }
+
+    function restartBottomTimer(){
+        if(bottomTimer) clearInterval(bottomTimer);
+        if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        bottomTimer = setInterval(() => showBottomAd(bottomIndex + 1), 5600);
+    }
+
+    // Initialize the first slide immediately so refresh never leaves the carousel blank.
+    showBottomAd(0);
+
+    bottomDots.forEach((dot, i) => dot.addEventListener('click', () => {
+        showBottomAd(i);
+        restartBottomTimer();
+    }));
+    restartBottomTimer();
+})();
+</script>
+</body>
+</html>

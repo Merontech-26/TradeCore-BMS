@@ -1,0 +1,979 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load i18n %}
+{% block content %}
+
+<style>
+  :root{
+    --tc-purple:#4c1d95;
+    --tc-purple-soft:#f5f3ff;
+    --tc-ink:#111827;
+    --tc-muted:#6b7280;
+    --tc-line:#e5e7eb;
+  }
+
+  .receipt-page{
+    padding:18px 12px 32px;
+  }
+
+  .receipt-toolbar{
+    max-width:920px;
+    margin:0 auto 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  .receipt-toolbar-title h1{
+    margin:0;
+    font-size:22px;
+    line-height:1.1;
+    font-weight:900;
+    color:var(--tc-ink);
+  }
+
+  .receipt-toolbar-title p{
+    margin:5px 0 0;
+    font-size:11px;
+    color:#9ca3af;
+    font-weight:700;
+  }
+
+  .receipt-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  .print-size-picker{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:6px 8px 6px 10px;
+    border:1px solid var(--tc-line);
+    border-radius:12px;
+    background:#fff;
+    color:#6b7280;
+    font-size:10px;
+    font-weight:900;
+  }
+
+  .print-size-picker select{
+    border:0;
+    outline:0;
+    background:transparent;
+    color:#111827;
+    font:inherit;
+    cursor:pointer;
+  }
+
+  .receipt-action{
+    appearance:none;
+    border:0;
+    border-radius:12px;
+    padding:10px 13px;
+    font-size:12px;
+    line-height:1;
+    font-weight:900;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    cursor:pointer;
+    transition:.18s ease;
+  }
+
+  .receipt-action:hover{ transform:translateY(-1px); }
+  .receipt-action:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+  .receipt-action.print{ background:var(--tc-purple); color:#fbbf24; }
+  .receipt-action.download{ background:#111827; color:#fff; }
+  .receipt-action.settings{ background:#f3f4f6; color:#374151; }
+  .receipt-action.whatsapp{ background:#059669; color:#fff; }
+  .receipt-action.back{ background:#fff; color:#374151; border:1px solid var(--tc-line); }
+
+  .receipt-paper{
+    width:min(100%, 860px);
+    margin:0 auto;
+    background:#fff;
+    border:1px solid #eef0f4;
+    border-radius:26px;
+    box-shadow:0 18px 60px rgba(15,23,42,.10);
+    padding:32px;
+    color:var(--tc-ink);
+  }
+
+  .receipt-head{
+    text-align:center;
+    padding-bottom:18px;
+    border-bottom:1px solid #eef0f4;
+  }
+
+  .receipt-logo{
+    width:56px;
+    height:56px;
+    object-fit:contain;
+    margin:0 auto 8px;
+    display:block;
+  }
+
+  .tradecore-wordmark{
+    color:var(--tc-purple);
+    font-size:15px;
+    line-height:1;
+    font-weight:1000;
+    letter-spacing:.14em;
+  }
+
+  .store-name{
+    margin-top:7px;
+    font-size:24px;
+    line-height:1.05;
+    font-weight:950;
+  }
+
+  .store-tagline{
+    margin-top:5px;
+    font-size:10px;
+    color:#6b7280;
+    font-weight:700;
+  }
+
+  .store-meta{
+    margin-top:9px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+    font-size:10px;
+    color:#6b7280;
+    font-weight:700;
+  }
+
+  .store-meta .tin{
+    color:#111827;
+    font-weight:900;
+    margin-top:2px;
+  }
+
+  .receipt-title-row{
+    margin-top:17px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+
+  .receipt-title{
+    min-width:0;
+    flex:1;
+    font-size:clamp(18px, 3.4vw, 31px);
+    line-height:.95;
+    font-weight:400;
+    letter-spacing:.28em;
+    color:#4c1d95;
+    text-align:left;
+    white-space:nowrap;
+  }
+
+  .invoice-no{
+    flex:0 0 auto;
+    text-align:right;
+    font-size:10px;
+    color:#6b7280;
+    font-weight:800;
+    white-space:nowrap;
+  }
+
+  .invoice-no strong{ color:#111827; font-weight:1000; }
+
+  .customer-meta{
+    display:grid;
+    grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+    gap:18px;
+    padding:16px 0 18px;
+  }
+
+  .meta-block .label{
+    font-size:9px;
+    line-height:1;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:#9ca3af;
+    font-weight:1000;
+  }
+
+  .meta-block .value{
+    margin-top:5px;
+    font-size:13px;
+    line-height:1.25;
+    font-weight:900;
+    color:#1f2937;
+  }
+
+  .meta-block .subvalue{
+    margin-top:4px;
+    font-size:10px;
+    color:#6b7280;
+    font-weight:700;
+    line-height:1.35;
+  }
+
+  .meta-right{ text-align:right; }
+
+  .items-box{
+    border:1px solid #eceff3;
+    border-radius:18px;
+    overflow:hidden;
+  }
+
+  .items-head,
+  .item-row{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 54px minmax(120px, 180px);
+    gap:10px;
+    align-items:center;
+  }
+
+  .items-head{
+    padding:10px 13px;
+    background:#f8fafc;
+    font-size:9px;
+    line-height:1;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:#9ca3af;
+    font-weight:1000;
+  }
+
+  .items-head span:nth-child(2){ text-align:center; }
+  .items-head span:nth-child(3){ text-align:right; }
+
+  .item-row{
+    padding:11px 13px;
+    border-top:1px solid #f0f2f5;
+  }
+
+  .item-name{
+    min-width:0;
+    font-size:12px;
+    line-height:1.2;
+    font-weight:900;
+    color:#1f2937;
+    word-break:break-word;
+  }
+
+  .item-unit{
+    margin-top:3px;
+    font-size:9px;
+    color:#9ca3af;
+    font-weight:700;
+  }
+
+  .item-qty{
+    text-align:center;
+    font-size:12px;
+    font-weight:900;
+    color:#374151;
+  }
+
+  .item-total{
+    text-align:right;
+    white-space:nowrap;
+    font-size:12px;
+    font-weight:1000;
+    color:#111827;
+  }
+
+  .totals{
+    width:min(100%, 390px);
+    margin:18px 0 0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    font-size:12px;
+  }
+
+  .total-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+  }
+
+  .total-row .muted{ color:#6b7280; font-weight:700; }
+  .total-row .strong{ color:#111827; font-weight:900; }
+  .total-row.discount .muted,.total-row.discount .strong{ color:#b45309; }
+  .total-row.markup .muted,.total-row.markup .strong{ color:#1d4ed8; }
+
+  .grand-total{
+    margin-top:3px;
+    padding-top:10px;
+    border-top:1px solid #dfe3e8;
+    font-size:16px;
+  }
+
+  .grand-total .strong{ color:var(--tc-purple); font-weight:1000; }
+
+  .receipt-bottom{
+    margin-top:22px;
+    padding-top:0;
+    border-top:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+    text-align:center;
+  }
+
+  .qr-img{
+    width:126px;
+    height:126px;
+    object-fit:contain;
+    padding:5px;
+    background:#fff;
+    border:1px solid #eceff3;
+    border-radius:14px;
+  }
+
+  .qr-note{
+    margin-top:-5px;
+    font-size:9px;
+    color:#9ca3af;
+    font-weight:700;
+  }
+
+  .receipt-footer-rule{
+    width:100%;
+    border-top:1px solid #eef0f4;
+    margin:0 0 11px;
+  }
+
+  .receipt-footer-note{
+    max-width:90%;
+    font-size:10px;
+    color:#374151;
+    font-weight:900;
+  }
+
+  .powered{
+    font-size:9px;
+    color:var(--tc-purple);
+    font-weight:1000;
+    letter-spacing:.04em;
+  }
+
+  .copyright{
+    font-size:8px;
+    color:#9ca3af;
+    font-weight:700;
+  }
+
+  .receipt-modal-backdrop{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    background:rgba(15,23,42,.54);
+    backdrop-filter:blur(8px);
+  }
+
+  .receipt-modal{
+    width:min(100%, 620px);
+    max-height:min(92vh, 760px);
+    overflow:auto;
+    background:#fff;
+    border-radius:24px;
+    box-shadow:0 30px 90px rgba(15,23,42,.28);
+    padding:22px;
+  }
+
+  .receipt-modal-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:15px;
+  }
+
+  .receipt-modal-head h2{
+    margin:0;
+    font-size:18px;
+    font-weight:1000;
+    color:#111827;
+  }
+
+  .receipt-modal-head p{
+    margin:4px 0 0;
+    font-size:10px;
+    color:#9ca3af;
+    font-weight:700;
+  }
+
+  .modal-close{
+    border:0;
+    width:34px;
+    height:34px;
+    border-radius:11px;
+    background:#f3f4f6;
+    color:#374151;
+    font-size:18px;
+    font-weight:900;
+    cursor:pointer;
+  }
+
+  .settings-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+
+  .settings-field.full{ grid-column:1 / -1; }
+
+  .settings-field label{
+    display:block;
+    margin:0 0 6px;
+    font-size:10px;
+    font-weight:900;
+    color:#374151;
+  }
+
+  .settings-field input,
+  .settings-field textarea{
+    width:100%;
+    border:1px solid #e5e7eb;
+    border-radius:12px;
+    padding:10px 11px;
+    outline:none;
+    font-size:12px;
+    color:#111827;
+    background:#fff;
+    font-family:inherit;
+  }
+
+  .settings-field textarea{ min-height:72px; resize:vertical; }
+  .settings-field input:focus,.settings-field textarea:focus{ border-color:#8b5cf6; box-shadow:0 0 0 3px rgba(139,92,246,.12); }
+
+  .settings-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    margin-top:16px;
+  }
+
+  @media (max-width:760px){
+    .receipt-page{ padding:12px 8px 24px; }
+    .receipt-paper{ padding:20px 14px; border-radius:20px; }
+    .receipt-toolbar{ margin-bottom:10px; }
+    .receipt-actions{ width:100%; justify-content:flex-start; }
+    .receipt-action{ flex:0 0 auto; }
+    .customer-meta{ grid-template-columns:1fr; }
+    .meta-right{ text-align:left; }
+    .receipt-title-row{ align-items:flex-end; }
+    .receipt-title{ font-size:clamp(17px, 6vw, 25px); letter-spacing:.11em; }
+    .invoice-no{ font-size:9px; }
+    .items-head,.item-row{ grid-template-columns:minmax(0,1fr) 40px minmax(95px, 120px); gap:7px; padding-left:10px; padding-right:10px; }
+    .settings-grid{ grid-template-columns:1fr; }
+    .settings-field.full{ grid-column:auto; }
+  }
+
+  /* Fallback print CSS for browser shortcuts. The TradeCore Print button
+     uses printReceipt() below so the selected paper size is deterministic. */
+  @media print{
+    @page{ size:auto; margin:0; }
+    .receipt-toolbar,.receipt-modal-backdrop,.no-print{ display:none!important; }
+    .receipt-page{ padding:0!important; margin:0!important; }
+    .receipt-paper{
+      width:100%!important;
+      max-width:none!important;
+      margin:0!important;
+      border:0!important;
+      border-radius:0!important;
+      box-shadow:none!important;
+    }
+  }
+
+
+  /* =========================================================
+     RECEIPT — STATIC GREETING / NORMAL PAGE SCROLL
+     The greeting card stays visible while the rest of the
+     receipt page scrolls normally. Scoped to receipt only.
+  ========================================================= */
+  body:has(.receipt-page) .receipt-greeting-static{
+    position:sticky !important;
+    top:0 !important;
+    z-index:60 !important;
+    background:linear-gradient(180deg,rgba(255,255,255,.88) 0%,rgba(255,255,255,.62) 72%,rgba(255,255,255,.18) 100%) !important;
+    backdrop-filter:blur(15px) saturate(145%) !important;
+    -webkit-backdrop-filter:blur(15px) saturate(145%) !important;
+    border-color:rgba(255,255,255,.48) !important;
+    box-shadow:0 10px 28px rgba(15,23,42,.055) !important;
+  }
+
+  body:has(.receipt-page) .receipt-greeting-static::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:-18px;
+    height:22px;
+    pointer-events:none;
+    background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,0));
+    -webkit-mask-image:linear-gradient(to bottom,#000,transparent);
+    mask-image:linear-gradient(to bottom,#000,transparent);
+  }
+
+  @media (max-width:760px){
+    body:has(.receipt-page) .receipt-greeting-static{
+      top:0 !important;
+    }
+  }
+
+</style>
+
+<div class="receipt-page">
+
+  <div class="receipt-toolbar no-print">
+    <div class="receipt-toolbar-title">
+      <h1>{% trans "Receipt" %}</h1>
+      <p>{{ invoice }}</p>
+    </div>
+
+    <div class="receipt-actions">
+      <label class="print-size-picker">
+        <span>{% trans "Print size" %}</span>
+        <select id="printSizeSelect" aria-label="{% trans 'Print size' %}">
+          <option value="80mm" selected>{% trans "Thermal 80mm" %}</option>
+          <option value="58mm">{% trans "Thermal 58mm" %}</option>
+          <option value="A4">{% trans "A4 Portrait" %}</option>
+        </select>
+      </label>
+
+      <button type="button" class="receipt-action print" id="printReceiptButton" onclick="printReceipt()">
+        🖨 {% trans "Print Receipt" %}
+      </button>
+
+      <button
+        type="button"
+        class="receipt-action download"
+        id="downloadReceiptButton"
+        onclick="downloadReceiptPdf(this)"
+      >
+        ⬇ {% trans "Download PDF" %}
+      </button>
+
+      {% if request.user.is_superuser or request.user.profile.jukumu == 'admin' %}
+      <a class="receipt-action settings" href="?settings=1">
+        ⚙ {% trans "Taarifa za Risiti" %}
+      </a>
+      {% endif %}
+
+      <button
+        type="button"
+        id="whatsappReceiptButton"
+        class="receipt-action whatsapp"
+        data-phone="{{ customer_phone|escapejs }}"
+        data-message="{{ whatsapp_message|escapejs }}"
+        onclick="tumaReceiptWhatsApp(this)"
+      >
+        💬 {% trans "WhatsApp" %}
+      </button>
+
+      <a class="receipt-action back" href="{% url 'mauzo' %}">
+        {% trans "Rudi" %} POS
+      </a>
+    </div>
+  </div>
+
+  <section class="receipt-paper" aria-label="{% trans 'TradeCore receipt' %}">
+    <div class="receipt-head">
+      {% if shop and shop.logo %}
+        <img src="{{ shop.logo.url }}" alt="{{ store_name }}" class="receipt-logo">
+      {% endif %}
+
+      <div class="tradecore-wordmark">TRADECORE</div>
+      <div class="store-name">{{ store_name }}</div>
+
+      {% if store_tagline %}
+        <div class="store-tagline">{{ store_tagline }}</div>
+      {% endif %}
+
+      <div class="store-meta">
+        {% if store_address %}<div>{{ store_address }}</div>{% endif %}
+        {% if store_phone %}<div>{% trans "Simu" %}: {{ store_phone }}</div>{% endif %}
+        {% if store_email %}<div>{{ store_email }}</div>{% endif %}
+        {% if store_tin %}<div class="tin"> {% trans "TIN No" %}: {{ store_tin }}</div>{% endif %}
+      </div>
+
+      <div class="receipt-title-row">
+        <div class="receipt-title">{% trans "RISITI YA MAUZO" %}</div>
+        <div class="invoice-no">{% trans "Invoice No" %}: <strong>{{ invoice }}</strong></div>
+      </div>
+    </div>
+
+    <div class="customer-meta">
+      <div class="meta-block">
+        <div class="label">{% trans "Mteja" %}</div>
+        <div class="value">
+          {% if sale.mteja %}{{ sale.mteja.majina_kamili }}{% else %}{% trans "Walk-in Customer" %}{% endif %}
+        </div>
+        
+        {% if customer_phone %}
+          <div class="subvalue">{% trans "Simu" %}: {{ customer_phone }}</div>
+        {% endif %}
+
+        <!-- RECEIPT CUSTOMER LOCATION -->
+        {% if sale.mteja and sale.mteja.eneo %}
+          <div class="subvalue">{% trans "Mahali" %}: {{ sale.mteja.eneo }}{% if sale.mteja.anwani %} — {{ sale.mteja.anwani }}{% endif %}</div>
+        {% elif sale.mteja and sale.mteja.location %}
+          <div class="subvalue">{% trans "Mahali" %}: {{ sale.mteja.location }}</div>
+        {% elif sale.mteja and sale.mteja.anwani_au_location %}
+          <div class="subvalue">{% trans "Mahali" %}: {{ sale.mteja.anwani_au_location }}</div>
+        {% elif customer_location %}
+          <div class="subvalue">{% trans "Mahali" %}: {{ customer_location }}</div>
+        {% endif %}
+      </div>
+
+      <div class="meta-block meta-right">
+        <div class="label">{% trans "Mauzo" %}</div>
+        <div class="value">{{ sale.tarehe_ya_mauzo|date:"d M Y • H:i" }}</div>
+        <div class="subvalue">{{ sale.get_njia_ya_malipo_display }}</div>
+        <!-- SURGERY: Tumeongeza jina la mhudumu hapa -->
+        <div class="subvalue">{% trans "Mhudumu" %}: {% if sale.muuzaji %}{{ sale.muuzaji.get_full_name|default:sale.muuzaji.username|title }}{% else %}TradeCore{% endif %}</div>
+      </div>
+    </div>
+
+    <div class="items-box">
+      <div class="items-head">
+        <span>{% trans "Bidhaa" %}</span>
+        <span>{% trans "Qty" %}</span>
+        <span>{% trans "Jumla" %}</span>
+      </div>
+
+      {% for row in receipt_lines %}
+      {% with line=row.line line_total=row.total %}
+      <div class="item-row">
+        <div>
+          <div class="item-name">{{ line.bidhaa.jina_la_bidhaa }}</div>
+          <div class="item-unit">{{ currency }} {{ line.bei_ya_kuuzia_stoo|default:0|intcomma }} / {% trans "unit" %}</div>
+        </div>
+        <div class="item-qty">{{ line.idadi }}</div>
+        <div class="item-total">{{ currency }} {{ line_total|default:0|intcomma }}</div>
+      </div>
+      {% endwith %}
+      {% empty %}
+      <div class="item-row">
+        <div class="item-name">{% trans "Hakuna bidhaa" %}</div>
+        <div class="item-qty">—</div>
+        <div class="item-total">{{ currency }} 0</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="totals">
+      <div class="total-row">
+        <span class="muted">{% trans "Jumla ya bidhaa" %}</span>
+        <span class="strong">{{ currency }} {{ subtotal_total|intcomma }}</span>
+      </div>
+
+      {% if discount_amount %}
+      <div class="total-row discount">
+        <span class="muted">
+          {% trans "Punguzo" %}{% if discount_type == 'PERCENT' %} ({{ discount_input|floatformat:2 }}%){% endif %}
+        </span>
+        <span class="strong">− {{ currency }} {{ discount_amount|intcomma }}</span>
+      </div>
+      {% endif %}
+
+      {% if markup_amount %}
+      <div class="total-row markup">
+        <span class="muted">
+          {% trans "Ongezeko" %}{% if markup_type == 'PERCENT' %} ({{ markup_input|floatformat:2 }}%){% endif %}
+        </span>
+        <span class="strong">+ {{ currency }} {{ markup_amount|intcomma }}</span>
+      </div>
+      {% endif %}
+
+      <div class="total-row grand-total">
+        <span class="strong">{% trans "JUMLA KUU" %}</span>
+        <span class="strong">{{ currency }} {{ receipt_total|intcomma }}</span>
+      </div>
+    </div>
+
+    <div class="receipt-bottom">
+      <div class="receipt-footer-rule"></div>
+      <div class="receipt-footer-note">{{ receipt_footer }}</div>
+
+      {% if qr_data_uri %}
+        <img src="{{ qr_data_uri }}" alt="{% trans 'QR ya risiti' %}" class="qr-img">
+        <div class="qr-note">{% trans "Scan kuthibitisha risiti" %}</div>
+      {% endif %}
+
+      <div class="powered">{% trans "Powered by" %} Meron Tech</div>
+      <div class="copyright">© 2026 Meron Tech. {% trans "All rights reserved." %}</div>
+    </div>
+  </section>
+</div>
+
+{% if show_receipt_settings and request.user.is_superuser or show_receipt_settings and request.user.profile.jukumu == 'admin' %}
+<div class="receipt-modal-backdrop no-print" id="receiptSettingsModal">
+  <div class="receipt-modal" role="dialog" aria-modal="true" aria-labelledby="receiptSettingsTitle">
+    <div class="receipt-modal-head">
+      <div>
+        <h2 id="receiptSettingsTitle">{% trans "Taarifa za Risiti" %}</h2>
+        <p>{% trans "Hizi ndizo taarifa zitakazotoka kwenye receipt halisi na PDF." %}</p>
+      </div>
+      <button type="button" class="modal-close" onclick="fungaReceiptSettings()" aria-label="{% trans 'Funga' %}">×</button>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save_receipt_profile">
+
+      <div class="settings-grid">
+        <div class="settings-field full">
+          <label for="jina_la_duka">{% trans "Jina la biashara / duka" %}</label>
+          <input id="jina_la_duka" name="jina_la_duka" type="text" value="{{ shop.jina_la_duka|default:'' }}" placeholder="{% trans 'Mfano: Meron Tech' %}">
+        </div>
+
+        <div class="settings-field full">
+          <label for="anwani_au_mahali">{% trans "Anwani / Mahali" %}</label>
+          <textarea id="anwani_au_mahali" name="anwani_au_mahali" placeholder="{% trans 'Mfano: Dodoma — Barabara ya tisa, upande wa kushoto' %}">{{ shop.anwani_au_mahali|default:'' }}</textarea>
+        </div>
+
+        <div class="settings-field">
+          <label for="simu">{% trans "Simu" %}</label>
+          <input id="simu" name="simu" type="text" value="{{ shop.simu|default:'' }}">
+        </div>
+
+        <div class="settings-field">
+          <label for="email">{% trans "Email" %}</label>
+          <input id="email" name="email" type="email" value="{{ shop.email|default:'' }}">
+        </div>
+
+        <div class="settings-field">
+          <label for="tin">{% trans "TIN No" %}</label>
+          <input id="tin" name="tin" type="text" value="{{ shop.tin|default:'' }}">
+        </div>
+
+        <div class="settings-field">
+          <label for="tagline">{% trans "Tagline (optional)" %}</label>
+          <input id="tagline" name="tagline" type="text" value="{{ shop.tagline|default:'' }}">
+        </div>
+
+        <div class="settings-field full">
+          <label for="logo">{% trans "Logo (optional)" %}</label>
+          <input id="logo" name="logo" type="file" accept="image/*">
+        </div>
+
+        <div class="settings-field full">
+          <label for="receipt_footer">{% trans "Ujumbe wa mwisho wa receipt" %}</label>
+          <textarea id="receipt_footer" name="receipt_footer">{{ shop.receipt_footer|default:'Asante kwa kufanya manunuzi nasi!' }}</textarea>
+        </div>
+      </div>
+
+      <div class="settings-actions">
+        <button type="button" class="receipt-action back" onclick="fungaReceiptSettings()">{% trans "Ghairi" %}</button>
+        <button type="submit" class="receipt-action print">{% trans "Hifadhi Taarifa" %}</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<script>
+
+  /* =========================================================
+     RECEIPT — detect shared Base greeting and keep it static.
+     No Base template changes. The rest of the page keeps the
+     browser's normal vertical scrolling.
+  ========================================================= */
+  (function(){
+    function markReceiptGreeting(){
+      const receiptPage = document.querySelector('body:has(.receipt-page)');
+      if(!receiptPage) return;
+
+      const candidates = Array.from(
+        receiptPage.querySelectorAll('div,section,article,header')
+      ).filter(el => {
+        if(el.classList.contains('receipt-paper') || el.closest('.receipt-paper')) return false;
+        const text = (el.textContent || '').replace(/\s+/g,' ').trim().toLowerCase();
+        return (
+          (text.includes('good evening') && text.includes('welcome back')) ||
+          (text.includes('good morning') && text.includes('welcome back')) ||
+          (el.classList.contains('greeting') && text.includes('welcome'))
+        );
+      });
+
+      if(!candidates.length) return;
+
+      const receiptRect = document.querySelector('.receipt-page')?.getBoundingClientRect();
+      let target = candidates[candidates.length - 1];
+
+      if(receiptRect){
+        for(const el of candidates){
+          const r = el.getBoundingClientRect();
+          if(r.width >= receiptRect.width * .55 && r.height <= 220){
+            target = el;
+            break;
+          }
+        }
+      }
+
+      target.classList.add('receipt-greeting-static');
+    }
+
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', markReceiptGreeting, {once:true});
+    } else {
+      markReceiptGreeting();
+    }
+
+    window.addEventListener('resize', markReceiptGreeting, {passive:true});
+  })();
+
+  function syncReceiptDownloadHref(){
+    const button = document.getElementById('downloadReceiptButton');
+    const selector = document.getElementById('printSizeSelect');
+    if(!button) return;
+    const size = selector ? selector.value : '80mm';
+    const url = new URL(window.location.href);
+    url.searchParams.delete('settings');
+    url.searchParams.set('download','pdf');
+    url.searchParams.set('size',size);
+    button.dataset.downloadUrl = url.toString();
+  }
+
+  function printReceipt(){
+    const paper = document.querySelector('.receipt-paper');
+    const selector = document.getElementById('printSizeSelect');
+    const size = selector ? selector.value : '80mm';
+    const configs = {
+      '58mm': { width:'58mm', bodyWidth:'58mm', page:'58mm AUTO', padding:'3mm' },
+      '80mm': { width:'80mm', bodyWidth:'80mm', page:'80mm AUTO', padding:'4.5mm' },
+      'A4':   { width:'190mm', bodyWidth:'210mm', page:'A4 portrait', padding:'10mm' }
+    };
+    const cfg = configs[size] || configs['80mm'];
+    if(!paper) return;
+    const w = window.open('', '_blank', 'width=680,height=900');
+    if(!w){
+      alert('{% trans "Browser imezuia print window. Ruhusu pop-ups kwa TradeCore kisha ujaribu tena." %}');
+      return;
+    }
+    const paperHtml = paper.outerHTML;
+    const invoiceNumber = '{{ invoice|escapejs }}';
+    const qrSize = size === 'A4' ? '34mm' : (size === '58mm' ? '24mm' : '27mm');
+    w.document.open();
+    w.document.write(`<!doctype html>
+<html><head><meta charset="utf-8"><title>${invoiceNumber}</title>
+<style>
+*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+html,body{margin:0!important;padding:0!important;background:#fff!important;color:#111827!important;font-family:Arial,Helvetica,sans-serif;}
+body{width:${cfg.bodyWidth};min-width:${cfg.bodyWidth};display:flex;justify-content:center;}
+@page{size:${cfg.page};margin:0;}
+.receipt-paper{width:${cfg.width}!important;max-width:${cfg.width}!important;margin:0!important;padding:${cfg.padding}!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#fff!important;color:#111827!important;}
+.receipt-toolbar,.receipt-modal-backdrop,.no-print{display:none!important;}
+.receipt-head{text-align:center;padding-bottom:4mm;border-bottom:1px solid #e5e7eb;}
+.receipt-logo{width:14mm;height:14mm;object-fit:contain;margin:0 auto 2mm;display:block;}
+.tradecore-wordmark{color:#4c1d95;font-size:8pt;line-height:1;font-weight:800;letter-spacing:.13em;}
+.store-name{margin-top:1.5mm;font-size:${size === 'A4' ? '14pt' : '12pt'};line-height:1.05;font-weight:800;}
+.store-tagline{margin-top:1mm;font-size:6.5pt;color:#6b7280;font-weight:600;}
+.store-meta{margin-top:2mm;display:flex;flex-direction:column;align-items:center;gap:1mm;font-size:6.5pt;color:#6b7280;font-weight:600;}
+.store-meta .tin{color:#111827;font-weight:700;}
+.receipt-title-row{display:block!important;margin-top:3mm!important;}
+.receipt-title{width:100%!important;font-size:${size === 'A4' ? '18pt' : (size === '58mm' ? '10pt' : '12pt')}!important;font-weight:400!important;line-height:1!important;letter-spacing:${size === '58mm' ? '.12em' : '.18em'}!important;text-align:center!important;white-space:normal!important;color:#4c1d95!important;}
+.invoice-no{display:block!important;width:100%!important;margin-top:2.5mm!important;text-align:right!important;font-size:${size === '58mm' ? '5.8pt' : '6.5pt'}!important;color:#6b7280!important;white-space:normal!important;}
+.customer-meta{display:block!important;padding:3mm 0 3.5mm!important;}
+.meta-block{margin-bottom:2.5mm!important;}.meta-block:last-child{margin-bottom:0!important;}
+.meta-block .label{font-size:5.8pt;letter-spacing:.1em;text-transform:uppercase;color:#9ca3af;font-weight:800;}
+.meta-block .value{margin-top:1mm;font-size:7.2pt;line-height:1.2;font-weight:800;color:#1f2937;}
+.meta-block .subvalue{margin-top:.7mm;font-size:6.3pt;color:#6b7280;font-weight:600;line-height:1.3;}.meta-right{text-align:right!important;}
+.items-box{border:1px solid #e5e7eb;border-radius:1.5mm;overflow:hidden;}
+.items-head,.item-row{display:grid!important;grid-template-columns:minmax(0,1fr) ${size === '58mm' ? '8mm' : '9mm'} ${size === '58mm' ? '18mm' : (size === 'A4' ? '34mm' : '22mm')}!important;gap:1.4mm!important;align-items:center!important;}
+.items-head{padding:1.6mm 1.8mm!important;background:#f8fafc;font-size:5.8pt!important;line-height:1!important;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;font-weight:800;}
+.items-head span:nth-child(2){text-align:center;}.items-head span:nth-child(3){text-align:right;}
+.item-row{padding:1.9mm 1.8mm!important;border-top:1px solid #eef0f3;}.item-name{font-size:${size === 'A4' ? '9pt' : '6.8pt'}!important;line-height:1.12!important;font-weight:800!important;word-break:break-word;}.item-unit{margin-top:.65mm;font-size:${size === 'A4' ? '7pt' : '5.3pt'}!important;color:#9ca3af;line-height:1.1!important;}.item-qty{font-size:${size === 'A4' ? '9pt' : '6.8pt'}!important;font-weight:800!important;text-align:center;}.item-total{font-size:${size === 'A4' ? '9pt' : '6.8pt'}!important;font-weight:800!important;text-align:right;white-space:nowrap;}
+.totals{width:${size === 'A4' ? '95mm' : '100%'}!important;margin:4mm 0 0 auto!important;display:flex!important;flex-direction:column;gap:1.6mm;font-size:${size === 'A4' ? '9pt' : '6.8pt'}!important;}.total-row{display:flex!important;justify-content:space-between!important;align-items:center!important;gap:8mm!important;}.total-row .muted{color:#6b7280;font-weight:600;}.total-row .strong{color:#111827;font-weight:800;}.total-row.discount .muted,.total-row.discount .strong{color:#b45309;}.total-row.markup .muted,.total-row.markup .strong{color:#1d4ed8;}.grand-total{margin-top:1mm;padding-top:2mm!important;border-top:1px solid #dfe3e8;font-size:${size === 'A4' ? '12pt' : '8.8pt'}!important;}.grand-total .strong{color:#4c1d95;font-weight:900;}
+.receipt-bottom{margin-top:4mm!important;padding-top:3.5mm!important;border-top:1px solid #e5e7eb!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:2mm!important;text-align:center;}.receipt-footer-note{font-size:${size === 'A4' ? '8pt' : '6pt'}!important;color:#374151;font-weight:700;max-width:92%;line-height:1.25;}.qr-img{width:${qrSize};height:${qrSize};object-fit:contain;padding:1mm;background:#fff;border:1px solid #eceff3;border-radius:1mm;}.qr-note{font-size:${size === 'A4' ? '7pt' : '5.4pt'};color:#9ca3af;font-weight:600;}.powered{font-size:${size === 'A4' ? '7pt' : '6pt'};color:#4c1d95;font-weight:800;letter-spacing:.03em;}.copyright{font-size:${size === 'A4' ? '6.5pt' : '5.2pt'};color:#9ca3af;font-weight:600;}
+</style></head><body>${paperHtml}</body></html>`);
+    w.document.close();
+    const printNow = () => {
+      const paperEl = w.document.querySelector('.receipt-paper');
+      const heightMm = Math.max(160, Math.ceil((paperEl?.scrollHeight || 700) * 25.4 / 96 + 4));
+      const runtime = w.document.createElement('style');
+      runtime.textContent = `@page{size:${size === 'A4' ? 'A4 portrait' : `${size} ${Math.min(heightMm,420)}mm`};margin:0;} body{width:${cfg.bodyWidth};min-width:${cfg.bodyWidth};}`;
+      w.document.head.appendChild(runtime);
+      w.focus();
+      setTimeout(() => w.print(), 150);
+    };
+    if(w.document.readyState === 'complete') printNow(); else w.onload = printNow;
+  }
+
+  function downloadReceiptPdf(button){
+    if(!button) return;
+    syncReceiptDownloadHref();
+    const url = button.dataset.downloadUrl;
+    if(!url) return;
+    const old = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '⏳ {% trans "Inapakua PDF..." %}';
+    window.location.href = url;
+    setTimeout(() => { button.disabled = false; button.innerHTML = old; }, 1800);
+  }
+
+  const printSizeSelector = document.getElementById('printSizeSelect');
+  if(printSizeSelector) printSizeSelector.addEventListener('change', syncReceiptDownloadHref);
+  document.addEventListener('DOMContentLoaded', syncReceiptDownloadHref);
+
+  function fungaReceiptSettings(){
+    const modal = document.getElementById('receiptSettingsModal');
+    if(modal) modal.remove();
+    const clean = new URL(window.location.href);
+    clean.searchParams.delete('settings');
+    window.history.replaceState({}, '', clean.toString());
+  }
+
+  document.addEventListener('keydown', function(event){
+    if(event.key === 'Escape') fungaReceiptSettings();
+  });
+
+  document.addEventListener('click', function(event){
+    const modal = document.getElementById('receiptSettingsModal');
+    if(modal && event.target === modal) fungaReceiptSettings();
+  });
+
+  function tumaReceiptWhatsApp(button){
+    const message = button.dataset.message || '';
+    let phone = (button.dataset.phone || '').replace(/\D/g, '');
+
+    if(!phone){
+      phone = prompt('{% trans "Weka namba ya WhatsApp ya mteja (mf. 0712345678):" %}') || '';
+      phone = phone.replace(/\D/g, '');
+    }
+
+    if(phone.startsWith('0')) phone = '255' + phone.slice(1);
+    else if(phone.startsWith('7')) phone = '255' + phone;
+
+    if(!phone){
+      alert('{% trans "Namba ya WhatsApp haijawekwa." %}');
+      return;
+    }
+
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    
+    // Kuzuia Pop-up blockers: Simu inatumia direct redirect, PC inatumia tab mpya
+    if (window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        window.location.href = url;
+    } else {
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  }
+</script>
+
+{% endblock %}

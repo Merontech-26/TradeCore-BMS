@@ -1,0 +1,1732 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'sw' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
+    <title>{% block title %}TradeCore POS{% endblock %}</title>
+    {% load static %}
+    <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+    <meta name="theme-color" content="#5b21b6">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Hii inaruhusu smooth slide animations unapobadili page -->
+    <meta name="view-transition" content="same-origin">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TradeCore">
+    <link rel="apple-touch-icon" href="{% static 'tradecore-icon-192.png' %}">
+    <link rel="stylesheet" href="{% static 'tradecore_pwa.css' %}">
+    <style id="tradecore-pwa-critical-visibility">
+        /* Critical visibility guard: keeps PWA-only surfaces out of desktop even if the custom stylesheet is loading late. */
+        .tradecore-mobile-only, .tradecore-mobile-sheet, #tradecoreMobileTabbar { display: none !important; }
+        @media (max-width: 767px) {
+            .tradecore-mobile-only { display: block !important; }
+            .tradecore-mobile-sheet { display: flex !important; }
+            #tradecoreMobileTabbar { display: flex !important; }
+        }
+            /* Expired Trial — read-only notice */
+        .tradecore-readonly-banner {
+            position:fixed;
+            left:50%;
+            top:10px;
+            transform:translateX(-50%);
+            z-index:9999;
+            width:min(760px,calc(100% - 24px));
+            padding:10px 14px;
+            border:1px solid rgba(212,175,55,.24);
+            border-radius:14px;
+            background:rgba(255,255,255,.94);
+            color:#6d5a24;
+            box-shadow:0 10px 30px rgba(39,20,68,.10);
+            backdrop-filter:blur(18px);
+            -webkit-backdrop-filter:blur(18px);
+            text-align:center;
+            font-size:11px;
+            font-weight:650;
+        }
+        .tradecore-readonly-banner strong { color:#7e641c; }
+        .tradecore-readonly-banner a { color:#5b21b6; text-decoration:none; margin-left:5px; font-weight:800; }
+        html.dark .tradecore-readonly-banner {
+            background:rgba(30,41,59,.96);
+            color:#e7cf7b;
+            border-color:rgba(212,175,55,.24);
+        }
+        html.dark .tradecore-readonly-banner a { color:#c4b5fd; }
+
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+
+    <style>
+        /* SURGERY: Global notification UI removed from Base only.
+           Notification JS/data remain untouched for later page-specific placement. */
+        /* LIGHT MODE (DEFAULT) */
+        body { background-color: #eef2f5; transition: background-color 0.3s ease, color 0.3s ease; }
+        .bento-card { background-color: #ffffff; border-radius: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        .sidebar-group { background-color: #ffffff; border-radius: 9999px; padding: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        
+        .sidebar-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #6b7280; transition: all 0.3s ease; }
+        .sidebar-icon.active { background-color: #581c87 !important; color: #fbbf24 !important; box-shadow: 0 0 15px rgba(88, 28, 135, 0.5); border: 2px solid #fbbf24; transform: scale(1.1); }
+        .sidebar-icon:hover:not(.active) { background-color: #f3f4f6; color: #111827; }
+        
+        .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* ========================================= */
+        /* UCHAWI WA DARK MODE (MANUVER YETU HAPA)   */
+        /* ========================================= */
+        html.dark body { background-color: #0f172a; color: #f8fafc; }
+        html.dark .bg-white, html.dark .bento-card, html.dark .sidebar-group { background-color: #1e293b !important; border-color: #334155 !important; }
+        html.dark .text-gray-900, html.dark .text-gray-800, html.dark .text-gray-700 { color: #f8fafc !important; }
+        html.dark .text-gray-600, html.dark .text-gray-500 { color: #94a3b8 !important; }
+        html.dark .bg-gray-50, html.dark .bg-gray-100 { background-color: #334155 !important; border-color: #475569 !important; color: #f8fafc !important; }
+        html.dark .border-gray-100, html.dark .border-gray-200 { border-color: #334155 !important; }
+        html.dark .shadow-sm, html.dark .shadow-md, html.dark .shadow-2xl { box-shadow: 0 4px 25px rgba(0,0,0,0.4) !important; }
+        html.dark .bg-white\/60 { background-color: rgba(30, 41, 59, 0.8) !important; }
+        html.dark .sidebar-icon:hover:not(.active) { background-color: #334155; color: #f8fafc; }
+
+        /* =========================================================
+           GLOBAL HEADER — DATE + AVATAR GREETING
+           Shared globally so individual pages do not duplicate date UI.
+        ========================================================= */
+        #globalDateBadge {
+            min-width: max-content;
+        }
+
+        #globalDateText,
+        #avatarSalamuYaMuda {
+            font-variant-numeric: tabular-nums;
+        }
+
+        html.dark #globalDateBadge {
+            background: rgba(30, 41, 59, 0.88) !important;
+            border-color: #334155 !important;
+        }
+
+        html.dark #globalDateText,
+        html.dark #avatarSalamuYaMuda {
+            color: #cbd5e1 !important;
+        }
+
+    </style>
+
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+<body data-tradecore-route="{{ request.resolver_match.url_name|default:'' }}" data-tradecore-user="{{ request.user.id|default:'session' }}" translate="no" class="font-sans min-h-screen p-4 md:py-6 md:px-[42px] flex flex-col md:flex-row gap-6">
+    {% if request.tradecore_read_only %}
+    <div class="tradecore-readonly-banner">
+        <strong>Trial imeisha.</strong>
+        Data zako bado zipo salama. Unaweza kuzitazama, lakini shughuli mpya zimefungwa.
+        <a href="{% url 'billing' %}">Fungua Premium →</a>
+    </div>
+    {% endif %}
+
+
+    <aside class="hidden md:flex flex-col items-center h-[calc(100vh-3rem)] w-20 sticky top-6 gap-4 z-40">
+        <a href="{% url 'dashboard' %}" class="w-12 h-12 bg-purple-900 rounded-full flex items-center justify-center text-amber-400 font-black text-xl mb-4 border border-amber-500/30 shadow-sm cursor-pointer hover:scale-105 transition-all" title="TradeCore">
+            TC
+        </a>
+        
+        {% if request.user.is_superuser or request.user.profile.jukumu == "admin" %}
+        <nav class="sidebar-group">
+            <a href="{% url 'dashboard' %}" class="sidebar-icon {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" title="Dashboard">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 13h6a1 1 0 001-1V4a1 1 0 00-1-1H4a1 1 0 00-1 1v8a1 1 0 001 1zm-1 7a1 1 0 001 1h6a1 1 0 001-1v-4a1 1 0 00-1-1H4a1 1 0 00-1 1v4zm10 0a1 1 0 001 1h6a1 1 0 001-1v-7a1 1 0 00-1 1h-6a1 1 0 001 1v7zm1-10h6a1 1 0 001-1V4a1 1 0 00-1-1h-6a1 1 0 00-1 1v5a1 1 0 001 1z"></path></svg>
+            </a>
+        </nav>
+        {% endif %}
+
+        {% if request.user.profile.jukumu == "admin" or request.user.profile.jukumu == "stoo" %}
+        <nav class="sidebar-group">
+            <a href="{% url 'stoo_bidhaa' %}" class="sidebar-icon {% if request.resolver_match.url_name == 'stoo_bidhaa' %}active{% endif %}" title="{% trans "Stoo & Bidhaa" %}">📦</a>
+            <!-- SURGERY: Storekeeper anaona icon ya Matumizi -->
+            {% if request.user.profile.jukumu == "stoo" %}
+            <a href="{% url 'matumizi' %}" class="sidebar-icon {% if request.resolver_match.url_name == 'matumizi' %}active{% endif %}" title="{% trans "Matumizi" %}">💵</a>
+            {% endif %}
+            {% if request.user.profile.jukumu == "admin" %}
+            <a href="{% url 'wafanyakazi' %}" class="sidebar-icon {% if request.resolver_match.url_name == 'wafanyakazi' %}active{% endif %}" title="{% trans "Wafanyakazi" %}">👥</a>
+            {% endif %}
+        </nav>
+        {% endif %}
+
+        {% if request.user.profile.jukumu == "admin" or request.user.profile.jukumu == "cashier" %}
+        <nav class="sidebar-group">
+            <a href="{% url 'mauzo' %}" class="sidebar-icon {% if request.resolver_match.url_name == 'mauzo' %}active{% endif %}" title="{% trans "Mauzo" %}">🛒</a>
+            <!-- SURGERY: Cashier sasa ataona icon ya Matumizi -->
+            <a href="{% url 'matumizi' %}" class="sidebar-icon {% if request.resolver_match.url_name == 'matumizi' %}active{% endif %}" title="{% trans "Matumizi" %}">💵</a>
+            {% if request.user.profile.jukumu == "admin" %}
+            <a href="{% url 'wateja' %}" class="sidebar-icon {% if request.resolver_match.url_name == 'wateja' %}active{% endif %}" title="{% trans "Wateja" %}">👤</a>
+            <a href="{% url 'ujumbe' %}" class="sidebar-icon {% if request.resolver_match.url_name == 'ujumbe' %}active{% endif %}" title="{% trans "Mawasiliano" %}">💬</a>
+            <a href="{% url 'ripoti' %}" class="sidebar-icon {% if request.resolver_match.url_name == 'ripoti' %}active{% endif %}" title="{% trans "Ripoti" %}">📊</a>
+            {% endif %}
+        </nav>
+        {% endif %}
+
+        <nav class="sidebar-group mt-auto">
+            <button onclick="funguaSettingsModal()" class="sidebar-icon cursor-pointer" title="{% trans "Mipangilio" %}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            </button>
+            <button onclick="funguaLogoutModal()" class="sidebar-icon text-red-500 hover:bg-red-50 cursor-pointer" title="{% trans "Toka" %}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            </button>
+        </nav>
+    </aside>
+
+    <main class="flex-1 w-full min-w-0">
+
+    
+    <!-- =====================================================
+         APP BAR MPYA YA MOBILE TU (APPLE GLASS & GRID PERFECT)
+         ===================================================== -->
+    <div id="tradecoreMobileHeader" class="tradecore-mobile-only">
+        
+        <!-- 1. KUSHOTO: Logo Tu -->
+        <div class="tc-header-logo">
+            <div class="tradecore-mobile-logo">
+                <img src="{% static 'tradecore-icon-192.png' %}" alt="{% trans "Nembo" %}">
+            </div>
+        </div>
+
+        <!-- 2. KATIKATI: Jina la Duka -->
+        <div class="tc-header-center">
+            <h1 class="tc-store-name">
+                {% if request.session.tradecore_store_name %}
+                    {{ request.session.tradecore_store_name }}
+                {% elif request.user.profile.duka %}
+                    {{ request.user.profile.duka.jina_la_duka|default:'TradeCore POS' }}
+                {% else %}
+                    TradeCore POS
+                {% endif %}
+            </h1>
+            <span class="tc-store-subtitle">{% trans "Duka Lililothibitishwa" %}</span>
+        </div>
+
+        <!-- 3. KULIA: Status na Profile -->
+        <div class="tc-header-right">
+            <div class="tradecore-mobile-status">
+                <span class="tradecore-mobile-status-dot"></span>
+                <span>{% trans "Moja kwa Moja" %}</span>
+            </div>
+            <div id="userAvatarContainer" class="tradecore-mobile-profile cursor-pointer" onclick="funguaProfileModal()">
+                <span id="appBarInitial" class="{% if request.user.profile.picha %}hidden{% endif %}">
+                    {% if user.is_authenticated %}{{ request.user.username|make_list|first|upper }}{% else %}O{% endif %}
+                </span>
+                <img id="appBarImage" 
+                     src="{% if request.user.profile.picha %}{{ request.user.profile.picha.url }}{% endif %}" 
+                     alt="{% trans "Wasifu" %}" 
+                     style="width:100%; height:100%; object-fit:cover;"
+                     class="{% if not request.user.profile.picha %}hidden{% endif %}"
+                     onerror="this.classList.add('hidden'); document.getElementById('appBarInitial').classList.remove('hidden');">
+            </div>
+        </div>
+
+    </div>
+        
+
+        <header id="tradecoreLegacyHeader" class="tradecore-desktop-header flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-6">
+            
+            <div class="flex flex-col md:flex-row md:items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <svg class="w-8 h-8 text-purple-900" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    <span class="text-2xl font-black text-gray-900 tracking-tight">TradeCore</span>
+                </div>
+
+                <div class="flex items-center bg-white rounded-full p-1 border border-gray-100 shadow-sm overflow-x-auto custom-scrollbar">
+                    {% if request.user.is_superuser or request.user.profile.jukumu == "admin" %}
+                    <a href="{% url 'dashboard' %}" class="px-5 py-2 rounded-full text-sm whitespace-nowrap {% if request.resolver_match.url_name == 'dashboard' %}bg-purple-900 text-amber-400 font-bold{% else %}text-gray-500 hover:text-gray-900 font-medium{% endif %}">{% trans "Dashboard" %}</a>
+                    {% endif %}
+                    {% if request.user.profile.jukumu == "admin" or request.user.profile.jukumu == "stoo" %}<a href="{% url 'stoo_bidhaa' %}" class="px-5 py-2 rounded-full text-sm whitespace-nowrap {% if request.resolver_match.url_name == 'stoo_bidhaa' %}bg-purple-900 text-amber-400 font-bold{% else %}text-gray-500 hover:text-gray-900 font-medium{% endif %}">{% trans "Stoo & Bidhaa" %}</a>{% endif %}
+                    {% if request.user.profile.jukumu == "admin" or request.user.profile.jukumu == "cashier" %}<a href="{% url 'mauzo' %}" class="px-5 py-2 rounded-full text-sm whitespace-nowrap {% if request.resolver_match.url_name == 'mauzo' %}bg-purple-900 text-amber-400 font-bold{% else %}text-gray-500 hover:text-gray-900 font-medium{% endif %}">{% trans "Mauzo" %}</a>{% endif %}
+                    <!-- SURGERY: Storekeeper na Cashier wanaona link ya Matumizi kwenye menyu ya juu -->
+                    {% if request.user.profile.jukumu == "admin" or request.user.profile.jukumu == "cashier" or request.user.profile.jukumu == "stoo" %}<a href="{% url 'matumizi' %}" class="px-5 py-2 rounded-full text-sm whitespace-nowrap {% if request.resolver_match.url_name == 'matumizi' %}bg-purple-900 text-amber-400 font-bold{% else %}text-gray-500 hover:text-gray-900 font-medium{% endif %}">{% trans "Matumizi" %}</a>{% endif %}
+                    {% if request.user.profile.ni_admin %}
+                    <a href="{% url 'wateja' %}" class="px-5 py-2 rounded-full text-sm whitespace-nowrap {% if request.resolver_match.url_name == 'wateja' %}bg-purple-900 text-amber-400 font-bold{% else %}text-gray-500 hover:text-gray-900 font-medium{% endif %}">{% trans "Wateja" %}</a>
+                    <a href="{% url 'wafanyakazi' %}" class="px-5 py-2 rounded-full text-sm whitespace-nowrap {% if request.resolver_match.url_name == 'wafanyakazi' %}bg-purple-900 text-amber-400 font-bold{% else %}text-gray-500 hover:text-gray-900 font-medium{% endif %}">{% trans "Wafanyakazi" %}</a>
+                    <a href="{% url 'ujumbe' %}" class="px-5 py-2 rounded-full text-sm whitespace-nowrap {% if request.resolver_match.url_name == 'ujumbe' %}bg-purple-900 text-amber-400 font-bold{% else %}text-gray-500 hover:text-gray-900 font-medium{% endif %}">{% trans "Mawasiliano" %}</a>
+                    <a href="{% url 'ripoti' %}" class="px-5 py-2 rounded-full text-sm whitespace-nowrap {% if request.resolver_match.url_name == 'ripoti' %}bg-purple-900 text-amber-400 font-bold{% else %}text-gray-500 hover:text-gray-900 font-medium{% endif %}">{% trans "Ripoti" %}</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                {% block topbar_actions %}{% endblock %}
+
+                <!-- Global Date Badge imeondolewa kupunguza mrundikano -->
+
+                <button type="button" onclick="funguaLogoutModal()" class="md:hidden w-10 h-10 rounded-full bg-white text-rose-600 border border-rose-100 shadow-sm flex items-center justify-center" title="{% trans "Toka" %}" aria-label="Toka">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-3 pl-2">
+                        <div class="text-right hidden sm:block min-w-[92px]">
+                            <p class="text-xs font-bold text-gray-900">
+                                {% if user.is_authenticated %}{{ user.get_full_name|default:user.username|title }}{% else %}Octavian{% endif %}
+                            </p>
+                            <p class="text-[10px] text-gray-500 leading-none mt-0.5">
+                                {% if request.user.profile.jukumu == "admin" %}
+                                    {% trans "Bosi Mkuu" %}
+                                {% elif request.user.profile.jukumu == "cashier" %}
+                                    {% trans "Muuza" %}
+                                {% elif request.user.profile.jukumu == "stoo" %}
+                                    {% trans "Mhudumu wa Stoo" %}
+                                {% else %}
+                                    {% trans "Mfanyakazi" %}
+                                {% endif %}
+                            </p>
+                            <!-- SURGERY: Jina la duka la kuvutia zaidi lenye icon chini ya avatar -->
+                            <p id="avatarSalamuYaMuda"
+                               class="text-[12px] font-black text-purple-900 leading-none mt-1.5 whitespace-nowrap truncate max-w-[180px] bg-purple-50 px-2 py-1 rounded-md border border-purple-100 inline-flex items-center gap-1 shadow-sm"
+                               title="{% if request.session.tradecore_store_name %}{{ request.session.tradecore_store_name|escape }}{% elif request.user.profile.duka %}{{ request.user.profile.duka.jina_la_duka|default:''|escape }}{% elif request.user.duka %}{{ request.user.duka.jina_la_duka|default:''|escape }}{% endif %}">
+                                <span>🏬</span>
+                                <span>
+                                {% if request.session.tradecore_store_name %}
+                                    {{ request.session.tradecore_store_name|escape }}
+                                {% elif request.user.profile.duka %}
+                                    {{ request.user.profile.duka.jina_la_duka|default:''|escape }}
+                                {% elif request.user.duka %}
+                                    {{ request.user.duka.jina_la_duka|default:''|escape }}
+                                {% else %}
+                                    TradeCore
+                                {% endif %}
+                                </span>
+                            </p>
+                        </div>
+
+                        <div onclick="funguaProfileModal()" id="userAvatarContainer"
+                             class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-900 to-purple-700 text-amber-400 flex items-center justify-center font-bold text-lg shadow-sm border-2 border-white cursor-pointer hover:scale-105 transition-transform overflow-hidden relative"
+                             title="{% trans "Badili Picha / Wasifu" %}">
+                            
+                            <span id="desktopAvatarInitial" class="{% if request.user.profile.picha %}hidden{% endif %}">
+                                {% if user.is_authenticated %}{{ user.username|make_list|first|upper }}{% else %}O{% endif %}
+                            </span>
+                            
+                            <img id="desktopAvatarImage" 
+                                 src="{% if request.user.profile.picha %}{{ request.user.profile.picha.url }}{% endif %}" 
+                                 class="w-full h-full object-cover {% if not request.user.profile.picha %}hidden{% endif %}" 
+                                 alt="{% trans "Wasifu" %}"
+                                 onerror="this.classList.add('hidden'); document.getElementById('desktopAvatarInitial').classList.remove('hidden');">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Global Base keeps the current store name beside the avatar and a day + date row. Page-specific clock displays stay on their own pages. -->
+
+        {% block content %}
+        {% endblock %}
+
+
+        <!-- =====================================================
+             TRADECORE MOBILE ACTION SHEETS
+             New presentation layer only; actions point to existing routes.
+             ===================================================== -->
+        <div id="tradecoreQuickActions" class="tradecore-mobile-sheet" aria-hidden="true">
+            <div class="tradecore-mobile-sheet-card" role="dialog" aria-modal="true" aria-labelledby="tradecoreQuickActionsTitle">
+                <div class="tradecore-sheet-grabber"></div>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div id="tradecoreQuickActionsTitle" class="tradecore-sheet-title">{% trans "Vitendo vya Haraka" %}</div>
+                        <div class="tradecore-sheet-subtitle">{% trans "Fungua kazi unayotumia mara nyingi." %}</div>
+                    </div>
+                    <button type="button" class="tradecore-mobile-sheet-close" onclick="TradeCoreMobile.closeQuickActions()" aria-label="{% trans "Funga" %}">&times;</button>
+                </div>
+                <div class="tradecore-sheet-section">
+                    {% if request.user.profile.jukumu == 'admin' or request.user.profile.jukumu == 'cashier' %}
+                    <a class="tradecore-sheet-action primary" href="{% url 'mauzo' %}">
+                        <span class="tradecore-sheet-icon">🛒</span><span class="tradecore-sheet-label">{% trans "Mauzo" %}</span><span class="tradecore-sheet-caption">{% trans "Fungua POS" %}</span>
+                    </a>
+                    {% endif %}
+                    {% if request.user.profile.jukumu == 'admin' or request.user.profile.jukumu == 'stoo' %}
+                    <a class="tradecore-sheet-action gold" href="{% url 'stoo_bidhaa' %}">
+                        <span class="tradecore-sheet-icon">📦</span><span class="tradecore-sheet-label">{% trans "Stoo & Bidhaa" %}</span><span class="tradecore-sheet-caption">{% trans "Angalia stock" %}</span>
+                    </a>
+                    {% endif %}
+                    {% if request.user.profile.jukumu == 'admin' or request.user.profile.jukumu == 'cashier' or request.user.profile.jukumu == 'stoo' %}
+                    <a class="tradecore-sheet-action" href="{% url 'matumizi' %}">
+                        <span class="tradecore-sheet-icon">💵</span><span class="tradecore-sheet-label">{% trans "Matumizi" %}</span><span class="tradecore-sheet-caption">{% trans "Rekodi gharama" %}</span>
+                    </a>
+                    {% endif %}
+                    {% if request.user.profile.ni_admin %}
+                    <a class="tradecore-sheet-action" href="{% url 'wateja' %}">
+                        <span class="tradecore-sheet-icon">👤</span><span class="tradecore-sheet-label">{% trans "Wateja" %}</span><span class="tradecore-sheet-caption">{% trans "Akaunti na madeni" %}</span>
+                    </a>
+                    <a class="tradecore-sheet-action" href="{% url 'ripoti' %}">
+                        <span class="tradecore-sheet-icon">📊</span><span class="tradecore-sheet-label">{% trans "Ripoti" %}</span><span class="tradecore-sheet-caption">{% trans "Angalia takwimu" %}</span>
+                    </a>
+                    <a class="tradecore-sheet-action" href="{% url 'ujumbe' %}">
+                        <span class="tradecore-sheet-icon">💬</span><span class="tradecore-sheet-label">{% trans "Mawasiliano" %}</span><span class="tradecore-sheet-caption">{% trans "Ujumbe na arifa" %}</span>
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="tradecore-install-row">
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-black text-gray-900">{% trans "Sakinisha TradeCore" %}</div>
+                        <div class="text-[8px] font-bold text-gray-500 mt-1">{% trans "Ongeza TradeCore kwenye skrini ya mwanzo ya simu." %}</div>
+                    </div>
+                    <button type="button" data-tradecore-install class="tradecore-install-btn shrink-0" onclick="TradeCoreMobile.install()">{% trans "Sakinisha" %}</button>
+                </div>
+                <button type="button" onclick="TradeCoreMobile.openSyncSheet(); TradeCoreMobile.closeMore(); TradeCoreMobile.closeQuickActions();" class="w-full mt-3 px-4 py-3 rounded-2xl border border-purple-100 bg-purple-50 text-purple-900 text-[10px] font-black">
+                    ☁️ {% trans "Bila Mtandao na Usawazishaji" %} <span id="tradecoreQuickPendingCount">(0)</span>
+                </button>
+                <button type="button" onclick="funguaSettingsModal(); TradeCoreMobile.closeMore(); TradeCoreMobile.closeQuickActions();" class="w-full mt-2 px-4 py-3 rounded-2xl border border-gray-200 bg-white text-gray-700 text-[10px] font-black">
+                    ⚙️ {% trans "Mipangilio" %}
+                </button>
+            </div>
+        </div>
+
+        <div id="tradecoreInstallSheet" class="tradecore-mobile-sheet" aria-hidden="true">
+            <div class="tradecore-mobile-sheet-card" role="dialog" aria-modal="true" aria-labelledby="tradecoreInstallTitle">
+                <div class="tradecore-sheet-grabber"></div>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div id="tradecoreInstallTitle" class="tradecore-sheet-title">{% trans "Sakinisha TradeCore" %}</div>
+                        <div id="tradecoreInstallSubtitle" class="tradecore-sheet-subtitle">{% trans "Tumia TradeCore kama programu kwenye simu yako." %}</div>
+                    </div>
+                    <button type="button" class="tradecore-mobile-sheet-close" onclick="TradeCoreMobile.closeInstallSheet()" aria-label="{% trans "Funga" %}">&times;</button>
+                </div>
+
+                <div id="tradecoreInstallNative" class="tradecore-install-guide hidden">
+                    <div class="tradecore-install-guide-icon">↗</div>
+                    <div>
+                        <div class="tradecore-install-guide-title">{% trans "Usakinishaji uko tayari" %}</div>
+                        <div class="tradecore-install-guide-text">{% trans "Bonyeza kitufe cha Sakinisha ili kivinjari kifungue dirisha lake la kawaida la kusakinisha TradeCore." %}</div>
+                    </div>
+                </div>
+
+                <div id="tradecoreInstallIOS" class="tradecore-install-guide hidden">
+                    <div class="tradecore-install-guide-icon">⌂</div>
+                    <div>
+                        <div class="tradecore-install-guide-title">{% trans "iPhone / iPad" %}</div>
+                        <div class="tradecore-install-guide-text">{% trans "Bonyeza Share kwenye Safari, kisha chagua" %} <strong>{% trans "Ongeza kwenye Skrini ya Mwanzo" %}</strong>.</div>
+                    </div>
+                </div>
+
+                <div id="tradecoreInstallStandalone" class="tradecore-install-guide hidden">
+                    <div class="tradecore-install-guide-icon success">✓</div>
+                    <div>
+                        <div class="tradecore-install-guide-title">{% trans "TradeCore tayari imesakinishwa" %}</div>
+                        <div class="tradecore-install-guide-text">{% trans "Unaendesha TradeCore kama programu. Hakuna usakinishaji mwingine unaohitajika." %}</div>
+                    </div>
+                </div>
+
+                <div id="tradecoreInstallUnavailable" class="tradecore-install-guide hidden">
+                    <div class="tradecore-install-guide-icon warn">!</div>
+                    <div>
+                        <div class="tradecore-install-guide-title">{% trans "Ombi la usakinishaji halipatikani hapa" %}</div>
+                        <div class="tradecore-install-guide-text">{% trans "Kwa majaribio ya IP ya ndani, kivinjari kinaweza kukataa usakinishaji wa PWA. Tumia HTTPS kwenye domain ya production au tumia Ongeza kwenye Skrini ya Mwanzo inapopatikana." %}</div>
+                    </div>
+                </div>
+
+                <button type="button" id="tradecoreInstallPrimary" class="tradecore-install-primary hidden" onclick="TradeCoreMobile.installNowFromSheet()">
+                    {% trans "Sakinisha TradeCore" %}
+                </button>
+            </div>
+        </div>
+
+        <div id="tradecoreSyncSheet" class="tradecore-mobile-sheet" aria-hidden="true">
+            <div class="tradecore-mobile-sheet-card" role="dialog" aria-modal="true" aria-labelledby="tradecoreSyncTitle">
+                <div class="tradecore-sheet-grabber"></div>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div id="tradecoreSyncTitle" class="tradecore-sheet-title">{% trans "Bila Mtandao na Usawazishaji" %}</div>
+                        <div class="tradecore-sheet-subtitle" id="tradecoreSyncSubtitle">{% trans "TradeCore inalinda muamala wowote uliowekwa bila internet." %}</div>
+                    </div>
+                    <button type="button" class="tradecore-mobile-sheet-close" onclick="TradeCoreMobile.closeSyncSheet()" aria-label="{% trans "Funga" %}">&times;</button>
+                </div>
+
+                <div class="tradecore-sync-status-card" id="tradecoreSyncStatusCard">
+                    <div class="tradecore-sync-status-icon" id="tradecoreSyncStatusIcon">✓</div>
+                    <div class="min-w-0">
+                        <div class="tradecore-sync-status-title" id="tradecoreSyncStatusTitle">{% trans "Hakuna mauzo yanayosubiri" %}</div>
+                        <div class="tradecore-sync-status-copy" id="tradecoreSyncStatusCopy">{% trans "Muamala ukikatika internet, TradeCore utauweka hapa." %}</div>
+                    </div>
+                </div>
+
+                <div id="tradecorePendingSalesList" class="mt-3 space-y-2"></div>
+
+                <button type="button" id="tradecoreSyncNowButton" onclick="TradeCoreMobile.syncNow()" class="tradecore-sync-button">
+                    ↻ {% trans "Sawazisha sasa" %}
+                </button>
+                <p class="text-[8px] font-bold text-gray-400 text-center mt-2">{% trans "Hakuna nakala mbili: kila mauzo ya bila mtandao yana Transaction ID ya kipekee." %}</p>
+            </div>
+        </div>
+
+        <div id="tradecoreMobileSheet" class="tradecore-mobile-sheet" aria-hidden="true">
+            <div class="tradecore-mobile-sheet-card tradecore-more-sheet" role="dialog" aria-modal="true" aria-labelledby="tradecoreMoreTitle">
+                <div class="tradecore-sheet-grabber"></div>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div id="tradecoreMoreTitle" class="tradecore-sheet-title">{% trans "Zaidi" %}</div>
+                        <div class="tradecore-sheet-subtitle">{% trans "Fikia sehemu zote za TradeCore bila kupoteza kazi uliyo nayo." %}</div>
+                    </div>
+                    <button type="button" class="tradecore-mobile-sheet-close" onclick="TradeCoreMobile.closeMore()" aria-label="{% trans "Funga" %}">&times;</button>
+                </div>
+
+                <div class="tradecore-more-grid">
+                    {% if request.user.is_superuser or request.user.profile.ni_admin %}
+                    <a class="tradecore-sheet-action" href="{% url 'dashboard' %}">
+                        <span class="tradecore-sheet-icon">⌂</span><span class="tradecore-sheet-label">{% trans "Dashibodi" %}</span><span class="tradecore-sheet-caption">{% trans "Muhtasari wa biashara" %}</span>
+                    </a>
+                    {% endif %}
+
+                    {% if request.user.profile.jukumu == 'admin' or request.user.profile.jukumu == 'stoo' %}
+                    <a class="tradecore-sheet-action gold" href="{% url 'stoo_bidhaa' %}">
+                        <span class="tradecore-sheet-icon">📦</span><span class="tradecore-sheet-label">{% trans "Stoo" %}</span><span class="tradecore-sheet-caption">{% trans "Bidhaa, stock na barcode" %}</span>
+                    </a>
+                    {% endif %}
+
+                    {% if request.user.profile.jukumu == 'admin' or request.user.profile.jukumu == 'cashier' %}
+                    <a class="tradecore-sheet-action primary" href="{% url 'mauzo' %}">
+                        <span class="tradecore-sheet-icon">🛒</span><span class="tradecore-sheet-label">{% trans "Mauzo" %}</span><span class="tradecore-sheet-caption">{% trans "Fungua POS" %}</span>
+                    </a>
+                    {% endif %}
+
+                    {% if request.user.profile.jukumu == 'admin' or request.user.profile.jukumu == 'cashier' or request.user.profile.jukumu == 'stoo' %}
+                    <a class="tradecore-sheet-action" href="{% url 'matumizi' %}">
+                        <span class="tradecore-sheet-icon">💵</span><span class="tradecore-sheet-label">{% trans "Matumizi" %}</span><span class="tradecore-sheet-caption">{% trans "Rekodi na lipa gharama" %}</span>
+                    </a>
+                    {% endif %}
+
+                    {% if request.user.profile.ni_admin %}
+                    <a class="tradecore-sheet-action" href="{% url 'wateja' %}">
+                        <span class="tradecore-sheet-icon">👤</span><span class="tradecore-sheet-label">{% trans "Wateja" %}</span><span class="tradecore-sheet-caption">{% trans "Akaunti na madeni" %}</span>
+                    </a>
+                    <a class="tradecore-sheet-action" href="{% url 'wafanyakazi' %}">
+                        <span class="tradecore-sheet-icon">👥</span><span class="tradecore-sheet-label">{% trans "Wafanyakazi" %}</span><span class="tradecore-sheet-caption">{% trans "Wafanyakazi na ruhusa" %}</span>
+                    </a>
+                    <a class="tradecore-sheet-action" href="{% url 'ujumbe' %}">
+                        <span class="tradecore-sheet-icon">💬</span><span class="tradecore-sheet-label">{% trans "Mawasiliano" %}</span><span class="tradecore-sheet-caption">{% trans "Ujumbe na arifa" %}</span>
+                    </a>
+                    <a class="tradecore-sheet-action" href="{% url 'ripoti' %}">
+                        <span class="tradecore-sheet-icon">📊</span><span class="tradecore-sheet-label">{% trans "Ripoti" %}</span><span class="tradecore-sheet-caption">{% trans "Takwimu za biashara" %}</span>
+                    </a>
+                    {% endif %}
+
+                    <button type="button" class="tradecore-sheet-action" onclick="funguaNotificationModal(); TradeCoreMobile.closeMore();">
+                        <span class="tradecore-sheet-icon">🔔</span><span class="tradecore-sheet-label">{% trans "Arifa" %}</span><span class="tradecore-sheet-caption">{% trans "Arifa za mfumo" %}</span>
+                    </button>
+                    <button type="button" class="tradecore-sheet-action" onclick="funguaProfileModal(); TradeCoreMobile.closeMore();">
+                        <span class="tradecore-sheet-icon">👤</span><span class="tradecore-sheet-label">{% trans "Wasifu" %}</span><span class="tradecore-sheet-caption">{% trans "Picha na akaunti" %}</span>
+                    </button>
+                    <button type="button" class="tradecore-sheet-action" onclick="funguaSettingsModal(); TradeCoreMobile.closeMore();">
+                        <span class="tradecore-sheet-icon">⚙️</span><span class="tradecore-sheet-label">{% trans "Mipangilio" %}</span><span class="tradecore-sheet-caption">{% trans "Muonekano na chaguo" %}</span>
+                    </button>
+                    <button type="button" class="tradecore-sheet-action" onclick="TradeCoreMobile.openSyncSheet(); TradeCoreMobile.closeMore();">
+                        <span class="tradecore-sheet-icon">☁️</span><span class="tradecore-sheet-label">{% trans "Bila Mtandao na Usawazishaji" %}</span><span class="tradecore-sheet-caption"><span id="tradecoreQuickPendingCount">(0)</span> {% trans "yanayosubiri" %}</span>
+                    </button>
+                </div>
+
+                <div class="tradecore-more-footer-actions">
+                    <button type="button" class="tradecore-install-primary tradecore-install-btn" data-tradecore-install onclick="TradeCoreMobile.install()">{% trans "Sakinisha TradeCore" %}</button>
+                    <button type="button" onclick="funguaLogoutModal(); TradeCoreMobile.closeMore();" class="tradecore-more-logout">
+                        {% trans "Toka kwenye TradeCore" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <nav id="tradecoreMobileTabbar" class="tradecore-mobile-only tradecore-mobile-tabbar" aria-label="TradeCore mobile navigation">
+    {% if request.user.profile.jukumu == 'cashier' %}
+        <a href="{% url 'mauzo' %}" class="tradecore-mobile-tab" data-tradecore-route="mauzo" aria-label="{% trans "Mauzo" %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>{% trans "Mauzo" %}</span>
+        </a>
+        <a href="{% url 'matumizi' %}" class="tradecore-mobile-tab" data-tradecore-route="matumizi" aria-label="{% trans "Matumizi" %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19h16"/><path d="M7 16V8m5 8V5m5 11v-6"/></svg><span>{% trans "Matumizi" %}</span>
+        </a>
+    {% elif request.user.profile.jukumu == 'stoo' %}
+        <a href="{% url 'stoo_bidhaa' %}" class="tradecore-mobile-tab" data-tradecore-route="stoo_bidhaa" aria-label="{% trans "Stoo" %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7.5 12 4l8 3.5L12 11 4 7.5z"/><path d="M4 12.5 12 16l8-3.5M4 17.5 12 21l8-3.5"/></svg><span>{% trans "Stoo" %}</span>
+        </a>
+        <a href="{% url 'mauzo' %}" class="tradecore-mobile-tab" data-tradecore-route="mauzo" aria-label="{% trans "Mauzo" %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>{% trans "Mauzo" %}</span>
+        </a>
+    {% else %}
+        <a href="{% url 'dashboard' %}" class="tradecore-mobile-tab" data-tradecore-route="dashboard" aria-label="{% trans "Dashibodi" %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg><span>{% trans "Mwanzo" %}</span>
+        </a>
+        <a href="{% url 'mauzo' %}" class="tradecore-mobile-tab" data-tradecore-route="mauzo" aria-label="{% trans "Mauzo" %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>{% trans "Mauzo" %}</span>
+        </a>
+    {% endif %}
+
+    <button type="button" class="tradecore-mobile-tab center" onclick="TradeCoreMobile.openQuickActions()" aria-label="{% trans "Vitendo vya Haraka" %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+
+    {% if request.user.profile.jukumu == 'admin' %}
+        <a href="{% url 'wateja' %}" class="tradecore-mobile-tab" data-tradecore-route="wateja" aria-label="{% trans "Wateja" %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3.8 20a6.2 6.2 0 0 1 10.4 0"/><path d="M16 6a2.8 2.8 0 1 1 0 5.6"/><path d="M15.5 14.5a5.5 5.5 0 0 1 4.7 5.5"/></svg><span>{% trans "Wateja" %}</span>
+        </a>
+    {% else %}
+        <button type="button" class="tradecore-mobile-tab" onclick="funguaProfileModal()" aria-label="{% trans "Wasifu" %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="3"/><path d="M5 21a7 7 0 0 1 14 0"/></svg><span>{% trans "Wasifu" %}</span>
+        </button>
+    {% endif %}
+
+    <button type="button" class="tradecore-mobile-tab" onclick="TradeCoreMobile.openMore()" aria-label="{% trans "Zaidi" %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg><span>{% trans "Zaidi" %}</span>
+    </button>
+</nav>
+
+        <!-- Global product footer: inherited by every page extending base.html -->
+        <footer class="mt-3 pb-0 pt-1.5 border-t border-gray-100 text-center">
+            <p class="text-[8px] sm:text-[9px] font-semibold text-gray-400 tracking-wide leading-none">
+                {% trans "Imewezeshwa na" %} <span class="font-black text-purple-900">Meron Tech</span>
+                <span class="mx-1 text-gray-300">•</span>
+                <span class="font-bold text-gray-500">v1.0.0.0</span>
+            </p>
+        </footer>
+
+    </main>
+
+    <!-- SURGERY: Welcome Pop-up Mpya Nzuri yenye Animations kwa Cashier & Admins -->
+    <style>
+        @keyframes welcomeBounceIn {
+            0% { transform: scale(0.7) translateY(40px); opacity: 0; }
+            60% { transform: scale(1.05) translateY(-10px); opacity: 1; }
+            80% { transform: scale(0.98) translateY(5px); }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        @keyframes textGlowFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(200px) rotate(360deg) scale(0.5); opacity: 0; }
+        }
+        .tc-welcome-animated {
+            animation: welcomeBounceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .tc-glow-text {
+            background: linear-gradient(90deg, #5b21b6, #fbbf24, #ec4899, #5b21b6);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textGlowFlow 4s ease infinite;
+        }
+        .confetti-particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+    <div id="tradecoreWelcome" class="fixed inset-0 z-[9999] hidden items-center justify-center p-5 opacity-0 transition-opacity duration-300" aria-hidden="true">
+        <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-md"></div>
+        <div id="tradecoreWelcomeCard" class="relative w-full max-w-sm rounded-[35px] border border-white/50 bg-white/95 p-8 text-center shadow-[0_40px_100px_rgba(0,0,0,0.4)] backdrop-blur-3xl tc-welcome-animated opacity-0">
+            <!-- Eneo la Confetti (Vipande vipande vinavyodondoka) -->
+            <div id="confettiContainer" class="absolute inset-0 overflow-hidden rounded-[35px] pointer-events-none"></div>
+            
+            <div class="absolute -top-20 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-purple-600/20 blur-[40px]"></div>
+            
+            <div class="relative mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full border-[3px] border-white bg-gradient-to-tr from-purple-900 to-purple-600 text-amber-400 shadow-xl transform rotate-3 hover:rotate-0 transition-transform overflow-hidden">
+                {% if request.user.profile.picha %}
+                    <img src="{{ request.user.profile.picha.url }}" alt="{% trans "Picha ya karibu" %}" style="width:100%; height:100%; object-fit:cover;">
+                {% else %}
+                    <span class="text-4xl font-black drop-shadow-md">
+                        {{ request.user.username|make_list|first|upper }}
+                    </span>
+                {% endif %}
+            </div>
+            
+            <p class="relative text-[10px] font-black uppercase tracking-[0.35em] text-gray-400 mb-1">{% trans "TradeCore POS" %}</p>
+            
+            <h2 id="tradecoreWelcomeName" class="relative text-3xl font-black tracking-tight text-gray-900 tc-glow-text leading-tight pb-1"></h2>
+            
+            <div class="bg-gray-50/80 rounded-2xl p-3.5 mt-4 border border-gray-100 shadow-inner">
+                <p id="tradecoreWelcomeTime" class="text-sm font-black text-purple-900"></p>
+                <p id="tradecoreWelcomeCopy" class="text-[11px] text-gray-500 mt-1 font-bold">{% trans "Kazi njema na mauzo mema leo!" %}</p>
+            </div>
+            
+            <div class="relative mx-auto mt-6 h-1.5 w-full overflow-hidden rounded-full bg-gray-100 shadow-inner">
+                <div id="tradecoreWelcomeProgress" class="h-full w-full origin-left rounded-full bg-gradient-to-r from-purple-900 to-amber-400"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MAKTABA YA CROPPER.JS INAYOTOKA MTANDAONI -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <!-- ========================================== -->
+
+    <div id="profileModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden items-center justify-center z-[200] p-4 transition-opacity duration-300 opacity-0">
+        <div id="profileModalCard" class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative border border-gray-100 text-center transform scale-95 transition-all duration-300">
+            <button onclick="fungaProfileModal()" class="absolute right-4 top-4 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-rose-600 transition-colors">&times;</button>
+            
+            <div id="modalAvatarWrapper" class="w-24 h-24 rounded-full bg-gradient-to-tr from-purple-900 to-purple-700 text-amber-400 flex items-center justify-center font-black text-4xl shadow-md border-4 border-white mx-auto mb-3 overflow-hidden relative">
+                <!-- Herufi inakuwepo muda wote ila inajificha kama kuna picha -->
+                <span id="modalAvatarInitial" class="{% if request.user.profile.picha %}hidden{% endif %}">
+                    {% if user.is_authenticated %}{{ user.username|make_list|first|upper }}{% else %}O{% endif %}
+                </span>
+                
+                <!-- Picha inaongezewa 'onerror' kurudisha herufi ikifeli -->
+                <img id="modalAvatarImage" 
+                     src="{% if request.user.profile.picha %}{{ request.user.profile.picha.url }}{% endif %}" 
+                     class="w-full h-full object-cover {% if not request.user.profile.picha %}hidden{% endif %}" 
+                     alt="{% trans "Wasifu" %}"
+                     onerror="this.classList.add('hidden'); document.getElementById('modalAvatarInitial').classList.remove('hidden');">
+            </div>
+
+            <h3 id="modalUserName" class="text-xl font-black text-gray-900">{% if user.is_authenticated %}{{ user.get_full_name|default:user.username|title }}{% else %}Octavian{% endif %}</h3>
+            
+            <p id="modalUserRole" class="text-xs text-gray-500 mb-6">
+                {% if request.user.profile.jukumu == "admin" or request.user.profile.ni_admin %} {% trans "Bosi Mkuu" %} {% elif request.user.profile.jukumu == "cashier" or request.user.profile.ni_cashier %} {% trans "Muuza" %} {% elif request.user.profile.jukumu == "stoo" or request.user.profile.ni_stoo %} {% trans "Mhudumu wa Stoo" %} {% endif %} | {% trans "TradeCore POS" %}
+            </p>
+
+            <div class="space-y-3">
+                <label id="uploadLabelBtn" class="w-full bg-purple-900 hover:bg-purple-800 text-amber-400 font-bold py-3 px-4 rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-2 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    <span>{% trans "Badilisha Picha ya Wasifu" %}</span>
+                    <input type="file" id="profilePicInput" onchange="uploadProfilePicture(event)" class="hidden" accept="image/*">
+                </label>
+
+                <button id="deletePicBtn" onclick="deleteProfilePicture()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold py-3 px-4 rounded-xl transition-all text-xs flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    <span>{% trans "Futa Picha Iliyoingizwa" %}</span>
+                </button>
+
+                <hr class="border-gray-100 my-2">
+
+                <button type="button" onclick="fungaProfileModal(); funguaLogoutModal();" class="w-full bg-gray-50 hover:bg-rose-600 hover:text-white text-gray-800 font-bold py-3 px-4 rounded-xl transition-all text-xs flex items-center justify-center gap-2 border border-gray-200 hover:border-rose-600 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    <span>{% trans "Toka kwenye Mfumo" %}</span>
+                </button>
+            </div>
+            
+            <!-- ENEO LA CROPPER LINALOTOKEA BAADA YA KUCHAGUA PICHA -->
+            <div id="cropperContainer" class="hidden mt-4 w-full h-56 bg-gray-100 rounded-xl overflow-hidden relative">
+                <img id="imageToCrop" src="" class="max-w-full block">
+            </div>
+            
+            <button id="saveProfilePicBtn" class="hidden w-full mt-3 bg-purple-900 text-amber-400 font-black py-3 px-4 rounded-xl shadow-md transition-all text-sm items-center justify-center">
+                {% trans "Hifadhi Picha" %}
+            </button>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden items-center justify-center z-[200] p-4 transition-opacity duration-300 opacity-0">
+        <div id="settingsModalCard" class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative border border-gray-100 transform scale-95 transition-all duration-300">
+            <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-6">
+                <h3 class="text-xl font-black text-gray-900">{% trans "Mipangilio ya Mfumo" %} ⚙️</h3>
+                <button onclick="fungaSettingsModal()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-rose-600 transition-colors">&times;</button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-2">{% trans "Jina la Duka / Biashara" %}</label>
+                    <input type="text" value="{% if request.user.profile.duka %}{{ request.user.profile.duka.jina_la_duka|default:'' }}{% elif request.user.duka %}{{ request.user.duka.jina_la_duka|default:'' }}{% endif %}" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold focus:outline-none focus:border-purple-900">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-2">{% trans "Matawi ya Mfumo" %}</label>
+                    <select class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-purple-900">
+                        <option>{% trans "Tawi Kuu (Dodoma City)" %}</option>
+                        <option>{% trans "Tawi la Mkoani" %}</option>
+                    </select>
+                </div>
+                <div class="pt-2 border-t border-gray-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-gray-800">{% trans "Sauti za Risiti na Arifa" %}</p>
+                        <p class="text-[10px] text-gray-400">{% trans "Washa sauti unapoingiza mzigo au kuuza" %}</p>
+                    </div>
+                    <input type="checkbox" checked class="w-5 h-5 text-purple-900 rounded focus:ring-purple-900 cursor-pointer">
+                </div>
+                
+                <div class="pt-3 mt-1 border-t border-gray-100">
+                    <label class="block text-xs font-bold text-gray-700 mb-2">{% trans "Muonekano" %}</label>
+                    <select id="themeSelect" onchange="toggleTheme(this.value)" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-purple-900 cursor-pointer">
+                        <option value="light">☀️ {% trans "Hali ya Mwanga (Mchana)" %}</option>
+                        <option value="dark">🌙 {% trans "Hali ya Giza (Usiku)" %}</option>
+                        <option value="system">💻 {% trans "Chaguo la Kifaa" %}</option>
+                    </select>
+                </div>
+
+                <div class="pt-3 mt-1 border-t border-gray-100">
+                    <label class="block text-xs font-bold text-gray-700 mb-2">{% trans "Ukubwa wa Maneno" %}</label>
+                    <div class="flex items-center gap-3 bg-gray-50 p-2 rounded-xl border border-gray-200">
+                        <span class="text-xs font-bold text-gray-500">A</span>
+                        <input type="range" id="fontSizeSlider" min="80" max="120" value="100" step="10" oninput="badiliFontSize(this.value)" class="w-full accent-purple-900 h-1.5 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+                        <span class="text-lg font-bold text-gray-800">A</span>
+                    </div>
+                </div>
+
+                <button onclick="fungaSettingsModal(); if(typeof showToast === 'function') showToast('{% trans "Mipangilio imehifadhiwa kikamilifu!" %}')" class="w-full mt-2 bg-purple-900 text-amber-400 font-bold py-3 rounded-xl shadow-md text-sm hover:bg-purple-800 transition-all">{% trans "Hifadhi Mipangilio" %}</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="logoutModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden items-center justify-center z-[200] p-4 transition-opacity duration-300 opacity-0">
+        <div id="logoutModalCard" class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center transform scale-95 transition-all duration-300">
+            <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-900 mb-2">{% trans "Je, unataka kutoka?" %}</h3>
+            <p class="text-sm text-gray-500 mb-6">{% trans "Ukitoka utatakiwa kuingiza tena nywila ili kuingia kwenye TradeCore POS." %}</p>
+            <div class="flex gap-3">
+                <button onclick="fungaLogoutModal()" class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-xl text-sm hover:bg-gray-200 transition-all">{% trans "Baki Hapa" %}</button>
+            
+                <form method="POST" action="{% url 'logout' %}" class="flex-1 flex">
+    {% csrf_token %}
+    <button type="submit" class="w-full px-4 py-2.5 bg-rose-600 text-white font-bold rounded-xl shadow-md text-sm hover:bg-rose-700 transition-all flex items-center justify-center">
+        {% trans "Thibitisha Kutoka" %}
+    </button>
+</form>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (localStorage.theme === 'dark') {
+                document.getElementById('themeSelect').value = 'dark';
+            } else if (localStorage.theme === 'light') {
+                document.getElementById('themeSelect').value = 'light';
+            } else {
+                document.getElementById('themeSelect').value = 'system';
+            }
+
+            const now = new Date();
+
+            /* Store name is resolved at login and kept in the current session. */
+            const storeNameFromSession = "{{ request.session.tradecore_store_name|default:''|escapejs }}";
+            const storeNameEl = document.getElementById("avatarSalamuYaMuda");
+            if (storeNameEl) {
+                if (storeNameFromSession) {
+                    storeNameEl.textContent = storeNameFromSession;
+                    storeNameEl.title = storeNameFromSession;
+                }
+            }
+
+            const welcomeParams = new URLSearchParams(window.location.search);
+            const showWelcome = welcomeParams.get("welcome") === "1";
+            const welcomeUser = "{{ request.session.tradecore_welcome_user|default:''|escapejs }}";
+            const welcomeRoleRaw = "{{ request.session.tradecore_welcome_role|default:''|escapejs }}";
+            const welcomeType = "{{ request.session.tradecore_welcome_type|default:'login'|escapejs }}";
+            const welcomeRole = ({admin:"{% trans "Bosi Mkuu" %}", cashier:"{% trans "Muuza" %}", stoo:"{% trans "Mhudumu wa Stoo" %}"}[welcomeRoleRaw] || "{% trans "Mfanyakazi" %}");
+            const welcome = document.getElementById("tradecoreWelcome");
+            const welcomeCard = document.getElementById("tradecoreWelcomeCard");
+            const welcomeName = document.getElementById("tradecoreWelcomeName");
+            const welcomeTime = document.getElementById("tradecoreWelcomeTime");
+            const welcomeCopy = document.getElementById("tradecoreWelcomeCopy");
+            const welcomeProgress = document.getElementById("tradecoreWelcomeProgress");
+
+            if (showWelcome && welcome && welcomeCard) {
+                history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+
+                {
+                    const hour = new Date().getHours();
+                    let salamuYaMuda = "{% trans "Usiku Mwema" %}";
+                    if (hour >= 5 && hour < 12) salamuYaMuda = "{% trans "Asubuhi Njema" %}";
+                    else if (hour >= 12 && hour < 17) salamuYaMuda = "{% trans "Mchana Mwema" %}";
+                    else if (hour >= 17 && hour < 20) salamuYaMuda = "{% trans "Jioni Njema" %}";
+                    
+                    if (welcomeType === "trial") {
+                        if (welcomeName) welcomeName.textContent = "🎉 {% trans "Hongera!" %}";
+                        if (welcomeTime) welcomeTime.textContent = "{% trans "Umezawadiwa Siku 30 za Bure" %}";
+                        if (welcomeCopy) welcomeCopy.textContent = `${welcomeUser || "{% trans "Umefanikiwa" %}"}, {% trans "umepewa siku 30 za matumizi ya bure za TradeCore. Karibu sana!" %}`;
+                    } else if (welcomeType === "premium") {
+                        if (welcomeName) welcomeName.textContent = "🎉 {% trans "Hongera!" %}";
+                        if (welcomeTime) welcomeTime.textContent = "{% trans "Umefanikiwa Kupata Kifurushi cha Premium" %}";
+                        if (welcomeCopy) welcomeCopy.textContent = `${welcomeUser || "{% trans "Malipo yako" %}"} {% trans "yamekamilika. TradeCore Premium imeamilishwa kwa biashara yako." %}`;
+                    } else {
+                        if (welcomeName) welcomeName.textContent = `{% trans "Karibu" %}, ${welcomeUser || ""}`;
+                        if (welcomeTime) welcomeTime.textContent = salamuYaMuda + " 🌟";
+                        if (welcomeCopy) welcomeCopy.textContent = "Kazi njema na mauzo mema leo!";
+                    }
+                    
+                    welcome.classList.remove("hidden");
+                    welcome.classList.add("flex");
+                    
+                    const confettiContainer = document.getElementById("confettiContainer");
+                    if (confettiContainer) {
+                        const colors = ['#fbbf24', '#5b21b6', '#ec4899', '#10b981', '#3b82f6'];
+                        for (let i = 0; i < 45; i++) {
+                            const conf = document.createElement('div');
+                            conf.className = 'confetti-particle';
+                            conf.style.left = Math.random() * 100 + '%';
+                            conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                            conf.style.animationDelay = (Math.random() * 0.4) + 's';
+                            conf.style.animationDuration = (Math.random() * 1.5 + 1.5) + 's';
+                            conf.style.animationName = 'confettiFall';
+                            conf.style.animationFillMode = 'forwards';
+                            confettiContainer.appendChild(conf);
+                        }
+                    }
+
+                    requestAnimationFrame(() => {
+                        welcome.classList.remove("opacity-0");
+                    });
+                    
+                    const duration = 3800; // Tumeongeza muda ili mtumiaji asome
+                    if (welcomeProgress) {
+                        welcomeProgress.style.transition = `transform ${duration}ms linear`;
+                        welcomeProgress.style.transform = "scaleX(0)";
+                    }
+                    
+                    window.setTimeout(() => {
+                        welcome.classList.add("opacity-0");
+                        welcomeCard.classList.remove("tc-welcome-animated");
+                        welcomeCard.style.transform = "scale(0.9) translateY(20px)";
+                        welcomeCard.style.opacity = "0";
+                        welcomeCard.style.transition = "all 0.5s ease";
+                        window.setTimeout(() => { 
+                            welcome.classList.remove("flex"); 
+                            welcome.classList.add("hidden"); 
+                            if (confettiContainer) confettiContainer.innerHTML = '';
+                        }, 500);
+                    }, duration);
+                }
+            }
+
+            const globalDateText = document.getElementById("globalDateText");
+            if (globalDateText) {
+                const siku = [
+                    "{% trans "Jumapili" %}",
+                    "{% trans "Jumatatu" %}",
+                    "{% trans "Jumanne" %}",
+                    "{% trans "Jumatano" %}",
+                    "{% trans "Alhamisi" %}",
+                    "{% trans "Ijumaa" %}",
+                    "{% trans "Jumamosi" %}"
+                ];
+                const miezi = [
+                    "{% trans "Jan" %}", "{% trans "Feb" %}", "{% trans "Mar" %}", "{% trans "Apr" %}", "{% trans "Mei" %}", "{% trans "Jun" %}",
+                    "{% trans "Jul" %}", "{% trans "Ago" %}", "{% trans "Sep" %}", "{% trans "Okt" %}", "{% trans "Nov" %}", "{% trans "Des" %}"
+                ];
+
+                globalDateText.textContent =
+                    `${siku[now.getDay()]} · ${String(now.getDate()).padStart(2, "0")} ${miezi[now.getMonth()]} ${now.getFullYear()}`;
+            }
+
+            pakiaNotifications(false);
+            window.setInterval(function() {
+                pakiaNotifications(false);
+            }, 30000);
+        });
+
+        function toggleTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            } else if (theme === 'light') {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                localStorage.removeItem('theme');
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }
+        }
+
+        async function pakiaNotifications(showModal = false) {
+            const modal = document.getElementById('notificationModal');
+            const card = document.getElementById('notificationModalCard');
+            const feed = document.getElementById('notificationFeed');
+            const loading = document.getElementById('notificationFeedLoading');
+            const errorBox = document.getElementById('notificationFeedError');
+            const errorText = document.getElementById('notificationFeedErrorText');
+            const subtitle = document.getElementById('notificationModalSubtitle');
+            const badge = document.getElementById('notificationBellBadge');
+            if (!modal || !card || !feed) return;
+
+            if (showModal) openGlobalModal('notificationModal', 'notificationModalCard');
+            loading?.classList.remove('hidden');
+            errorBox?.classList.add('hidden');
+            feed?.classList.add('hidden');
+
+            try {
+                const response = await fetch('{% url "dashboard" %}?notification_feed=1', {
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await response.json();
+                if (!response.ok || !data.ok) {
+                    throw new Error(data.message || '{% trans "Imeshindikana kupata taarifa." %}');
+                }
+
+                const esc = value => {
+                    const d = document.createElement('div');
+                    d.textContent = value ?? '';
+                    return d.innerHTML;
+                };
+
+                const timeText = item => {
+                    if (item.time_label) return item.time_label;
+                    if (!item.created_at) return '';
+                    const d = new Date(item.created_at);
+                    if (Number.isNaN(d.getTime())) return '';
+                    return d.toLocaleString(undefined, {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                };
+
+                const styles = {
+                    danger: ['bg-rose-50', 'border-rose-200', 'text-rose-600', 'text-rose-900', '⚠️'],
+                    warning: ['bg-amber-50', 'border-amber-200', 'text-amber-600', 'text-amber-900', '⚠️'],
+                    order: ['bg-purple-50', 'border-purple-200', 'text-purple-600', 'text-purple-900', '📦']
+                };
+
+                feed.innerHTML = '';
+
+                if (!Array.isArray(data.alerts) || !data.alerts.length) {
+                    feed.innerHTML = '<div class="py-12 text-center text-gray-400"><div class="text-3xl mb-2">🔔</div><p class="text-xs font-black text-gray-700">{% trans "Hakuna stock alert au order kwa sasa." %}</p><p class="text-[10px] mt-1">{% trans "Mfumo utaonyesha taarifa mpya hapa." %}</p></div>';
+                } else {
+                    data.alerts.forEach(item => {
+                        const s = styles[item.severity] || styles.order;
+                        const meta = item.kind === 'stock'
+                            ? '<span class="text-[8px] font-black uppercase tracking-wide">{% trans "LIVE STOCK" %}</span>'
+                            : '<span class="text-[8px] font-black uppercase tracking-wide">{% trans "NEW ORDER" %}</span>';
+                        const action = item.action_url
+                            ? `<a href="${esc(item.action_url)}" class="inline-flex mt-2 text-[9px] font-black text-purple-900 hover:underline">{% trans "Fungua" %}</a>`
+                            : '';
+
+                        feed.insertAdjacentHTML(
+                            'beforeend',
+                            `<div class="p-3 bg-white border ${s[1]} rounded-2xl shadow-sm"><div class="flex gap-3 items-start"><span class="${s[2]} font-bold text-lg leading-none shrink-0">${s[4]}</span><div class="min-w-0 flex-1"><p class="text-xs font-black ${s[3]} break-words">${esc(item.title)}</p><div class="${s[2]} mt-0.5">${meta}</div><p class="text-[10px] text-gray-600 mt-1 leading-relaxed">${esc(item.message)}</p><div class="flex items-center justify-between gap-2 mt-2"><span class="text-[8px] text-gray-500">${esc(timeText(item))}</span>${action}</div></div></div></div>`
+                        );
+                    });
+                }
+
+                const count = Number(data.alert_count || 0);
+                if (badge) {
+                    badge.textContent = String(count);
+                    badge.classList.toggle('hidden', count <= 0);
+                }
+                if (subtitle) {
+                    subtitle.textContent = `${count} {% trans "live alert" %}${count === 1 ? "" : "{% trans "live alerts" %}"} · {% trans "stock na order" %}`;
+                }
+            } catch (error) {
+                if (errorText) {
+                    errorText.textContent = error?.message || '{% trans "Jaribu tena." %}';
+                }
+                errorBox?.classList.remove('hidden');
+            } finally {
+                loading?.classList.add('hidden');
+                feed?.classList.remove('hidden');
+            }
+        }
+
+        function funguaNotificationModal() { pakiaNotifications(true); }
+        function fungaNotificationModal() { closeGlobalModal('notificationModal', 'notificationModalCard'); }
+        
+        let profileCropper;
+
+        function funguaProfileModal() { openGlobalModal('profileModal', 'profileModalCard'); }
+        
+        // Modal ikifungwa, tunasafisha uchafu wote wa Cropper uliokuwepo
+        function fungaProfileModal() { 
+            closeGlobalModal('profileModal', 'profileModalCard'); 
+            setTimeout(() => {
+                if (profileCropper) {
+                    profileCropper.destroy();
+                    profileCropper = null;
+                }
+                const cropperContainer = document.getElementById('cropperContainer');
+                const saveBtn = document.getElementById('saveProfilePicBtn');
+                const deleteBtn = document.getElementById('deletePicBtn');
+                const uploadLabelBtn = document.getElementById('uploadLabelBtn');
+                const modalAvatarWrapper = document.getElementById('modalAvatarWrapper');
+                const modalUserName = document.getElementById('modalUserName');
+                const modalUserRole = document.getElementById('modalUserRole');
+                const initialEl = document.getElementById('modalAvatarInitial');
+                const profileInput = document.getElementById('profilePicInput');
+
+                if(cropperContainer) cropperContainer.classList.add('hidden');
+                if(saveBtn) { saveBtn.classList.add('hidden'); saveBtn.classList.remove('flex'); saveBtn.innerHTML = "{% trans "Hifadhi Picha" %}"; }
+                if(deleteBtn) deleteBtn.classList.remove('hidden');
+                if(uploadLabelBtn) uploadLabelBtn.classList.remove('hidden');
+                if(initialEl && !document.getElementById('modalAvatarImage').src) initialEl.classList.remove('hidden');
+                if(modalAvatarWrapper) modalAvatarWrapper.classList.remove('hidden');
+                if(modalUserName) modalUserName.classList.remove('hidden');
+                if(modalUserRole) modalUserRole.classList.remove('hidden');
+                if(profileInput) profileInput.value = "";
+            }, 300);
+        }
+
+        // Akichagua picha kwenye Desktop/Simu
+        function uploadProfilePicture(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // 1. Ficha vitu vya zamani ili kupata nafasi ya Cropper
+                    const deleteBtn = document.getElementById('deletePicBtn');
+                    const uploadLabelBtn = document.getElementById('uploadLabelBtn');
+                    const modalAvatarWrapper = document.getElementById('modalAvatarWrapper');
+                    const modalUserName = document.getElementById('modalUserName');
+                    const modalUserRole = document.getElementById('modalUserRole');
+
+                    if(deleteBtn) deleteBtn.classList.add('hidden');
+                    if(uploadLabelBtn) uploadLabelBtn.classList.add('hidden');
+                    if(modalAvatarWrapper) modalAvatarWrapper.classList.add('hidden');
+                    if(modalUserName) modalUserName.classList.add('hidden');
+                    if(modalUserRole) modalUserRole.classList.add('hidden');
+                    
+                    // 2. Washa uwanja wa Cropper
+                    const cropperContainer = document.getElementById('cropperContainer');
+                    const imageToCrop = document.getElementById('imageToCrop');
+                    const saveBtn = document.getElementById('saveProfilePicBtn');
+                    
+                    if(imageToCrop) imageToCrop.src = e.target.result;
+                    if(cropperContainer) cropperContainer.classList.remove('hidden');
+                    if(saveBtn) { saveBtn.classList.remove('hidden'); saveBtn.classList.add('flex'); }
+                    
+                    if (profileCropper) { profileCropper.destroy(); }
+                    
+                    // 3. Washa uchawi wa kukata (Cropper JS)
+                    profileCropper = new Cropper(imageToCrop, {
+                        aspectRatio: 1, 
+                        viewMode: 1,
+                        dragMode: 'move',
+                        background: false,
+                        autoCropArea: 1,
+                    });
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Aki-click Hifadhi: Kata picha na ipeleke kwenye Database (views.py)
+        const saveProfilePicBtn = document.getElementById('saveProfilePicBtn');
+        if (saveProfilePicBtn) {
+            saveProfilePicBtn.addEventListener('click', () => {
+                if (!profileCropper) return;
+                saveProfilePicBtn.innerHTML = "{% trans "Inahifadhi... Subiri kidogo" %}";
+                
+                const canvas = profileCropper.getCroppedCanvas({ width: 400, height: 400 });
+                const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+                
+                // Tunachukua CSRF Token kwa usalama
+                const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+                const csrfToken = csrfTokenElement ? csrfTokenElement.value : '{{ csrf_token }}';
+
+                fetch('/upload_profile_picture/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: 'image_data=' + encodeURIComponent(base64Image)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        window.location.reload(); // Reload kuonesha picha mpya kwenye App Bar!
+                    } else {
+                        alert("{% trans "Imeshindwa kuhifadhi picha:" %} " + data.message);
+                        saveProfilePicBtn.innerHTML = "{% trans "Hifadhi Picha" %}";
+                    }
+                })
+                .catch(err => {
+                    alert("{% trans "Kuna tatizo la mtandao." %}");
+                    saveProfilePicBtn.innerHTML = "{% trans "Hifadhi Picha" %}";
+                });
+            });
+        }
+
+        function deleteProfilePicture() {
+            // Ficha kwa mbele tu (Ili kuifuta kwenye DB inahitaji view nyingine ya Python)
+            const initialEl = document.getElementById('modalAvatarInitial');
+            const imgEl = document.getElementById('modalAvatarImage');
+            
+            if(initialEl) initialEl.classList.remove('hidden');
+            if(imgEl) { imgEl.classList.add('hidden'); imgEl.src = ""; }
+            
+            fungaProfileModal();
+            if(typeof showToast === 'function') showToast('Picha ya profile imeondolewa!');
+        }
+
+        function funguaSettingsModal() { openGlobalModal('settingsModal', 'settingsModalCard'); }
+        function fungaSettingsModal() { closeGlobalModal('settingsModal', 'settingsModalCard'); }
+        function funguaLogoutModal() { openGlobalModal('logoutModal', 'logoutModalCard'); }
+        function fungaLogoutModal() { closeGlobalModal('logoutModal', 'logoutModalCard'); }
+
+        function openGlobalModal(bgId, cardId) {
+            const bg = document.getElementById(bgId), card = document.getElementById(cardId);
+            if(bg && card) {
+                bg.classList.remove('hidden'); bg.classList.add('flex');
+                setTimeout(() => { bg.classList.remove('opacity-0'); card.classList.remove('scale-95'); }, 10);
+            }
+        }
+        function closeGlobalModal(bgId, cardId) {
+            const bg = document.getElementById(bgId), card = document.getElementById(cardId);
+            if(bg && card) {
+                bg.classList.add('opacity-0'); card.classList.add('scale-95');
+                setTimeout(() => { bg.classList.add('hidden'); bg.classList.remove('flex'); }, 300);
+            }
+        }
+    </script>
+    <script src="{% static 'tradecore_pwa.js' %}" defer></script>
+
+    
+
+<script>
+    // =====================================================
+    // DYNAMIC UI: AUTO-HIDE & SWIPE TO DISMISS (APP BAR)
+    // =====================================================
+    document.addEventListener("DOMContentLoaded", function() {
+        const topAppBar = document.getElementById('tradecoreMobileHeader');
+        const bottomTabBar = document.querySelector('.tradecore-mobile-tabbar');
+        
+        if (!topAppBar && !bottomTabBar) return;
+
+        let lastScrollY = window.scrollY;
+        
+        // 1. SCROLL LOGIC (Inaficha/Kudhihirisha)
+        window.addEventListener('scroll', () => {
+            if (window.innerWidth > 1024) return; 
+            
+            let currentScrollY = window.scrollY;
+            if (currentScrollY > lastScrollY && currentScrollY > 50) {
+                // Anashuka -> Ficha zote
+                if (topAppBar) topAppBar.classList.add('tc-top-hidden');
+                if (bottomTabBar) bottomTabBar.classList.add('tradecore-bar-hidden');
+            } else {
+                // Anapanda -> Onesha zote & Safisha Swipe za pembeni
+                if (topAppBar) {
+                    topAppBar.classList.remove('tc-top-hidden', 'tc-swiped-left', 'tc-swiped-right');
+                }
+                if (bottomTabBar) bottomTabBar.classList.remove('tradecore-bar-hidden');
+            }
+            lastScrollY = currentScrollY;
+        }, { passive: true });
+
+        // 2. SWIPE LOGIC (Uchawi wa kuisukuma pembeni ulioboreshwa)
+        if (topAppBar) {
+            let touchStartX = 0;
+            let touchStartY = 0;
+
+            topAppBar.addEventListener('touchstart', e => {
+                touchStartX = e.touches[0].screenX;
+                touchStartY = e.touches[0].screenY;
+            }, { passive: true });
+
+            // KINGA: Hii ndiyo inazuia page kugeuka ukigusa App Bar!
+            topAppBar.addEventListener('touchmove', e => {
+                if (!touchStartX || !touchStartY) return;
+                
+                let moveX = Math.abs(e.touches[0].screenX - touchStartX);
+                let moveY = Math.abs(e.touches[0].screenY - touchStartY);
+                
+                // Kama anaswipe sana pembeni (X) kuliko juu/chini (Y), zuia browser!
+                if (moveX > moveY && moveX > 10) {
+                    e.preventDefault(); 
+                }
+            }, { passive: false }); // 'false' inaruhusu preventDefault ifanye kazi
+            
+            topAppBar.addEventListener('touchend', e => {
+                let touchEndX = e.changedTouches[0].screenX;
+                let touchEndY = e.changedTouches[0].screenY;
+                
+                let swipeX = touchEndX - touchStartX;
+                let swipeY = Math.abs(touchEndY - touchStartY);
+
+                // Imepunguzwa uzito (Kutoka 60 mpaka 35) ili iwe nyepesi mno!
+                if (swipeY < 40) {
+                    if (swipeX > 35) {
+                        topAppBar.classList.add('tc-swiped-right');
+                    } else if (swipeX < -35) {
+                        topAppBar.classList.add('tc-swiped-left');
+                    }
+                }
+                
+                // Safisha data tayari kwa mguso unaofuata
+                touchStartX = 0; touchStartY = 0;
+            }, { passive: true });
+        }
+
+        // 3. KEYBOARD LOGIC (Ficha Bottom Bar uki-type)
+        const formInputs = document.querySelectorAll('input, select, textarea');
+        formInputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                if (window.innerWidth <= 1024 && bottomTabBar) bottomTabBar.classList.add('tradecore-bar-hidden');
+            });
+            input.addEventListener('blur', () => {
+                if (window.innerWidth <= 1024 && bottomTabBar) bottomTabBar.classList.remove('tradecore-bar-hidden');
+            });
+        });
+    });
+</script>
+
+
+
+<!-- =====================================================
+     UCHAWI WA DRAGGABLE FAB (Umerekebishwa Kushinda CSS)
+     ===================================================== -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        
+        function fanyaKihamishike(fabElement) {
+            if (!fabElement || fabElement.dataset.draggable === "true") return;
+            fabElement.dataset.draggable = "true";
+            
+            let isDragging = false;
+            let hasDragged = false;
+            
+            // 1. ANAPOGUSA (Touch Start)
+            fabElement.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                hasDragged = false;
+                // Tunatumia setProperty kuvunja nguvu ya CSS !important
+                fabElement.style.setProperty('transition', 'none', 'important');
+            }, { passive: true });
+            
+            // 2. ANAPOSOGEZA (Touch Move)
+            fabElement.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                hasDragged = true;
+                
+                // Zuia page kuscroll ukivuta kitufe
+                if(e.cancelable) e.preventDefault(); 
+                
+                const touch = e.touches[0];
+                const x = touch.clientX - (fabElement.offsetWidth / 2);
+                const y = touch.clientY - (fabElement.offsetHeight / 2);
+                
+                const maxX = window.innerWidth - fabElement.offsetWidth - 10;
+                const maxY = window.innerHeight - fabElement.offsetHeight - 10;
+                
+                // UCHAWI ULIOKOSANA NA CSS UPO HAPA:
+                // Lazima tuweke 'important' kwenye JS ili kuua ile 'important' ya CSS!
+                fabElement.style.setProperty('left', `${Math.max(10, Math.min(x, maxX))}px`, 'important');
+                fabElement.style.setProperty('top', `${Math.max(10, Math.min(y, maxY))}px`, 'important');
+                fabElement.style.setProperty('right', 'auto', 'important');
+                fabElement.style.setProperty('bottom', 'auto', 'important');
+                
+            }, { passive: false });
+            
+            // 3. ANAPOACHIA (Touch End)
+            fabElement.addEventListener('touchend', (e) => {
+                isDragging = false;
+                fabElement.style.setProperty('transition', 'all 0.3s ease', 'important');
+            });
+            
+            // 4. KUZUIA KUFUNGUKA KAMA ALIKUWA ANASOGEZA
+            fabElement.addEventListener('click', (e) => {
+                if (hasDragged) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true); 
+        }
+
+        // ==========================================
+        // KAMATA VITUFE VYOTE
+        // ==========================================
+
+        // 1. Kitufe cha Stoo
+        const stooHeader = document.getElementById('inventoryPageHeader');
+        if (stooHeader) {
+            const buttons = stooHeader.querySelectorAll('button');
+            const stooFab = buttons[buttons.length - 1]; 
+            if (stooFab) {
+                stooFab.id = "tradecoreDraggableFab";
+                fanyaKihamishike(stooFab);
+            }
+        }
+
+        // 2. Kitufe cha Kikapu (POS)
+        const cartFab = document.getElementById('tradecoreMobileCartFab');
+        if (cartFab) { fanyaKihamishike(cartFab); }
+
+        // 3. Kuwinda Vitufe Vingine Vya Wateja n.k (Smart Finder)
+        setTimeout(() => {
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => {
+                const style = window.getComputedStyle(btn);
+                if (style.position === 'fixed' && style.bottom !== 'auto' && btn.id !== 'tradecoreMobileCartFab') {
+                    fanyaKihamishike(btn);
+                }
+            });
+        }, 1500); 
+
+    });
+</script>
+
+<script>
+// UCHAWI WA KUBADILI FONT SIZE (Dynamic Apple Zoom)
+    document.addEventListener("DOMContentLoaded", function() {
+        const savedSize = localStorage.getItem('tc_font_size') || '100';
+        document.documentElement.style.fontSize = savedSize + '%';
+        const slider = document.getElementById('fontSizeSlider');
+        if(slider) slider.value = savedSize;
+    });
+
+    function badiliFontSize(value) {
+        document.documentElement.style.fontSize = value + '%';
+        localStorage.setItem('tc_font_size', value);
+    }
+
+</script>
+
+
+<!-- =========================================================
+     TRADECORE LANGUAGE ENGINE
+     - Prevents browser/Google auto-translation.
+     - Keeps translation inside TradeCore (no Google Translate iframe/script).
+     - Persists the selected language across pages using localStorage.
+     - Translates static UI strings; user/store data remains untouched.
+     ========================================================= -->
+<style id="tradecore-language-style">
+    #tradecoreLanguageSwitcher {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 9990;
+        font-family: inherit;
+    }
+
+    .tc-language-shell {
+        position: relative;
+    }
+
+    .tc-language-button {
+        min-width: 132px;
+        height: 42px;
+        padding: 0 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 9px;
+        border: 1px solid rgba(226,232,240,.92);
+        border-radius: 16px;
+        background: rgba(255,255,255,.78);
+        color: #334155;
+        box-shadow: 0 10px 30px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.90);
+        backdrop-filter: blur(18px) saturate(145%);
+        -webkit-backdrop-filter: blur(18px) saturate(145%);
+        cursor: pointer;
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+    }
+
+    .tc-language-button:hover {
+        transform: translateY(-1px);
+        border-color: rgba(124,58,237,.20);
+        box-shadow: 0 14px 34px rgba(15,23,42,.12), inset 0 1px 0 rgba(255,255,255,.95);
+    }
+
+    .tc-language-button.is-open {
+        background: rgba(255,255,255,.92);
+        border-color: rgba(124,58,237,.25);
+        box-shadow: 0 14px 36px rgba(76,29,149,.14), inset 0 1px 0 rgba(255,255,255,.95);
+    }
+
+    .tc-language-leading {
+        width: 27px;
+        height: 27px;
+        flex: 0 0 27px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #f5f3ff;
+        color: #5b21b6;
+        border: 1px solid #ede9fe;
+    }
+
+    .tc-language-copy {
+        min-width: 0;
+        flex: 1;
+        text-align: left;
+    }
+
+    .tc-language-kicker {
+        display: block;
+        font-size: 8px;
+        line-height: 1;
+        margin-bottom: 4px;
+        color: #94a3b8;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .tc-language-current {
+        display: block;
+        font-size: 11px;
+        line-height: 1;
+        color: #1e293b;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .tc-language-chevron {
+        width: 15px;
+        height: 15px;
+        color: #94a3b8;
+        transition: transform .18s ease;
+        flex: 0 0 15px;
+    }
+
+    .tc-language-button.is-open .tc-language-chevron {
+        transform: rotate(180deg);
+    }
+
+    .tc-language-menu {
+        position: absolute;
+        right: 0;
+        bottom: calc(100% + 10px);
+        width: 190px;
+        padding: 7px;
+        border: 1px solid rgba(226,232,240,.92);
+        border-radius: 18px;
+        background: rgba(255,255,255,.88);
+        box-shadow: 0 18px 45px rgba(15,23,42,.14), inset 0 1px 0 rgba(255,255,255,.95);
+        backdrop-filter: blur(20px) saturate(150%);
+        -webkit-backdrop-filter: blur(20px) saturate(150%);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(7px) scale(.98);
+        transform-origin: bottom right;
+        pointer-events: none;
+        transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+    }
+
+    .tc-language-menu.is-open {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
+
+    .tc-language-option {
+        width: 100%;
+        min-height: 40px;
+        padding: 0 11px;
+        border: 0;
+        border-radius: 12px;
+        background: transparent;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-align: left;
+        font: inherit;
+        cursor: pointer;
+        transition: background .16s ease, color .16s ease, transform .16s ease;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .tc-language-option:hover {
+        background: #f8fafc;
+        color: #4c1d95;
+    }
+
+    .tc-language-option.is-active {
+        background: #f5f3ff;
+        color: #4c1d95;
+    }
+
+    .tc-language-flag {
+        width: 25px;
+        flex: 0 0 25px;
+        text-align: center;
+        font-size: 15px;
+    }
+
+    .tc-language-label {
+        flex: 1;
+        font-size: 11px;
+        font-weight: 850;
+    }
+
+    .tc-language-check {
+        width: 14px;
+        height: 14px;
+        color: #7c3aed;
+        opacity: 0;
+    }
+
+    .tc-language-option.is-active .tc-language-check {
+        opacity: 1;
+    }
+
+    .tc-language-note {
+        padding: 6px 10px 4px;
+        font-size: 8px;
+        color: #94a3b8;
+        font-weight: 700;
+        line-height: 1.35;
+        border-top: 1px solid #f1f5f9;
+        margin-top: 5px;
+    }
+
+    html.dark .tc-language-button {
+        background: rgba(30,41,59,.78);
+        border-color: rgba(71,85,105,.75);
+        color: #e2e8f0;
+        box-shadow: 0 14px 34px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    html.dark .tc-language-button.is-open {
+        background: rgba(30,41,59,.94);
+        border-color: rgba(167,139,250,.34);
+    }
+
+    html.dark .tc-language-leading {
+        background: rgba(76,29,149,.28);
+        border-color: rgba(167,139,250,.18);
+        color: #c4b5fd;
+    }
+
+    html.dark .tc-language-current { color: #f8fafc; }
+
+    html.dark .tc-language-menu {
+        background: rgba(30,41,59,.92);
+        border-color: rgba(71,85,105,.78);
+        box-shadow: 0 18px 45px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
+    }
+
+    html.dark .tc-language-option { color: #cbd5e1; }
+    html.dark .tc-language-option:hover { background: rgba(51,65,85,.8); color: #f5f3ff; }
+    html.dark .tc-language-option.is-active { background: rgba(76,29,149,.28); color: #ddd6fe; }
+    html.dark .tc-language-note { border-top-color: rgba(71,85,105,.7); }
+
+    html[dir="rtl"] #tradecoreLanguageSwitcher { right: auto; left: 18px; }
+    html[dir="rtl"] .tc-language-menu { right: auto; left: 0; transform-origin: bottom left; }
+    html[dir="rtl"] .tc-language-copy { text-align: right; }
+    html[dir="rtl"] .tc-language-option { text-align: right; }
+
+    @media (max-width: 767px) {
+        #tradecoreLanguageSwitcher {
+            right: 12px;
+            bottom: 82px;
+        }
+
+        html[dir="rtl"] #tradecoreLanguageSwitcher {
+            right: auto;
+            left: 12px;
+        }
+
+        .tc-language-button {
+            min-width: 122px;
+            height: 40px;
+            border-radius: 15px;
+        }
+
+        .tc-language-menu {
+            width: 180px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .tc-language-button,
+        .tc-language-menu,
+        .tc-language-chevron,
+        .tc-language-option {
+            transition: none !important;
+        }
+    }
+</style>
+
+<!-- SURGERY FIX: Tumeondoa JS Engine Nzito na Kuweka Fomu Rahisi Inayoongea na Django Moja kwa Moja -->
+{% get_current_language as LANGUAGE_CODE %}
+{% get_available_languages as LANGUAGES %}
+{% get_language_info_list for LANGUAGES as languages %}
+
+<div id="tradecoreLanguageSwitcher" class="notranslate" translate="no">
+    <form action="{% url 'set_language' %}" method="post" id="languageForm">
+        {% csrf_token %}
+        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+        <div class="tc-language-shell">
+            <div id="tradecoreLanguageMenu" class="tc-language-menu" role="menu" aria-hidden="true">
+                {% for lang in languages %}
+                <button type="submit" name="language" value="{{ lang.code }}" class="tc-language-option {% if lang.code == LANGUAGE_CODE %}is-active{% endif %}" role="menuitemradio" aria-pressed="{% if lang.code == LANGUAGE_CODE %}true{% else %}false{% endif %}">
+                    <span class="tc-language-flag" aria-hidden="true">
+                        {% if lang.code == 'sw' %}🇹🇿
+                        {% elif lang.code == 'en' %}🇬🇧
+                        {% elif lang.code == 'fr' %}🇫🇷
+                        {% elif lang.code == 'es' %}🇪🇸
+                        {% elif lang.code == 'ar' %}🇸🇦
+                        {% else %}🌐{% endif %}
+                    </span>
+                    <span class="tc-language-label">{{ lang.name_local|title }}</span>
+                    <svg class="tc-language-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6"/></svg>
+                </button>
+                {% endfor %}
+                <div id="tradecoreLanguageNote" class="tc-language-note">{% trans "Injini ya TradeCore ya Seva" %}</div>
+            </div>
+
+            <button type="button" id="tradecoreLanguageButton" class="tc-language-button" aria-haspopup="true" aria-expanded="false" aria-controls="tradecoreLanguageMenu">
+                <span class="tc-language-leading" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" class="w-4 h-4"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M3 12h18M12 3c2.2 2.5 3.3 5.5 3.3 9S14.2 18.5 12 21M12 3c-2.2 2.5-3.3 5.5-3.3 9S9.8 18.5 12 21"/></svg>
+                </span>
+                <span class="tc-language-copy">
+                    <span id="tradecoreLanguageKicker" class="tc-language-kicker">{% trans "Lugha" %}</span>
+                    <span id="tradecoreLanguageCurrent" class="tc-language-current">
+                        {% for lang in languages %}
+                            {% if lang.code == LANGUAGE_CODE %}{{ lang.name_local|title }}{% endif %}
+                        {% endfor %}
+                    </span>
+                </span>
+                <svg class="tc-language-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+            </button>
+        </div>
+    </form>
+</div>
+
+<script id="tradecore-language-engine">
+(function () {
+    "use strict";
+    // SURGERY FIX: Tumeacha Javascript nyepesi ya kufungua/kufunga Menu tu.
+    // Kazi nzito ya kutafsiri itafanywa na Django Backend.
+    const button = document.getElementById("tradecoreLanguageButton");
+    const menu = document.getElementById("tradecoreLanguageMenu");
+    const root = document.getElementById("tradecoreLanguageSwitcher");
+
+    if (!button || !menu || !root) return;
+
+    function setMenu(open) {
+        button.classList.toggle("is-open", open);
+        menu.classList.toggle("is-open", open);
+        button.setAttribute("aria-expanded", open ? "true" : "false");
+        menu.setAttribute("aria-hidden", open ? "false" : "true");
+    }
+
+    button.addEventListener("click", event => {
+        event.stopPropagation();
+        setMenu(!menu.classList.contains("is-open"));
+    });
+
+    document.addEventListener("click", event => {
+        if (!root.contains(event.target)) setMenu(false);
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") setMenu(false);
+    });
+})();
+</script>
+
+</body>
+</html>

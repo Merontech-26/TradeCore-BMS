@@ -1,0 +1,4609 @@
+{% extends 'base.html' %}
+{% load humanize i18n %}
+
+{% block content %}
+
+<style>
+    .tc-card {
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            border-color .2s ease;
+    }
+
+    .tc-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 40px rgba(49,20,93,.08);
+    }
+
+    .tc-btn {
+        min-height: 42px;
+        border-radius: 14px;
+        font-size: 12px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .45rem;
+        transition: .2s ease;
+    }
+
+    .tc-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .tc-action {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: .2s ease;
+    }
+
+    .tc-action:hover {
+        transform: translateY(-1px);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    /* CUSTOMER LIST INTERNAL SCROLL */
+    body:has(#watejaTableContainer) .customer-list-scroll {
+        max-height: clamp(300px, calc(100dvh - 500px), 650px);
+        min-height: 300px;
+        overflow-y: auto !important;
+        overflow-x: auto !important;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: transparent transparent;
+    }
+
+    body:has(#watejaTableContainer) .customer-list-scroll::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+
+    body:has(#watejaTableContainer) .customer-list-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    body:has(#watejaTableContainer) .customer-list-scroll::-webkit-scrollbar-thumb {
+        background: transparent;
+        border-radius: 999px;
+    }
+
+    body:has(#watejaTableContainer) .customer-list-scroll.is-scrolling {
+        scrollbar-color: rgba(76,29,149,.42) transparent;
+    }
+
+    body:has(#watejaTableContainer) .customer-list-scroll.is-scrolling::-webkit-scrollbar-thumb {
+        background: rgba(76,29,149,.42);
+    }
+
+    body:has(#watejaTableContainer) .customer-list-scroll thead {
+        position: sticky;
+        top: 0;
+        z-index: 8;
+    }
+
+    body:has(#watejaTableContainer) .customer-list-scroll thead tr {
+        background: rgba(248,250,252,.94) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    @media print {
+        .print-hidden {
+            display: none !important;
+        }
+    }
+
+    /* PAGE-ONLY WIDTH SURGERY: remove inherited right-side empty space
+       without touching the shared Base architecture or other pages. */
+    body:has(#watejaTableContainer) main {
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        padding-left: 42px !important;
+        padding-right: 42px !important;
+        box-sizing: border-box !important;
+    }
+
+    body:has(#watejaTableContainer) .content-wrapper {
+        width: 100% !important;
+        max-width: none !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    body:has(#watejaTableContainer) .content-wrapper > div:first-child {
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+    }
+
+    /* =====================================================
+       PAGE-ONLY INTERNAL SCROLL SURGERY
+       Hello/greeting stays static.
+       Only the content below it owns the vertical scroll.
+       ===================================================== */
+    body:has(#watejaTableContainer) main {
+        min-height: 0 !important;
+    }
+
+    body:has(#watejaTableContainer) #watejaPageScroll {
+        min-height: 0 !important;
+        overflow-x: hidden !important;
+
+        /* Tumeipunguza padding kuvuta vitu juu */
+        padding-top: 10px; 
+    }
+
+    /* HELLO CARD: translucent glass edge while content scrolls under it. */
+    body:has(#watejaTableContainer) main > div.relative.mb-6.flex.flex-col {
+        position: relative !important;
+        z-index: 40 !important;
+        background:
+            linear-gradient(
+                to bottom,
+                rgba(255,255,255,.82) 0%,
+                rgba(255,255,255,.58) 70%,
+                rgba(255,255,255,.18) 100%
+            ) !important;
+        backdrop-filter: blur(14px) saturate(145%) !important;
+        -webkit-backdrop-filter: blur(14px) saturate(145%) !important;
+        border-color: rgba(255,255,255,.42) !important;
+        box-shadow: 0 10px 28px rgba(15,23,42,.045) !important;
+        margin-bottom: -40px !important; /* Tumeongeza Negative Margin hapa kuvuta juu */
+    }
+
+    @media (min-width: 768px) {
+        body:has(#watejaTableContainer) main {
+            height: calc(100dvh - 48px) !important;
+            max-height: calc(100dvh - 48px) !important;
+            overflow: hidden !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        body:has(#watejaTableContainer) #watejaPageScroll {
+            flex: 1 1 auto !important;
+            min-height: 0 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            padding-right: 2px;
+
+            /* Hidden at rest; visible only during active scrolling. */
+            scrollbar-width: thin;
+            scrollbar-color: transparent transparent;
+        }
+
+        body:has(#watejaTableContainer) #watejaPageScroll::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        body:has(#watejaTableContainer) #watejaPageScroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        body:has(#watejaTableContainer) #watejaPageScroll::-webkit-scrollbar-thumb {
+            background: transparent;
+            border-radius: 999px;
+        }
+
+        body:has(#watejaTableContainer) #watejaPageScroll.is-scrolling {
+            scrollbar-color: rgba(76,29,149,.42) transparent;
+        }
+
+        body:has(#watejaTableContainer) #watejaPageScroll.is-scrolling::-webkit-scrollbar-thumb {
+            background: rgba(76,29,149,.42);
+        }
+
+
+        body:has(#watejaTableContainer) #watejaPageScroll.page-scroll-locked {
+            overflow-y: hidden !important;
+        }
+
+        body:has(#watejaTableContainer) #watejaPageScroll.page-scroll-locked::-webkit-scrollbar-thumb {
+            background: transparent !important;
+        }
+
+        /* One vertical scrolling owner: the page content itself.
+           The main customer list must not become a second vertical scroller. */
+        body:has(#watejaTableContainer) #watejaTableContainer {
+            overflow-y: hidden !important;
+            max-height: none !important;
+        }
+
+        body:has(#watejaTableContainer) #watejaTableContainer > .overflow-x-auto:not(.customer-list-scroll) {
+            max-height: none !important;
+            overflow-y: clip !important;
+        }
+
+        /* CUSTOMER LIST SCROLL OVERRIDE:
+           this container is intentionally a real vertical scroller. */
+        body:has(#watejaTableContainer) #watejaTableContainer > .customer-list-scroll {
+            max-height: clamp(300px, calc(100dvh - 500px), 650px) !important;
+            min-height: 300px !important;
+            overflow-y: auto !important;
+            overflow-x: auto !important;
+        }
+    }
+
+    @media (max-width: 767px) {
+        body:has(#watejaTableContainer) #watejaPageScroll {
+            overflow: visible !important;
+            padding-top: 0 !important;
+        }
+
+        body:has(#watejaTableContainer) main > div.relative.mb-6.flex.flex-col {
+            margin-bottom: 0 !important;
+        }
+    }
+
+</style>
+
+<div id="watejaPageScroll">
+
+
+<!-- =====================================================
+     TOAST
+===================================================== -->
+
+<div id="toastNotification"
+     class="fixed top-5 left-1/2 -translate-x-1/2
+            z-[250] -translate-y-20 opacity-0
+            transition-all duration-300
+            bg-gray-900 text-white
+            px-6 py-3 rounded-full
+            shadow-2xl font-bold text-sm
+            flex items-center gap-2
+            pointer-events-none"
+     role="status"
+     aria-live="polite">
+
+    <svg class="w-5 h-5 text-emerald-400"
+         fill="none"
+         stroke="currentColor"
+         viewBox="0 0 24 24"
+         aria-hidden="true">
+        <path stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9
+                 0 11-18 0 9 9
+                 0 0118 0z"/>
+    </svg>
+
+    <span id="toastMessage"></span>
+</div>
+
+
+<!-- =====================================================
+     PAGE HEADER
+===================================================== -->
+
+<div class="flex flex-col md:flex-row
+            md:items-center
+            justify-between
+            mb-4 gap-4">
+
+    <div>
+
+        <div class="flex items-center gap-2 mb-2">
+
+            <span class="text-[9px]
+                         font-black
+                         uppercase
+                         tracking-[.18em]
+                         text-purple-600
+                         bg-purple-50
+                         border border-purple-100
+                         px-2.5 py-1
+                         rounded-full">
+                {% trans 'Customer Management' %}
+            </span>
+
+            <span class="text-[9px]
+                         font-bold
+                         text-emerald-600">
+                {% trans 'Database Live' %}
+            </span>
+
+        </div>
+
+        <h1 class="text-3xl
+                   font-light
+                   text-gray-700">
+
+            {% trans 'Usimamizi wa' %}
+
+            <span class="font-black
+                         text-purple-900">
+                {% trans 'Wateja' %}
+            </span>
+
+        </h1>
+
+        <p class="text-sm text-gray-500 mt-1">
+            Orodha ya wateja, madeni,
+            deposits na taarifa zao.
+        </p>
+
+    </div>
+
+
+    <div class="flex items-center
+                gap-3
+                overflow-x-auto
+                pb-2
+                sm:pb-0
+                custom-scrollbar
+                print-hidden">
+
+        <!-- IMPORT -->
+        <button type="button"
+                id="openImportBtn"
+                class="tc-btn
+                       bg-white
+                       border border-gray-200
+                       text-gray-700
+                       px-4
+                       shadow-sm
+                       hover:bg-gray-50
+                       whitespace-nowrap">
+
+            <svg class="w-5 h-5 text-blue-600"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 18h.01M8 21h8a2
+                         2 0 002-2V5a2
+                         2 0 00-2-2H8a2
+                         2 0 00-2 2v14a2
+                         2 0 002 2z"/>
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16v1a3
+                         3 0 003 3h10a3
+                         3 0 003-3v-1m-4-8l-4-4m0
+                         0L8 8m4-4v12"/>
+            </svg>
+
+            {% trans 'Import Wateja' %}
+
+        </button>
+
+
+        <!-- REGISTER -->
+        <button type="button"
+                id="openRegisterBtn"
+                class="tc-btn
+                       bg-purple-900
+                       hover:bg-purple-800
+                       text-amber-400
+                       px-6
+                       shadow-lg
+                       shadow-purple-900/20
+                       whitespace-nowrap">
+
+            <svg class="w-5 h-5"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"/>
+            </svg>
+
+            {% trans 'Sajili Mteja Mpya' %}
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     SUMMARY CARDS
+===================================================== -->
+
+<div class="grid grid-cols-1
+            sm:grid-cols-2
+            lg:grid-cols-4
+            gap-6 mb-4">
+
+    <!-- REGISTERED TODAY -->
+    <div class="tc-card
+                bg-white
+                p-6 rounded-3xl
+                shadow-sm
+                border border-gray-100">
+
+        <div class="flex
+                    items-center
+                    justify-between">
+
+            <div>
+
+                <p class="text-xs
+                          font-black
+                          text-gray-400
+                          uppercase
+                          tracking-wider mb-1">
+                    {% trans 'New Today' %}
+                </p>
+
+                <h3 class="text-2xl
+                           font-black
+                           text-gray-800">
+                    {{ total_customers_today|default:0|intcomma }}
+                </h3>
+
+            </div>
+
+            <div class="w-12 h-12
+                        bg-blue-50
+                        text-blue-600
+                        rounded-2xl
+                        flex items-center
+                        justify-center">
+
+                <svg class="w-6 h-6"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
+                     aria-hidden="true">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M17 20h5v-2a3
+                             3 0 00-5.356-1.857
+                             M17 20H7m10 0v-2
+                             c0-.656-.126-1.283
+                             -.356-1.857
+                             M7 20H2v-2a3
+                             3 0 015.356-1.857
+                             M7 20v-2c0-.656
+                             .126-1.283
+                             .356-1.857m0 0
+                             a5.002 5.002 0
+                             019.288 0"/>
+                </svg>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- NEW -->
+    <div class="tc-card
+                bg-white
+                p-6 rounded-3xl
+                shadow-sm
+                border border-gray-100">
+
+        <div class="flex
+                    items-center
+                    justify-between">
+
+            <div>
+
+                <p class="text-xs
+                          font-black
+                          text-gray-400
+                          uppercase
+                          tracking-wider mb-1">
+                    {% trans 'New Customers' %}
+                </p>
+
+                <h3 class="text-2xl
+                           font-black
+                           text-emerald-600">
+                    +{{ new_customers|default:0|intcomma }}
+                </h3>
+
+            </div>
+
+            <div class="w-12 h-12
+                        bg-emerald-50
+                        text-emerald-600
+                        rounded-2xl
+                        flex items-center
+                        justify-center">
+
+                <svg class="w-6 h-6"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
+                     aria-hidden="true">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M18 9v3m0 0v3m0-3h3m-3
+                             0h-3m-2-5a4 4 0 11-8
+                             0 4 4 0 018 0z"/>
+                </svg>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BALANCE CUSTOMERS -->
+    <div class="tc-card
+                bg-gradient-to-br
+                from-amber-400
+                to-amber-600
+                p-6 rounded-3xl
+                shadow-sm
+                text-white">
+
+        <div class="flex
+                    items-center
+                    justify-between">
+
+            <div>
+
+                <p class="text-xs
+                          font-black
+                          text-amber-100
+                          uppercase
+                          tracking-wider mb-1">
+                    {% trans 'Customers With Balance' %}
+                </p>
+
+                <h3 class="text-2xl
+                           font-black">
+                    {{ vip_customers|default:0|intcomma }}
+                </h3>
+
+                <p class="text-[9px]
+                          text-amber-100
+                          mt-1">
+                    Kulingana na balance
+                    iliyopo kwenye database.
+                </p>
+
+            </div>
+
+            <div class="w-12 h-12
+                        bg-white/20
+                        rounded-2xl
+                        flex items-center
+                        justify-center">
+
+                <svg class="w-6 h-6"
+                     fill="currentColor"
+                     viewBox="0 0 20 20"
+                     aria-hidden="true">
+                    <path d="M9.049 2.927c.3-.921
+                             1.603-.921 1.902 0l1.07
+                             3.292a1 1 0 00.95.69h3.462
+                             c.969 0 1.371 1.24.588 1.81l-2.8
+                             2.034a1 1 0 00-.364 1.118l1.07
+                             3.292c.3.921-.755 1.688-1.54
+                             1.118l-2.8-2.034a1 1 0 00-1.175
+                             0l-2.8 2.034c-.784.57-1.838-.197-1.539
+                             -1.118l1.07-3.292a1 1 0 00-.364
+                             -1.118L2.98 8.72c-.783-.57-.38-1.81
+                             .588-1.81h3.461a1 1 0 00.951-.69l1.07
+                             -3.292z"/>
+                </svg>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- OUTSTANDING -->
+    <button type="button"
+            id="openDebtBtn"
+            class="tc-card
+                   bg-rose-50
+                   hover:bg-rose-100
+                   p-6 rounded-3xl
+                   shadow-sm
+                   border border-rose-100
+                   text-left">
+
+        <div class="flex
+                    items-center
+                    justify-between">
+
+            <div>
+
+                <p class="text-xs
+                          font-black
+                          text-rose-400
+                          uppercase
+                          tracking-wider mb-1">
+                    {% trans 'Outstanding Balance' %}
+                </p>
+
+                <h3 class="text-2xl
+                           font-black
+                           text-rose-600">
+
+                    TZS
+                    {{ outstanding_balance|default:0|intcomma }}
+
+                </h3>
+
+                <span class="text-[9px]
+                             text-rose-500
+                             font-bold">
+                    {% trans 'Bonyeza kuona wadaiwa' %}
+                </span>
+
+            </div>
+
+            <div class="w-12 h-12
+                        bg-white
+                        text-rose-500
+                        rounded-2xl
+                        flex items-center
+                        justify-center
+                        shadow-sm">
+
+                <svg class="w-6 h-6"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
+                     aria-hidden="true">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 15l-2 5L9 9l11 4-5
+                             2zm0 0l5 5"/>
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M7.188 2.239l.777
+                             2.897M5.136 7.965
+                             l-2.898-.777M13.95
+                             4.05l-2.122 2.122
+                             m-5.657 5.656
+                             l-2.12 2.122"/>
+                </svg>
+
+            </div>
+
+        </div>
+
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     SEARCH
+===================================================== -->
+
+<div class="mb-6 flex flex-col md:flex-row md:items-center gap-3">
+
+    <button type="button"
+            id="openCustomerSearchBtn"
+            class="w-full md:flex-1 md:max-w-3xl min-w-0 bg-white
+                   border border-gray-100 rounded-2xl
+                   shadow-sm hover:shadow-md transition-all
+                   px-4 py-3 flex items-center gap-3 text-left">
+
+        <span class="w-10 h-10 rounded-xl bg-purple-50 text-purple-700
+                     flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                 viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0
+                         7 7 0 0114 0z"/>
+            </svg>
+        </span>
+
+        <span class="min-w-0 flex-1">
+            <span class="block text-[10px] uppercase tracking-wider
+                         font-black text-gray-400">
+                {% trans 'Customer Search' %}
+            </span>
+            <span id="customerSearchSummary"
+                  class="block text-sm font-bold text-gray-700 truncate">
+                {% if query %}{{ query }}{% else %}Tafuta jina, simu, WhatsApp, email au location...{% endif %}
+            </span>
+        </span>
+
+        <span class="text-[10px] font-black text-purple-700
+                     bg-purple-50 border border-purple-100
+                     px-3 py-1.5 rounded-full shrink-0">
+            {% trans 'Tafuta' %}
+        </span>
+    </button>
+
+    <div class="flex items-center gap-2 shrink-0 md:ml-auto">
+
+        <button type="button"
+                id="togglePageScrollLock"
+                class="tc-btn
+                       bg-white
+                       border border-gray-200
+                       text-gray-600
+                       px-3
+                       shadow-sm
+                       hover:bg-gray-50
+                       whitespace-nowrap"
+                aria-pressed="false"
+                title="Lock / unlock page scroll">
+
+            <svg id="pageScrollLockIcon"
+                 class="w-4 h-4"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M16 10V8a4 4 0 10-8 0v2m-1 0h10a2 2 0 012 2v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7a2 2 0 012-2z"/>
+            </svg>
+
+            <span id="pageScrollLockLabel">
+                {% trans 'Lock Page Scroll' %}
+            </span>
+
+        </button>
+
+        <span id="pageScrollLockHint"
+              class="text-[9px] font-semibold text-gray-400 whitespace-nowrap">
+            {% trans 'Page scroll iko ON' %}
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CUSTOMER TABLE
+===================================================== -->
+
+<div id="watejaTableContainer"
+     class="bg-white
+            rounded-3xl
+            shadow-sm
+            border border-gray-100
+            overflow-hidden">
+
+    <div class="flex items-center
+                justify-between
+                p-5 border-b
+                border-gray-100">
+
+        <div>
+
+            <h3 class="font-black
+                       text-gray-900">
+                {% trans 'Wateja' %}
+            </h3>
+
+            <p class="text-[10px]
+                      text-gray-400
+                      mt-0.5">
+                {% trans 'Taarifa kutoka database.' %}
+            </p>
+
+        </div>
+
+        <span class="text-[9px]
+                     font-black
+                     bg-gray-50
+                     border border-gray-100
+                     text-gray-500
+                     px-3 py-1
+                     rounded-full">
+            {{ wateja|length|intcomma }} records
+        </span>
+
+    </div>
+
+
+    <div class="customer-list-scroll overflow-x-auto">
+
+        <table class="w-full text-left
+                      border-collapse"
+               id="watejaTable">
+
+            <thead>
+
+                <tr class="bg-gray-50/60
+                           border-b
+                           border-gray-100
+                           text-xs
+                           font-black
+                           text-gray-400
+                           uppercase
+                           tracking-wider">
+
+                    <th class="py-4 px-6">
+                        {% trans 'Customer' %}
+                    </th>
+
+                    <th class="py-4 px-6">
+                        {% trans 'Phone' %}
+                    </th>
+
+                    <th class="py-4 px-6">
+                        {% trans 'Pre-order Deposit' %}
+                    </th>
+
+                    <th class="py-4 px-6">
+                        {% trans 'Debt / Balance' %}
+                    </th>
+
+                    <th class="py-4 px-6 text-center">
+                        {% trans 'Actions' %}
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody class="divide-y
+                          divide-gray-50
+                          text-sm"
+                   id="customerTableBody">
+
+                {% for mteja in wateja %}
+
+                    <tr class="customer-row
+                               hover:bg-gray-50/60
+                               transition-all"
+                        data-search="{{ mteja.majina_kamili|lower }} {{ mteja.namba_ya_simu|lower }}"
+
+                        data-search-name="{{ mteja.majina_kamili|default:''|lower|escape }}"
+
+                        data-search-phone="{{ mteja.namba_ya_simu|default:''|lower|escape }}"
+
+                        data-search-whatsapp="{{ mteja.whatsapp_no|default:''|lower|escape }}"
+
+                        data-search-email="{{ mteja.email|default:''|lower|escape }}"
+
+                        data-search-location="{{ mteja.eneo|default:mteja.anwani|default:''|lower|escape }}"
+
+                        data-search-all="{{ mteja.majina_kamili|default:''|lower }} {{ mteja.namba_ya_simu|default:''|lower }} {{ mteja.whatsapp_no|default:''|lower }} {{ mteja.email|default:''|lower }} {{ mteja.eneo|default:''|lower }} {{ mteja.anwani|default:''|lower }}">
+
+                        <!-- CUSTOMER -->
+                        <td class="py-4 px-6">
+
+                            <div class="flex items-center gap-3">
+
+                                <div class="w-10 h-10
+                                            rounded-full
+                                            {% if mteja.aina == 'kampuni' %}
+                                                bg-blue-100
+                                                text-blue-900
+                                                border-blue-200
+                                            {% else %}
+                                                bg-purple-100
+                                                text-purple-900
+                                                border-purple-200
+                                            {% endif %}
+                                            flex items-center
+                                            justify-center
+                                            font-black
+                                            border-2
+                                            shrink-0">
+
+                                    {{ mteja.majina_kamili|first|upper }}
+
+                                </div>
+
+
+                                <div class="min-w-0">
+
+                                    <div class="font-black
+                                                text-gray-900
+                                                truncate">
+
+                                        {{ mteja.majina_kamili }}
+
+                                    </div>
+
+                                    <span class="text-[10px]
+                                                 uppercase
+                                                 font-black
+                                                 tracking-wider
+                                                 {% if mteja.aina == 'kampuni' %}
+                                                     text-blue-500
+                                                 {% else %}
+                                                     text-purple-500
+                                                 {% endif %}">
+
+                                        {{ mteja.aina|default:"Binafsi" }}
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- PHONE -->
+                        <td class="py-4 px-6 text-gray-600">
+
+                            {{ mteja.namba_ya_simu|default:"—" }}
+
+                        </td>
+
+
+                        <!-- DEPOSIT -->
+                        <td class="py-4 px-6">
+
+                            <span class="inline-flex
+                                         items-center
+                                         px-3 py-1
+                                         rounded-full
+                                         text-xs
+                                         font-black
+                                         bg-emerald-50
+                                         text-emerald-700
+                                         border
+                                         border-emerald-200">
+
+                                TZS
+                                {{ mteja.pre_order_deposit|default:0|intcomma }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- BALANCE -->
+                        <td class="py-4 px-6">
+
+                            {% if mteja.outstanding_balance > 0 %}
+
+                                <span class="font-black
+                                             text-rose-600">
+
+                                    TZS
+                                    {{ mteja.outstanding_balance|intcomma }}
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="text-gray-400
+                                             italic
+                                             text-xs">
+
+                                    {% trans 'Hakuna Deni' %}
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- ACTIONS -->
+                        <td class="py-4 px-6">
+
+                            <div class="flex
+                                        items-center
+                                        justify-center
+                                        gap-2">
+
+                                <!-- VIEW -->
+                                <button type="button"
+                                        class="tc-action
+                                               bg-gray-50
+                                               text-gray-600
+                                               hover:bg-gray-200
+                                               view-customer-btn"
+                                        title="Angalia taarifa za mteja"
+                                        data-id="{{ mteja.id }}"
+                                        data-name="{{ mteja.majina_kamili|escape }}"
+                                        data-phone="{{ mteja.namba_ya_simu|default:''|escape }}"
+                                        data-location="{{ mteja.eneo|default:mteja.anwani|default:''|escape }}"
+                                        data-type="{{ mteja.aina|default:'Binafsi'|escape }}"
+                                        data-balance="{{ mteja.outstanding_balance|default:0 }}"
+                                        data-deposit="{{ mteja.pre_order_deposit|default:0 }}">
+
+                                    <svg class="w-4 h-4"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         viewBox="0 0 24 24"
+                                         aria-hidden="true">
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              d="M15 12a3 3 0
+                                                 11-6 0 3 3 0
+                                                 016 0z"/>
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              d="M2.458 12C3.732
+                                                 7.943 7.523 5
+                                                 12 5c4.478 0
+                                                 8.268 2.943
+                                                 9.542 7-1.274
+                                                 4.057-5.064
+                                                 7-9.542 7-4.477
+                                                 0-8.268-2.943
+                                                 -9.542-7z"/>
+                                    </svg>
+
+                                </button>
+
+
+                                <!-- EDIT -->
+                                <button type="button"
+                                        class="tc-action
+                                               bg-amber-50
+                                               text-amber-600
+                                               hover:bg-amber-100
+                                               edit-customer-btn"
+                                        title="Badili taarifa"
+                                        data-id="{{ mteja.id }}"
+                                        data-url="{% url 'edit_mteja' mteja.id %}"
+                                        data-name="{{ mteja.majina_kamili|escape }}"
+                                        data-phone="{{ mteja.namba_ya_simu|default:''|escape }}"
+                                        data-whatsapp="{{ mteja.whatsapp_no|default:''|escape }}"
+                                        data-email="{{ mteja.email|default:''|escape }}"
+                                        data-anwani="{{ mteja.anwani|default:''|escape }}"
+                                        data-eneo="{{ mteja.eneo|default:''|escape }}"
+                                        data-type="{{ mteja.aina|default:'binafsi'|escape }}">
+
+                                    <svg class="w-4 h-4"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         viewBox="0 0 24 24"
+                                         aria-hidden="true">
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              d="M11 5H6a2 2
+                                                 0 00-2 2v11a2
+                                                 2 0 002 2h11a2
+                                                 2 0 002-2v-5"/>
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              d="M11.828 15H9v-2.828
+                                                 l8.586-8.586a2 2
+                                                 0 112.828 2.828
+                                                 L11.828 15z"/>
+                                    </svg>
+
+                                </button>
+
+
+                                <!-- PREMIUM -->
+                                <button type="button"
+                                        class="tc-action
+                                               bg-purple-50
+                                               text-purple-700
+                                               hover:bg-purple-100
+                                               premium-btn"
+                                        title="{% trans 'Invoice / Pro-forma' %}">
+
+                                    <svg class="w-4 h-4"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         viewBox="0 0 24 24"
+                                         aria-hidden="true">
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              d="M9 12h6m-6 4h6m2
+                                                 5H7a2 2 0 01-2
+                                                 -2V5a2 2 0 012-2h5.586
+                                                 a1 1 0 01.707.293
+                                                 l5.414 5.414a1 1
+                                                 0 01.293.707V19a2
+                                                 2 0 01-2 2z"/>
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="5"
+                            class="py-14 px-6">
+
+                            <div class="text-center">
+
+                                <div class="text-4xl mb-3">
+                                    👥
+                                </div>
+
+                                <p class="text-sm
+                                          font-black
+                                          text-gray-700">
+                                    {% trans 'Hakuna wateja waliopatikana.' %}
+                                </p>
+
+                                <p class="text-xs
+                                          text-gray-400
+                                          mt-1">
+                                    Sajili mteja mpya
+                                    au badili search yako.
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CUSTOMER SEARCH MODAL
+===================================================== -->
+
+<div id="customerSearchModal"
+     class="fixed inset-0 bg-slate-900/35 backdrop-blur-xl
+            hidden items-center justify-center z-[210] p-4
+            opacity-0 transition-opacity duration-300"
+     role="dialog" aria-modal="true" aria-hidden="true">
+
+    <div id="customerSearchModalCard"
+         class="bg-white/95 backdrop-blur-2xl rounded-[28px]
+                max-w-xl w-full p-5 md:p-6 shadow-2xl
+                border border-white relative scale-95 opacity-0
+                transition-all duration-300">
+
+        <div class="flex items-start justify-between gap-4 mb-5">
+            <div>
+                <p class="text-[9px] uppercase tracking-[.2em]
+                          font-black text-purple-600">{% trans 'Customer Search' %}</p>
+                <h3 class="text-xl font-black text-gray-900 mt-1">
+                    {% trans 'Tafuta Mteja' %}
+                </h3>
+                <p class="text-[11px] text-gray-400 mt-1">
+                    {% trans 'Chagua taarifa unayotaka kutumia kwenye search.' %}
+                </p>
+            </div>
+
+            <button type="button" data-close-modal="customerSearchModal"
+                    class="w-9 h-9 rounded-full bg-gray-100
+                           text-gray-500 hover:bg-gray-200
+                           flex items-center justify-center shrink-0"
+                    aria-label="{% trans 'Funga' %}">&times;</button>
+        </div>
+
+        <div id="customerSearchFilters" class="flex flex-wrap gap-2 mb-4">
+            <button type="button" class="search-filter-chip px-3 py-2 rounded-full
+                    text-[10px] font-black bg-purple-900 text-white"
+                    data-search-filter="all">{% trans 'Wote' %}</button>
+            <button type="button" class="search-filter-chip px-3 py-2 rounded-full
+                    text-[10px] font-black bg-gray-100 text-gray-600"
+                    data-search-filter="name">{% trans 'Jina' %}</button>
+            <button type="button" class="search-filter-chip px-3 py-2 rounded-full
+                    text-[10px] font-black bg-gray-100 text-gray-600"
+                    data-search-filter="phone">{% trans 'Simu' %}</button>
+            <button type="button" class="search-filter-chip px-3 py-2 rounded-full
+                    text-[10px] font-black bg-gray-100 text-gray-600"
+                    data-search-filter="whatsapp">{% trans 'WhatsApp' %}</button>
+            <button type="button" class="search-filter-chip px-3 py-2 rounded-full
+                    text-[10px] font-black bg-gray-100 text-gray-600"
+                    data-search-filter="email">{% trans 'Email' %}</button>
+            <button type="button" class="search-filter-chip px-3 py-2 rounded-full
+                    text-[10px] font-black bg-gray-100 text-gray-600"
+                    data-search-filter="location">{% trans 'Location' %}</button>
+        </div>
+
+        <div class="relative">
+            <svg class="absolute left-4 top-1/2 -translate-y-1/2
+                        w-5 h-5 text-gray-400"
+                 fill="none" stroke="currentColor"
+                 viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0
+                         7 7 0 0114 0z"/>
+            </svg>
+
+            <input type="text" id="customerSearchPopupInput"
+                   class="w-full pl-12 pr-4 py-4 rounded-2xl
+                          bg-gray-50 border border-gray-100
+                          focus:outline-none focus:ring-4
+                          focus:ring-purple-900/10 focus:border-purple-900
+                          text-sm font-semibold text-gray-800"
+                   placeholder="Andika jina au taarifa..."
+                   autocomplete="off"
+                   role="combobox"
+                   aria-autocomplete="list"
+                   aria-expanded="false"
+                   aria-controls="customerSearchSuggestions">
+
+            <div id="customerSearchSuggestions"
+                 class="absolute left-0 right-0 top-full mt-2
+                        hidden z-[30]
+                        max-h-64 overflow-y-auto
+                        bg-white/98 backdrop-blur-xl
+                        border border-gray-100
+                        rounded-2xl shadow-2xl
+                        p-1"
+                 role="listbox"
+                 aria-label="Customer suggestions">
+            </div>
+        </div>
+
+        <div class="mt-4 rounded-2xl bg-purple-50/80
+                    border border-purple-100 p-4">
+            <p class="text-[9px] uppercase tracking-wider
+                      font-black text-purple-500">
+                {% trans 'Filter Suggestions' %}
+            </p>
+            <p class="text-[11px] text-purple-900 font-semibold mt-1">
+                Jina • Simu • WhatsApp • Email • Location
+            </p>
+        </div>
+
+        <div class="flex items-center justify-between gap-3 mt-5">
+            <button type="button" id="clearCustomerSearchBtn"
+                    class="tc-btn bg-gray-100 text-gray-700 px-4">
+                {% trans 'Futa' %}
+            </button>
+            <button type="button" id="applyCustomerSearchBtn"
+                    class="tc-btn bg-purple-900 hover:bg-purple-800
+                           text-white px-6 shadow-lg shadow-purple-900/20">
+                {% trans 'Tumia Search' %}
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- =====================================================
+     IMPORT MODAL
+===================================================== -->
+
+<div id="importWatejaModal"
+     class="fixed inset-0
+            bg-slate-900/60
+            backdrop-blur-md
+            hidden items-center
+            justify-center
+            z-[200]
+            p-4
+            opacity-0
+            transition-opacity
+            duration-300"
+     role="dialog"
+     aria-modal="true"
+     aria-hidden="true">
+
+    <div id="importWatejaModalCard"
+         class="bg-white
+                rounded-3xl
+                max-w-md
+                w-full
+                p-8
+                shadow-2xl
+                relative
+                scale-95
+                opacity-0
+                transition-all
+                duration-300">
+
+        <button type="button"
+                data-close-modal="importWatejaModal"
+                class="absolute
+                       top-4 right-4
+                       text-gray-400
+                       hover:text-rose-500
+                       text-2xl"
+                aria-label="{% trans 'Funga' %}">
+            &times;
+        </button>
+
+        <div class="text-center">
+
+            <div class="w-16 h-16
+                        bg-blue-100
+                        text-blue-600
+                        rounded-full
+                        flex items-center
+                        justify-center
+                        mx-auto mb-4">
+
+                <svg class="w-8 h-8"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
+                     aria-hidden="true">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 18h.01M8 21h8a2
+                             2 0 002-2V5a2
+                             2 0 00-2-2H8a2
+                             2 0 00-2 2v14a2
+                             2 0 002 2z"/>
+                </svg>
+
+            </div>
+
+            <h3 class="text-xl
+                       font-black
+                       text-gray-900">
+                {% trans 'Import Wateja' %}
+            </h3>
+
+            <p class="text-xs text-gray-500 mt-2 leading-relaxed">CSV: majina_kamili, namba_ya_simu, whatsapp_no, email, eneo/location, anwani/address.</p>
+
+        </div>
+
+
+        <div class="mt-6">
+
+            <label class="block
+                          border-2
+                          border-dashed
+                          border-blue-200
+                          bg-blue-50
+                          rounded-2xl
+                          p-6
+                          text-center
+                          cursor-pointer">
+
+                <input type="file" name="customer_file" id="customerImportFile" accept=".csv" form="customerImportForm" class="hidden" required>
+
+                <svg class="w-8 h-8
+                            text-blue-400
+                            mx-auto mb-2"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
+                     aria-hidden="true">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 16v1a3 3
+                             0 003 3h10a3
+                             3 0 003-3v-1m-4
+                             -8l-4-4m0 0L8
+                             8m4-4v12"/>
+                </svg>
+
+                <span id="importFileName"
+                      class="text-sm
+                             font-black
+                             text-blue-700">
+                    {% trans 'Chagua faili' %}
+                </span>
+
+            </label>
+
+        </div>
+
+
+        <form id="customerImportForm" method="POST" action="{% url 'import_customers' %}" enctype="multipart/form-data" class="w-full mt-4">{% csrf_token %}<button type="submit" id="importBtn" class="tc-btn w-full bg-blue-600 hover:bg-blue-700 text-white">{% trans 'Import Wateja' %}</button></form>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     IMPORT RESULT MODAL
+===================================================== -->
+
+<div id="importResultModal"
+     class="fixed inset-0 bg-slate-900/35 backdrop-blur-xl
+            hidden items-center justify-center z-[230] p-4
+            opacity-0 transition-opacity duration-300"
+     role="dialog" aria-modal="true" aria-hidden="true">
+
+    <div id="importResultModalCard"
+         class="bg-white/95 backdrop-blur-2xl rounded-[30px]
+                max-w-md w-full p-6 md:p-7 shadow-2xl
+                border border-white relative scale-95 opacity-0
+                transition-all duration-300">
+
+        <div class="text-center">
+            <div id="importResultIcon"
+                 class="w-16 h-16 mx-auto rounded-full
+                        bg-emerald-50 text-emerald-600
+                        flex items-center justify-center mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor"
+                     viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+
+            <p id="importResultEyebrow"
+               class="text-[9px] uppercase tracking-[.18em]
+                      font-black text-emerald-600">
+                {% trans 'Import Completed' %}
+            </p>
+
+            <h3 id="importResultTitle"
+                class="text-xl font-black text-gray-900 mt-1">
+                {% trans 'Import imekamilika' %}
+            </h3>
+
+            <p id="importResultMessage"
+               class="text-xs text-gray-500 leading-relaxed mt-2">—</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 mt-6">
+            <div class="rounded-2xl bg-emerald-50 border border-emerald-100
+                        px-3 py-4 text-center">
+                <p class="text-[9px] uppercase font-black text-emerald-500">
+                    {% trans 'Imported' %}
+                </p>
+                <p id="importCountImported"
+                   class="text-xl font-black text-emerald-700 mt-1">0</p>
+            </div>
+
+            <div class="rounded-2xl bg-amber-50 border border-amber-100
+                        px-3 py-4 text-center">
+                <p class="text-[9px] uppercase font-black text-amber-500">
+                    {% trans 'Skipped' %}
+                </p>
+                <p id="importCountSkipped"
+                   class="text-xl font-black text-amber-700 mt-1">0</p>
+            </div>
+
+            <div class="rounded-2xl bg-rose-50 border border-rose-100
+                        px-3 py-4 text-center">
+                <p class="text-[9px] uppercase font-black text-rose-500">
+                    {% trans 'Failed' %}
+                </p>
+                <p id="importCountFailed"
+                   class="text-xl font-black text-rose-700 mt-1">0</p>
+            </div>
+        </div>
+
+        <div class="mt-4 rounded-2xl bg-gray-50
+                    border border-gray-100 p-4">
+            <div class="flex items-center justify-between text-[10px]">
+                <span class="font-black text-gray-400 uppercase">{% trans 'Rows Read' %}</span>
+                <span id="importCountTotal"
+                      class="font-black text-gray-800">0</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px] mt-2">
+                <span class="font-black text-gray-400 uppercase">
+                    {% trans 'Duplicates / Invalid' %}
+                </span>
+                <span id="importCountSkippedBreakdown"
+                      class="font-black text-gray-800">0</span>
+            </div>
+        </div>
+
+        <div id="importResultErrorsBox"
+             class="hidden mt-4 rounded-2xl bg-rose-50
+                    border border-rose-100 p-4 text-left">
+            <p class="text-[9px] uppercase font-black
+                      text-rose-500 mb-2">{% trans 'Details' %}</p>
+            <div id="importResultErrors"
+                 class="space-y-1 text-[10px]
+                        text-rose-700 font-semibold"></div>
+        </div>
+
+        <button type="button" id="importResultCloseBtn"
+                class="tc-btn w-full mt-6 bg-purple-900
+                       hover:bg-purple-800 text-white
+                       shadow-lg shadow-purple-900/20">
+            {% trans 'Sawa' %}
+        </button>
+    </div>
+</div>
+
+
+<!-- =====================================================
+     REGISTER CUSTOMER MODAL
+===================================================== -->
+
+<div id="registerCustomerModal"
+     class="fixed inset-0
+            bg-slate-900/60
+            backdrop-blur-md
+            hidden items-center
+            justify-center
+            z-[200]
+            p-4
+            opacity-0
+            transition-opacity
+            duration-300"
+     role="dialog"
+     aria-modal="true"
+     aria-hidden="true">
+
+    <div id="registerCustomerModalCard"
+         class="bg-white
+                rounded-3xl
+                max-w-lg
+                w-full
+                p-6 md:p-8
+                shadow-2xl
+                relative
+                scale-95
+                opacity-0
+                transition-all
+                duration-300">
+
+        <div class="flex
+                    justify-between
+                    items-center
+                    mb-6
+                    border-b
+                    border-gray-100
+                    pb-4">
+
+            <div>
+
+                <h3 class="text-xl
+                           font-black
+                           text-gray-900">
+
+                    {% trans 'Sajili Mteja Mpya' %}
+
+                </h3>
+
+                <p class="text-[10px]
+                          text-gray-400
+                          mt-1">
+                    Data itaenda moja kwa moja database.
+                </p>
+
+            </div>
+
+            <button type="button"
+                    data-close-modal="registerCustomerModal"
+                    class="text-gray-400
+                           hover:text-rose-500
+                           text-2xl"
+                    aria-label="{% trans 'Funga' %}">
+                &times;
+            </button>
+
+        </div>
+
+
+        <form method="POST"
+              action="{% url 'sajili_mteja_haraka' %}"
+              class="space-y-4">
+
+            {% csrf_token %}
+            <input type="hidden" name="return_to" value="wateja">
+
+            <div class="grid grid-cols-1 sm:grid-cols-[120px_minmax(0,1fr)] gap-3">
+
+                <div>
+
+                    <label class="block
+                                  text-xs
+                                  font-black
+                                  text-gray-700
+                                  uppercase
+                                  mb-1">
+                        {% trans 'Title' %}
+                    </label>
+
+                    <select name="title"
+                            autocomplete="honorific-prefix"
+                            class="w-full
+                                   px-4 py-3
+                                   rounded-xl
+                                   border border-gray-200
+                                   bg-white
+                                   focus:outline-none
+                                   focus:border-purple-900
+                                   focus:ring-4
+                                   focus:ring-purple-900/10
+                                   text-sm
+                                   font-semibold
+                                   text-gray-700">
+                        <option value="">{% trans 'Title' %}</option>
+                        <option value="Mr">Mr</option>
+                        <option value="Ms">Ms</option>
+                        <option value="Mrs">Mrs</option>
+                        <option value="Miss">Miss</option>
+                        <option value="Dr">Dr</option>
+                        <option value="Prof">Prof</option>
+                    </select>
+
+                </div>
+
+                <div>
+
+                    <label class="block
+                                  text-xs
+                                  font-black
+                                  text-gray-700
+                                  uppercase
+                                  mb-1">
+                        {% trans 'Majina Kamili' %}
+                    </label>
+
+                    <input type="text"
+                           name="majina_kamili"
+                           required
+                           autocomplete="name"
+                           placeholder="Mf. Juma Meron"
+                           class="w-full
+                                  px-4 py-3
+                                  rounded-xl
+                                  border border-gray-200
+                                  focus:outline-none
+                                  focus:border-purple-900
+                                  focus:ring-4
+                                  focus:ring-purple-900/10
+                                  text-sm">
+
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <label class="block
+                              text-xs
+                              font-black
+                              text-gray-700
+                              uppercase
+                              mb-1">
+                    {% trans 'Namba ya Simu' %}
+                </label>
+
+                <input type="tel"
+                       name="namba_ya_simu"
+                       required
+                       autocomplete="tel"
+                       placeholder="Mf. 0700000000"
+                       class="w-full
+                              px-4 py-3
+                              rounded-xl
+                              border border-gray-200
+                              focus:outline-none
+                              focus:border-purple-900
+                              focus:ring-4
+                              focus:ring-purple-900/10
+                              text-sm">
+
+            </div>
+
+
+            <div>
+
+                <label class="block
+                              text-xs
+                              font-black
+                              text-gray-700
+                              uppercase
+                              mb-1">
+                    {% trans 'Location / Eneo' %}
+                </label>
+
+                <input type="text"
+                       name="eneo"
+                       autocomplete="address-level2"
+                       placeholder="Mf. Dodoma Mjini"
+                       class="w-full
+                              px-4 py-3
+                              rounded-xl
+                              border border-gray-200
+                              focus:outline-none
+                              focus:border-purple-900
+                              focus:ring-4
+                              focus:ring-purple-900/10
+                              text-sm">
+
+            </div>
+
+
+            <p class="text-[10px]
+                      text-gray-400
+                      leading-relaxed">
+
+                {% trans 'Taarifa za mteja zinahifadhiwa moja kwa moja kwenye database.' %}
+
+            </p>
+
+
+            <button type="submit"
+                    class="tc-btn
+                           w-full
+                           bg-purple-900
+                           hover:bg-purple-800
+                           text-amber-400
+                           shadow-lg">
+
+                {% trans 'Kamilisha Usajili' %}
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     VIEW CUSTOMER MODAL
+     CUSTOMER PROFILE + PURCHASE / RECEIPT HISTORY
+===================================================== -->
+
+<div id="viewCustomerModal"
+     class="fixed inset-0
+            bg-slate-900/60
+            backdrop-blur-md
+            hidden items-center
+            justify-center
+            z-[200]
+            p-4
+            opacity-0
+            transition-opacity
+            duration-300"
+     role="dialog"
+     aria-modal="true"
+     aria-hidden="true">
+
+    <div id="viewCustomerModalCard"
+         class="bg-white
+                rounded-[28px]
+                max-w-5xl
+                w-full
+                max-h-[92vh]
+                overflow-hidden
+                shadow-2xl
+                relative
+                scale-95
+                opacity-0
+                transition-all
+                duration-300
+                flex
+                flex-col">
+
+        <div class="shrink-0 p-5 md:p-7 border-b border-gray-100 bg-white/95 backdrop-blur-xl">
+            <button type="button"
+                    data-close-modal="viewCustomerModal"
+                    class="absolute
+                           top-4 right-4
+                           w-9 h-9
+                           rounded-xl
+                           bg-gray-50
+                           text-gray-400
+                           hover:bg-rose-50
+                           hover:text-rose-500
+                           text-2xl
+                           flex items-center
+                           justify-center
+                           z-10"
+                    aria-label="{% trans 'Funga' %}">
+                &times;
+            </button>
+
+            <div class="flex items-center gap-4 pr-10">
+                <div id="viewCustomerInitial"
+                     class="w-16 h-16
+                            md:w-20 md:h-20
+                            shrink-0
+                            bg-gradient-to-tr
+                            from-purple-900
+                            to-purple-700
+                            text-amber-400
+                            rounded-2xl
+                            flex items-center
+                            justify-center
+                            font-black
+                            text-2xl
+                            md:text-3xl
+                            shadow-lg
+                            border-4
+                            border-white">
+                    M
+                </div>
+
+                <div class="min-w-0">
+                    <h3 id="viewCustomerName"
+                        class="text-xl md:text-2xl
+                               font-black
+                               text-gray-900
+                               truncate">
+                        —
+                    </h3>
+
+                    <p id="viewCustomerType"
+                       class="text-[10px]
+                              uppercase
+                              font-black
+                              text-purple-500
+                              tracking-[.16em]
+                              mt-1">
+                        —
+                    </p>
+
+                    <p id="viewCustomerRegistered"
+                       class="text-[10px]
+                              font-semibold
+                              text-gray-400
+                              mt-1">
+                        {% trans 'Registered: —' %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-5 md:p-7">
+
+            <!-- CUSTOMER DETAILS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                <div class="space-y-3
+                            bg-gray-50/50
+                            p-4 rounded-2xl
+                            border border-gray-100">
+
+                    <div class="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                        <span class="text-[10px] font-black text-gray-400 uppercase">{% trans 'Simu' %}</span>
+                        <span id="viewCustomerPhone"
+                              class="text-sm font-bold text-gray-700 text-right break-all">—</span>
+                    </div>
+
+                    <div class="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                        <span class="text-[10px] font-black text-gray-400 uppercase">{% trans 'WhatsApp' %}</span>
+                        <span id="viewCustomerWhatsapp"
+                              class="text-sm font-bold text-gray-700 text-right break-all">—</span>
+                    </div>
+
+                    <div class="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                        <span class="text-[10px] font-black text-gray-400 uppercase">{% trans 'Email' %}</span>
+                        <span id="viewCustomerEmail"
+                              class="text-sm font-bold text-gray-700 text-right break-all">—</span>
+                    </div>
+
+                    <div class="flex justify-between gap-4">
+                        <span class="text-[10px] font-black text-gray-400 uppercase">{% trans 'Location' %}</span>
+                        <span id="viewCustomerLocation"
+                              class="text-sm font-bold text-gray-700 text-right max-w-[65%] break-words">—</span>
+                    </div>
+
+                </div>
+
+                <div class="space-y-3
+                            bg-gray-50/50
+                            p-4 rounded-2xl
+                            border border-gray-100">
+
+                    <div class="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                        <span class="text-[10px] font-black text-gray-400 uppercase">{% trans 'Anwani' %}</span>
+                        <span id="viewCustomerAddress"
+                              class="text-sm font-bold text-gray-700 text-right max-w-[65%] break-words">—</span>
+                    </div>
+
+                    <div class="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                        <span class="text-[10px] font-black text-gray-400 uppercase">{% trans 'Deni la Sasa' %}</span>
+                        <span id="viewCustomerBalance"
+                              class="text-sm font-black text-rose-600 text-right">TZS 0</span>
+                    </div>
+
+                    <div class="flex justify-between gap-4 border-b border-gray-100 pb-2">
+                        <span class="text-[10px] font-black text-gray-400 uppercase">{% trans 'Deposit' %}</span>
+                        <span id="viewCustomerDeposit"
+                              class="text-sm font-black text-emerald-600 text-right">TZS 0</span>
+                    </div>
+
+                    <div class="flex justify-between gap-4">
+                        <span class="text-[10px] font-black text-gray-400 uppercase">{% trans 'Marketing' %}</span>
+                        <span id="viewCustomerMarketing"
+                              class="text-sm font-black text-gray-700 text-right">—</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- PURCHASE SUMMARY -->
+            <div class="mt-5">
+                <div class="flex items-end justify-between gap-3 mb-3">
+                    <div>
+                        <p class="text-[9px] uppercase tracking-[.18em] font-black text-purple-600">
+                            {% trans 'Customer Purchase History' %}
+                        </p>
+                        <h4 class="text-lg font-black text-gray-900 mt-1">
+                            {% trans 'Manunuzi na Risiti Zote' %}
+                        </h4>
+                    </div>
+
+                    <span id="viewCustomerHistoryCount"
+                          class="shrink-0 text-[9px] font-black
+                                 bg-purple-50
+                                 border border-purple-100
+                                 text-purple-700
+                                 px-3 py-1.5
+                                 rounded-full">
+                        0 receipts
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 md:gap-3">
+                    <div class="rounded-2xl bg-blue-50 border border-blue-100 px-3 py-3">
+                        <p class="text-[8px] uppercase tracking-wider font-black text-blue-500">{% trans 'Receipts' %}</p>
+                        <p id="viewCustomerInvoiceCount"
+                           class="text-lg font-black text-blue-800 mt-1">0</p>
+                    </div>
+
+                    <div class="rounded-2xl bg-emerald-50 border border-emerald-100 px-3 py-3">
+                        <p class="text-[8px] uppercase tracking-wider font-black text-emerald-500">{% trans 'Items Bought' %}</p>
+                        <p id="viewCustomerItemCount"
+                           class="text-lg font-black text-emerald-800 mt-1">0</p>
+                    </div>
+
+                    <div class="rounded-2xl bg-amber-50 border border-amber-100 px-3 py-3">
+                        <p class="text-[8px] uppercase tracking-wider font-black text-amber-500">{% trans 'Total Spent' %}</p>
+                        <p id="viewCustomerTotalSpent"
+                           class="text-sm md:text-lg font-black text-amber-800 mt-1">TZS 0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PURCHASE / RECEIPT HISTORY -->
+            <div id="viewCustomerPurchaseHistory"
+                 class="mt-4 space-y-3">
+                <div id="viewCustomerHistoryEmpty"
+                     class="rounded-2xl
+                            border border-dashed
+                            border-gray-200
+                            bg-gray-50
+                            py-10 px-5
+                            text-center">
+                    <div class="text-2xl mb-2">🧾</div>
+                    <p class="text-sm font-black text-gray-700">
+                        {% trans 'Hakuna manunuzi yaliyorekodiwa.' %}
+                    </p>
+                    <p class="text-[10px] text-gray-400 mt-1">
+                        {% trans 'Risiti zilizotolewa kwa mteja huyu zitaonekana hapa.' %}
+                    </p>
+                </div>
+
+                <div id="viewCustomerHistoryList"
+                     class="space-y-3">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="shrink-0 p-4 md:p-5 border-t border-gray-100 bg-white/95 backdrop-blur-xl">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+
+                <button type="button"
+                        data-close-modal="viewCustomerModal"
+                        class="tc-btn
+                               bg-gray-100
+                               text-gray-700
+                               px-4">
+                    {% trans 'Funga' %}
+                </button>
+
+                <a id="customerTextLink"
+                   href=""
+                   class="tc-btn
+                          bg-blue-500
+                          hover:bg-blue-600
+                          text-white">
+                    {% trans 'Text' %}
+                </a>
+
+                <a id="customerCallLink"
+                   href="#"
+                   class="tc-btn
+                          bg-emerald-500
+                          hover:bg-emerald-600
+                          text-white">
+                    {% trans 'Piga' %}
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{{ customer_history|json_script:"customerHistoryData" }}
+
+<!-- =====================================================
+     DEBT MODAL
+===================================================== -->
+
+<div id="debtModal"
+     class="fixed inset-0
+            bg-slate-900/60
+            backdrop-blur-md
+            hidden items-center
+            justify-center
+            z-[200]
+            p-4
+            opacity-0
+            transition-opacity
+            duration-300"
+     role="dialog"
+     aria-modal="true"
+     aria-hidden="true">
+
+    <div id="debtModalCard"
+         class="bg-white
+                rounded-3xl
+                max-w-2xl
+                w-full
+                p-6 md:p-8
+                shadow-2xl
+                relative
+                scale-95
+                opacity-0
+                transition-all
+                duration-300">
+
+        <div class="flex
+                    justify-between
+                    items-center
+                    mb-6
+                    border-b
+                    border-gray-100
+                    pb-4">
+
+            <div>
+
+                <h3 class="text-xl
+                           font-black
+                           text-rose-600">
+                    {% trans 'Wateja Wanaodaiwa' %}
+                </h3>
+
+                <p class="text-[10px]
+                          text-gray-400">
+                    {% trans 'Balances kutoka database.' %}
+                </p>
+
+            </div>
+
+
+            <button type="button"
+                    data-close-modal="debtModal"
+                    class="text-gray-400
+                           hover:text-rose-500
+                           text-2xl">
+                &times;
+            </button>
+
+        </div>
+
+
+        <div class="max-h-[420px]
+                    overflow-y-auto
+                    custom-scrollbar
+                    space-y-3">
+
+            {% for mteja in wateja %}
+
+                {% if mteja.outstanding_balance > 0 %}
+
+                    <div class="p-4
+                                bg-rose-50
+                                rounded-2xl
+                                border border-rose-100">
+
+                        <div class="flex
+                                    items-center
+                                    justify-between
+                                    gap-4">
+
+                            <div class="min-w-0">
+
+                                <p class="font-black
+                                          text-gray-800
+                                          truncate">
+
+                                    {{ mteja.majina_kamili }}
+
+                                </p>
+
+                                <p class="text-[10px]
+                                          text-gray-400
+                                          mt-1">
+
+                                    {{ mteja.namba_ya_simu|default:"Simu haijawekwa" }}
+
+                                </p>
+
+                            </div>
+
+
+                            <div class="text-right
+                                        shrink-0">
+
+                                <p class="text-sm
+                                          font-black
+                                          text-rose-600">
+
+                                    TZS
+                                    {{ mteja.outstanding_balance|intcomma }}
+
+                                </p>
+
+                                <button type="button"
+                                        class="text-[9px]
+                                               font-black
+                                               text-purple-700
+                                               hover:underline
+                                               open-customer-from-debt"
+                                        data-name="{{ mteja.majina_kamili|escape }}"
+                                        data-phone="{{ mteja.namba_ya_simu|default:''|escape }}"
+                                        data-type="{{ mteja.aina|default:'Binafsi'|escape }}"
+                                        data-balance="{{ mteja.outstanding_balance|default:0 }}"
+                                        data-deposit="{{ mteja.pre_order_deposit|default:0 }}">
+
+                                    {% trans 'Angalia' %}
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            {% empty %}
+
+                <div class="text-center
+                            py-10
+                            text-gray-400">
+
+                    <div class="text-3xl mb-2">
+                        ✅
+                    </div>
+
+                    <p class="text-sm font-black">
+                        {% trans 'Hakuna mteja mwenye deni.' %}
+                    </p>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PREMIUM / FUTURE FEATURE MODAL
+===================================================== -->
+
+<div id="premiumModal"
+     class="fixed inset-0
+            bg-slate-900/60
+            backdrop-blur-md
+            hidden items-center
+            justify-center
+            z-[200]
+            p-4
+            opacity-0
+            transition-opacity
+            duration-300"
+     role="dialog"
+     aria-modal="true"
+     aria-hidden="true">
+
+    <div id="premiumModalCard"
+         class="bg-gradient-to-br
+                from-gray-900
+                to-purple-900
+                rounded-3xl
+                max-w-sm
+                w-full
+                p-8
+                shadow-2xl
+                relative
+                scale-95
+                opacity-0
+                transition-all
+                duration-300
+                text-center">
+
+        <button type="button"
+                data-close-modal="premiumModal"
+                class="absolute
+                       top-4 right-4
+                       text-gray-400
+                       hover:text-white
+                       text-2xl">
+            &times;
+        </button>
+
+        <div class="w-16 h-16
+                    bg-amber-400
+                    text-purple-900
+                    rounded-full
+                    flex items-center
+                    justify-center
+                    mx-auto mb-4">
+
+            <svg class="w-8 h-8"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12h6m-6 4h6m2
+                         5H7a2 2 0
+                         01-2-2V5a2 2
+                         01 2-2h5.586a1
+                         1 0 01.707.293
+                         l5.414 5.414a1
+                         1 0 01.293.707V19a2
+                         2 0 01-2 2z"/>
+            </svg>
+
+        </div>
+
+        <h3 class="text-xl
+                   font-black
+                   text-white
+                   mb-2">
+            {% trans 'Invoice / Pro-forma' %}
+        </h3>
+
+        <p class="text-xs
+                  text-purple-200
+                  leading-relaxed">
+
+            Kipengele hiki bado hakijaunganishwa
+            na invoice backend. Hatutoi taarifa
+            ya uongo kwa user.
+
+        </p>
+
+        <button type="button"
+                data-close-modal="premiumModal"
+                class="tc-btn
+                       w-full
+                       mt-6
+                       bg-amber-400
+                       text-purple-900">
+
+            {% trans 'Sawa' %}
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+/* PAGE-LOCAL I18N */
+const WATEJA_I18N = {
+        historyJsonFailed: "{% trans 'Customer history JSON failed:' %}",
+        noMatchingCustomer: "{% trans WATEJA_I18N.noMatchingCustomer %}",
+        searchRemoved: "{% trans WATEJA_I18N.searchRemoved %}",
+        searchCompletedPrefix: "{% trans WATEJA_I18N.searchCompletedPrefix %}",
+        importSelected: "{% trans WATEJA_I18N.importSelected %}",
+        importFailed: "{% trans WATEJA_I18N.importFailed %}",
+        importSucceeded: "{% trans WATEJA_I18N.importSucceeded %}",
+        importPartial: "{% trans WATEJA_I18N.importPartial %}",
+        importErrors: "{% trans WATEJA_I18N.importErrors %}",
+        importCompleted: "{% trans WATEJA_I18N.importCompleted %}",
+        contactsImported: "{% trans 'Contacts' %}",
+        successfully: "{% trans 'zimeingia successfully. Zingine zilirukwa.' %}",
+        importedDatabase: "{% trans 'zimeingizwa kwenye database kikamilifu.' %}",
+        noNewContact: "{% trans 'Hakuna contact mpya' %}",
+        rowsNoNewContact: "{% trans 'Rows zimesomwa lakini hakuna contact mpya iliyoingizwa.' %}",
+        viewReceipt: "{% trans WATEJA_I18N.viewReceipt %}",
+        download: "{% trans WATEJA_I18N.download %}"
+    };
+
+(function () {
+    "use strict";
+
+    let activeModal = null;
+
+
+    /* =====================================================
+       TOAST
+    ===================================================== */
+
+    function showToast(message) {
+
+        const toast =
+            document.getElementById(
+                "toastNotification"
+            );
+
+        const text =
+            document.getElementById(
+                "toastMessage"
+            );
+
+        if (!toast || !text) {
+            return;
+        }
+
+        text.textContent =
+            message || "";
+
+        toast.classList.remove(
+            "-translate-y-20",
+            "opacity-0"
+        );
+
+        toast.classList.add(
+            "translate-y-0",
+            "opacity-100"
+        );
+
+        clearTimeout(
+            showToast.timer
+        );
+
+        showToast.timer = setTimeout(
+            function () {
+
+                toast.classList.remove(
+                    "translate-y-0",
+                    "opacity-100"
+                );
+
+                toast.classList.add(
+                    "-translate-y-20",
+                    "opacity-0"
+                );
+
+            },
+            2500
+        );
+    }
+
+
+    /* =====================================================
+       MODAL ENGINE
+    ===================================================== */
+
+    function openModal(modalId) {
+
+        const modal =
+            document.getElementById(
+                modalId
+            );
+
+        const card =
+            document.getElementById(
+                modalId + "Card"
+            );
+
+        if (!modal || !card) {
+            return;
+        }
+
+        activeModal = modal;
+
+        modal.classList.remove(
+            "hidden",
+            "opacity-0"
+        );
+
+        modal.classList.add(
+            "flex"
+        );
+
+        modal.style.opacity = "1";
+
+        card.classList.remove(
+            "scale-95",
+            "opacity-0"
+        );
+
+        card.classList.add(
+            "scale-100",
+            "opacity-100"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        requestAnimationFrame(
+            function () {
+
+                const focusable =
+                    card.querySelector(
+                        "button, input, select, textarea, a[href]"
+                    );
+
+                if (focusable) {
+                    focusable.focus();
+                }
+
+            }
+        );
+    }
+
+
+    function closeModal(modalId) {
+
+        const modal =
+            document.getElementById(
+                modalId
+            );
+
+        const card =
+            document.getElementById(
+                modalId + "Card"
+            );
+
+        if (!modal || !card) {
+            return;
+        }
+
+        modal.classList.remove(
+            "opacity-100"
+        );
+
+        modal.classList.add(
+            "opacity-0"
+        );
+
+        card.classList.remove(
+            "scale-100",
+            "opacity-100"
+        );
+
+        card.classList.add(
+            "scale-95",
+            "opacity-0"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        setTimeout(
+            function () {
+
+                modal.classList.add(
+                    "hidden"
+                );
+
+                modal.classList.remove(
+                    "flex"
+                );
+
+                modal.style.opacity = "";
+
+                if (
+                    activeModal === modal
+                ) {
+                    activeModal = null;
+                }
+
+            },
+            250
+        );
+    }
+
+
+    /* =====================================================
+       CUSTOMER VIEW
+       Real database history + repeat receipt actions
+    ===================================================== */
+
+    function formatCustomerMoney(value) {
+        return "TZS " + Number(
+            value || 0
+        ).toLocaleString(
+            "en-TZ",
+            {
+                maximumFractionDigits: 0
+            }
+        );
+    }
+
+
+    function getCustomerHistoryStore() {
+        const node =
+            document.getElementById(
+                "customerHistoryData"
+            );
+
+        if (!node) {
+            return {};
+        }
+
+        try {
+            return JSON.parse(
+                node.textContent || "{}"
+            );
+        } catch (error) {
+            console.error(
+                WATEJA_I18N.historyJsonFailed,
+                error
+            );
+            return {};
+        }
+    }
+
+
+    function renderCustomerPurchaseHistory(history) {
+
+        const list =
+            document.getElementById(
+                "viewCustomerHistoryList"
+            );
+
+        const empty =
+            document.getElementById(
+                "viewCustomerHistoryEmpty"
+            );
+
+        if (!list || !empty) {
+            return;
+        }
+
+        list.innerHTML = "";
+
+        const invoices =
+            Array.isArray(
+                history?.invoices
+            )
+                ? history.invoices
+                : [];
+
+        const invoiceCount =
+            Number(
+                history?.invoice_count || 0
+            );
+
+        const itemCount =
+            Number(
+                history?.item_count || 0
+            );
+
+        const totalSpent =
+            Number(
+                history?.total_spent || 0
+            );
+
+        document.getElementById(
+            "viewCustomerHistoryCount"
+        ).textContent =
+            invoiceCount +
+            (
+                invoiceCount === 1
+                    ? " receipt"
+                    : " receipts"
+            );
+
+        document.getElementById(
+            "viewCustomerInvoiceCount"
+        ).textContent =
+            invoiceCount.toLocaleString(
+                "en-TZ"
+            );
+
+        document.getElementById(
+            "viewCustomerItemCount"
+        ).textContent =
+            itemCount.toLocaleString(
+                "en-TZ"
+            );
+
+        document.getElementById(
+            "viewCustomerTotalSpent"
+        ).textContent =
+            formatCustomerMoney(
+                totalSpent
+            );
+
+        if (!invoices.length) {
+            empty.classList.remove(
+                "hidden"
+            );
+            return;
+        }
+
+        empty.classList.add(
+            "hidden"
+        );
+
+        invoices.forEach(
+            function (invoice, index) {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+                card.className =
+                    "rounded-2xl border border-gray-100 " +
+                    "bg-white shadow-sm overflow-hidden";
+
+                const itemRows =
+                    (
+                        Array.isArray(
+                            invoice.items
+                        )
+                            ? invoice.items
+                            : []
+                    ).map(
+                        function (item) {
+
+                            return `
+                                <div class="flex items-center justify-between gap-3 py-2 border-b border-gray-50 last:border-0">
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-black text-gray-800 truncate">
+                                            ${esc(item.product || "—")}
+                                        </p>
+                                        <p class="text-[9px] font-semibold text-gray-400 mt-0.5">
+                                            Qty ${Number(item.quantity || 0).toLocaleString("en-TZ")}
+                                            × ${formatCustomerMoney(item.unit_price)}
+                                        </p>
+                                    </div>
+                                    <span class="text-xs font-black text-gray-900 shrink-0">
+                                        ${formatCustomerMoney(item.line_total)}
+                                    </span>
+                                </div>
+                            `;
+                        }
+                    ).join("");
+
+                const viewUrl =
+                    invoice.receipt_url || "#";
+
+                const downloadUrl =
+                    viewUrl === "#"
+                        ? "#"
+                        : viewUrl +
+                          (
+                            viewUrl.includes("?")
+                                ? "&"
+                                : "?"
+                          ) +
+                          "download=pdf";
+
+                card.innerHTML = `
+                    <div class="p-4 md:p-5">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-[9px] uppercase tracking-[.14em]
+                                                 font-black text-purple-600
+                                                 bg-purple-50 border border-purple-100
+                                                 px-2 py-1 rounded-full">
+                                        Receipt ${index + 1}
+                                    </span>
+
+                                    <span class="text-sm font-black text-gray-900 break-all">
+                                        ${esc(invoice.invoice || "—")}
+                                    </span>
+                                </div>
+
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[10px] font-semibold text-gray-400">
+                                    <span>${esc(invoice.date || "—")}</span>
+                                    <span>${esc(invoice.time || "—")}</span>
+                                    <span>${esc(invoice.payment || "—")}</span>
+                                    <span>${esc(invoice.staff || invoice.staff_username || "—")}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between lg:justify-end gap-3 shrink-0">
+                                <span class="text-base md:text-lg font-black text-gray-900">
+                                    ${formatCustomerMoney(invoice.total)}
+                                </span>
+
+                                <div class="flex items-center gap-2">
+                                    <a href="${esc(viewUrl)}"
+                                       target="_blank"
+                                       rel="noopener"
+                                       class="tc-btn min-h-[38px]
+                                              px-3
+                                              bg-purple-50
+                                              text-purple-700
+                                              border border-purple-100
+                                              hover:bg-purple-100">
+                                        ${WATEJA_I18N.viewReceipt}
+                                    </a>
+
+                                    <a href="${esc(downloadUrl)}"
+                                       class="tc-btn min-h-[38px]
+                                              px-3
+                                              bg-amber-50
+                                              text-amber-700
+                                              border border-amber-100
+                                              hover:bg-amber-100">
+                                        ${WATEJA_I18N.download}
+                                    </a>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="mt-4 rounded-xl
+                                    bg-gray-50/80
+                                    border border-gray-100
+                                    px-3">
+                            ${itemRows || `
+                                <div class="py-3 text-[10px] font-semibold text-gray-400">
+                                    Hakuna item details zilizohifadhiwa.
+                                </div>
+                            `}
+                        </div>
+
+                    </div>
+                `;
+
+                list.appendChild(
+                    card
+                );
+            }
+        );
+    }
+
+
+    function openCustomerView(button) {
+
+        const id =
+            button.dataset.id || "";
+
+        const name =
+            button.dataset.name || "—";
+
+        const phone =
+            button.dataset.phone || "";
+
+        const location =
+            button.dataset.location || "";
+
+        const type =
+            button.dataset.type || "Binafsi";
+
+        const balance =
+            button.dataset.balance || "0";
+
+        const deposit =
+            button.dataset.deposit || "0";
+
+        const store =
+            getCustomerHistoryStore();
+
+        const history =
+            store[String(id)] || {
+                customer: {},
+                invoices: [],
+                invoice_count: 0,
+                item_count: 0,
+                total_spent: 0
+            };
+
+        const profile =
+            history.customer || {};
+
+        const resolvedName =
+            profile.name ||
+            name ||
+            "—";
+
+        const resolvedPhone =
+            profile.phone ||
+            phone ||
+            "";
+
+        const resolvedLocation =
+            profile.location ||
+            location ||
+            "";
+
+        document.getElementById(
+            "viewCustomerName"
+        ).textContent =
+            resolvedName;
+
+        document.getElementById(
+            "viewCustomerType"
+        ).textContent =
+            profile.type ||
+            type ||
+            "Binafsi";
+
+        document.getElementById(
+            "viewCustomerPhone"
+        ).textContent =
+            resolvedPhone || "—";
+
+        document.getElementById(
+            "viewCustomerWhatsapp"
+        ).textContent =
+            profile.whatsapp || "—";
+
+        document.getElementById(
+            "viewCustomerEmail"
+        ).textContent =
+            profile.email || "—";
+
+        document.getElementById(
+            "viewCustomerLocation"
+        ).textContent =
+            resolvedLocation || "—";
+
+        document.getElementById(
+            "viewCustomerAddress"
+        ).textContent =
+            profile.address || "—";
+
+        document.getElementById(
+            "viewCustomerBalance"
+        ).textContent =
+            formatCustomerMoney(
+                profile.balance ??
+                Number(balance || 0)
+            );
+
+        document.getElementById(
+            "viewCustomerDeposit"
+        ).textContent =
+            formatCustomerMoney(
+                profile.deposit ??
+                Number(deposit || 0)
+            );
+
+        document.getElementById(
+            "viewCustomerMarketing"
+        ).textContent =
+            profile.marketing_opt_in
+                ? "Imewashwa"
+                : "Haijawashwa";
+
+        document.getElementById(
+            "viewCustomerRegistered"
+        ).textContent =
+            "Registered: " +
+            (
+                profile.registered ||
+                "—"
+            );
+
+        document.getElementById(
+            "viewCustomerInitial"
+        ).textContent =
+            resolvedName
+                .trim()
+                .charAt(0)
+                .toUpperCase() || "M";
+
+        const safePhone =
+            resolvedPhone.replace(
+                /[^\d+]/g,
+                ""
+            );
+
+        document.getElementById(
+            "customerCallLink"
+        ).href =
+            safePhone
+                ? "tel:" + safePhone
+                : "javascript:void(0)";
+
+        document.getElementById(
+            "customerTextLink"
+        ).href =
+            safePhone
+                ? "sms:" + safePhone
+                : "javascript:void(0)";
+
+        renderCustomerPurchaseHistory(
+            history
+        );
+
+        openModal(
+            "viewCustomerModal"
+        );
+    }
+
+
+    /* =====================================================
+       EDIT CUSTOMER
+    ===================================================== */
+
+    function esc(value) {
+
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    function openEditCustomer(button) {
+
+        const id = button.dataset.id || "";
+        const url = button.dataset.url || "";
+        const name = button.dataset.name || "";
+        const phone = button.dataset.phone || "";
+        const whatsapp = button.dataset.whatsapp || "";
+        const email = button.dataset.email || "";
+        const anwani = button.dataset.anwani || "";
+        const eneo = button.dataset.eneo || "";
+        const type = button.dataset.type || "binafsi";
+
+        if (!id || !url) {
+            showToast("Link ya kuhariri mteja haijapatikana.");
+            return;
+        }
+
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = url;
+        form.innerHTML = `
+            {% csrf_token %}
+            <div class="fixed inset-0 z-[250] bg-slate-950/45 backdrop-blur-md flex items-center justify-center p-4" data-edit-overlay>
+                <div class="bg-white/95 backdrop-blur-xl rounded-[28px] w-full max-w-lg p-6 md:p-7 shadow-2xl border border-white/80">
+                    <div class="flex justify-between items-center mb-5 pb-4 border-b border-gray-100">
+                        <div>
+                            <span class="text-[9px] font-black uppercase tracking-[.16em] text-purple-600 bg-purple-50 border border-purple-100 px-2 py-1 rounded-full">Customer</span>
+                            <h3 class="text-xl font-black text-gray-900 mt-2">Hariri Taarifa</h3>
+                        </div>
+                        <button type="button" class="w-9 h-9 rounded-xl bg-gray-50 text-gray-400 hover:text-rose-500 text-2xl" onclick="this.closest('[data-edit-overlay]').remove()">&times;</button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="block sm:col-span-2">
+                            <span class="block text-[10px] font-black uppercase text-gray-500 mb-1">Majina Kamili</span>
+                            <input name="majina_kamili" value="${esc(name)}" required class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm font-bold focus:outline-none focus:border-purple-900 focus:ring-4 focus:ring-purple-900/10">
+                        </label>
+                        <label class="block">
+                            <span class="block text-[10px] font-black uppercase text-gray-500 mb-1">Namba ya Simu</span>
+                            <input name="namba_ya_simu" value="${esc(phone)}" required class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm font-bold focus:outline-none focus:border-purple-900 focus:ring-4 focus:ring-purple-900/10">
+                        </label>
+                        <label class="block">
+                            <span class="block text-[10px] font-black uppercase text-gray-500 mb-1">WhatsApp</span>
+                            <input name="whatsapp_no" value="${esc(whatsapp)}" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm font-bold focus:outline-none focus:border-purple-900 focus:ring-4 focus:ring-purple-900/10">
+                        </label>
+                        <label class="block sm:col-span-2">
+                            <span class="block text-[10px] font-black uppercase text-gray-500 mb-1">Email</span>
+                            <input name="email" type="email" value="${esc(email)}" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm font-bold focus:outline-none focus:border-purple-900 focus:ring-4 focus:ring-purple-900/10">
+                        </label>
+                        <label class="block">
+                            <span class="block text-[10px] font-black uppercase text-gray-500 mb-1">Location / Eneo</span>
+                            <input name="eneo" value="${esc(eneo)}" placeholder="Mf. Dodoma Mjini" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm font-bold focus:outline-none focus:border-purple-900 focus:ring-4 focus:ring-purple-900/10">
+                        </label>
+                        <label class="block">
+                            <span class="block text-[10px] font-black uppercase text-gray-500 mb-1">Aina</span>
+                            <select name="aina" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm font-bold focus:outline-none focus:border-purple-900 focus:ring-4 focus:ring-purple-900/10">
+                                <option value="binafsi" ${String(type).toLowerCase() === "binafsi" ? "selected" : ""}>Binafsi</option>
+                                <option value="kampuni" ${String(type).toLowerCase() === "kampuni" ? "selected" : ""}>Kampuni</option>
+                            </select>
+                        </label>
+                        <label class="block sm:col-span-2">
+                            <span class="block text-[10px] font-black uppercase text-gray-500 mb-1">Anwani</span>
+                            <input name="anwani" value="${esc(anwani)}" placeholder="Anwani kamili (optional)" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm font-bold focus:outline-none focus:border-purple-900 focus:ring-4 focus:ring-purple-900/10">
+                        </label>
+                    </div>
+                    <div class="mt-5 flex gap-2">
+                        <button type="button" class="flex-1 min-h-[46px] rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-black" onclick="this.closest('[data-edit-overlay]').remove()">Ghairi</button>
+                        <button type="submit" class="flex-1 min-h-[46px] rounded-2xl bg-purple-900 hover:bg-purple-800 text-amber-400 text-sm font-black shadow-lg">Hifadhi Mabadiliko</button>
+                    </div>
+                </div>
+            </div>`;
+
+        document.body.appendChild(form);
+
+        const firstInput = form.querySelector('input[name="majina_kamili"]');
+        if (firstInput) {
+            requestAnimationFrame(() => firstInput.focus());
+        }
+    }
+
+
+    /* =====================================================
+       EVENT BINDINGS
+    ===================================================== */
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            const closeButton =
+                event.target.closest(
+                    "[data-close-modal]"
+                );
+
+            if (closeButton) {
+
+                closeModal(
+                    closeButton.dataset.closeModal
+                );
+
+                return;
+            }
+
+
+            const viewButton =
+                event.target.closest(
+                    ".view-customer-btn"
+                );
+
+            if (viewButton) {
+
+                openCustomerView(
+                    viewButton
+                );
+
+                return;
+            }
+
+
+            const debtViewButton =
+                event.target.closest(
+                    ".open-customer-from-debt"
+                );
+
+            if (debtViewButton) {
+
+                closeModal(
+                    "debtModal"
+                );
+
+                setTimeout(
+                    function () {
+                        openCustomerView(
+                            debtViewButton
+                        );
+                    },
+                    180
+                );
+
+                return;
+            }
+
+
+            const editButton =
+                event.target.closest(
+                    ".edit-customer-btn"
+                );
+
+            if (editButton) {
+
+                openEditCustomer(
+                    editButton
+                );
+
+                return;
+            }
+
+
+            const premiumButton =
+                event.target.closest(
+                    ".premium-btn"
+                );
+
+            if (premiumButton) {
+
+                openModal(
+                    "premiumModal"
+                );
+
+                return;
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        "openImportBtn"
+    )?.addEventListener(
+        "click",
+        function () {
+            openModal(
+                "importWatejaModal"
+            );
+        }
+    );
+
+
+    document.getElementById(
+        "openRegisterBtn"
+    )?.addEventListener(
+        "click",
+        function () {
+
+            openModal(
+                "registerCustomerModal"
+            );
+
+        }
+    );
+
+
+    document.getElementById(
+        "openDebtBtn"
+    )?.addEventListener(
+        "click",
+        function () {
+
+            openModal(
+                "debtModal"
+            );
+
+        }
+    );
+
+
+    
+/* =====================================================
+   CUSTOMER SEARCH POPUP + SMART SUGGESTIONS
+===================================================== */
+
+    const customerSearchInput =
+        document.getElementById(
+            'customerSearchPopupInput'
+        );
+
+    const customerRows =
+        Array.from(
+            document.querySelectorAll(
+                '#customerTableBody .customer-row'
+            )
+        );
+
+    const customerSearchSummary =
+        document.getElementById(
+            'customerSearchSummary'
+        );
+
+    const customerSearchSuggestions =
+        document.getElementById(
+            'customerSearchSuggestions'
+        );
+
+    let customerSearchFilter = 'all';
+    let selectedSuggestionIndex = -1;
+
+
+    function setCustomerSearchFilter(filter) {
+
+        customerSearchFilter =
+            filter || 'all';
+
+        document.querySelectorAll(
+            '.search-filter-chip'
+        ).forEach(function (chip) {
+
+            const active =
+                chip.dataset.searchFilter ===
+                customerSearchFilter;
+
+            chip.classList.toggle(
+                'bg-purple-900',
+                active
+            );
+
+            chip.classList.toggle(
+                'text-white',
+                active
+            );
+
+            chip.classList.toggle(
+                'bg-gray-100',
+                !active
+            );
+
+            chip.classList.toggle(
+                'text-gray-600',
+                !active
+            );
+
+        });
+
+        renderCustomerSuggestions();
+
+    }
+
+
+    function getSuggestionField() {
+
+        const map = {
+            all: 'searchAll',
+            name: 'searchName',
+            phone: 'searchPhone',
+            whatsapp: 'searchWhatsapp',
+            email: 'searchEmail',
+            location: 'searchLocation'
+        };
+
+        return map[customerSearchFilter] ||
+               'searchAll';
+
+    }
+
+
+    function renderCustomerSuggestions() {
+
+        if (!customerSearchSuggestions) {
+            return;
+        }
+
+        const term =
+            (
+                customerSearchInput?.value ||
+                ''
+            ).trim().toLowerCase();
+
+        customerSearchSuggestions.innerHTML = '';
+        selectedSuggestionIndex = -1;
+
+        if (!term) {
+
+            customerSearchSuggestions.classList.add(
+                'hidden'
+            );
+
+            customerSearchInput?.setAttribute(
+                'aria-expanded',
+                'false'
+            );
+
+            return;
+
+        }
+
+        const field =
+            getSuggestionField();
+
+        const matches =
+            customerRows
+                .map(function (row) {
+
+                    const value =
+                        (
+                            row.dataset[field] ||
+                            ''
+                        ).toLowerCase();
+
+                    if (!value.includes(term)) {
+                        return null;
+                    }
+
+                    return {
+                        row: row,
+                        name:
+                            row.dataset.searchName ||
+                            row.dataset.name ||
+                            row.querySelector(
+                                'td:first-child'
+                            )?.innerText?.trim() ||
+                            'Customer',
+                        phone:
+                            row.dataset.searchPhone ||
+                            '',
+                        location:
+                            row.dataset.searchLocation ||
+                            ''
+                    };
+
+                })
+                .filter(Boolean)
+                .slice(0, 7);
+
+
+        if (!matches.length) {
+
+            const empty =
+                document.createElement(
+                    'div'
+                );
+
+            empty.className =
+                'px-4 py-4 text-center ' +
+                'text-[10px] font-bold text-gray-400';
+
+            empty.textContent =
+                WATEJA_I18N.noMatchingCustomer;
+
+            customerSearchSuggestions.appendChild(
+                empty
+            );
+
+            customerSearchSuggestions.classList.remove(
+                'hidden'
+            );
+
+            customerSearchInput?.setAttribute(
+                'aria-expanded',
+                'true'
+            );
+
+            return;
+
+        }
+
+
+        matches.forEach(
+            function (item, index) {
+
+                const option =
+                    document.createElement(
+                        'button'
+                    );
+
+                option.type =
+                    'button';
+
+                option.className =
+                    'customer-search-suggestion ' +
+                    'w-full text-left px-3 py-3 ' +
+                    'rounded-xl hover:bg-purple-50 ' +
+                    'transition-colors flex items-center gap-3';
+
+                option.dataset.index =
+                    String(index);
+
+                option.setAttribute(
+                    'role',
+                    'option'
+                );
+
+                const avatar =
+                    document.createElement(
+                        'span'
+                    );
+
+                avatar.className =
+                    'w-9 h-9 rounded-full ' +
+                    'bg-purple-100 text-purple-800 ' +
+                    'flex items-center justify-center ' +
+                    'font-black text-xs shrink-0';
+
+                avatar.textContent =
+                    (
+                        item.name ||
+                        'C'
+                    )
+                        .trim()
+                        .charAt(0)
+                        .toUpperCase();
+
+                const body =
+                    document.createElement(
+                        'span'
+                    );
+
+                body.className =
+                    'min-w-0 flex-1';
+
+                const title =
+                    document.createElement(
+                        'span'
+                    );
+
+                title.className =
+                    'block text-xs font-black ' +
+                    'text-gray-800 truncate';
+
+                title.textContent =
+                    item.name || 'Customer';
+
+                const meta =
+                    document.createElement(
+                        'span'
+                    );
+
+                meta.className =
+                    'block text-[9px] font-semibold ' +
+                    'text-gray-400 truncate mt-0.5';
+
+                meta.textContent =
+                    [item.phone, item.location]
+                        .filter(Boolean)
+                        .join(' • ');
+
+                body.appendChild(
+                    title
+                );
+
+                body.appendChild(
+                    meta
+                );
+
+                const arrow =
+                    document.createElement(
+                        'span'
+                    );
+
+                arrow.className =
+                    'text-purple-500 text-sm font-black';
+
+                arrow.textContent =
+                    '›';
+
+                option.appendChild(
+                    avatar
+                );
+
+                option.appendChild(
+                    body
+                );
+
+                option.appendChild(
+                    arrow
+                );
+
+
+                option.addEventListener(
+                    'click',
+                    function () {
+
+                        const selected =
+                            item;
+
+                        const selectedValueMap = {
+                            all: selected.name,
+                            name: selected.name,
+                            phone: selected.phone,
+                            whatsapp: selected.row.dataset.searchWhatsapp || selected.phone,
+                            email: selected.row.dataset.searchEmail || selected.name,
+                            location: selected.location || selected.name
+                        };
+
+                        customerSearchInput.value =
+                            selectedValueMap[
+                                customerSearchFilter
+                            ] ||
+                            selected.name;
+
+                        closeCustomerSuggestions();
+
+                        applyCustomerSearch();
+
+                    }
+                );
+
+                customerSearchSuggestions.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+        customerSearchSuggestions.classList.remove(
+            'hidden'
+        );
+
+        customerSearchInput?.setAttribute(
+            'aria-expanded',
+            'true'
+        );
+
+    }
+
+
+    function highlightSuggestion(index) {
+
+        const options =
+            Array.from(
+                document.querySelectorAll(
+                    '.customer-search-suggestion'
+                )
+            );
+
+        if (!options.length) {
+            return;
+        }
+
+        selectedSuggestionIndex =
+            Math.max(
+                0,
+                Math.min(
+                    index,
+                    options.length - 1
+                )
+            );
+
+        options.forEach(
+            function (option, idx) {
+
+                const active =
+                    idx ===
+                    selectedSuggestionIndex;
+
+                option.classList.toggle(
+                    'bg-purple-50',
+                    active
+                );
+
+                option.setAttribute(
+                    'aria-selected',
+                    active ? 'true' : 'false'
+                );
+
+            }
+        );
+
+        options[
+            selectedSuggestionIndex
+        ]?.scrollIntoView({
+            block: 'nearest'
+        });
+
+    }
+
+
+    function closeCustomerSuggestions() {
+
+        customerSearchSuggestions?.classList.add(
+            'hidden'
+        );
+
+        customerSearchInput?.setAttribute(
+            'aria-expanded',
+            'false'
+        );
+
+        selectedSuggestionIndex = -1;
+
+    }
+
+
+    function applyCustomerSearch() {
+
+        const term =
+            (
+                customerSearchInput?.value ||
+                ''
+            ).trim().toLowerCase();
+
+        const field =
+            getSuggestionField();
+
+        let visible = 0;
+
+        customerRows.forEach(
+            function (row) {
+
+                const haystack =
+                    (
+                        row.dataset[field] ||
+                        ''
+                    ).toLowerCase();
+
+                const match =
+                    !term ||
+                    haystack.includes(term);
+
+                row.style.display =
+                    match ? '' : 'none';
+
+                if (match) {
+                    visible += 1;
+                }
+
+            }
+        );
+
+        if (customerSearchSummary) {
+
+            customerSearchSummary.textContent =
+                term
+                    ? term +
+                      ' • ' +
+                      visible +
+                      ' match'
+                    : 'Tafuta jina, simu, WhatsApp, email au location...';
+
+        }
+
+        closeCustomerSuggestions();
+
+        closeModal(
+            'customerSearchModal'
+        );
+
+        showToast(
+            term
+                ? WATEJA_I18N.searchCompletedPrefix +
+                  visible +
+                  ' customer(s).'
+                : WATEJA_I18N.searchRemoved
+        );
+
+    }
+
+
+    document.querySelectorAll(
+        '.search-filter-chip'
+    ).forEach(
+        function (chip) {
+
+            chip.addEventListener(
+                'click',
+                function () {
+
+                    setCustomerSearchFilter(
+                        chip.dataset.searchFilter
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+    document.getElementById(
+        'openCustomerSearchBtn'
+    )?.addEventListener(
+        'click',
+        function () {
+
+            const modalInput =
+                document.getElementById(
+                    'customerSearchPopupInput'
+                );
+
+            openModal(
+                'customerSearchModal'
+            );
+
+            setTimeout(
+                function () {
+
+                    modalInput?.focus();
+
+                    renderCustomerSuggestions();
+
+                },
+                180
+            );
+
+        }
+    );
+
+
+    customerSearchInput?.addEventListener(
+        'input',
+        renderCustomerSuggestions
+    );
+
+
+    customerSearchInput?.addEventListener(
+        'focus',
+        renderCustomerSuggestions
+    );
+
+
+    customerSearchInput?.addEventListener(
+        'keydown',
+        function (event) {
+
+            const options =
+                Array.from(
+                    document.querySelectorAll(
+                        '.customer-search-suggestion'
+                    )
+                );
+
+            if (event.key === 'ArrowDown') {
+
+                event.preventDefault();
+
+                if (options.length) {
+
+                    highlightSuggestion(
+                        selectedSuggestionIndex + 1
+                    );
+
+                }
+
+                return;
+
+            }
+
+            if (event.key === 'ArrowUp') {
+
+                event.preventDefault();
+
+                if (options.length) {
+
+                    highlightSuggestion(
+                        selectedSuggestionIndex - 1
+                    );
+
+                }
+
+                return;
+
+            }
+
+            if (event.key === 'Enter') {
+
+                event.preventDefault();
+
+                if (
+                    selectedSuggestionIndex >= 0 &&
+                    options[
+                        selectedSuggestionIndex
+                    ]
+                ) {
+
+                    options[
+                        selectedSuggestionIndex
+                    ].click();
+
+                } else {
+
+                    applyCustomerSearch();
+
+                }
+
+            }
+
+        }
+    );
+
+
+    document.addEventListener(
+        'mousedown',
+        function (event) {
+
+            if (
+                customerSearchSuggestions &&
+                !customerSearchSuggestions.contains(
+                    event.target
+                ) &&
+                event.target !==
+                    customerSearchInput
+            ) {
+
+                closeCustomerSuggestions();
+
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        'applyCustomerSearchBtn'
+    )?.addEventListener(
+        'click',
+        applyCustomerSearch
+    );
+
+
+    document.getElementById(
+        'clearCustomerSearchBtn'
+    )?.addEventListener(
+        'click',
+        function () {
+
+            if (customerSearchInput) {
+                customerSearchInput.value = '';
+            }
+
+            customerRows.forEach(
+                function (row) {
+                    row.style.display = '';
+                }
+            );
+
+            if (customerSearchSummary) {
+
+                customerSearchSummary.textContent =
+                    'Tafuta jina, simu, WhatsApp, email au location...';
+
+            }
+
+            setCustomerSearchFilter(
+                'all'
+            );
+
+            closeCustomerSuggestions();
+
+            closeModal(
+                'customerSearchModal'
+            );
+
+            showToast(
+                WATEJA_I18N.searchRemoved
+            );
+
+        }
+    );
+
+
+    setCustomerSearchFilter(
+        'all'
+    );
+
+
+    /* =====================================================
+       PAGE SCROLL LOCK
+    ===================================================== */
+
+    const pageScroll =
+        document.getElementById(
+            'watejaPageScroll'
+        );
+
+    const pageScrollLockBtn =
+        document.getElementById(
+            'togglePageScrollLock'
+        );
+
+    const pageScrollLockLabel =
+        document.getElementById(
+            'pageScrollLockLabel'
+        );
+
+    const pageScrollLockHint =
+        document.getElementById(
+            'pageScrollLockHint'
+        );
+
+
+    function updatePageScrollLockUI(
+        locked
+    ) {
+
+        if (!pageScroll) {
+            return;
+        }
+
+        pageScroll.classList.toggle(
+            'page-scroll-locked',
+            locked
+        );
+
+        pageScrollLockBtn?.setAttribute(
+            'aria-pressed',
+            locked ? 'true' : 'false'
+        );
+
+
+        if (pageScrollLockLabel) {
+
+            pageScrollLockLabel.textContent =
+                locked
+                    ? 'Unlock Page Scroll'
+                    : 'Lock Page Scroll';
+
+        }
+
+
+        if (pageScrollLockHint) {
+
+            pageScrollLockHint.textContent =
+                locked
+                    ? 'Page scroll imefungwa • Customer list bado inaweza kuscroll'
+                    : 'Page scroll iko ON';
+
+        }
+
+        pageScrollLockBtn?.classList.toggle(
+            'bg-purple-900',
+            locked
+        );
+
+        pageScrollLockBtn?.classList.toggle(
+            'text-white',
+            locked
+        );
+
+        pageScrollLockBtn?.classList.toggle(
+            'bg-white',
+            !locked
+        );
+
+    }
+
+
+    pageScrollLockBtn?.addEventListener(
+        'click',
+        function () {
+
+            const locked =
+                !pageScroll?.classList.contains(
+                    'page-scroll-locked'
+                );
+
+            updatePageScrollLockUI(
+                locked
+            );
+
+        }
+    );
+
+
+    updatePageScrollLockUI(
+        false
+    );
+
+
+    /* =====================================================
+       IMPORT FILE PICKER
+    ===================================================== */
+
+    const customerImportFile =
+        document.getElementById(
+            'customerImportFile'
+        );
+
+    const customerImportForm =
+        document.getElementById(
+            'customerImportForm'
+        );
+
+    const importButton =
+        document.getElementById(
+            'importBtn'
+        );
+
+
+    customerImportFile?.addEventListener(
+        'change',
+        function () {
+
+            const nameElement =
+                document.getElementById(
+                    'importFileName'
+                );
+
+            const file =
+                this.files?.[0];
+
+            if (
+                file &&
+                nameElement
+            ) {
+
+                nameElement.textContent =
+                    file.name;
+
+                showToast(
+                    WATEJA_I18N.importSelected
+                );
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       IMPORT RESULT POPUP
+    ===================================================== */
+
+    function showImportResult(data) {
+
+        const imported =
+            Number(data?.imported || 0);
+
+        const duplicates =
+            Number(data?.duplicates || 0);
+
+        const invalid =
+            Number(data?.invalid || 0);
+
+        const failed =
+            Number(data?.failed || 0);
+
+        const total =
+            Number(data?.total_rows || 0);
+
+        const skipped =
+            duplicates + invalid;
+
+        const partial =
+            imported > 0 &&
+            (skipped > 0 || failed > 0);
+
+        const icon =
+            document.getElementById(
+                'importResultIcon'
+            );
+
+        const eyebrow =
+            document.getElementById(
+                'importResultEyebrow'
+            );
+
+        const title =
+            document.getElementById(
+                'importResultTitle'
+            );
+
+        const message =
+            document.getElementById(
+                'importResultMessage'
+            );
+
+        document.getElementById(
+            'importCountImported'
+        ).textContent = imported;
+
+        document.getElementById(
+            'importCountSkipped'
+        ).textContent = skipped;
+
+        document.getElementById(
+            'importCountFailed'
+        ).textContent = failed;
+
+        document.getElementById(
+            'importCountTotal'
+        ).textContent = total;
+
+        document.getElementById(
+            'importCountSkippedBreakdown'
+        ).textContent =
+            duplicates +
+            ' duplicates / ' +
+            invalid +
+            ' invalid';
+
+        icon.className =
+            'w-16 h-16 mx-auto rounded-full ' +
+            'flex items-center justify-center mb-4 ' +
+            (
+                failed > 0
+                    ? 'bg-rose-50 text-rose-600'
+                    : partial
+                        ? 'bg-amber-50 text-amber-600'
+                        : 'bg-emerald-50 text-emerald-600'
+            );
+
+        eyebrow.className =
+            'text-[9px] uppercase tracking-[.18em] font-black ' +
+            (
+                failed > 0
+                    ? 'text-rose-600'
+                    : partial
+                        ? 'text-amber-600'
+                        : 'text-emerald-600'
+            );
+
+        if (failed > 0) {
+
+            eyebrow.textContent =
+                WATEJA_I18N.importErrors;
+
+            title.textContent =
+                imported > 0
+                    ? WATEJA_I18N.importPartial
+                    : 'Import imeshindikana';
+
+            message.textContent =
+                data?.message ||
+                'Baadhi ya rows hazikuweza kuingizwa. Angalia Details.';
+
+        } else if (partial) {
+
+            eyebrow.textContent =
+                WATEJA_I18N.importCompleted;
+
+            title.textContent =
+                WATEJA_I18N.importPartial;
+
+            message.textContent =
+                'Contacts ' +
+                imported +
+                ' zimeingia successfully. Zingine zilirukwa.';
+
+        } else if (imported > 0) {
+
+            eyebrow.textContent =
+                WATEJA_I18N.importCompleted;
+
+            title.textContent =
+                WATEJA_I18N.importSucceeded;
+
+            message.textContent =
+                'Contacts ' +
+                imported +
+                ' zimeingizwa kwenye database kikamilifu.';
+
+        } else {
+
+            eyebrow.textContent =
+                WATEJA_I18N.importCompleted;
+
+            title.textContent =
+                'Hakuna contact mpya';
+
+            message.textContent =
+                data?.message ||
+                'Rows zimesomwa lakini hakuna contact mpya iliyoingizwa.';
+
+        }
+
+
+        const errorsBox =
+            document.getElementById(
+                'importResultErrorsBox'
+            );
+
+        const errors =
+            document.getElementById(
+                'importResultErrors'
+            );
+
+        if (errors) {
+            errors.innerHTML = '';
+        }
+
+        if (
+            Array.isArray(data?.errors) &&
+            data.errors.length &&
+            errors
+        ) {
+
+            data.errors.slice(0, 6).forEach(
+                function (item) {
+
+                    const row =
+                        document.createElement(
+                            'div'
+                        );
+
+                    row.textContent =
+                        '• ' + item;
+
+                    errors.appendChild(
+                        row
+                    );
+
+                }
+            );
+
+            errorsBox?.classList.remove(
+                'hidden'
+            );
+
+        } else {
+
+            errorsBox?.classList.add(
+                'hidden'
+            );
+
+        }
+
+
+        openModal(
+            'importResultModal'
+        );
+
+    }
+
+
+    /* =====================================================
+       ACTUAL FILE IMPORT
+    ===================================================== */
+
+    customerImportForm?.addEventListener(
+        'submit',
+        async function (event) {
+
+            event.preventDefault();
+
+            const file =
+                customerImportFile?.files?.[0];
+
+            if (!file) {
+
+                closeModal(
+                    'importWatejaModal'
+                );
+
+                setTimeout(function () {
+
+                    showImportResult({
+                        ok: false,
+                        imported: 0,
+                        duplicates: 0,
+                        invalid: 1,
+                        failed: 0,
+                        total_rows: 0,
+                        message: 'Chagua CSV file kwanza.',
+                        errors: [
+                            'Hakuna faili lililochaguliwa.'
+                        ]
+                    });
+
+                }, 180);
+
+                return;
+
+            }
+
+
+            const formData =
+                new FormData(
+                    customerImportForm
+                );
+
+            if (!formData.has('customer_file')) {
+
+                formData.append(
+                    'customer_file',
+                    file
+                );
+
+            }
+
+
+            const csrfToken =
+                customerImportForm.querySelector(
+                    'input[name="csrfmiddlewaretoken"]'
+                )?.value || '';
+
+
+            if (importButton) {
+
+                importButton.disabled = true;
+
+                importButton.classList.add(
+                    'opacity-70',
+                    'cursor-not-allowed'
+                );
+
+                importButton.textContent =
+                    'Ina-import...';
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        customerImportForm.action,
+                        {
+                            method: 'POST',
+                            body: formData,
+                            credentials: 'same-origin',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRFToken': csrfToken
+                            }
+                        }
+                    );
+
+
+                const contentType =
+                    response.headers.get(
+                        'content-type'
+                    ) || '';
+
+
+                if (!contentType.includes('application/json')) {
+
+                    throw new Error(
+                        'Server haikurudisha majibu ya JSON.'
+                    );
+
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                closeModal(
+                    'importWatejaModal'
+                );
+
+                setTimeout(function () {
+
+                    showImportResult(
+                        data
+                    );
+
+                }, 180);
+
+
+            } catch (error) {
+
+                closeModal(
+                    'importWatejaModal'
+                );
+
+                setTimeout(function () {
+
+                    showImportResult({
+
+                        ok: false,
+                        imported: 0,
+                        duplicates: 0,
+                        invalid: 0,
+                        failed: 1,
+                        total_rows: 0,
+                        message:
+                            error?.message ||
+                            WATEJA_I18N.importFailed,
+                        errors: [
+                            error?.message ||
+                            'Unknown import error.'
+                        ]
+
+                    });
+
+                }, 180);
+
+            } finally {
+
+                if (importButton) {
+
+                    importButton.disabled = false;
+
+                    importButton.classList.remove(
+                        'opacity-70',
+                        'cursor-not-allowed'
+                    );
+
+                    importButton.textContent =
+                        'Import Wateja';
+
+                }
+
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        'importResultCloseBtn'
+    )?.addEventListener(
+        'click',
+        function () {
+
+            closeModal(
+                'importResultModal'
+            );
+
+            setTimeout(function () {
+
+                window.location.reload();
+
+            }, 220);
+
+        }
+    );
+
+
+    /* =====================================================
+       PAGE + CUSTOMER LIST SCROLL INDICATORS
+    ===================================================== */
+
+    document.querySelectorAll(
+        '#watejaPageScroll, .customer-list-scroll'
+    ).forEach(function (scroller) {
+
+        let timer = null;
+
+        function showScrollIndicator() {
+
+            scroller.classList.add(
+                'is-scrolling'
+            );
+
+            clearTimeout(
+                timer
+            );
+
+            timer = setTimeout(function () {
+
+                scroller.classList.remove(
+                    'is-scrolling'
+                );
+
+            }, 450);
+
+        }
+
+        scroller.addEventListener(
+            'scroll',
+            showScrollIndicator,
+            { passive: true }
+        );
+
+        scroller.addEventListener(
+            'wheel',
+            showScrollIndicator,
+            { passive: true }
+        );
+
+        scroller.addEventListener(
+            'touchmove',
+            showScrollIndicator,
+            { passive: true }
+        );
+
+    });
+
+
+    /* =====================================================
+       MODAL BACKDROP
+    ===================================================== */
+
+    document.querySelectorAll(
+        "[role='dialog']"
+    ).forEach(
+        function (modal) {
+
+            modal.addEventListener(
+                "mousedown",
+                function (event) {
+
+                    if (
+                        event.target === modal
+                    ) {
+
+                        closeModal(
+                            modal.id
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+    // SURGERY: Inaongeza class kwenye body ili kuzuia matumizi ya 'body:has()' kwenye CSS
+    document.body.classList.add('is-wateja-page');
+
+    /* =====================================================
+       ESC KEY
+    ===================================================== */
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape"
+                && activeModal
+            ) {
+
+                closeModal(
+                    activeModal.id
+                );
+
+            }
+
+        }
+    );
+
+})();
+</script>
+
+
+<script>
+    // =====================================================
+    // SURGERY V14.1: DUAL IMPORT (PHONEBOOK KWA ANDROID, CSV KWA IOS)
+    // =====================================================
+    async function vutaNambaKwenyeSimu() {
+        const isSupported = ('contacts' in navigator && 'ContactsManager' in window);
+
+        if (!isSupported) {
+            // KWA IOS AU PC: Funga fomu ya usajili na fungua fomu ya CSV Import
+            const closeBtn = document.querySelector('#registerCustomerModal [data-close-modal]');
+            if (closeBtn) closeBtn.click(); // Inafunga Modal ya kusajili mteja mmoja
+
+            setTimeout(() => {
+                const importBtn = document.getElementById('openImportBtn');
+                if (importBtn) importBtn.click(); // Inafungua Modal ya Import CSV
+            }, 300); // Tunasubiri sekunde 0.3 ili modal ya kwanza ijifunge kiulaini
+            
+            return;
+        }
+
+        try {
+            // KWA ANDROID: Fungua Phonebook
+            const props = ['name', 'tel'];
+            const opts = { multiple: false };
+
+            const contacts = await navigator.contacts.select(props, opts);
+
+            if (contacts.length > 0) {
+                const contact = contacts[0];
+
+                if (contact.name && contact.name.length > 0) {
+                    const jinaInput = document.getElementById('id_jina_kamili_wateja'); 
+                    if(jinaInput) jinaInput.value = contact.name[0];
+                }
+
+                if (contact.tel && contact.tel.length > 0) {
+                    const nambaInput = document.getElementById('id_namba_ya_simu_wateja'); 
+                    let nambaSafi = contact.tel[0].replace(/[\s-]/g, '');
+                    if(nambaInput) nambaInput.value = nambaSafi;
+                }
+            }
+        } catch (error) {
+            console.error("Mteja amecancel au kuna kosa:", error);
+        }
+    }
+</script>
+
+
+</div>
+
+{% endblock %}

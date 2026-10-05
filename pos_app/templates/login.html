@@ -1,0 +1,455 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'sw' }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeCore BMS | {% trans 'Secure Login' %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+
+        :root {
+            --tc-purple: #501b87;
+            --tc-purple-hover: #6421a1;
+            --tc-gold: #C9A227;
+        }
+        html, body, button, input {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+        }
+        a, button, input { -webkit-tap-highlight-color: transparent; }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        @keyframes spin-slow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin-slow { animation: spin-slow 1.5s linear infinite; }
+
+        .bg-texture {
+            background-color: #f3f4f6;
+            background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Apple Glass Effect for Modals */
+        .tc-glass-modal {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Hide modal by default with smooth transition */
+        #passwordResetModal {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #passwordResetModal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #passwordResetModal .tc-glass-modal {
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #passwordResetModal.active .tc-glass-modal {
+            transform: scale(1);
+        }
+
+    
+        </style>
+
+<style>
+/* ============================================================
+   TRADECORE LOGIN — BACKGROUND SURGERY
+   Original login card/content/slider remain untouched.
+   New page background:
+   - top ~1/4 photographic band
+   - soft curved/faded transition into white
+   - lower area stays white with subtle dots
+   ============================================================ */
+
+html {
+    min-height: 100%;
+    background: #ffffff !important;
+}
+
+body {
+    position: relative;
+    isolation: isolate;
+    overflow-x: hidden;
+    min-height: 100vh;
+    background-color: #ffffff !important;
+    background-image: radial-gradient(#d1d5db 1px, transparent 1px) !important;
+    background-size: 24px 24px !important;
+    background-position: 0 0 !important;
+}
+
+/* Top photographic layer */
+body::before {
+    content: "";
+    position: fixed;
+    z-index: -2;
+    inset: 0 0 auto 0;
+    height: clamp(220px, 28vh, 330px);
+    background-image:
+        linear-gradient(
+            to bottom,
+            rgba(255,255,255,.00) 0%,
+            rgba(255,255,255,.03) 38%,
+            rgba(255,255,255,.22) 62%,
+            rgba(255,255,255,.72) 84%,
+            rgba(255,255,255,1) 100%
+        ),
+        var(--main-bg-img, url("{% static 'tradecore_market_welcome_banner.png' %}"));
+    background-size: cover;
+    background-position: center 32%;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    transform: scale(1.02);
+    transition: background-image 1.5s ease-in-out; /* Inafanya picha iingie kwa ulaini */
+}
+
+/* Smooth curved white veil over the lower edge of the image */
+body::after {
+    content: "";
+    position: fixed;
+    z-index: -1;
+    left: -8%;
+    right: -8%;
+    top: clamp(175px, 21vh, 245px);
+    height: clamp(150px, 18vh, 210px);
+    background:
+        radial-gradient(
+            ellipse 62% 88% at 50% 0%,
+            rgba(255,255,255,0) 0%,
+            rgba(255,255,255,.08) 25%,
+            rgba(255,255,255,.62) 60%,
+            rgba(255,255,255,.96) 82%,
+            #ffffff 100%
+        );
+    border-radius: 50% 50% 0 0 / 58% 58% 0 0;
+    pointer-events: none;
+}
+
+/* Keep the login card exactly as the foreground element. */
+body > .bg-white.rounded-\[28px\] {
+    position: relative;
+    z-index: 5;
+    border-bottom: 3px solid #d4af37 !important;
+    box-shadow:
+        0 24px 70px rgba(39,20,68,.12),
+        0 0 0 1px rgba(212,175,55,.08) !important;
+}
+
+/* Preserve clean white surfaces inside the card. */
+body > .bg-white.rounded-\[28px\] .bg-white {
+    background: #ffffff !important;
+}
+
+/* Keep Create Account visible above the new background layers. */
+.tradecore-signup-row,
+.tradecore-signup-row a {
+    position: relative !important;
+    z-index: 10 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Desktop: slightly broader, calmer photo band. */
+@media (min-width: 768px) {
+    body::before {
+        height: clamp(240px, 29vh, 340px);
+        background-position: center 30%;
+    }
+
+    body::after {
+        top: clamp(190px, 23vh, 260px);
+        height: clamp(165px, 18vh, 215px);
+    }
+}
+
+/* Mobile: keep the same concept, but make the transition tighter. */
+@media (max-width: 767px) {
+    body {
+        padding: 12px !important;
+    }
+
+    body::before {
+        height: clamp(175px, 25vh, 225px);
+        background-position: center 30%;
+    }
+
+    body::after {
+        left: -16%;
+        right: -16%;
+        top: clamp(135px, 19vh, 175px);
+        height: clamp(125px, 17vh, 170px);
+        border-radius: 50% 50% 0 0 / 52% 52% 0 0;
+    }
+
+    body > .bg-white.rounded-\[28px\] {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+</style>
+
+</head>
+<body class="bg-white min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="bg-white rounded-[28px] shadow-2xl flex w-full max-w-4xl overflow-hidden h-[550px] relative">
+        
+        <div id="dynamic-bg" class="hidden md:flex md:w-1/2 relative bg-cover bg-center transition-all duration-1000" style="background-image: url('{% static 'login_bg_1.jpg' %}');">
+
+            <div class="absolute inset-0 bg-gradient-to-t from-[#501b87] via-[#501b87]/70 to-transparent z-10"></div>
+            
+            <div class="absolute top-8 inset-x-0 flex justify-center z-20">
+                <span class="text-amber-300 text-xs font-black tracking-widest px-4 py-1.5 rounded-full border border-amber-400/40 backdrop-blur-md shadow-lg">
+                    {% trans 'TradeCore Business Management System' %}
+                </span>
+            </div>
+
+            <div class="relative z-20 flex flex-col justify-end p-8 text-white w-full h-full pb-10">
+                <h2 id="slider-h2" class="text-2xl font-black mb-1.5 tracking-tight">{% trans 'TradeCore Business Management System' %}</h2>
+                <p id="slider-p" class="text-xs text-amber-400 font-medium leading-relaxed max-w-xs">{% trans 'Smart Business. Simple Management. Optimize your workflow today.' %}</p>
+            </div>
+        </div>
+
+        <div class="w-full md:w-1/2 p-8 lg:p-10 flex flex-col justify-center relative bg-white">
+            
+            <div class="absolute top-5 right-6 flex items-center gap-1.5 bg-gray-50/80 backdrop-blur-sm px-3 py-1 rounded-full border border-gray-200/60">
+                <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-55"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span class="text-[6px] font-bold text-gray-600 tracking-wider">{% trans 'System Operational' %}</span>
+            </div>
+
+            <div class="mb-6 mt-2 text-center flex flex-col items-center">
+                <div class="h-16 mb-3 mx-auto flex items-center justify-center transition-transform hover:scale-105 duration-300">
+                    <img src="{% static 'logo.png' %}" alt="{% trans 'TradeCore Logo' %}" class="h-full w-auto object-contain drop-shadow-lg" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-14 h-14 bg-[#501b87] rounded-2xl flex items-center justify-center text-amber-400 font-black text-2xl shadow-lg border border-purple-800\'>TC</div>';">
+                </div>
+
+                <span class="bg-[#FBF6E5] text-[#8C6A12] text-[8px] font-semibold px-2 py-0.5 rounded-full border border-[#E3C966]/60 mb-2 shadow-sm">{% trans 'TradeCore BMS v1.0.0' %}</span>
+                
+                <h1 class="text-2xl font-black text-gray-900 tracking-tight">{% trans 'Welcome to Trade' %}<span class="text-[#501b87]">Core</span></h1>
+            </div>
+
+            <form action="{% url 'login' %}" method="POST" class="space-y-4" id="loginForm" onsubmit="handleLoginSubmit(event)">
+                {% csrf_token %}
+                
+                {% if error %}
+                <div class="bg-rose-50 border-l-4 border-rose-500 text-rose-700 p-3 rounded-r-xl text-[11px] font-medium flex items-start gap-2 shadow-sm">
+                    <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <span>{% trans 'Unable to sign in... The username or password you entered is incorrect. Try again!' %}</span>
+                </div>
+                {% endif %}
+
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">{% trans 'Email or Username' %}</label>
+                    <input type="text" name="username" placeholder="{% trans 'you@example.com or username' %}" required class="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#501b87]/30 transition-all text-gray-800 placeholder-gray-400">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">{% trans 'Password' %}</label>
+                    <div class="relative">
+                        <input type="password" id="passwordField" name="password" placeholder="••••••••" required class="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#501b87]/30 transition-all text-gray-800 pr-10">
+                        <button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#501b87] transition-colors focus:outline-none">
+                            <svg id="eyeIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center gap-1.5 pt-1 text-center w-full">
+                    <label class="flex items-center gap-2 cursor-pointer group justify-center">
+                        <input type="checkbox" name="remember_me" class="w-3.5 h-3.5 rounded text-[#501b87] focus:ring-[#501b87] border-gray-300">
+                        <span class="text-[11px] text-gray-500 font-medium group-hover:text-purple-900 transition-colors">{% trans 'Remember me' %}</span>
+                    </label>
+                    
+                    <button type="button" onclick="openResetModal()" class="text-[10px] text-gray-400 hover:text-[#501b87] transition-colors flex items-center justify-center gap-1 focus:outline-none">
+                        <span class="font-normal">{% trans 'Forgot password?' %}</span> 
+                        <span class="text-[#C9A227] font-semibold hover:underline ml-0.5">{% trans 'Reset it here' %}</span>
+                    </button>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full min-h-[42px] bg-[#501b87] hover:bg-[#6421a1] text-white font-semibold py-2.5 px-4 rounded-xl shadow-md transition-all duration-200 transform hover:-translate-y-0.5 flex justify-center items-center gap-2 mt-1 group leading-none">
+                    <span id="btnText" class="text-xs tracking-wide">{% trans 'Open System' %}</span>
+                    <span id="btnIcon" class="font-bold text-sm leading-none transition-transform duration-200 group-hover:translate-x-1">→</span>
+                </button>
+
+                <div class="pt-2 text-center">
+                    <p class="text-[10px] text-gray-400 font-medium">
+                        {% trans 'New to TradeCore?' %}
+                        <a href="{% url 'register' %}" class="ml-1 font-semibold text-[#C9A227] hover:text-[#A98718] transition-colors">
+                            {% trans 'Create an account' %}
+                        </a>
+                    </p>
+                </div>
+                
+                <p class="text-center text-[9px] font-normal text-gray-400 uppercase tracking-widest mt-3 flex items-center justify-center gap-1.5 opacity-60">
+                    <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    {% trans 'Authorized business access only' %}
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODERN PASSWORD RESET MODAL ================= -->
+    <div id="passwordResetModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="tc-glass-modal rounded-[24px] p-6 max-w-sm w-full relative">
+            
+            <button type="button" onclick="closeResetModal()" class="absolute top-4 left-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold transition-colors focus:outline-none">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <div class="w-12 h-12 bg-purple-100 text-[#501b87] rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+            </div>
+
+            <div class="text-center mb-5">
+                <h3 class="text-lg font-black text-gray-900 tracking-tight">{% trans 'Umesahau Nenosiri?' %}</h3>
+                <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">{% trans 'Ingiza email yako hapa chini. Tutakutumia link ya kutengeneza nenosiri jipya kwenye email yako.' %}</p>
+            </div>
+
+            <form action="{% url 'password_reset' %}" method="POST" class="space-y-4" id="resetPasswordForm" onsubmit="handleResetSubmit(event)">
+                {% csrf_token %}
+                <div>
+                    <input type="email" name="email" id="resetEmail" placeholder="{% trans 'Mf. juma@example.com' %}" required class="w-full px-4 py-3 text-sm font-medium rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#501b87]/30 transition-all text-gray-800 placeholder-gray-400 text-center">
+                </div>
+                <button type="submit" id="resetSubmitBtn" class="w-full bg-[#501b87] hover:bg-[#6421a1] text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all duration-200 text-sm">
+                    {% trans 'Tuma Link ya Reset' %}
+                </button>
+            </form>
+
+        </div>
+    </div>
+    <!-- ================= END MODAL ================= -->
+
+    <div class="mt-6 text-center space-y-1">
+        <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase"></p>
+        <p class="text-[10px] text-gray-400 font-normal tracking-wide">{% trans '&copy; 2026 Meron Tech. All rights reserved.' %}</p>
+    </div>
+
+    <script>
+        const pichaZetu = [
+            "{% static 'login_bg_1.jpg' %}",
+            "{% static 'login_bg_2.jpg' %}",
+            "{% static 'login_bg_3.jpg' %}"
+        ];
+    
+        const manenoH2 = ["TradeCore BMS", "{% trans 'Intelligent POS' %}", "{% trans 'Smart Inventory' %}"];
+        const manenoP = [
+            "{% trans 'Next-generation Business Management System powering your workflow.' %}",
+            "{% trans 'Process transactions seamlessly with advanced analytics.' %}",
+            "{% trans 'Track your stock levels and supply chain in real-time.' %}"
+        ];
+
+        let index = 0;
+        const sliderElement = document.getElementById('dynamic-bg');
+        const h2Element = document.getElementById('slider-h2');
+        const pElement = document.getElementById('slider-p');
+
+        setInterval(() => {
+            index = (index + 1) % pichaZetu.length;
+            if (sliderElement && h2Element && pElement) {
+                sliderElement.style.backgroundImage = `url('${pichaZetu[index]}')`;
+                h2Element.innerText = manenoH2[index];
+                pElement.innerText = manenoP[index];
+            }
+        }, 4000); 
+
+        function togglePassword() {
+            const pwd = document.getElementById('passwordField');
+            const eye = document.getElementById('eyeIcon');
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                eye.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>';
+            } else {
+                pwd.type = 'password';
+                eye.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>';
+            }
+        }
+
+        /* Modal Logic for Reset Password */
+        function openResetModal() {
+            document.getElementById('passwordResetModal').classList.add('active');
+            setTimeout(() => { document.getElementById('resetEmail').focus(); }, 100);
+        }
+        function closeResetModal() {
+            document.getElementById('passwordResetModal').classList.remove('active');
+        }
+
+        // Close modal if user clicks outside the glass card
+        document.getElementById('passwordResetModal').addEventListener('mousedown', function(e) {
+            if (e.target === this) { closeResetModal(); }
+        });
+
+        function handleResetSubmit(event) {
+            event.preventDefault(); // Zuia form isisubmit kienyeji
+            
+            const btn = document.getElementById('resetSubmitBtn');
+            const emailInput = document.getElementById('resetEmail');
+            const form = document.getElementById('resetPasswordForm'); // Daka form yenyewe
+
+            if (emailInput.value && emailInput.checkValidity()) {
+                btn.style.pointerEvents = 'none'; // Zuia double click kwa usalama
+                btn.classList.remove('hover:bg-[#6421a1]');
+                btn.classList.add('opacity-80');
+                btn.innerHTML = '<span class="flex items-center gap-2 justify-center"><svg class="w-4 h-4 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> {% trans 'Inatuma Link...' %}</span>';
+                
+                form.submit(); // Ruhusu JavaScript isubmit form kwa nguvu
+            } else {
+                emailInput.focus(); // Turudishe mshale kama email haipo sawa
+            }
+        }
+
+        function handleLoginSubmit(event) {
+            const btn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const btnIcon = document.getElementById('btnIcon');
+            
+            if (btn.disabled) {
+                event.preventDefault();
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.classList.remove('hover:-translate-y-0.5', 'hover:bg-[#6421a1]'); 
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            
+            btnText.innerHTML = "{% trans 'Signing you in...' %}";
+            btnIcon.innerHTML = '<svg class="w-4 h-4 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
+        
+        }
+
+        // =========================================================
+    // SLIDER YA BACKGROUND YA NYUMA KABISA (NYUMA YA KADI)
+    // =========================================================
+    
+    // Weka orodha ya picha unazotaka hapa. Unaweza kuongeza idadi uipendayo.
+    const pichaZaNyumaKabisa = [
+        "url('{% static 'tradecore_market_welcome_banner.png' %}')",
+        "url('{% static 'Biashara Yako Kiganjani Mwako.png' %}')",
+        "url('{% static 'Karibu TradeCore_ A Warm Welcome.png' %}')",
+        "url('{% static 'tradecore_ad.png' %}')",
+        "url('{% static 'Simamia Biashara Yako na TradeCore.png' %}')"
+        // Kama una picha nyingine, iweke hapa, mfano: "url('{% static 'picha_nyingine.png' %}')"
+    ];
+
+    let bgIndex = 0;
+    
+    // Hii inabadilisha picha kila baada ya sekunde 5 (Muda: 5000 = sekunde 5)
+    setInterval(() => {
+        bgIndex = (bgIndex + 1) % pichaZaNyumaKabisa.length;
+        document.body.style.setProperty('--main-bg-img', pichaZaNyumaKabisa[bgIndex]);
+    }, 5000);
+        
+    </script>
+</body>
+</html>

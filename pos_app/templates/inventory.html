@@ -1,0 +1,2529 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load i18n %}
+{% block content %}
+
+<style id="tradecore-inventory-fullscreen-surgery">
+/*
+  TRADECORE SURGERY #01 — FULL WIDTH CONTENT
+  Presentation-only override. No application architecture or business logic changed.
+*/
+#inventoryPageRoot{
+  width:100%;
+  max-width:none !important;
+  min-width:0;
+}
+@media (min-width:1024px){
+  #inventoryPageRoot{
+    width:calc(100vw - var(--inventory-root-left, 0px) - 84px);
+    max-width:none !important;
+    margin-left:42px;
+    margin-right:42px;
+  }
+}
+@media (max-width:1023px){
+  #inventoryPageRoot{
+    width:100%;
+    margin-left:0;
+    margin-right:0;
+  }
+}
+
+/* SURGERY #02 — Apple-like controls + product-only scrolling + compact inline search */
+#inventoryStatusSwitch{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:8px;
+}
+#inventoryStatusSwitch .inventory-status-row{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:12px;
+  flex-wrap:nowrap;
+  min-width:0;
+}
+#inventoryStatusSwitch .inventory-status-row > div:first-child{
+  display:flex;
+  align-items:center;
+  gap:3px;
+  padding:4px;
+  border:1px solid #ebe8f2;
+  background:#f5f4f8;
+  border-radius:18px;
+  box-shadow:inset 0 1px 2px rgba(31,25,45,.04);
+  flex:0 0 auto;
+}
+#inventoryStatusSwitch .inventory-view-btn{
+  border-radius:14px !important;
+  padding:8px 16px !important;
+  min-width:82px;
+  font-size:10px !important;
+  font-weight:700 !important;
+  color:#6f6879 !important;
+  transition:all .18s ease;
+}
+#inventoryStatusSwitch .inventory-view-btn:hover{
+  background:#ffffff !important;
+  color:#4c1d95 !important;
+}
+#inventoryStatusSwitch .inventory-view-btn.bg-purple-900{
+  background:#ffffff !important;
+  color:#5b21b6 !important;
+  box-shadow:0 2px 9px rgba(31,25,45,.10);
+}
+#inventoryCategoryControl{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:4px 6px 4px 12px;
+  border:1px solid #ebe8f2;
+  background:#f5f4f8;
+  border-radius:16px;
+  flex:0 0 auto;
+  margin-top:0 !important;
+}
+#inventoryCategoryControl label{
+  color:#8a8392;
+  font-size:9px;
+  font-weight:700;
+}
+#inventoryCategoryFilter{
+  appearance:none;
+  border:0 !important;
+  outline:none !important;
+  background:#ffffff !important;
+  border-radius:12px !important;
+  padding:8px 28px 8px 11px !important;
+  min-width:150px;
+  font-size:10px !important;
+  font-weight:700 !important;
+  color:#3f3749 !important;
+  box-shadow:0 2px 7px rgba(31,25,45,.05);
+}
+#inventoryInlineSearch{
+  flex:0 0 410px;
+  width:410px;
+  max-width:410px;
+  min-width:300px;
+  margin:0 0 0 auto !important;
+  padding:2px !important;
+  border-radius:15px;
+}
+#inventoryInlineSearch > div{
+  min-height:38px;
+  height:38px;
+  border-radius:13px !important;
+  padding:7px 11px !important;
+}
+#inventoryInlineSearch > div > span.flex-1{
+  min-width:0;
+}
+#inventoryInlineSearch > div > span.flex-1{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#inventoryViewHint{
+  margin-top:0 !important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+/* INVENTORY SURGERY — remove inherited greeting banner; keep date in page header */
+.tradecore-main .tc-context,
+body:has(#inventoryPageRoot) .tc-context{
+  display:none !important;
+}
+#inventoryPageHeader{
+  min-width:0;
+}
+#inventoryDatePill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  width:max-content;
+  margin-top:8px;
+  padding:7px 11px;
+  border:1px solid #ece8f3;
+  border-radius:14px;
+  background:rgba(255,255,255,.88);
+  color:#6f6879;
+  font-size:10px;
+  font-weight:800;
+  line-height:1;
+  box-shadow:0 2px 8px rgba(31,25,45,.04);
+}
+#inventoryDatePill svg{
+  width:14px;
+  height:14px;
+  color:#5b21b6;
+  flex:0 0 auto;
+}
+@media (max-width:1023px){
+  #inventoryDatePill{
+    margin-top:7px;
+  }
+}
+#inventoryPageRoot{
+  display:flex;
+  flex-direction:column;
+  height:calc(100vh - 120px);
+  min-height:0;
+  overflow:hidden;
+}
+.inventory-table-card{
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+}
+.inventory-table-scroll{
+  height:clamp(260px, calc(100vh - 455px), 720px);
+  max-height:none;
+  overflow-x:auto;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  min-height:0;
+}
+.inventory-table-scroll thead th{
+  position:sticky;
+  top:0;
+  z-index:8;
+  background:#f8f7fb;
+}
+@media (max-width:1023px){
+  #inventoryPageRoot{
+    height:auto;
+    min-height:0;
+    overflow:visible;
+    display:block;
+  }
+  #inventoryStatusSwitch .inventory-status-row{
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  #inventoryStatusSwitch .inventory-status-row > div:first-child{
+    width:auto;
+    justify-content:center;
+  }
+  #inventoryCategoryControl{
+    width:auto;
+    margin-top:0 !important;
+  }
+  #inventoryCategoryFilter{
+    flex:0 1 auto;
+    min-width:140px;
+  }
+  #inventoryInlineSearch{
+    flex:1 1 100%;
+    width:100%;
+    max-width:none;
+    min-width:0;
+    margin-left:0 !important;
+  }
+  #inventoryViewHint{
+    white-space:normal;
+  }
+  .inventory-table-scroll{
+    height:calc(100vh - 500px);
+    min-height:240px;
+  }
+}
+/* =========================================================
+   MASTER INVENTORY CONTROL CARD + FULL PRODUCT SURFACE
+   Presentation-only. IDs and JS data-view values are preserved.
+   ========================================================= */
+#inventoryPageHeader.inventory-page-header-compact{min-width:0}
+#inventoryPageHeader.inventory-page-header-compact h1{letter-spacing:-.035em}
+#inventoryPageHeader .inventory-page-subtitle{line-height:1.1}
+#inventoryDatePill{margin-top:0!important;padding:5px 9px!important;border-radius:11px!important;font-size:9px!important;box-shadow:none!important}
+#inventoryDatePill svg{width:12px!important;height:12px!important}
+#inventoryStatusSwitch.inventory-command-card{margin-bottom:12px!important}
+#inventoryStatusSwitch .inventory-command-top{display:grid;grid-template-columns:auto auto minmax(240px,1fr) auto;align-items:center;gap:10px;padding:9px 11px;border:1px solid #e8e3ef;background:rgba(255,255,255,.82);border-radius:22px;box-shadow:0 8px 24px rgba(31,25,45,.045);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+#inventoryStatusSwitch .inventory-status-pills{display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid #ebe8f2;background:#f6f4f9;border-radius:15px;flex:0 0 auto}
+/* BUTTON-ONLY SURGERY — Apple sliding selection indicator.
+   Does not alter product grid/list markup or sizing. */
+#inventoryStatusSwitch .inventory-status-pills{position:relative!important;overflow:hidden!important}
+#inventoryStatusSwitch .inventory-status-pills::before{
+  content:"";position:absolute;z-index:0;top:3px;bottom:3px;left:3px;width:0;
+  border-radius:11px;background:#ffffff;box-shadow:0 2px 8px rgba(31,25,45,.09);
+  transform:translateX(var(--tc-status-x,0px));width:var(--tc-status-w,0px);
+  transition:transform .34s cubic-bezier(.22,.8,.24,1),width .28s ease;
+  pointer-events:none;
+}
+#inventoryStatusSwitch .inventory-status-pills .inventory-view-btn{position:relative;z-index:1}
+#inventoryStatusSwitch .inventory-view-btn{border:0!important;color:#756d80!important;background:transparent!important;box-shadow:none!important;padding:7px 10px!important;border-radius:11px!important;font-size:9px!important;font-weight:900!important;cursor:pointer;transition:color .22s ease,transform .22s ease}
+#inventoryStatusSwitch .inventory-view-btn:hover{color:#4c1d95!important;transform:translateY(-1px)}
+#inventoryStatusSwitch .inventory-view-btn.is-active{color:#5b21b6!important}
+
+#inventoryStatusSwitch .inventory-view-switch{position:relative!important;overflow:hidden!important}
+#inventoryStatusSwitch .inventory-view-switch::before{
+  content:"";position:absolute;z-index:0;top:3px;bottom:3px;left:3px;width:var(--tc-present-w,0px);
+  border-radius:10px;background:#5b21b6;box-shadow:0 3px 9px rgba(91,33,182,.16);
+  transform:translateX(var(--tc-present-x,0px));
+  transition:transform .34s cubic-bezier(.22,.8,.24,1),width .28s ease;
+  pointer-events:none;
+}
+#inventoryStatusSwitch .inventory-view-switch .inventory-presentation-btn{position:relative;z-index:1;border:0;background:transparent;color:#81788b;border-radius:10px;padding:6px 9px;font-size:9px;font-weight:900;cursor:pointer;transition:color .22s ease,transform .22s ease}
+#inventoryStatusSwitch .inventory-view-switch .inventory-presentation-btn:hover{color:#4c1d95;transform:translateY(-1px)}
+#inventoryStatusSwitch .inventory-view-switch .inventory-presentation-btn.is-active{background:transparent!important;color:#fff!important;box-shadow:none!important}
+
+@media(max-width:767px){
+  #inventoryStatusSwitch .inventory-status-pills::before,#inventoryStatusSwitch .inventory-view-switch::before{transition-duration:.28s}
+}
+#inventoryStatusSwitch .inventory-view-btn:hover{background:#fff!important;color:#4c1d95!important}
+#inventoryStatusSwitch .inventory-view-btn.bg-purple-900,#inventoryStatusSwitch .inventory-view-btn.active{background:#fff!important;color:#5b21b6!important;box-shadow:0 2px 8px rgba(31,25,45,.09)!important}
+#inventoryStatusSwitch #inventoryCategoryControl{display:flex;align-items:center;gap:6px;padding:3px 5px 3px 10px;border:1px solid #ebe8f2;background:#f6f4f9;border-radius:15px;margin:0!important}
+#inventoryStatusSwitch #inventoryCategoryControl label{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#918898;white-space:nowrap}
+#inventoryStatusSwitch #inventoryCategoryFilter{appearance:none;border:0!important;outline:none!important;background:#fff!important;border-radius:11px!important;padding:7px 26px 7px 10px!important;min-width:135px;font-size:9px!important;font-weight:800!important;color:#43394d!important;box-shadow:0 2px 7px rgba(31,25,45,.05)}
+#inventoryStatusSwitch #inventoryInlineSearch{width:auto;max-width:none;min-width:0;margin:0!important;padding:2px!important;border-radius:14px;background:linear-gradient(90deg,#5b21b6,#7c3aed);box-shadow:0 4px 12px rgba(76,29,149,.08)}
+#inventoryStatusSwitch #inventoryInlineSearch>div{height:36px;min-height:36px;border-radius:11px!important;padding:6px 10px!important}
+#inventoryStatusSwitch #inventoryPresentationSwitch{display:flex;align-items:center;justify-content:space-between;gap:9px;min-width:170px;margin:0!important}
+#inventoryStatusSwitch .inventory-surface-title{min-width:0}
+#inventoryStatusSwitch .inventory-surface-title>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#inventoryStatusSwitch .inventory-view-switch{display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid #ebe8f2;background:#f6f4f9;border-radius:14px;flex:0 0 auto}
+#inventoryStatusSwitch .inventory-presentation-btn{border:0;background:transparent;color:#81788b;border-radius:10px;padding:6px 9px;font-size:9px;font-weight:900;cursor:pointer;transition:.18s ease}
+#inventoryStatusSwitch .inventory-presentation-btn:hover{background:#fff;color:#4c1d95}
+#inventoryStatusSwitch .inventory-presentation-btn.is-active{background:#5b21b6;color:#fff;box-shadow:0 3px 9px rgba(91,33,182,.16)}
+#inventoryViewHint{display:none!important}
+
+/* Grid mode: use the available root height and keep every product card visible. */
+#inventoryGrid.inventory-product-grid{flex:1 1 auto;min-height:0;height:auto!important;max-height:none!important;overflow-y:auto;overflow-x:hidden;align-content:start;grid-auto-rows:max-content}
+#inventoryGrid.inventory-product-grid .inventory-product-card{height:auto!important;min-height:154px;align-self:start;overflow:hidden!important}
+#inventoryGrid.inventory-product-grid .inventory-product-media{height:92px!important;min-height:92px!important}
+#inventoryGrid.inventory-product-grid .inventory-product-card-body{padding:10px!important}
+#inventoryGrid.inventory-product-grid .inventory-product-name{font-size:10px!important;line-height:1.2!important}
+#inventoryGrid.inventory-product-grid .inventory-store-stock-row{margin-top:7px!important}
+@media(min-width:1024px){#inventoryGrid.inventory-product-grid{grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:10px!important;padding:8px 3px 34px!important}}
+@media(min-width:1280px){#inventoryGrid.inventory-product-grid{grid-template-columns:repeat(8,minmax(0,1fr))!important}}
+@media(min-width:1536px){#inventoryGrid.inventory-product-grid{grid-template-columns:repeat(9,minmax(0,1fr))!important}}
+@media(max-width:1100px) and (min-width:768px){#inventoryStatusSwitch .inventory-command-top{grid-template-columns:auto minmax(170px,1fr) auto}#inventoryStatusSwitch #inventoryCategoryControl{grid-column:2}#inventoryStatusSwitch #inventoryInlineSearch{grid-column:1/-1;grid-row:2}}
+@media(max-width:767px){#inventoryPageHeader.inventory-page-header-compact{margin-bottom:9px!important}#inventoryPageHeader .inventory-primary-actions{width:100%}#inventoryPageHeader .inventory-primary-actions>button,#inventoryPageHeader .inventory-primary-actions>div{flex:1 1 auto}#inventoryStatusSwitch .inventory-command-top{grid-template-columns:1fr;gap:8px;padding:8px}#inventoryStatusSwitch .inventory-status-pills{width:max-content;max-width:100%;overflow-x:auto}#inventoryStatusSwitch #inventoryCategoryControl{width:100%;justify-content:space-between}#inventoryStatusSwitch #inventoryCategoryFilter{flex:1;min-width:0}#inventoryStatusSwitch #inventoryInlineSearch{width:100%}#inventoryStatusSwitch #inventoryPresentationSwitch{width:100%;padding-top:2px}#inventoryGrid.inventory-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;min-height:0}}
+
+</style>
+
+<!-- TRADECORE INVENTORY SURGERY — FIRST PAINT + GRID/LIST -->
+<style id="tradecore-inventory-critical-first-paint">
+  /* Establish the product surface before product HTML is parsed. */
+  #inventoryGrid.inventory-product-grid{
+    display:grid !important;
+    grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+    gap:8px;
+    min-height:0;
+    max-height:calc(100vh - 280px);
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:10px 4px 60px;
+    align-content:start;
+  }
+  #inventoryGrid .inventory-product-card{
+    position:relative;
+    min-width:0;
+    background:rgba(255,255,255,.96) !important;
+    border:1px solid rgba(221,214,234,.82) !important;
+    border-radius:14px !important;
+    overflow:visible;
+    box-shadow:0 4px 15px rgba(46,27,78,.04) !important;
+    cursor:pointer;
+    will-change:transform;
+  }
+  #inventoryGrid .inventory-product-media{
+    height:60px !important;
+    min-height:60px !important;
+    background:linear-gradient(145deg,#faf8ff,#f2edfb) !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    position:relative !important;
+    overflow:hidden !important;
+    border-radius:10px !important;
+  }
+  #inventoryGrid .inventory-product-media img{width:100%;height:100%;object-fit:contain;padding:6px;display:block;}
+  #inventoryGrid .inventory-product-media span:first-child{width:36px;height:36px;border-radius:10px;background:#fff;color:#5b21b6;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;box-shadow:0 4px 15px rgba(91,33,182,.09)}
+  #inventoryGrid .inventory-card-status{position:absolute !important;top:4px !important;left:4px !important;width:auto !important;height:auto !important;border-radius:6px !important;padding:3px 6px !important;font-size:8px !important;line-height:1 !important;font-weight:900 !important;z-index:10 !important;background:rgba(255,255,255,.9) !important;box-shadow:0 2px 8px rgba(0,0,0,.08) !important;}
+  #inventoryGrid .inventory-card-status.in{color:#047857 !important;}
+  #inventoryGrid .inventory-card-status.low{color:#b45309 !important;}
+  #inventoryGrid .inventory-card-status.out{color:#be123c !important;}
+  #inventoryGrid .inventory-product-card-body{padding:8px 10px !important;}
+  #inventoryGrid .inventory-product-name{font-size:10px !important;font-weight:900 !important;color:#20172d !important;line-height:1.2 !important;min-height:24px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  #inventoryGrid .inventory-product-meta{margin-top:2px !important;font-size:8px !important;font-weight:800 !important;color:#958c9f !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;}
+  #inventoryGrid .inventory-product-more{position:absolute !important;right:6px !important;top:64px !important;z-index:10 !important;font-size:10px !important;color:#a198aa !important;padding:1px 3px !important;border-radius:6px !important;cursor:pointer !important;pointer-events:auto !important;}
+  #inventoryGrid .inventory-store-stock-row{display:flex !important;align-items:baseline !important;gap:4px !important;margin-top:6px !important;}
+  #inventoryGrid .inventory-store-stock-row span{font-size:7px !important;font-weight:900 !important;color:#aaa0b1 !important;letter-spacing:.1em !important;}
+  #inventoryGrid .inventory-store-stock-row strong{font-size:16px !important;font-weight:950 !important;color:#5b21b6 !important;line-height:1 !important;}
+  #inventoryGrid .inventory-store-stock-row small{font-size:8px !important;font-weight:800 !important;color:#958c9f !important;}
+
+  /* Synchronous presentation state prevents a Grid/List flash on refresh. */
+  html.inventory-pref-grid #inventoryGrid{display:grid !important;}
+  html.inventory-pref-grid .inventory-table-card{display:none !important;}
+  html.inventory-pref-list #inventoryGrid{display:none !important;}
+  html.inventory-pref-list .inventory-table-card{display:flex !important;}
+
+  @media (min-width:1024px){#inventoryGrid.inventory-product-grid{grid-template-columns:repeat(8,minmax(0,1fr)) !important;gap:10px !important;}}
+  @media (min-width:1280px){#inventoryGrid.inventory-product-grid{grid-template-columns:repeat(9,minmax(0,1fr)) !important;}}
+  @media (min-width:1536px){#inventoryGrid.inventory-product-grid{grid-template-columns:repeat(10,minmax(0,1fr)) !important;}}
+  @media (max-width:1023px){#inventoryGrid.inventory-product-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:8px !important;}}
+  @media (max-width:640px){#inventoryGrid.inventory-product-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:8px !important;}}
+
+  /* TradeCore brand highlight for the inventory value KPI. */
+  .inventory-value-summary-card{background:#5b21b6 !important;border:1px solid #5b21b6 !important;color:#fff !important;box-shadow:0 8px 24px rgba(91,33,182,.14) !important;}
+  .inventory-value-summary-card [data-compact-money]{color:#fcd34d !important;}
+</style>
+
+<style id="tradecore-inventory-barcode-tools">
+  .inventory-barcode-tools{margin-top:10px;}
+  .inventory-barcode-tools h4{font-size:10px;font-weight:900;color:#241a30;margin:0;}
+  .inventory-barcode-tools a,.inventory-barcode-tools button{min-height:38px;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;transition:transform .16s ease,box-shadow .16s ease,background .16s ease;}
+  .inventory-barcode-tools a:hover,.inventory-barcode-tools button:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(31,25,45,.08);}
+</style>
+
+<style id="tradecore-inventory-ai-product-images">
+  #inventoryGrid .inventory-ai-placeholder{
+    width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:#c7b7df;background:linear-gradient(145deg,#faf8ff 0%,#f2edfb 100%);
+  }
+  #inventoryGrid .inventory-ai-placeholder > span:first-child{font-size:18px;font-weight:900;line-height:1;color:#b9a5d8;}
+  #inventoryGrid .inventory-ai-placeholder > span:last-child{font-size:7px;font-weight:900;letter-spacing:.08em;margin-top:2px;opacity:.7;}
+  #inventoryGrid .inventory-ai-placeholder.inventory-ai-loading{color:#7c3aed;}
+  #inventoryGrid .inventory-ai-placeholder.inventory-ai-loading > span:first-child{font-size:16px;color:#a78bfa;animation:inventoryAiPulse 1.1s ease-in-out infinite;}
+  #inventoryGrid .inventory-ai-placeholder.inventory-ai-loading > span:last-child{color:#8b5cf6;opacity:.95;}
+  @keyframes inventoryAiPulse{0%,100%{opacity:.42;transform:scale(.94)}50%{opacity:1;transform:scale(1)}}
+</style>
+
+<script id="tradecore-inventory-presentation-preload">
+(function(){
+  try {
+    var p = localStorage.getItem('tradecore_inventory_presentation_v1') || 'grid';
+    document.documentElement.classList.add(p === 'list' ? 'inventory-pref-list' : 'inventory-pref-grid');
+  } catch (e) {
+    document.documentElement.classList.add('inventory-pref-grid');
+  }
+})();
+</script>
+
+<style id="tradecore-inventory-render-smoothing">
+/* Performance-only: defer offscreen paint without changing behavior. */
+.inventory-product-card{content-visibility:auto;contain-intrinsic-size:154px;}
+.inventory-table-scroll .product-row{content-visibility:auto;contain-intrinsic-size:72px;}
+.inventory-table-card{contain:layout style paint;}
+</style>
+
+<div id="inventoryPageRoot">
+<script id="inventory-i18n">
+const INVENTORY_I18N = {
+  "generic_error": "{% trans 'Hitilafu imetokea.' %}",
+  "unexpected_response": "{% trans 'Majibu yasiyotarajiwa kutoka kwenye seva.' %}",
+  "operation_failed": "{% trans 'Operesheni imeshindikana.' %}",
+  "scan_select_first": "{% trans 'Chagua bidhaa kwanza, kisha scan.' %}",
+  "no_matching_product": "{% trans 'Hakuna bidhaa inayolingana.' %}",
+  "no_product": "{% trans 'Hakuna bidhaa.' %}",
+  "question_first": "{% trans 'Andika swali kwanza.' %}",
+  "ai_analyzing": "{% trans 'TradeCore inachambua data...' %}",
+  "question_failed": "{% trans 'Swali halijafanikiwa.' %}",
+  "no_answer": "{% trans 'Hakuna jibu.' %}",
+  "ai_no_answer": "{% trans 'TradeCore haikupata jibu.' %}",
+  "barcode_first": "{% trans 'Scan au andika barcode kwanza.' %}",
+  "barcode_unused": "{% trans 'Barcode haijatumika. Unaweza kusajili bidhaa hii.' %}",
+  "barcode_check_failed": "{% trans 'Imeshindikana kuangalia barcode.' %}",
+  "barcode_generated_failed": "{% trans 'Barcode haijatengenezwa.' %}",
+  "category_first": "{% trans 'Chagua kategoria kwanza.' %}",
+  "category_not_added": "{% trans 'Kategoria haijaongezwa.' %}",
+  "suggest_same": "{% trans 'Kategoria hii tayari inafaa.' %}",
+  "suggest_match": "{% trans 'Pendekezo la kategoria limepatikana.' %}",
+  "suggest_learned": "{% trans 'TradeCore imejifunza kutoka kwenye uchaguzi wako.' %}",
+  "suggest_name": "{% trans 'Andika jina la bidhaa ili kupata pendekezo.' %}",
+  "smart_engine": "{% trans 'Smart Engine' %}",
+  "category_selected": "{% trans 'Kategoria imechaguliwa.' %}",
+  "smart_server": "{% trans 'Smart Server' %}",
+  "import_complete": "{% trans 'Import imekamilika.' %}",
+  "import_partial": "{% trans 'Import imekamilika kwa sehemu.' %}",
+  "import_success": "{% trans 'Import imefanikiwa.' %}",
+  "continue_complete": "{% trans 'Endelea kukamilisha bidhaa.' %}",
+  "import_failed": "{% trans 'Import imeshindikana.' %}",
+  "excel_failed": "{% trans 'Excel haijaweza kuingizwa.' %}",
+  "importing": "{% trans 'Inaingiza data...' %}",
+  "import_ok": "{% trans 'Import imefanikiwa.' %}",
+  "import_error": "{% trans 'Hitilafu wakati wa import.' %}",
+  "try_again": "{% trans 'Jaribu tena.' %}",
+  "no_selected": "{% trans 'Hakuna bidhaa zilizochaguliwa.' %}",
+  "select_table_first": "{% trans 'Chagua bidhaa kwenye jedwali kwanza.' %}",
+  "half_success": "{% trans 'Sehemu ya operesheni imefanikiwa.' %}",
+  "no_changed": "{% trans 'Hakuna mabadiliko yaliyofanyika.' %}",
+  "stock_alert_empty": "{% trans 'Hakuna alerts za stock kwa sasa.' %}",
+  "alert_refresh_failed": "{% trans 'Imeshindikana kuhuisha alerts.' %}",
+  "alerts_updated": "{% trans 'Alerts zimesasishwa.' %}",
+  "barcode_scanned": "{% trans 'Barcode imescanwa.' %}",
+  "product_identified": "{% trans 'Bidhaa imetambuliwa.' %}",
+  "scan_failed": "{% trans 'Scan imeshindikana.' %}",
+  "barcode_not_found": "{% trans 'Barcode haijapatikana.' %}",
+  "product_not_found": "{% trans 'Bidhaa haijapatikana.' %}",
+  "stock_missing": "{% trans 'Stock haijapatikana.' %}",
+  "barcode_missing": "{% trans 'Barcode haijawekwa.' %}",
+  "scan_to_add": "{% trans 'Scan bidhaa ili kuiongeza.' %}",
+  "invalid_transfer": "{% trans 'Transfer si sahihi.' %}",
+  "locations_different": "{% trans 'Sehemu za kuhifadhi ni tofauti.' %}",
+  "invalid_quantity": "{% trans 'Kiasi si sahihi.' %}",
+  "details_loading": "{% trans 'Inapakia taarifa za bidhaa...' %}",
+  "no_movement": "{% trans 'Hakuna movement iliyopatikana.' %}",
+  "no_stocktake": "{% trans 'Hakuna stock take iliyopatikana.' %}",
+  "supplier_required": "{% trans 'Jina la supplier linahitajika.' %}",
+  "info_incomplete": "{% trans 'Taarifa za bidhaa hazijakamilika.' %}",
+  "shipment_many": "{% trans 'Mizigo mingi imeletwa.' %}",
+  "shipment_single": "{% trans 'Mgozigo mmoja umeletwa.' %}",
+  "product_missing_system": "{% trans 'Bidhaa haipo kwenye mfumo.' %}",
+  "selected_items": "{% trans 'bidhaa' %}",
+  "units": "{% trans 'units' %}",
+};
+function inventoryT(key){ return INVENTORY_I18N[key] || key; }
+</script>
+
+<div id="toastNotification" class="fixed top-5 left-1/2 -translate-x-1/2 z-[250] transform -translate-y-20 opacity-0 transition-all duration-300 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl font-bold text-sm flex items-center gap-2 pointer-events-none">
+  <span class="text-emerald-400">✓</span><span id="toastMessage">{% trans 'Imekamilika!' %}</span>
+</div>
+
+<div id="inventoryPageHeader" class="inventory-page-header-compact flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-4">
+  <div class="min-w-0">
+    <div class="flex items-center gap-3 flex-wrap">
+      <h1 class="text-3xl font-light text-gray-700 leading-none">{% trans 'Stoo' %} & <span class="font-black text-purple-900">{% trans 'Bidhaa' %}</span></h1>
+      <div id="inventoryDatePill" aria-label="{% trans 'Tarehe ya leo' %}">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7 3v4m10-4v4M4.5 9.5h15M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"/></svg>
+        <span><span id="inventoryDayName">{% now "l" %}</span> · {% now "d M, Y" %}</span>
+        <span class="w-2 h-2 rounded-full bg-emerald-500" aria-hidden="true"></span>
+      </div>
+    </div>
+    <p class="inventory-page-subtitle text-[10px] text-gray-400 mt-1">{% trans 'Live inventory & stock control' %}</p>
+  </div>
+  <div class="inventory-primary-actions flex flex-wrap items-center gap-2">
+    <!-- Vifungo Vikuu Vinavyotumika Mara kwa Mara -->
+    <button type="button" onclick="funguaSearchModal()" class="px-4 py-2.5 rounded-xl bg-white text-purple-900 border border-gray-200 font-bold text-sm shadow-sm hover:bg-purple-50 transition-all">🔎 {% trans 'Search' %}</button>
+    <button type="button" onclick="openInventoryScanModes()" class="px-4 py-2.5 rounded-xl bg-purple-50 text-purple-900 border border-purple-100 font-black text-sm shadow-sm hover:bg-purple-100 transition-all">⌁ {% trans 'Scan Stoo' %}</button>
+    <button type="button" onclick="funguaAddProductModal()" class="px-5 py-2.5 rounded-xl bg-purple-900 text-amber-400 font-black text-sm shadow-md hover:bg-purple-800 transition-all">+ {% trans 'Sajili Bidhaa' %}</button>
+
+    <!-- Dropdown Menu ya Vitendo Zaidi -->
+    <div class="relative">
+      <button type="button" id="moreActionsBtn" onclick="document.getElementById('moreActionsMenu').classList.toggle('hidden')" class="px-4 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-all flex items-center gap-2">
+        {% trans 'Zaidi' %} <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+      </button>
+      
+      <div id="moreActionsMenu" class="absolute right-0 top-full mt-2 w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-100 hidden z-50 overflow-hidden transform origin-top-right transition-all">
+        <button type="button" onclick="funguaStockImportModal(); document.getElementById('moreActionsMenu').classList.add('hidden')" class="w-full text-left px-5 py-3.5 hover:bg-emerald-50 text-sm font-bold text-gray-700 border-b border-gray-50 flex items-center gap-3 transition-colors">
+          <span class="text-emerald-500 text-lg">📦</span> {% trans 'Import Mzigo' %}
+        </button>
+        <button type="button" onclick="funguaImportModal(); document.getElementById('moreActionsMenu').classList.add('hidden')" class="w-full text-left px-5 py-3.5 hover:bg-purple-50 text-sm font-bold text-gray-700 border-b border-gray-50 flex items-center gap-3 transition-colors">
+          <span class="text-purple-400 text-lg">📄</span> {% trans 'Import Excel' %}
+        </button>
+        <button type="button" onclick="funguaCategoryModal(); document.getElementById('moreActionsMenu').classList.add('hidden')" class="w-full text-left px-5 py-3.5 hover:bg-amber-50 text-sm font-bold text-gray-700 border-b border-gray-50 flex items-center gap-3 transition-colors">
+          <span class="text-amber-500 text-lg">🧠</span> {% trans 'Categories' %}
+        </button>
+        <button type="button" onclick="funguaTradeCoreAsk(); document.getElementById('moreActionsMenu').classList.add('hidden')" class="w-full text-left px-5 py-3.5 hover:bg-purple-50 text-sm font-bold text-gray-700 border-b border-gray-50 flex items-center gap-3 transition-colors">
+          <span class="text-purple-700 text-lg">✦</span> {% trans 'Uliza TradeCore' %}
+        </button>
+        {% if request.user.profile.ni_admin %}
+        <button type="button" onclick="funguaDeleteHub(); document.getElementById('moreActionsMenu').classList.add('hidden')" class="w-full text-left px-5 py-3.5 hover:bg-rose-50 text-sm font-black text-rose-600 flex items-center gap-3 transition-colors">
+          <span class="text-rose-500 text-lg">🗑</span> {% trans 'Udhibiti wa Kufuta' %}
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100"><p class="text-[10px] font-bold text-gray-400 uppercase">{% trans 'Jumla ya Bidhaa' %}</p><p class="text-2xl font-black text-gray-900 mt-1">{{ jumla_bidhaa }}</p></div>
+  <div class="inventory-value-summary-card p-5 rounded-3xl shadow-sm border"><p class="text-[10px] font-bold text-white/75 uppercase">{% trans 'Thamani ya Stoo (Selling)' %}</p><p class="text-2xl font-black text-white mt-1">TZS <span class="text-amber-300" data-compact-money="{{ thamani_stoo|default_if_none:0 }}">{{ thamani_stoo|intcomma }}</span></p></div>
+  <button type="button" onclick="funguaStockModal()" class="bg-white p-5 rounded-3xl shadow-sm border border-rose-100 text-left hover:shadow-md transition-all"><p class="text-[10px] font-bold text-rose-500 uppercase">{% trans 'Low / Out of Stock' %}</p><p class="text-2xl font-black text-rose-700 mt-1">{{ low_stock }} / {{ out_of_stock }}</p></button>
+</div>
+
+<!-- MASTER INVENTORY CONTROL CARD -->
+<div id="inventoryStatusSwitch" class="inventory-command-card mb-4">
+  <div class="inventory-command-top">
+    <div class="inventory-status-pills" aria-label="Inventory status filter">
+      <button type="button" data-view="stock" onclick="setInventoryView('stock',this)" class="inventory-view-btn whitespace-nowrap">{% trans 'LOW STOCK' %} <span id="countStockView" class="ml-1 text-[9px] opacity-70">0</span></button>
+      <button type="button" data-view="normal" onclick="setInventoryView('normal',this)" class="inventory-view-btn is-active bg-purple-900 text-white shadow-sm whitespace-nowrap" aria-selected="true">{% trans 'HEALTHY' %} <span id="countNormalView" class="ml-1 text-[9px] opacity-70">0</span></button>
+      <button type="button" data-view="all" onclick="setInventoryView('all',this)" class="inventory-view-btn whitespace-nowrap">{% trans 'ALL' %} <span id="countAllView" class="ml-1 text-[9px] opacity-70">0</span></button>
+    </div>
+
+    <div id="inventoryCategoryControl">
+      <label for="inventoryCategoryFilter">{% trans 'Kategoria' %}</label>
+      <select id="inventoryCategoryFilter" onchange="setInventoryCategory(this.value)">
+        <option value="ALL">{% trans 'Kategoria Zote' %}</option>
+        {% for kategoria in makategoria %}<option value="{{ kategoria.id }}">{{ kategoria.jina }}</option>{% endfor %}
+      </select>
+    </div>
+
+    <div id="inventoryInlineSearch" class="inventory-inline-search-modern">
+      <div class="flex items-center gap-2 bg-white cursor-text" onclick="funguaSearchModal()">
+        <span class="text-purple-900 shrink-0" aria-hidden="true">🔎</span>
+        <span class="flex-1 text-[11px] font-medium text-gray-500 truncate">{% trans 'Tafuta bidhaa kwa jina, barcode au ID...' %}</span>
+        <kbd class="hidden xl:block text-[9px] font-medium bg-gray-100 rounded-lg px-2 py-1 text-gray-500">CTRL + K</kbd>
+      </div>
+    </div>
+
+    <div id="inventoryPresentationSwitch" class="inventory-presentation-inline">
+      <div class="inventory-surface-title">
+        <div class="text-[11px] font-black text-gray-800 leading-none">{% trans 'Bidhaa za Store' %}</div>
+        <div class="text-[9px] text-gray-400 mt-1">{% trans 'Live inventory · Store + Duka' %}</div>
+      </div>
+      <div class="inventory-view-switch">
+        <button type="button" id="inventoryGridViewBtn" onclick="setInventoryPresentation('grid')" class="inventory-presentation-btn is-active">{% trans 'Grid' %}</button>
+        <button type="button" id="inventoryListViewBtn" onclick="setInventoryPresentation('list')" class="inventory-presentation-btn">{% trans 'List' %}</button>
+      </div>
+    </div>
+  </div>
+  <div id="inventoryViewHint" class="sr-only" aria-hidden="true"></div>
+</div>
+
+<div id="inventoryGrid" class="inventory-product-grid mb-4">
+  {% for bidhaa in bidhaa_zote %}
+  <article class="inventory-product-card" data-id="{{ bidhaa.id }}" data-name="{{ bidhaa.jina_la_bidhaa|lower }}" data-barcode="{{ bidhaa.barcode|default:''|lower }}" data-category="{{ bidhaa.kategoria_id|default:'' }}" data-stock="{{ bidhaa.inventory_total_stock|default:0 }}" data-ai-image-ready="{% if bidhaa.picha %}1{% else %}0{% endif %}" onclick="openInventoryProduct({{ bidhaa.id }})">
+    <div class="inventory-product-media" data-ai-product-image="{{ bidhaa.id }}">
+      {% if bidhaa.picha %}
+        <img src="{{ bidhaa.picha.url }}" alt="{{ bidhaa.jina_la_bidhaa|escape }}" loading="lazy" decoding="async">
+      {% else %}
+        <div class="inventory-ai-placeholder w-full h-full flex flex-col items-center justify-center text-purple-300">
+          <span class="text-lg font-black leading-none">{{ bidhaa.jina_la_bidhaa|first|upper }}</span>
+          <span class="text-[7px] font-black uppercase tracking-wider mt-0.5 opacity-70">AI</span>
+        </div>
+      {% endif %}
+      {% if bidhaa.inventory_stock_state == "out" %}
+        <span class="inventory-card-status out">{% trans 'OUT' %}</span>
+      {% elif bidhaa.inventory_stock_state == "low" %}
+        <span class="inventory-card-status low">{% trans 'LOW' %}</span>
+      {% else %}
+        <span class="inventory-card-status in">{% trans 'IN' %}</span>
+      {% endif %}
+    </div>
+    <div class="inventory-product-card-body">
+      <div class="flex items-start justify-between gap-2">
+        <div class="min-w-0">
+          <div class="inventory-product-name">{{ bidhaa.jina_la_bidhaa }}</div>
+          <div class="inventory-product-meta">{{ bidhaa.kategoria.jina|default:'Kawaida' }}</div>
+        </div>
+        <button type="button" class="inventory-product-more" onclick="event.stopPropagation(); openInventoryProduct({{ bidhaa.id }})" aria-label="Maelezo ya {{ bidhaa.jina_la_bidhaa|escape }}">•••</button>
+      </div>
+      <div class="inventory-store-stock-row">
+        <span>{% trans 'TOTAL' %}</span>
+        <strong>{{ bidhaa.inventory_total_stock|default:0 }}</strong>
+        <small>pcs</small>
+      </div>
+      <div class="text-[9px] text-gray-500 flex items-center gap-2 mt-1"><span>{% trans 'Store' %} <b>{{ bidhaa.inventory_store_stock|default:0 }}</b></span><span>·</span><span>{% trans 'Duka' %} <b class="text-purple-700">{{ bidhaa.inventory_shop_stock|default:0 }}</b></span>{% if bidhaa.inventory_transit_stock|default:0 > 0 %}<span>·</span><span class="text-amber-600">{% trans 'Njiani' %} <b>{{ bidhaa.inventory_transit_stock|default:0 }}</b></span>{% endif %}</div>
+      <div class="text-[9px] text-gray-400 truncate">Barcode · {{ bidhaa.barcode|default:'Haijawekwa' }}</div>
+    </div>
+  </article>
+  {% empty %}
+    <div class="inventory-grid-empty">{% trans 'Hakuna bidhaa iliyosajiliwa.' %}</div>
+  {% endfor %}
+</div>
+
+<div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden inventory-table-card flex-1">
+  <div class="inventory-table-scroll">
+    <table class="w-full text-left">
+      <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase tracking-widest">
+        <tr>
+          <th class="p-4">{% trans 'Bidhaa' %}</th><th class="p-4">{% trans 'Barcode' %}</th><th class="p-4">{% trans 'Kategoria' %}</th><th class="p-4">{% trans 'Stock' %}</th><th class="p-4">{% trans 'Bei' %}</th><th class="p-4 text-center">{% trans 'Actions' %}</th>
+        </tr>
+      </thead>
+      <tbody id="productTableBody" class="divide-y divide-gray-100 text-sm">
+      {% for bidhaa in bidhaa_zote %}
+        <tr class="product-row hover:bg-gray-50" data-id="{{ bidhaa.id }}" data-name="{{ bidhaa.jina_la_bidhaa|lower }}" data-barcode="{{ bidhaa.barcode|default:''|lower }}" data-category="{{ bidhaa.kategoria_id|default:'' }}" data-stock="{{ bidhaa.inventory_total_stock|default:0 }}" data-price="{{ bidhaa.bei_ya_kuuzia }}">
+          <td class="p-4"><div class="flex items-center gap-3"><div class="w-11 h-11 rounded-xl bg-gray-100 flex items-center justify-center font-black text-gray-500">{{ bidhaa.jina_la_bidhaa|first|upper }}</div><div><div class="font-black text-gray-800">{{ bidhaa.jina_la_bidhaa }}</div><div class="text-[10px] text-gray-400">ID #{{ bidhaa.id }}</div></div></div></td>
+          <td class="p-4"><div class="font-mono font-bold text-gray-800">{{ bidhaa.barcode|default:'-' }}</div></td>
+          <td class="p-4"><span class="px-2.5 py-1 rounded-lg bg-gray-100 text-gray-600 text-xs font-bold">{{ bidhaa.kategoria.jina|default:'Kawaida' }}</span></td>
+          <td class="p-4"><div class="font-black">{% if bidhaa.inventory_stock_state == "out" %}<span class="text-rose-600">0 — OUT</span>{% elif bidhaa.inventory_stock_state == "low" %}<span class="text-amber-600">{{ bidhaa.inventory_total_stock|default:0 }} — LOW</span>{% else %}<span class="text-emerald-600">{{ bidhaa.inventory_total_stock|default:0 }} — IN</span>{% endif %}</div><div class="text-[9px] text-gray-400 mt-1">Store {{ bidhaa.inventory_store_stock|default:0 }} · Duka {{ bidhaa.inventory_shop_stock|default:0 }}</div></td>
+          <td class="p-4 font-black text-purple-900">TZS <span data-compact-money="{{ bidhaa.bei_ya_kuuzia|default_if_none:0 }}">{{ bidhaa.bei_ya_kuuzia|intcomma }}</span></td>
+          <td class="p-4">
+            <div class="flex justify-center gap-2">
+              <button type="button" onclick="funguaDetails({{ bidhaa.id }})" class="p-2 rounded-lg text-blue-600 hover:bg-blue-50" title="View">👁</button>
+              <button type="button" onclick="funguaEdit({{ bidhaa.id }})" class="p-2 rounded-lg text-amber-600 hover:bg-amber-50" title="Edit">✎</button>
+              <a href="{% url 'print_product_barcode' bidhaa.id %}" target="_blank" class="p-2 rounded-lg text-purple-700 hover:bg-purple-50" title="Print barcode">▤</a>
+              {% if request.user.profile.ni_admin %}<button type="button" onclick="funguaDelete({{ bidhaa.id }}, '{{ bidhaa.jina_la_bidhaa|escapejs }}')" class="p-2 rounded-lg text-rose-600 hover:bg-rose-50" title="Delete">🗑</button>{% endif %}
+            </div>
+          </td>
+        </tr>
+        <div id="productData-{{ bidhaa.id }}" class="hidden" data-json='{"id":{{ bidhaa.id }},"name":"{{ bidhaa.jina_la_bidhaa|escapejs }}","barcode":"{{ bidhaa.barcode|default:''|escapejs }}","buying":"{{ bidhaa.bei_ya_kununulia }}","selling":"{{ bidhaa.bei_ya_kuuzia }}","stock":{{ bidhaa.inventory_store_stock|default:0 }},"storeStock":{{ bidhaa.inventory_store_stock|default:0 }},"shopStock":{{ bidhaa.inventory_shop_stock|default:0 }},"totalStock":{{ bidhaa.inventory_total_stock|default:0 }},"category":"{{ bidhaa.kategoria.jina|default:''|escapejs }}","category_id":"{{ bidhaa.kategoria_id|default:'' }}","notes":"{{ bidhaa.maelekezo_maalum|default:''|escapejs }}"}'></div>
+      {% empty %}
+        <tr><td colspan="6" class="p-10 text-center text-gray-400 font-bold">{% trans 'Hakuna bidhaa iliyosajiliwa.' %}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ADD / EDIT -->
+<div id="productModal" class="fixed inset-0 z-[180] bg-slate-950/70 backdrop-blur-md hidden items-center justify-center p-4">
+  <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden">
+    <div class="p-6 border-b flex items-center justify-between"><div><h3 id="productModalTitle" class="text-xl font-black">{% trans 'Sajili Bidhaa' %}</h3><p class="text-xs text-gray-500 mt-1">{% trans 'Scan barcode ya kiwandani au acha mfumo utengeneze yake.' %}</p></div><button type="button" onclick="fungaProductModal()" class="w-9 h-9 rounded-full bg-gray-100 text-gray-500">&times;</button></div>
+    <form id="productForm" method="POST" action="{% url 'sajili_bidhaa' %}" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+      {% csrf_token %}
+      <div><label class="text-xs font-black text-gray-700">{% trans 'Barcode ya Kiwandani' %}</label><div class="flex gap-2 mt-1"><input id="factoryBarcodeInput" name="barcode" type="text" autocomplete="off" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 font-mono font-bold" placeholder="Scan barcode hapa…"><button type="button" onclick="checkFactoryBarcode()" class="px-4 rounded-xl bg-gray-100 font-bold text-sm">{% trans 'Angalia' %}</button></div><p id="barcodeCheckMsg" class="text-[11px] mt-1"></p></div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label class="text-xs font-black">{% trans 'Jina la Bidhaa *' %}</label><input id="productNameInput" name="jina_la_bidhaa" required class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200"></div>
+        <div><label class="text-xs font-black">{% trans 'Kategoria' %}</label><select id="categoryInput" name="kategoria_id" class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200"><option value="">Kawaida</option>{% for kategoria in makategoria %}<option value="{{ kategoria.id }}">{{ kategoria.jina }}</option>{% endfor %}</select></div>
+        <div><label class="text-xs font-black">{% trans 'Bei ya Kununulia *' %}</label><input id="buyingInput" name="bei_ya_kununulia" type="number" min="0" step="0.01" required class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200"></div>
+        <div><label class="text-xs font-black">{% trans 'Bei ya Usafirishaji wa Mzigo' %} <span class="text-[10px] font-medium text-gray-400">(Optional)</span></label><input id="transportCostInput" name="gharama_usafirishaji" type="number" min="0" step="0.01" class="mt-1 w-full px-4 py-3 rounded-xl border border-amber-200 bg-amber-50/40" placeholder="0"></div>
+        <div><label class="text-xs font-black">{% trans 'Bei ya Kuuzia *' %}</label><input id="sellingInput" name="bei_ya_kuuzia" type="number" min="0" step="0.01" required class="mt-1 w-full px-4 py-3 rounded-xl border border-purple-200 bg-purple-50"></div>
+        <div><label class="text-xs font-black">{% trans 'Idadi ya Stoo *' %}</label><input id="stockInput" name="idadi" type="number" min="0" required class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200"></div>
+        <div><label class="text-xs font-black">{% trans 'Maelezo' %}</label><input id="notesInput" name="maelekezo_maalum" class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200"></div>
+      </div>
+      <div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="fungaProductModal()" class="px-5 py-3 rounded-xl bg-gray-100 font-bold">{% trans 'Ghairi' %}</button><button type="submit" class="px-6 py-3 rounded-xl bg-purple-900 text-amber-400 font-black">{% trans 'Hifadhi Bidhaa' %}</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- SEARCH + FILTER -->
+<div id="searchModal" class="fixed inset-0 z-[170] bg-slate-950/75 backdrop-blur-md hidden items-start justify-center p-4 sm:pt-16">
+  <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden">
+    <div class="p-5 border-b flex items-center gap-3"><input id="storeSearch" autofocus placeholder="Jina, barcode, ID…" class="flex-1 px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold outline-none"><button type="button" onclick="fungaSearchModal()" class="w-10 h-10 rounded-xl bg-gray-100">&times;</button></div>
+    <div class="p-5 bg-gray-50 border-b grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"><select id="filterCategory" class="px-3 py-2.5 rounded-xl border bg-white"><option value="ALL">{% trans 'Kategoria zote' %}</option>{% for kategoria in makategoria %}<option value="{{ kategoria.id }}">{{ kategoria.jina }}</option>{% endfor %}</select><select id="filterStock" class="px-3 py-2.5 rounded-xl border bg-white"><option value="ALL">{% trans 'Stock zote' %}</option><option value="IN">{% trans 'In Stock' %}</option><option value="LOW">{% trans 'Low Stock' %}</option><option value="OUT">{% trans 'Out of Stock' %}</option></select><input id="filterMinPrice" type="number" min="0" placeholder="Bei kuanzia" class="px-3 py-2.5 rounded-xl border"><input id="filterMaxPrice" type="number" min="0" placeholder="Bei hadi" class="px-3 py-2.5 rounded-xl border"></div>
+    <div id="searchResults" class="p-5 max-h-[65vh] overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+  </div>
+</div>
+
+<!-- DETAILS -->
+<div id="detailsModal" class="fixed inset-0 z-[190] bg-slate-950/75 backdrop-blur-md hidden items-center justify-center p-4"><div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-6"><div class="flex justify-between"><h3 class="text-xl font-black">{% trans 'Taarifa za Bidhaa' %}</h3><button onclick="fungaDetails()" class="w-9 h-9 bg-gray-100 rounded-full">&times;</button></div><div id="detailsBody" class="mt-5 space-y-3"></div></div></div>
+
+<!-- DELETE -->
+<div id="deleteModal" class="fixed inset-0 z-[420] bg-slate-950/55 backdrop-blur-md hidden items-center justify-center p-4">
+  <!-- SURGERY FIX: Tumeondoa opacity-0 na scale-[.97] ili pop-up ionekane mara moja ukibonyeza Delete -->
+  <div id="deleteModalCard" class="bg-white w-full max-w-md rounded-[28px] shadow-2xl border border-white overflow-hidden">
+    <div class="px-6 pt-6 pb-4 border-b border-gray-100">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 shrink-0 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5.8A1.8 1.8 0 0110.8 4h2.4A1.8 1.8 0 0115 5.8V7m-7 0 .7 11.2A1.8 1.8 0 0010.5 20h3a1.8 1.8 0 001.8-1.8L16 7m-6 4v5m4-5v5"/></svg>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="text-[10px] uppercase tracking-[.16em] font-black text-gray-400">{% trans 'Inventory Action' %}</div>
+          <h3 class="text-xl font-black text-gray-900 mt-1">{% trans 'Ondoa bidhaa' %}</h3>
+          <p id="deleteText" class="text-sm text-gray-500 mt-1 leading-5"></p>
+        </div>
+        <button type="button" onclick="fungaDelete()" class="w-9 h-9 rounded-xl bg-gray-100 text-gray-400 hover:bg-gray-200">&times;</button>
+      </div>
+    </div>
+    <div class="p-6 space-y-3">
+      <button type="button" onclick="executeSingleDelete('deplete_stock')" class="w-full text-left p-4 rounded-2xl border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-all">
+        <div class="flex items-center justify-between gap-4">
+          <div><div class="text-sm font-black text-amber-800">{% trans 'Weka Stock 0' %}</div><div class="text-[11px] text-amber-700 mt-1">{% trans 'Bidhaa inabaki kwenye mfumo na historia zake; haitakuwa na stock.' %}</div></div>
+          <span class="text-amber-700 text-xl">→</span>
+        </div>
+      </button>
+      <button type="button" onclick="executeSingleDelete('delete')" class="w-full text-left p-4 rounded-2xl border border-rose-200 bg-rose-50 hover:bg-rose-100 transition-all">
+        <div class="flex items-center justify-between gap-4">
+          <div><div class="text-sm font-black text-rose-800">{% trans 'Futa Kabisa' %}</div><div class="text-[11px] text-rose-700 mt-1">{% trans 'Hufuta product master kabisa. Database itazuia kama ina historia iliyolindwa.' %}</div></div>
+          <span class="text-rose-700 text-xl">→</span>
+        </div>
+      </button>
+      <button type="button" onclick="fungaDelete()" class="w-full px-4 py-3 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-black text-sm">{% trans 'Ghairi' %}</button>
+    </div>
+    <form id="deleteForm" method="POST" class="hidden">{% csrf_token %}</form>
+  </div>
+</div>
+
+<!-- STOCK -->
+<div id="stockModal" class="fixed inset-0 z-[180] bg-slate-950/75 backdrop-blur-md hidden items-center justify-center p-4"><div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl p-6"><div class="flex justify-between"><h3 class="text-xl font-black">{% trans 'Low & Out of Stock' %}</h3><button onclick="fungaStockModal()" class="w-9 h-9 bg-gray-100 rounded-full">&times;</button></div><div class="mt-5 max-h-[55vh] overflow-y-auto space-y-2">{% for bidhaa in bidhaa_zote %}{% if bidhaa.inventory_stock_state == "out" or bidhaa.inventory_stock_state == "low" %}<div class="p-3 rounded-xl border border-gray-100 flex justify-between"><span class="font-bold">{{ bidhaa.jina_la_bidhaa }}</span><span class="font-black {% if bidhaa.inventory_stock_state == "out" %}text-rose-600{% else %}text-amber-600{% endif %}">{{ bidhaa.inventory_total_stock|default:0 }}</span></div>{% endif %}{% endfor %}</div></div></div>
+
+<!-- IMPORT -->
+<div id="importModal" class="fixed inset-0 z-[180] bg-slate-950/75 backdrop-blur-md hidden items-center justify-center p-4"><div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-6"><div class="flex justify-between"><div><h3 class="text-xl font-black">{% trans 'Import Bidhaa' %}</h3><p class="text-xs text-gray-500">Columns: Jina, Barcode, Kategoria, Buying, Selling, Qty, Maelezo. Buying, Selling, Qty na Kategoria vinaweza kuachwa wazi; TradeCore itakufungulia completion assistant baada ya import.</p></div><button onclick="fungaImportModal()" class="w-9 h-9 bg-gray-100 rounded-full">&times;</button></div><form method="POST" action="{% url 'import_products' %}" enctype="multipart/form-data" class="mt-5 space-y-4">{% csrf_token %}<input type="file" name="excel_file" accept=".xlsx,.xlsm" required class="w-full p-4 rounded-xl border border-dashed border-purple-200 bg-purple-50"><p class="text-[10px] text-gray-400">{% trans 'Supported: XLSX / XLSM' %}</p><button class="w-full py-3 rounded-xl bg-purple-900 text-amber-400 font-black">Import Excel</button></form></div></div>
+<div id="importStockModal" class="inventory-apple-modal hidden" aria-hidden="true">
+  <div class="inventory-apple-backdrop" onclick="fungaStockImportModal()"></div>
+  <div class="inventory-apple-card inventory-work-card" role="dialog" aria-modal="true" aria-labelledby="stockImportTitle">
+    <div class="inventory-apple-grabber"></div>
+    <div class="inventory-apple-header"><div><div class="text-[9px] uppercase tracking-[.14em] text-gray-400 font-black">{% trans 'Shipment Import' %}</div><h3 id="stockImportTitle">{% trans 'Import Mzigo' %}</h3><p>Ingiza mzigo wa Excel moja kwa moja Store au Duka. Duka = mzigo umepokelewa moja kwa moja; Store → Duka ya kawaida itapitia Transfer na uthibitisho wa mpokeaji.</p></div><button type="button" onclick="fungaStockImportModal()" class="inventory-apple-close">&times;</button></div>
+    <form id="stockImportForm" method="POST" action="{% url 'import_stock_to_location' %}" enctype="multipart/form-data" class="space-y-4">{% csrf_token %}
+      <div id="stockImportStatus" class="hidden rounded-2xl px-4 py-3 text-[10px] font-black border"></div>
+      <div class="inventory-form-stack">
+        <div class="inventory-form-field"><label>{% trans 'Destination' %}</label><select name="destination" class="inventory-input"><option value="store">📦 {% trans 'Store' %}</option><option value="shop">🏪 {% trans 'Duka / POS' %}</option></select></div>
+        <div class="inventory-form-field"><label>{% trans 'Supplier' %}</label><input name="supplier" class="inventory-input" required placeholder="Jina la supplier..."></div>
+        <div class="inventory-form-field"><label>{% trans 'Reference / PO' %}</label><input name="reference" class="inventory-input" placeholder="Optional"></div>
+        <div class="inventory-form-field"><label>{% trans 'Maelezo' %}</label><textarea name="notes" class="inventory-input" rows="2" placeholder="{% trans 'Maelezo ya mzigo...' %}"></textarea></div>
+      </div>
+      <div class="rounded-2xl bg-purple-50 border border-purple-100 p-4">
+        <div class="text-[10px] font-black uppercase tracking-widest text-purple-900">{% trans 'Excel ya Mzigo' %}</div>
+        <p class="text-[10px] text-purple-700 mt-1">Inahitaji angalau <b>Jina</b> na <b>Qty</b>. Barcode ikiwapo, TradeCore itatumia kuitambua bidhaa iliyopo.</p>
+        <input type="file" name="excel_file" accept=".xlsx,.xlsm" required class="mt-3 w-full p-4 rounded-xl border border-dashed border-purple-200 bg-white">
+      </div>
+      <button class="w-full py-3.5 rounded-2xl bg-purple-900 text-amber-400 font-black shadow-lg">{% trans 'Import Mzigo na Sasisha Stock' %}</button>
+    </form>
+  </div>
+</div>
+
+
+<!-- CATEGORIES / SMART -->
+<div id="categoryModal" class="fixed inset-0 z-[210] bg-slate-950/75 backdrop-blur-md hidden items-center justify-center p-4"><div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden"><div class="p-6 border-b flex items-center justify-between"><div><h3 class="text-xl font-black">{% trans 'Categories & Smart' %}</h3><p class="text-xs text-gray-500 mt-1">{% trans 'Chagua aina ya biashara; TradeCore itaandaa categories zake.' %}</p></div><button onclick="fungaCategoryModal()" class="w-9 h-9 rounded-full bg-gray-100">&times;</button></div><div class="p-6 space-y-5"><div class="p-4 rounded-2xl bg-purple-50 border border-purple-100"><label class="text-xs font-black text-purple-900">{% trans 'Aina ya Biashara' %}</label><div class="flex gap-2 mt-2"><select id="businessTypeSelect" class="flex-1 px-4 py-3 rounded-xl border border-purple-200 bg-white font-bold">{% for key,label in business_type_choices %}<option value="{{ key }}" {% if key == current_business_type %}selected{% endif %}>{{ label }}</option>{% endfor %}</select><button type="button" onclick="saveBusinessType()" class="px-5 py-3 rounded-xl bg-purple-900 text-amber-400 font-black">{% trans 'Save' %}</button></div><p class="text-[10px] text-purple-700 mt-2">Current: <strong>{{ current_business_type_label }}</strong></p></div><div><div class="text-sm font-black">Ongeza Category yako</div><div class="text-xs text-gray-500">Custom category itaonekana kwenye biashara hii.</div><div class="flex gap-2 mt-2"><input id="newCategoryInput" class="flex-1 px-4 py-3 rounded-xl border border-gray-200" placeholder="Mfano: Clearance Stock"><button type="button" onclick="addCategory()" class="px-5 py-3 rounded-xl bg-gray-900 text-white font-black">Add</button></div></div><div><div class="text-sm font-black">TradeCore Smart Suggestion</div><div class="flex gap-2 mt-2"><input id="smartCategoryProduct" oninput="smartSuggest()" class="flex-1 px-4 py-3 rounded-xl border border-gray-200" placeholder="Andika jina la bidhaa..."><span class="px-4 py-3 rounded-xl bg-amber-50 text-amber-700 font-black text-xs flex items-center">SMART</span></div><div id="smartSuggestion"></div></div></div></div></div>
+<!-- SCAN CONFIRMATION -->
+<div id="inventoryScanSuccessPopup" class="fixed inset-0 z-[650] bg-slate-950/25 backdrop-blur-[2px] hidden items-center justify-center p-4 pointer-events-none">
+  <div id="inventoryScanPopupCard" class="bg-white/96 backdrop-blur-xl w-full max-w-xs rounded-[28px] shadow-2xl border border-white/90 p-6 text-center">
+    <div id="inventoryScanPopupIcon" class="mx-auto w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl font-black">✓</div>
+    <div id="inventoryScanPopupKicker" class="text-[9px] uppercase tracking-[.16em] text-gray-400 font-black mt-4">{% trans 'Barcode Imescan' %}</div>
+    <h3 id="inventoryScanSuccessTitle" class="text-lg font-black text-gray-900 mt-1">{% trans 'Bidhaa imetambulika' %}</h3>
+    <p id="inventoryScanSuccessMeta" class="text-[11px] text-gray-500 mt-1"></p>
+  </div>
+</div>
+
+<!-- ASK TRADECORE -->
+<div id="tradecoreAskModal" class="inventory-apple-modal hidden" aria-hidden="true">
+  <div class="inventory-apple-backdrop" onclick="fungaTradeCoreAsk()"></div>
+  <div class="inventory-apple-card inventory-work-card" role="dialog" aria-modal="true" aria-labelledby="tradecoreAskTitle">
+    <div class="inventory-apple-grabber"></div>
+    <div class="inventory-apple-header"><div><div class="text-[9px] uppercase tracking-[.14em] text-purple-500 font-black">{% trans 'Business Intelligence' %}</div><h3 id="tradecoreAskTitle">{% trans 'Uliza TradeCore' %}</h3><p>{% trans 'Majibu yanatoka kwenye data iliyopo kwenye mfumo.' %}</p></div><button type="button" onclick="fungaTradeCoreAsk()" class="inventory-apple-close">&times;</button></div>
+    <div class="flex gap-2">
+      <input id="tradecoreAskInput" class="inventory-input" placeholder="Mfano: Pepsi iko wapi?" autocomplete="off">
+      <button type="button" onclick="submitTradeCoreAsk()" class="px-4 rounded-2xl bg-purple-900 text-amber-400 font-black">{% trans 'Uliza' %}</button>
+    </div>
+    <div class="mt-3 flex flex-wrap gap-2">
+      <button type="button" class="px-3 py-2 rounded-xl bg-gray-50 border border-gray-100 text-[10px] font-bold" onclick="askTradeCoreExample('Pepsi iko wapi?')">{% trans 'Pepsi iko wapi?' %}</button>
+      <button type="button" class="px-3 py-2 rounded-xl bg-gray-50 border border-gray-100 text-[10px] font-bold" onclick="askTradeCoreExample('Ni Pepsi ngapi zimeuzwa leo?')">{% trans 'Mauzo ya Pepsi' %}</button>
+      <button type="button" class="px-3 py-2 rounded-xl bg-gray-50 border border-gray-100 text-[10px] font-bold" onclick="askTradeCoreExample('Transfers za leo ni zipi?')">{% trans 'Transfers za leo' %}</button>
+      <button type="button" class="px-3 py-2 rounded-xl bg-gray-50 border border-gray-100 text-[10px] font-bold" onclick="askTradeCoreExample('Ni bidhaa gani zina stock ndogo?')">{% trans 'Low stock' %}</button>
+    </div>
+    <div id="tradecoreAskResult" class="mt-4 p-4 rounded-2xl bg-gray-50 border border-gray-100 text-sm text-gray-700 whitespace-pre-line min-h-[110px]">{% trans 'Uliza swali hapo juu.' %}</div>
+  </div>
+</div>
+
+<!-- SURGERY FIX: Tumeiwekea inline style ya z-index 99999 ili ilazimishe kukaa juu kabisa ya Jicho -->
+<!-- BARCODE GENERATED -->
+<div id="barcodeGeneratedPopup" class="fixed inset-0 bg-slate-950/45 backdrop-blur-md hidden items-center justify-center p-4" style="z-index: 99999 !important;"><div class="bg-white/95 backdrop-blur-xl w-full max-w-sm rounded-[2rem] shadow-2xl border border-white p-7 text-center"><div class="mx-auto w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center text-3xl text-emerald-600">✓</div><h3 class="text-xl font-black mt-4">{% trans 'Barcode Generated' %}</h3><p id="barcodeGeneratedProduct" class="text-sm text-gray-500 mt-1"></p><div class="mt-5 rounded-2xl border border-gray-100 bg-white p-4"><img id="generatedBarcodeImage" class="mx-auto w-full h-auto" alt="Generated barcode"></div><p class="text-[10px] text-gray-400 mt-3">{% trans 'Barcode imehifadhiwa kwa mafanikio.' %}</p><button type="button" onclick="fungaBarcodePopup()" class="mt-5 w-full py-3 rounded-xl bg-gray-900 text-white font-black">{% trans 'Funga' %}</button></div></div>
+<!-- IMPORT RESULT -->
+<div id="importResultModal" class="fixed inset-0 z-[270] bg-slate-950/50 backdrop-blur-md hidden items-center justify-center p-4">
+  <div class="bg-white/95 backdrop-blur-xl w-full max-w-md rounded-[2rem] shadow-2xl border border-white overflow-hidden">
+    <div class="p-7 text-center">
+      <div id="importResultIcon" class="mx-auto w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center text-3xl text-emerald-600">✓</div>
+      <div class="text-[10px] uppercase tracking-widest text-gray-400 font-black mt-5">{% trans 'Excel Import' %}</div>
+      <h3 id="importResultTitle" class="text-2xl font-black mt-1">{% trans 'Import Complete' %}</h3>
+      <p id="importResultMessage" class="text-sm text-gray-500 mt-2">{% trans 'Excel imeingizwa kwa mafanikio.' %}</p>
+      <div id="importResultStats" class="grid grid-cols-2 gap-3 mt-6 text-left">
+        <div class="rounded-2xl bg-emerald-50 border border-emerald-100 p-4">
+          <div class="text-[10px] uppercase font-black text-emerald-600">{% trans 'Imported' %}</div>
+          <div id="importResultCreated" class="text-2xl font-black text-gray-900 mt-1">0</div>
+        </div>
+        <div class="rounded-2xl bg-amber-50 border border-amber-100 p-4">
+          <div class="text-[10px] uppercase font-black text-amber-600">{% trans 'Incomplete' %}</div>
+          <div id="importResultIncomplete" class="text-2xl font-black text-gray-900 mt-1">0</div>
+        </div>
+      </div>
+      <button type="button" id="importResultAction" onclick="continueAfterImport()" class="mt-6 w-full py-3 rounded-xl bg-purple-900 text-amber-400 font-black">{% trans 'Done' %}</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT COMPLETION -->
+<div id="importCompletionModal" class="fixed inset-0 z-[250] bg-slate-950/45 backdrop-blur-md hidden items-center justify-center p-4"><div class="completion-card bg-white/95 backdrop-blur-xl w-full max-w-lg rounded-[2rem] shadow-2xl border border-white overflow-hidden"><div class="p-6 border-b flex items-center justify-between"><div><div class="text-[10px] uppercase tracking-widest text-gray-400 font-black">{% trans 'Import Assistant' %}</div><h3 class="text-xl font-black mt-1">{% trans 'Kamilisha Bidhaa' %}</h3></div><div id="importProgress" class="text-xs font-black text-purple-900"></div></div><div class="p-6"><div class="p-4 rounded-2xl bg-gray-50"><div class="text-[10px] uppercase font-black text-gray-400">Bidhaa</div><div id="completionProductName" class="text-lg font-black mt-1"></div></div><div id="completionFields" class="mt-5 space-y-4"></div><div class="flex gap-2 mt-6"><button type="button" onclick="fungaImportCompletion()" class="flex-1 px-4 py-3 rounded-xl bg-gray-100 font-bold">{% trans 'Later' %}</button><button type="button" id="completionSaveBtn" onclick="saveImportCompletion()" class="flex-1 px-4 py-3 rounded-xl bg-purple-900 text-amber-400 font-black">{% trans 'Save & Next' %}</button></div></div></div></div>
+
+
+<!-- =========================================================
+     TRADECORE INVENTORY SCAN MODES — APPLE UI SURGERY
+     Existing page/functions remain; these are additive workflows.
+     ========================================================= -->
+<div id="inventoryScanModeModal" class="inventory-apple-modal hidden" aria-hidden="true">
+  <div class="inventory-apple-backdrop" onclick="closeInventoryOverlay('inventoryScanModeModal')"></div>
+  <div class="inventory-apple-card inventory-mode-card" role="dialog" aria-modal="true" aria-labelledby="inventoryScanModeTitle">
+    <div class="inventory-apple-grabber"></div>
+    <div class="inventory-apple-header">
+      <div><h3 id="inventoryScanModeTitle">{% trans 'Scan ya Stoo' %}</h3><p>{% trans 'Chagua kitendo kisha scan bidhaa moja au nyingi.' %}</p></div>
+      <button type="button" onclick="closeInventoryOverlay('inventoryScanModeModal')" class="inventory-apple-close">&times;</button>
+    </div>
+    <div class="inventory-mode-grid">
+      <button type="button" onclick="startInventoryMode('stock_in')"><span>＋</span><b>{% trans 'Stock In' %}</b><small>{% trans 'Mzigo mpya unaingia Store' %}</small></button>
+      <button type="button" onclick="startInventoryMode('transfer')"><span>⇄</span><b>{% trans 'Transfer' %}</b><small>{% trans 'Hamisha Store ↔ Duka' %}</small></button>
+      <button type="button" onclick="startInventoryMode('stock_take')"><span>⌁</span><b>{% trans 'Stock Take' %}</b><small>{% trans 'Hesabu stock ya kweli' %}</small></button>
+      <button type="button" onclick="startInventoryMode('adjustment')"><span>±</span><b>{% trans 'Adjustment' %}</b><small>{% trans 'Correction / damaged / lost' %}</small></button>
+      <button type="button" onclick="startInventoryMode('lookup')"><span>⌕</span><b>{% trans 'Quick Lookup' %}</b><small>{% trans 'Scan uone taarifa za bidhaa' %}</small></button>
+    </div>
+  </div>
+</div>
+
+<div id="inventoryTransferModal" class="inventory-apple-modal hidden" aria-hidden="true">
+  <div class="inventory-apple-backdrop" onclick="closeInventoryOverlay('inventoryTransferModal')"></div>
+  <div class="inventory-apple-card inventory-work-card" role="dialog" aria-modal="true">
+    <div class="inventory-apple-grabber"></div>
+    <div class="inventory-apple-header"><div><h3>{% trans 'Transfer Stock' %}</h3><p>{% trans 'Hamisha bidhaa kutoka Store kwenda location nyingine.' %}</p></div><button type="button" onclick="closeInventoryOverlay('inventoryTransferModal')" class="inventory-apple-close">&times;</button></div>
+    <div class="inventory-form-stack">
+      <div class="inventory-form-field"><label>{% trans 'Kutoka' %}</label><select id="inventoryTransferFrom" class="inventory-input" onchange="syncInventoryTransferSource()"><option value="{{ store_location_id }}">📦 {% trans 'Store' %}</option><option value="{{ shop_location_id }}">🏪 Duka (POS)</option></select></div>
+      <div class="inventory-form-field"><label>{% trans 'Kwenda' %}</label><select id="inventoryTransferTo" class="inventory-input"><option value="{{ shop_location_id }}">🏪 Duka (POS)</option><option value="{{ store_location_id }}">📦 {% trans 'Store' %}</option></select></div>
+      <div class="inventory-form-field"><label>{% trans 'Sababu ya Transfer' %}</label><select id="inventoryTransferReason" onchange="syncInventoryTransferDirection()" class="inventory-input"><option value="REPLENISHMENT">Replenishment / Kupeleka Duka</option><option value="RETURN_TO_STORE">Return to Store</option><option value="DAMAGED">Damaged Product</option><option value="EXPIRED">Expired Product</option><option value="CUSTOMER_RETURN">Customer Return</option><option value="REDISTRIBUTION">Redistribution</option><option value="OTHER">Other</option></select></div>
+      <div class="inventory-form-field"><label>{% trans 'Maelezo ya sababu' %}</label><textarea id="inventoryTransferReasonText" class="inventory-input" rows="2" maxlength="1000" placeholder="Andika sababu/maelezo muhimu..."></textarea></div>
+    </div>
+    <div class="flex items-center gap-2 mb-3 bg-gray-50 p-2 rounded-2xl border border-gray-100"><input type="text" class="inventory-input flex-1" style="min-height:36px; padding:6px 12px; font-size:11px;" placeholder="Andika Barcode au ID kisha Enter..." onkeydown="if(event.key==='Enter'){ window.tradecoreInventoryScanHandler(this.value); this.value=''; event.preventDefault(); }"><button type="button" onclick="TradeCoreMobile.openInventoryScanner('transfer')" class="px-3 py-2 rounded-xl bg-purple-100 text-purple-900 font-black text-[10px]">📷 Kamera</button></div>
+    <div id="inventoryTransferPicker" class="inventory-transfer-picker">
+      <div class="inventory-transfer-picker-head">
+        <div>
+          <div class="inventory-transfer-picker-title">{% trans 'Chagua Bidhaa za Kuhamisha' %}</div>
+          <div id="inventoryTransferSourceHint" class="inventory-transfer-picker-hint">Store · stock inayopatikana itaonekana hapa</div>
+        </div>
+        <div class="inventory-transfer-picker-actions">
+          <button type="button" onclick="selectVisibleTransferProducts()">{% trans 'Chagua zinazoonekana' %}</button>
+          <button type="button" onclick="clearTransferProductSelection()">{% trans 'Ondoa zote' %}</button>
+        </div>
+      </div>
+      <div class="inventory-transfer-picker-tools">
+        <input id="inventoryTransferPickerSearch" type="search" class="inventory-input" placeholder="Tafuta jina, barcode au ID..." autocomplete="off" oninput="renderTransferPicker()">
+        <select id="inventoryTransferPickerCategory" class="inventory-input" onchange="renderTransferPicker()">
+          <option value="ALL">{% trans 'Kategoria zote' %}</option>
+          {% for kategoria in makategoria %}<option value="{{ kategoria.id }}">{{ kategoria.jina }}</option>{% endfor %}
+        </select>
+      </div>
+      <div id="inventoryTransferPickerList" class="inventory-transfer-picker-list"></div>
+    </div>
+<div class="flex justify-between items-center mb-2 px-1"><span class="text-[10px] font-black uppercase text-gray-400">{% trans 'Bidhaa Zilizochaguliwa' %}</span><span id="inventoryTransferCount" class="text-[10px] font-bold text-purple-700">0 bidhaa · 0 units</span></div>
+    <div id="inventoryTransferItems" class="inventory-draft-items"></div>
+    <div class="inventory-finish-row"><button type="button" onclick="closeInventoryOverlay('inventoryTransferModal')" class="inventory-secondary-btn">{% trans 'Ghairi' %}</button><button type="button" onclick="finishInventoryTransfer()" id="inventoryTransferFinish" class="inventory-primary-btn">✓ {% trans 'Finish Transfer' %}</button></div>
+  </div>
+</div>
+
+<div id="inventoryStockInModal" class="inventory-apple-modal hidden" aria-hidden="true">
+  <div class="inventory-apple-backdrop" onclick="closeInventoryOverlay('inventoryStockInModal')"></div>
+  <div class="inventory-apple-card inventory-work-card" role="dialog" aria-modal="true">
+    <div class="inventory-apple-grabber"></div>
+    <div class="inventory-apple-header"><div><h3>{% trans 'Stock In' %}</h3><p>{% trans 'Mzigo mpya unaingia moja kwa moja Store.' %}</p></div><button type="button" onclick="closeInventoryOverlay('inventoryStockInModal')" class="inventory-apple-close">&times;</button></div>
+    <div class="inventory-form-stack">
+      <div class="inventory-form-field"><label>{% trans 'Supplier' %}</label><input id="inventoryStockInSupplier" class="inventory-input" placeholder="Jina la supplier..." autocomplete="organization"></div>
+      <div class="inventory-form-field"><label>{% trans 'Reference / PO' %}</label><input id="inventoryStockInReference" class="inventory-input" placeholder="Optional"></div>
+      <div class="inventory-form-field"><label>{% trans 'Maelezo' %}</label><textarea id="inventoryStockInNotes" class="inventory-input" rows="2" placeholder="{% trans 'Maelezo ya mzigo...' %}"></textarea></div>
+    </div>
+    <div class="flex items-center gap-2 mt-3 mb-3 bg-gray-50 p-2 rounded-2xl border border-gray-100"><input type="text" class="inventory-input flex-1" style="min-height:36px; padding:6px 12px; font-size:11px;" placeholder="Andika Barcode au ID kisha Enter..." onkeydown="if(event.key==='Enter'){ window.tradecoreInventoryScanHandler(this.value); this.value=''; event.preventDefault(); }"><button type="button" onclick="TradeCoreMobile.openInventoryScanner('stock_in')" class="px-3 py-2 rounded-xl bg-purple-100 text-purple-900 font-black text-[10px]">📷 Kamera</button></div>
+    <div class="flex justify-between items-center mb-2 px-1"><span class="text-[10px] font-black uppercase text-gray-400">{% trans 'Bidhaa Zilizochaguliwa' %}</span><span id="inventoryStockInCount" class="text-[10px] font-bold text-purple-700">0 bidhaa · 0 units</span></div>
+    <div id="inventoryStockInItems" class="inventory-draft-items"></div>
+    <div class="inventory-finish-row"><button type="button" onclick="closeInventoryOverlay('inventoryStockInModal')" class="inventory-secondary-btn">{% trans 'Ghairi' %}</button><button type="button" onclick="finishInventoryStockIn()" class="inventory-primary-btn">✓ {% trans 'Finish Stock In' %}</button></div>
+  </div>
+</div>
+
+<div id="inventoryStockTakeModal" class="inventory-apple-modal hidden" aria-hidden="true">
+  <div class="inventory-apple-backdrop" onclick="closeInventoryOverlay('inventoryStockTakeModal')"></div>
+  <div class="inventory-apple-card inventory-work-card" role="dialog" aria-modal="true">
+    <div class="inventory-apple-grabber"></div>
+    <div class="inventory-apple-header"><div><h3>{% trans 'Stock Take' %}</h3><p>{% trans 'Scan bidhaa, weka physical count, kisha finish.' %}</p></div><button type="button" onclick="closeInventoryOverlay('inventoryStockTakeModal')" class="inventory-apple-close">&times;</button></div>
+    <div class="inventory-static-field mb-3">📦 {% trans 'Location: Store' %} <span id="inventoryStockTakeLive">{% trans 'System stock' %}</span></div>
+    <div class="flex items-center gap-2 mb-3 bg-gray-50 p-2 rounded-2xl border border-gray-100"><input type="text" class="inventory-input flex-1" style="min-height:36px; padding:6px 12px; font-size:11px;" placeholder="Andika Barcode au ID kisha Enter..." onkeydown="if(event.key==='Enter'){ window.tradecoreInventoryScanHandler(this.value); this.value=''; event.preventDefault(); }"><button type="button" onclick="TradeCoreMobile.openInventoryScanner('stock_take')" class="px-3 py-2 rounded-xl bg-purple-100 text-purple-900 font-black text-[10px]">📷 Kamera</button></div>
+    <div class="flex justify-between items-center mb-2 px-1"><span class="text-[10px] font-black uppercase text-gray-400">{% trans 'Bidhaa Zilizochaguliwa' %}</span><span id="inventoryStockTakeCount" class="text-[10px] font-bold text-purple-700">0 bidhaa</span></div>
+    <div id="inventoryStockTakeItems" class="inventory-draft-items"></div>
+    <div class="inventory-form-field mt-3"><label>{% trans 'Maelezo ya Stock Take' %}</label><textarea id="inventoryStockTakeNotes" class="inventory-input" rows="2" placeholder="Optional"></textarea></div>
+    <div class="inventory-finish-row"><button type="button" onclick="closeInventoryOverlay('inventoryStockTakeModal')" class="inventory-secondary-btn">{% trans 'Ghairi' %}</button><button type="button" onclick="finishInventoryStockTake()" class="inventory-primary-btn">✓ {% trans 'Finish Stock Take' %}</button></div>
+  </div>
+</div>
+
+<div id="inventoryAdjustmentModal" class="inventory-apple-modal hidden" aria-hidden="true">
+  <div class="inventory-apple-backdrop" onclick="closeInventoryOverlay('inventoryAdjustmentModal')"></div>
+  <div class="inventory-apple-card inventory-work-card" role="dialog" aria-modal="true">
+    <div class="inventory-apple-grabber"></div>
+    <div class="inventory-apple-header"><div><h3>{% trans 'Stock Adjustment' %}</h3><p>{% trans 'Correction ya stock yenye sababu iliyoandikwa.' %}</p></div><button type="button" onclick="closeInventoryOverlay('inventoryAdjustmentModal')" class="inventory-apple-close">&times;</button></div>
+    <div class="flex items-center gap-2 mb-3 bg-gray-50 p-2 rounded-2xl border border-gray-100"><input type="text" class="inventory-input flex-1" style="min-height:36px; padding:6px 12px; font-size:11px;" placeholder="Andika Barcode au ID kisha Enter..." onkeydown="if(event.key==='Enter'){ window.tradecoreInventoryScanHandler(this.value); this.value=''; event.preventDefault(); }"><button type="button" onclick="TradeCoreMobile.openInventoryScanner('adjustment')" class="px-3 py-2 rounded-xl bg-purple-100 text-purple-900 font-black text-[10px]">📷 Kamera</button></div>
+    <div class="flex justify-between items-center mb-2 px-1"><span class="text-[10px] font-black uppercase text-gray-400">{% trans 'Bidhaa Zilizochaguliwa' %}</span><span id="inventoryAdjustmentCount" class="text-[10px] font-bold text-purple-700">0 bidhaa</span></div>
+    <div id="inventoryAdjustmentItems" class="inventory-draft-items"></div>
+    <div class="inventory-form-field mt-3"><label>{% trans 'Maelezo ya Adjustment' %}</label><textarea id="inventoryAdjustmentNotes" class="inventory-input" rows="2" placeholder="{% trans 'Andika maelezo ya adjustment...' %}"></textarea></div>
+    <div class="inventory-finish-row"><button type="button" onclick="closeInventoryOverlay('inventoryAdjustmentModal')" class="inventory-secondary-btn">{% trans 'Ghairi' %}</button><button type="button" onclick="finishInventoryAdjustment()" class="inventory-primary-btn">✓ {% trans 'Finish Adjustment' %}</button></div>
+  </div>
+</div>
+
+<div id="inventoryScannerSheet" class="inventory-scanner-sheet inventory-apple-modal hidden" aria-hidden="true">
+  <div class="inventory-apple-backdrop" onclick="TradeCoreMobile.closeInventoryScanner()"></div>
+  <div class="inventory-apple-card inventory-scanner-card" role="dialog" aria-modal="true">
+    <div class="inventory-apple-grabber"></div>
+    <div class="inventory-apple-header"><div><h3 id="tradecoreInventoryScannerTitle">{% trans 'Scan Barcode' %}</h3><p>{% trans 'Camera ya simu au Bluetooth/USB scanner.' %}</p></div><button type="button" onclick="TradeCoreMobile.closeInventoryScanner()" class="inventory-apple-close">&times;</button></div>
+    <div class="inventory-camera-wrap"><video id="tradecoreInventoryScannerVideo" playsinline muted autoplay></video><div class="inventory-camera-frame"></div><div id="tradecoreInventoryScannerMessage" class="inventory-camera-message">{% trans 'Tafuta barcode ndani ya frame...' %}</div></div>
+    <div class="inventory-hid-row"><input id="tradecoreInventoryScannerInput" inputmode="none" autocomplete="off" placeholder="USB / Bluetooth scanner (Keyboard/HID)..."><button type="button" onclick="TradeCoreMobile.submitInventoryScannerInput()">{% trans 'Scan' %}</button></div>
+    <div class="flex items-center gap-2 mt-2">
+      <button type="button" onclick="TradeCoreMobile.closeInventoryScanner();" class="flex-1 px-3 py-2 rounded-xl bg-purple-50 text-purple-900 text-[9px] font-black border border-purple-100">{% trans 'Chagua kutoka Grid' %}</button>
+      <button type="button" onclick="document.getElementById('tradecoreInventoryScannerInput')?.focus()" class="px-3 py-2 rounded-xl bg-gray-50 text-gray-600 text-[9px] font-black border border-gray-100">{% trans 'Focus Scanner' %}</button>
+    </div>
+    <div class="flex items-center justify-between gap-2 mt-2">
+      <div class="text-[9px] text-gray-400 font-bold">{% trans 'USB/Bluetooth scanners za keyboard/HID zinakubaliwa moja kwa moja.' %}</div>
+      <button id="tradecoreInventorySerialButton" type="button" onclick="TradeCoreMobile.connectInventorySerialScanner?.()" class="hidden shrink-0 px-3 py-2 rounded-xl bg-gray-100 text-gray-700 text-[9px] font-black">{% trans 'Serial 9600' %}</button>
+    </div>
+  </div>
+</div>
+
+<div id="inventoryProductDetailModal" class="inventory-apple-modal hidden" aria-hidden="true">
+  <div class="inventory-apple-backdrop" onclick="closeInventoryOverlay('inventoryProductDetailModal')"></div>
+  <div class="inventory-apple-card inventory-detail-card" role="dialog" aria-modal="true">
+    <div class="inventory-apple-grabber"></div>
+    <div class="inventory-apple-header"><div><h3 id="inventoryDetailTitle">{% trans 'Maelezo ya Bidhaa' %}</h3><p id="inventoryDetailSubtitle"></p></div><button type="button" onclick="closeInventoryOverlay('inventoryProductDetailModal')" class="inventory-apple-close">&times;</button></div>
+    <div id="inventoryDetailBody" class="inventory-detail-body"></div>
+  </div>
+</div>
+
+<script>
+const productData = {};
+const importCompletionQueue = {{ import_completion_json|default:'[]'|safe }};
+const importResult = {{ import_result_json|default:'{}'|safe }};
+let importCompletionIndex = 0;
+{% for bidhaa in bidhaa_zote %}
+productData[{{ bidhaa.id }}] = {id:{{ bidhaa.id }},name:"{{ bidhaa.jina_la_bidhaa|escapejs }}",barcode:"{{ bidhaa.barcode|default:''|escapejs }}",buying:"{{ bidhaa.bei_ya_kununulia }}",selling:"{{ bidhaa.bei_ya_kuuzia }}",stock:{{ bidhaa.inventory_store_stock|default:0 }},storeStock:{{ bidhaa.inventory_store_stock|default:0 }},shopStock:{{ bidhaa.inventory_shop_stock|default:0 }},category:"{{ bidhaa.kategoria.jina|default:''|escapejs }}",categoryId:"{{ bidhaa.kategoria_id|default:'' }}",notes:"{{ bidhaa.maelekezo_maalum|default:''|escapejs }}"};
+{% endfor %}
+function modal(id,open){const el=document.getElementById(id);if(!el)return;el.classList.toggle('hidden',!open);el.classList.toggle('flex',open);}
+function funguaAddProductModal(){document.getElementById('productModalTitle').innerText='Sajili Bidhaa';document.getElementById('productForm').action="{% url 'sajili_bidhaa' %}";document.getElementById('productForm').reset();modal('productModal',true);setTimeout(()=>document.getElementById('factoryBarcodeInput')?.focus(),80)}
+function funguaEdit(id){const x=productData[id];if(!x)return;document.getElementById('productModalTitle').innerText='Badili Taarifa za Bidhaa';document.getElementById('productForm').action=`{% url 'edit_product' 0 %}`.replace('/0/edit/','/'+id+'/edit/');document.getElementById('factoryBarcodeInput').value=x.barcode;document.getElementById('productNameInput').value=x.name;document.getElementById('buyingInput').value=x.buying;document.getElementById('sellingInput').value=x.selling;document.getElementById('stockInput').value=x.stock;document.getElementById('notesInput').value=x.notes;modal('productModal',true)}
+function fungaProductModal(){modal('productModal',false)}
+// SURGERY FIX: Function ya kusafisha maneno (esc) iliyokosekana ili Jicho na Search Visigande
+function esc(v){
+  const d = document.createElement('div');
+  d.textContent = v ?? '';
+  return d.innerHTML;
+}
+
+function funguaSearchModal(){modal('searchModal',true);renderSearch();setTimeout(()=>document.getElementById('storeSearch')?.focus(),80)}
+function fungaSearchModal(){modal('searchModal',false)}
+function renderSearch(){
+  const q=(document.getElementById('storeSearch')?.value||'').toLowerCase().trim();
+  const cat=document.getElementById('filterCategory')?.value||'ALL';
+  const stock=document.getElementById('filterStock')?.value||'ALL';
+  const min=document.getElementById('filterMinPrice')?.value||'';
+  const max=document.getElementById('filterMaxPrice')?.value||'';
+  const rows=[...document.querySelectorAll('.product-row')].filter(r=>{
+    const t=(r.dataset.name+' '+r.dataset.barcode).toLowerCase();
+    const p=Number(r.dataset.price||0),s=Number(r.dataset.stock||0);
+    return (!q||t.includes(q))&&(cat==='ALL'||r.dataset.category===cat)&&(stock==='ALL'||(stock==='IN'&&s>5)||(stock==='LOW'&&s>0&&s<=5)||(stock==='OUT'&&s===0))&&(min===''||p>=Number(min))&&(max===''||p<=Number(max));
+  });
+  const box=document.getElementById('searchResults');
+  if(!rows.length){box.innerHTML='<div class="md:col-span-2 text-center py-12 text-gray-400 font-bold">Hakuna bidhaa inayolingana.</div>';return;}
+  box.innerHTML=rows.slice(0,100).map(r=>{
+    const id=r.dataset.id;
+    // SURGERY FIX: Tumeondoa JSON.stringify kuzuia Quote Collision, na tumeongeza amri ya kufunga Search Modal.
+    const action=(typeof window.isInventoryScanModeActive==='function'&&window.isInventoryScanModeActive()) ? `selectInventorySearchProduct(${id})` : `fungaSearchModal(); funguaDetails(${id})`;
+    return `<button type="button" onclick="${action}" class="text-left p-4 rounded-2xl border border-gray-100 hover:border-purple-300 hover:shadow-md"><div class="font-black text-gray-900">${esc(r.dataset.name)}</div><div class="text-xs text-gray-500 mt-1">Barcode: ${esc(r.dataset.barcode||'-')}</div><div class="flex justify-between mt-2"><span class="text-xs font-bold text-gray-400">Stock ${r.dataset.stock}</span><span class="font-black text-purple-900">TZS ${money(r.dataset.price)}</span></div></button>`;
+  }).join('');
+}
+
+// SURGERY FIX: Function ya kusafisha namba na kuzuia kadi kusoma "TZS -"
+function money(v){
+  const cleanV = String(v).replace(/,/g, ''); // Safisha mikato
+  const n = Number(cleanV);
+  if(!Number.isFinite(n)) return '0';
+  const abs = Math.abs(Math.round(n));
+  const sign = n < 0 ? '-' : '';
+  const fmt = (x) => new Intl.NumberFormat('en-US', {maximumFractionDigits:1}).format(x);
+  if(abs >= 1e9) return `${sign}${fmt(abs/1e9)}B`;
+  if(abs >= 1e6) return `${sign}${fmt(abs/1e6)}M`;
+  if(abs >= 1e3) return `${sign}${fmt(abs/1e3)}K`;
+  return `${sign}${fmt(abs)}`;
+}
+
+// SURGERY FIX: Hapa inakokotoa Thamani ya Stoo kwa usahihi kwa kusoma Mzigo wa Stoo pekee
+function refreshInventoryValueCard(){
+  const el=document.getElementById('inventoryValueAmount');
+  if(!el || !Object.keys(productData).length) return;
+  let value=0;
+  Object.values(productData).forEach(p=>{
+    const selling=Number(p.selling||0);
+    const storeStock=Number(p.storeStock ?? p.stock ?? 0); 
+    if(Number.isFinite(selling) && Number.isFinite(storeStock)){
+      value += selling * Math.max(0, storeStock);
+    }
+  });
+  el.dataset.compactMoney=String(value);
+  el.textContent=money(value);
+}
+
+window.formatInventoryStaticMoney=function(){
+  document.querySelectorAll('[data-compact-money]').forEach(el=>{
+    el.textContent=money(el.getAttribute('data-compact-money'));
+  });
+};
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  window.formatInventoryStaticMoney();
+});
+
+
+// SURGERY FIX: Jicho kutumia Django URLs Original ili kuzuia 404 (JSON Errors) kwenye Barcode
+function funguaDetails(id){
+  const x=productData[id];
+  if(!x)return;
+  
+  // Tunatumia Django URLs Original kuepuka makosa ya 404 (Hii ndiyo inaua ile error ya "is not valid JSON")
+  const barcodePrintUrl = `{% url 'print_product_barcode' 0 %}`.replace('/0/', '/' + x.id + '/');
+  const barcodeRegenUrl = `{% url 'regenerate_product_barcode' 0 %}`.replace('/0/', '/' + x.id + '/');
+
+  const totalStock=Number(x.totalStock ?? x.stock ?? 0);
+
+  document.getElementById('detailsBody').innerHTML=`
+    <div class="p-4 rounded-2xl bg-gray-50">
+      <div class="text-xs text-gray-400">Jina</div>
+      <div class="font-black text-lg">${esc(x.name)}</div>
+    </div>
+    <div class="grid grid-cols-2 gap-3 mt-3">
+      <div class="p-3 border rounded-xl"><div class="text-[10px] text-gray-400">Barcode</div><div class="font-mono font-bold">${esc(x.barcode||'-')}</div></div>
+      <div class="p-3 border rounded-xl"><div class="text-[10px] text-gray-400">Buying</div><div class="font-bold">TZS ${money(x.buying)}</div></div>
+      <div class="p-3 border rounded-xl"><div class="text-[10px] text-gray-400">Selling</div><div class="font-bold">TZS ${money(x.selling)}</div></div>
+      <div class="p-3 border rounded-xl"><div class="text-[10px] text-gray-400">Total Stock</div><div class="font-bold">${totalStock}</div></div>
+      <div class="p-3 border rounded-xl col-span-2"><div class="text-[10px] text-gray-400">Category</div><div class="font-bold">${esc(x.category||'Kawaida')}</div></div>
+    </div>
+    <div class="inventory-barcode-tools mt-4 p-4 border border-gray-100 rounded-2xl">
+      <div class="flex items-center justify-between mb-2">
+         <h4 class="font-black text-[10px] uppercase text-gray-500">Tools za Barcode</h4>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <a target="_blank" href="${barcodePrintUrl}" class="px-3 py-3 rounded-xl bg-purple-900 text-amber-300 text-center font-black text-[10px]">▤ View / Print</a>
+        <form method="POST" action="${barcodeRegenUrl}" class="m-0">
+          <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('input[name=csrfmiddlewaretoken]')?.value||''}">
+          <button type="submit" class="w-full px-3 py-3 rounded-xl bg-gray-100 text-gray-800 font-black text-[10px] hover:bg-gray-200">✦ Generate New</button>
+        </form>
+      </div>
+    </div>
+  `;
+  const form=document.getElementById('detailsBody').querySelector('form');
+  if(form){
+    form.addEventListener('submit',handleGenerateBarcode);
+  }
+  modal('detailsModal',true);
+}
+function fungaDetails(){modal('detailsModal',false)}
+
+// =========================================================
+// DELETE ENGINE V25: single source of truth (installed below)
+// =========================================================
+function funguaStockModal(){modal('stockModal',true)}function fungaStockModal(){modal('stockModal',false)}
+function funguaImportModal(){modal('importModal',true)}function fungaImportModal(){modal('importModal',false)}
+function funguaStockImportModal(){modal('importStockModal',true)} function fungaStockImportModal(){modal('importStockModal',false)}
+function funguaTradeCoreAsk(){modal('tradecoreAskModal',true);setTimeout(()=>document.getElementById('tradecoreAskInput')?.focus(),80)} function fungaTradeCoreAsk(){modal('tradecoreAskModal',false)}
+function askTradeCoreExample(q){const i=document.getElementById('tradecoreAskInput');if(i){i.value=q;submitTradeCoreAsk()}}
+async function submitTradeCoreAsk(){const input=document.getElementById('tradecoreAskInput'),box=document.getElementById('tradecoreAskResult');const q=(input?.value||'').trim();if(!q){if(box)box.textContent=inventoryT('question_first');return} if(box)box.textContent=inventoryT('ai_analyzing');try{const u=new URL('{% url 'tradecore_inventory_question' %}',window.location.origin);u.searchParams.set('q',q);const r=await fetch(u.toString(),{credentials:'same-origin',headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},cache:'no-store'});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||inventoryT('question_failed'));if(box)box.textContent=d.answer||inventoryT('no_answer')}catch(e){if(box)box.textContent=e.message||inventoryT('ai_no_answer')}}
+async function checkFactoryBarcode(){const input=document.getElementById('factoryBarcodeInput'),msg=document.getElementById('barcodeCheckMsg'),value=input.value.trim();if(!value){msg.textContent=inventoryT('barcode_first');msg.className='text-[11px] mt-1 text-amber-600';return}try{const r=await fetch(`{% url 'product_search_api' %}?location=store&q=${encodeURIComponent(value)}`),d=await r.json();const exact=d.results.find(x=>x.barcode===value);if(exact){msg.textContent=`Barcode ipo: ${exact.name}`;msg.className='text-[11px] mt-1 text-rose-600 font-bold';}else{msg.textContent=inventoryT('barcode_unused');msg.className='text-[11px] mt-1 text-emerald-600 font-bold';}}catch(e){msg.textContent=inventoryT('barcode_check_failed');msg.className='text-[11px] mt-1 text-rose-600'}}
+
+function showToast(message){const el=document.getElementById('toastNotification');const msg=document.getElementById('toastMessage');if(!el||!msg)return;msg.textContent=message;el.classList.remove('-translate-y-20','opacity-0');el.classList.add('translate-y-0','opacity-100');setTimeout(()=>{el.classList.add('-translate-y-20','opacity-0');el.classList.remove('translate-y-0','opacity-100')},2200)}
+async function handleGenerateBarcode(e){e.preventDefault();const form=e.currentTarget,button=form.querySelector('button');if(button)button.disabled=true;try{const r=await fetch(form.action,{method:'POST',headers:{'X-CSRFToken':document.querySelector('[name=csrfmiddlewaretoken]')?.value||'','X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||inventoryT('barcode_generated_failed'));document.getElementById('barcodeGeneratedProduct').textContent=d.product_name||'Bidhaa';document.getElementById('generatedBarcodeImage').src=d.barcode_image||'';fungaDetails();modal('barcodeGeneratedPopup',true)}catch(err){showToast(err.message||inventoryT('barcode_generated_failed'))}finally{if(button)button.disabled=false}}
+function fungaBarcodePopup(){modal('barcodeGeneratedPopup',false);window.location.reload()}
+function funguaCategoryModal(){modal('categoryModal',true)} function fungaCategoryModal(){modal('categoryModal',false)}
+// Funga Dropdown ya "Zaidi" ukibonyeza nje
+document.addEventListener('click', e => {
+  const menu = document.getElementById('moreActionsMenu');
+  const btn = document.getElementById('moreActionsBtn');
+  if (menu && !menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
+    menu.classList.add('hidden');
+  }
+});
+async function saveBusinessType(){const fd=new FormData();fd.append('csrfmiddlewaretoken',document.querySelector('[name=csrfmiddlewaretoken]')?.value||'');fd.append('action','set_business_type');fd.append('business_type',document.getElementById('businessTypeSelect').value);const r=await fetch(window.location.href,{method:'POST',headers:{'X-CSRFToken':document.querySelector('[name=csrfmiddlewaretoken]')?.value||'','X-Requested-With':'XMLHttpRequest','Accept':'application/json'},body:fd}),d=await r.json();if(!r.ok||!d.ok){showToast(d.message||'Imeshindikana');return}window.location.reload()}
+async function addCategory(){const name=(document.getElementById('newCategoryInput').value||'').trim();if(!name){showToast(inventoryT('category_first'));return}const fd=new FormData();fd.append('csrfmiddlewaretoken',document.querySelector('[name=csrfmiddlewaretoken]')?.value||'');fd.append('action','add_category');fd.append('name',name);const r=await fetch(window.location.href,{method:'POST',headers:{'X-CSRFToken':document.querySelector('[name=csrfmiddlewaretoken]')?.value||'','X-Requested-With':'XMLHttpRequest','Accept':'application/json'},body:fd}),d=await r.json();if(!r.ok||!d.ok){showToast(d.message||inventoryT('category_not_added'));return}window.location.reload()}
+function normalizeSmartText(value){return String(value||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim()}
+function smartTokens(value){return normalizeSmartText(value).split(/\s+/).filter(t=>t.length>2)}
+function findSmartSuggestion(name){
+  const opts=[...document.querySelectorAll('#categoryInput option')].filter(o=>o.value&&o.textContent.trim());
+  const query=normalizeSmartText(name), qTokens=new Set(smartTokens(name));
+  const profiles={
+    vinywaji:['vinywaji','beverage','beverages','drink','drinks','soft drink','juice','water'],
+    chakula:['chakula','food','foods','grocery','groceries','vyakula'],
+    electronics:['electronics','electronic','simu','phone','phones','computer','computers','digital'],
+    nguo:['nguo','clothes','clothing','fashion','wear'],
+    vipodozi:['vipodozi','cosmetic','cosmetics','beauty'],
+    usafi:['usafi','cleaning','hygiene','detergent'],
+    stationery:['stationery','school','office','books','book'],
+    hardware:['hardware','building','construction','tools'],
+    viatu:['viatu','shoes','shoe','footwear'],
+    dawa:['dawa','medicine','medicines','pharmacy','pharmaceutical']
+  };
+  let best=null;
+  for(const o of opts){
+    const label=normalizeSmartText(o.textContent), labelTokens=new Set(smartTokens(label));
+    let score=0, reason='';
+    if(label===query){score+=10;reason=inventoryT('suggest_same')}
+    if(label.includes(query)||query.includes(label)){score+=4}
+    for(const t of qTokens) if(labelTokens.has(t)) score+=3;
+    for(const [group,aliases] of Object.entries(profiles)){
+      const matchesLabel=aliases.some(a=>label.includes(normalizeSmartText(a)));
+      const matchesProduct=aliases.some(a=>query.includes(normalizeSmartText(a)));
+      if(matchesLabel&&matchesProduct){score+=6;reason=inventoryT('suggest_match')}
+    }
+    // Learn from products already in this inventory: categories with similar existing product names get extra weight.
+    let learnedHits=0, learnedTokens=0;
+    for(const id in productData){
+      const p=productData[id];
+      if(String(p.categoryId||'')!==String(o.value)) continue;
+      const pTokens=new Set(smartTokens(p.name));
+      let overlap=0;for(const t of qTokens) if(pTokens.has(t)) overlap++;
+      if(overlap){learnedHits+=overlap;learnedTokens++;}
+    }
+    if(learnedHits){score+=Math.min(8,learnedHits*2);reason=reason||inventoryT('suggest_learned')}
+    if(score>0 && (!best || score>best.score)) best={option:o,score,reason:reason||inventoryT('suggest_name')};
+  }
+  return best;
+}
+function renderSmartSuggestion(item,source='local'){
+  const box=document.getElementById('smartSuggestion');
+  if(!box||!item)return;
+  const o=item.option;
+  const badge=source==='server'?inventoryT('smart_engine'):'SMART';
+  box.innerHTML=`<div class="mt-2 p-3 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-between gap-3"><div class="min-w-0"><div class="text-[10px] uppercase font-black text-amber-700">TradeCore Smart Suggestion · ${badge}</div><div class="font-black text-gray-800 mt-1 truncate">${esc(o.textContent.trim())}</div><div class="text-[10px] text-gray-500 mt-1">${esc(item.reason||inventoryT('suggest_name'))}</div></div><button type="button" onclick="applySmartSuggestion(${JSON.stringify(String(o.value))})" class="shrink-0 px-3 py-2 rounded-xl bg-purple-900 text-amber-400 text-[10px] font-black">Tumia</button></div>`;
+}
+window.applySmartSuggestion=function(value){const select=document.getElementById('categoryInput');if(!select)return;select.value=String(value);select.dispatchEvent(new Event('change',{bubbles:true}));showToast?.(inventoryT('category_selected'));};
+async function smartSuggest(){
+  const input=document.getElementById('smartCategoryProduct'),box=document.getElementById('smartSuggestion');
+  const name=(input?.value||'').trim();
+  clearTimeout(window.__tcSmartTimer);
+  window.__tcSmartRequestId=(window.__tcSmartRequestId||0)+1;
+  const requestId=window.__tcSmartRequestId;
+  if(!name){if(box)box.innerHTML='';return}
+  if(box)box.innerHTML='<div class="mt-2 p-3 rounded-2xl bg-gray-50 border border-gray-100 text-[10px] font-bold text-gray-400">TradeCore Smart inatafuta category...</div>';
+  window.__tcSmartTimer=setTimeout(async()=>{
+    const local=findSmartSuggestion(name);
+    if(local && requestId===window.__tcSmartRequestId) renderSmartSuggestion(local,'local');
+    try{
+      const url=new URL(window.location.href);url.searchParams.set('smart_category',name);
+      const r=await fetch(url.toString(),{headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},credentials:'same-origin',cache:'no-store'});
+      if(!r.ok)return;
+      const d=await r.json();
+      if(requestId!==window.__tcSmartRequestId || !d?.suggestion)return;
+      const suggestion=d.suggestion;
+      const opts=[...document.querySelectorAll('#categoryInput option')].filter(o=>o.value&&o.textContent.trim());
+      const serverOption=opts.find(o=>String(o.value)===String(suggestion.id||suggestion.category_id||''))||opts.find(o=>normalizeSmartText(o.textContent)===normalizeSmartText(suggestion.name||suggestion.category||''));
+      if(serverOption)renderSmartSuggestion({option:serverOption,score:99,reason:inventoryT('smart_server')},'server');
+    }catch(e){
+      // Local Smart Suggestion remains visible when server suggestion is unavailable.
+    }
+  },250);
+}
+function showImportResult(){
+  if(!importResult || typeof importResult !== 'object' || !Object.keys(importResult).length) return false;
+  const ok = importResult.ok !== false;
+  const icon = document.getElementById('importResultIcon');
+  const title = document.getElementById('importResultTitle');
+  const message = document.getElementById('importResultMessage');
+  const created = document.getElementById('importResultCreated');
+  const incomplete = document.getElementById('importResultIncomplete');
+  const action = document.getElementById('importResultAction');
+  const stats = document.getElementById('importResultStats');
+  if(!icon||!title||!message||!created||!incomplete||!action||!stats) return false;
+  if(ok){
+    icon.className='mx-auto w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center text-3xl text-emerald-600';
+    icon.textContent='✓';
+    title.textContent=inventoryT('import_complete');
+    const n=Number(importResult.created||0), q=Number(importResult.incomplete||0);
+    message.textContent=q ? inventoryT('import_partial') : inventoryT('import_success');
+    created.textContent=n; incomplete.textContent=q; stats.classList.remove('hidden');
+    action.textContent=q ? inventoryT('continue_complete') : 'Done';
+  }else{
+    icon.className='mx-auto w-16 h-16 rounded-full bg-rose-50 flex items-center justify-center text-3xl text-rose-600';
+    icon.textContent='!';
+    title.textContent=inventoryT('import_failed');
+    message.textContent=importResult.message||inventoryT('excel_failed');
+    stats.classList.add('hidden');
+    action.textContent='Funga';
+  }
+  modal('importResultModal',true);
+  return true;
+}
+function continueAfterImport(){
+  modal('importResultModal',false);
+  if(importResult && Number(importResult.incomplete||0)>0 && importCompletionQueue.length){
+    modal('importCompletionModal',true);
+    renderImportItem(0);
+  }else{
+    window.location.reload();
+  }
+}
+function fungaImportCompletion(){modal('importCompletionModal',false)}
+async function renderImportItem(index){if(!importCompletionQueue.length){return showImportCompleted()}importCompletionIndex=Math.max(0,Math.min(index,importCompletionQueue.length-1));const item=importCompletionQueue[importCompletionIndex],p=productData[item.id];if(!p){importCompletionQueue.splice(importCompletionIndex,1);return renderImportItem(importCompletionIndex)}document.getElementById('importProgress').textContent=`${importCompletionIndex+1} / ${importCompletionQueue.length}`;document.getElementById('completionProductName').textContent=p.name;let h='';if(item.fields.includes('category'))h+=`<div><label class="text-xs font-black">Kategoria</label><select id="completionCategory" class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200"><option value="">Chagua category...</option>{% for kategoria in makategoria %}<option value="{{ kategoria.id }}">{{ kategoria.jina }}</option>{% endfor %}</select><div id="completionSuggestion"></div></div>`;if(item.fields.includes('buying'))h+=`<div><label class="text-xs font-black">Bei ya Kununulia</label><input id="completionBuying" type="number" min="0" step="0.01" class="mt-1 w-full px-4 py-3 rounded-xl border"></div>`;if(item.fields.includes('selling'))h+=`<div><label class="text-xs font-black">Bei ya Kuuzia</label><input id="completionSelling" type="number" min="0" step="0.01" class="mt-1 w-full px-4 py-3 rounded-xl border border-purple-200 bg-purple-50"></div>`;if(item.fields.includes('stock'))h+=`<div><label class="text-xs font-black">Stock</label><input id="completionStock" type="number" min="0" class="mt-1 w-full px-4 py-3 rounded-xl border"></div>`;document.getElementById('completionFields').innerHTML=h;if(item.fields.includes('category')){const r=await fetch(`?smart_category=${encodeURIComponent(p.name)}`,{headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}}),d=await r.json();if(d.suggestion)document.getElementById('completionSuggestion').innerHTML=`<div class="mt-2 p-3 rounded-xl bg-amber-50 border border-amber-100"><div class="text-[10px] uppercase font-black text-amber-700">TradeCore Smart Suggestion</div><div class="flex items-center justify-between gap-3 mt-1"><span class="font-black">${esc(d.suggestion.name)}</span><button type="button" onclick="tumiaSuggestion(${d.suggestion.id})" class="px-3 py-1.5 rounded-lg bg-amber-500 text-white text-xs font-black">Tumia</button></div></div>`}}
+function tumiaSuggestion(id){const e=document.getElementById('completionCategory');if(e)e.value=String(id)}
+async function saveImportCompletion(){const item=importCompletionQueue[importCompletionIndex];if(!item)return;const csrf=document.querySelector('[name=csrfmiddlewaretoken]')?.value||'',fd=new FormData();fd.append('csrfmiddlewaretoken',csrf);fd.append('action','complete_imported_product');fd.append('product_id',item.id);if(item.fields.includes('category'))fd.append('kategoria_id',document.getElementById('completionCategory')?.value||'');if(item.fields.includes('buying'))fd.append('bei_ya_kununulia',document.getElementById('completionBuying')?.value||'');if(item.fields.includes('selling'))fd.append('bei_ya_kuuzia',document.getElementById('completionSelling')?.value||'');if(item.fields.includes('stock'))fd.append('idadi',document.getElementById('completionStock')?.value||'');const b=document.getElementById('completionSaveBtn');b.disabled=true;try{const r=await fetch(window.location.href,{method:'POST',headers:{'X-CSRFToken':csrf,'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},body:fd}),d=await r.json();if(!r.ok||!d.ok){showToast((d.errors||[d.message||'Imeshindikana']).join(' • '));return}importCompletionQueue.splice(importCompletionIndex,1);if(importCompletionQueue.length){renderImportItem(importCompletionIndex)}else{const fd2=new FormData();fd2.append('csrfmiddlewaretoken',csrf);fd2.append('action','clear_import_completion');await fetch(window.location.href,{method:'POST',headers:{'X-CSRFToken':csrf,'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},body:fd2});showImportCompleted()}}finally{b.disabled=false}}
+function showImportCompleted(){const card=document.querySelector('#importCompletionModal .completion-card');card.innerHTML=`<div class="p-7 text-center"><div class="mx-auto w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center text-3xl text-emerald-600">✓</div><h3 class="text-2xl font-black mt-4">Import Complete</h3><p class="text-sm text-gray-500 mt-2">Bidhaa zote za import zimekamilishwa.</p><button type="button" onclick="modal('importCompletionModal',false);window.location.reload()" class="mt-6 w-full py-3 rounded-xl bg-purple-900 text-amber-400 font-black">Done</button></div>`;modal('importCompletionModal',true)}
+
+
+  // Direct shipment import: keep destination real, visible and verifiable.
+  document.addEventListener('DOMContentLoaded',()=>{
+    const form=document.getElementById('stockImportForm');
+    const status=document.getElementById('stockImportStatus');
+    const submit=form?.querySelector('button[type="submit"],button:not([type])');
+    if(!form) return;
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();
+      if(status){status.className='rounded-2xl px-4 py-3 text-[10px] font-black border bg-purple-50 text-purple-800 border-purple-100';status.textContent=inventoryT('importing');}
+      if(submit){submit.disabled=true;submit.textContent='Inaingiza...';}
+      try{
+        const destination=form.querySelector('[name="destination"]')?.selectedOptions?.[0]?.textContent?.trim()||'Destination';
+        const res=await fetch(form.action,{method:'POST',body:new FormData(form),credentials:'same-origin',headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},cache:'no-store'});
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok || !data.ok) throw new Error(data.message||`Import imeshindikana (${res.status})`);
+        if(status){status.className='rounded-2xl px-4 py-3 text-[10px] font-black border bg-emerald-50 text-emerald-700 border-emerald-100';status.innerHTML=`✓ ${data.message||inventoryT('import_ok')}<br><span class="text-[9px] font-bold">Destination: ${data.destination||destination} · Ref: ${data.reference||'-'}</span>`;}
+        if(submit){submit.textContent='Imefanikiwa ✓';}
+        setTimeout(()=>window.location.reload(),500);
+      }catch(err){
+        if(status){status.className='rounded-2xl px-4 py-3 text-[10px] font-black border bg-rose-50 text-rose-700 border-rose-100';status.textContent=`✕ ${err.message||inventoryT('import_error')}`;}
+        if(submit){submit.disabled=false;submit.textContent=inventoryT('try_again');}
+      }
+    });
+  });
+
+document.addEventListener('DOMContentLoaded',()=>{['storeSearch','filterCategory','filterStock','filterMinPrice','filterMaxPrice'].forEach(id=>document.getElementById(id)?.addEventListener('input',renderSearch));document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();funguaSearchModal()}if(e.key==='Escape'){['searchModal','productModal','detailsModal','deleteModal','stockModal','importModal','categoryModal','barcodeGeneratedPopup','importResultModal','importCompletionModal'].forEach(id=>modal(id,false))}});document.getElementById('searchModal')?.addEventListener('click',e=>{if(e.target.id==='searchModal')fungaSearchModal()});if(!showImportResult() && importCompletionQueue.length){modal('importCompletionModal',true);renderImportItem(0)}});
+</script>
+
+<!-- =========================================================
+     TRADECORE INVENTORY — DELETE POWER HUB V25
+     Single source of truth. No duplicate handlers.
+     ========================================================= -->
+<style>
+  #deleteHubModal .delete-mode-card{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+  #deleteHubModal .delete-mode-card:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(15,23,42,.08)}
+  #deleteProgressBar{transition:width .25s ease}
+</style>
+
+<div id="deleteHubModal" class="fixed inset-0 z-[350] bg-slate-950/75 backdrop-blur-md hidden items-center justify-center p-4">
+  <div class="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden border border-white">
+    <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+      <div>
+        <div class="text-[10px] uppercase tracking-[.18em] text-gray-400 font-black">{% trans 'Inventory Control' %}</div>
+        <h3 class="text-2xl font-black text-gray-900 mt-1">🗑 Udhibiti wa Kufuta</h3>
+        <p class="text-xs text-gray-500 mt-1">{% trans 'Futa bidhaa, toa stock, au fanya operation kwa category bila kuchagua moja moja.' %}</p>
+      </div>
+      <button type="button" onclick="fungaDeleteHub()" class="w-10 h-10 rounded-full bg-gray-100 text-gray-500 font-black hover:bg-rose-50 hover:text-rose-600">&times;</button>
+    </div>
+
+    <div class="p-6 space-y-4 max-h-[78vh] overflow-y-auto">
+      <div class="delete-mode-card p-4 rounded-2xl border border-gray-100 bg-gray-50/70">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider font-black text-gray-400">Zilizochaguliwa</div>
+            <div id="hubSelectedCount" class="text-base font-black text-gray-900 mt-1">{% trans 'Hakuna zilizochaguliwa' %}</div>
+            <div id="hubSelectedHint" class="text-[10px] text-gray-500 mt-1">{% trans 'Tiki bidhaa kwenye table kwanza.' %}</div>
+          </div>
+          <div class="flex flex-wrap gap-2 justify-end">
+            <button type="button" id="hubBtnSelectedZero" disabled onclick="hubExecuteSelected('deplete_stock')" class="px-4 py-2.5 rounded-xl bg-amber-50 text-amber-700 border border-amber-100 text-xs font-black disabled:opacity-40">{% trans 'Weka Stock 0' %}</button>
+            <button type="button" id="hubBtnSelected" disabled onclick="hubExecuteSelected('delete')" class="px-4 py-2.5 rounded-xl bg-rose-600 text-white text-xs font-black disabled:opacity-40">{% trans 'Futa Zilizochaguliwa' %}</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="delete-mode-card p-4 rounded-2xl border border-purple-100 bg-purple-50/50">
+        <div class="flex items-center justify-between gap-3 mb-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider font-black text-purple-500">{% trans 'Quick Category Action' %}</div>
+            <div class="text-base font-black text-gray-900 mt-1">{% trans 'Fanya Operation kwa Kategoria' %}</div>
+          </div>
+          <span id="hubCatCount" class="text-xs font-black text-purple-700">—</span>
+        </div>
+        <select id="hubCatSelect" onchange="hubCategoryChanged()" class="w-full px-4 py-3 rounded-xl border border-purple-200 bg-white text-sm font-bold outline-none focus:border-purple-500">
+          <option value="">Chagua Kategoria...</option>
+        </select>
+        <div id="hubCatWarning" class="hidden mt-3 p-3 rounded-xl bg-white border border-purple-100 text-xs font-bold text-purple-700"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+          <button type="button" id="hubBtnCategoryZero" disabled onclick="hubExecuteCategory('deplete_stock')" class="px-4 py-3 rounded-xl bg-amber-50 text-amber-700 border border-amber-100 text-xs font-black disabled:opacity-40">{% trans 'Weka Stock 0 kwa Category' %}</button>
+          <button type="button" id="hubBtnCategory" disabled onclick="hubExecuteCategory('delete')" class="px-4 py-3 rounded-xl bg-rose-600 text-white text-xs font-black disabled:opacity-40">{% trans 'Futa Category Hii' %}</button>
+        </div>
+      </div>
+
+      <div class="delete-mode-card p-4 rounded-2xl border border-gray-100 bg-white">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider font-black text-gray-400">{% trans 'Selected Scope' %}</div>
+            <div class="text-base font-black text-gray-900 mt-1">{% trans 'Chagua bidhaa zote' %}</div>
+            <div class="text-[10px] text-gray-500 mt-1">{% trans 'Checkbox ya juu inachagua bidhaa zote zinazoonekana kwenye table.' %}</div>
+          </div>
+          <button type="button" onclick="toggleSelectAllAndRefresh()" class="px-4 py-2.5 rounded-xl bg-gray-900 text-white text-xs font-black">{% trans 'Select All' %}</button>
+        </div>
+      </div>
+
+      <div class="delete-mode-card p-4 rounded-2xl border border-rose-200 bg-rose-50">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider font-black text-rose-600">{% trans 'Danger Zone' %}</div>
+            <div class="text-base font-black text-rose-900 mt-1">{% trans 'Stoo Nzima' %}</div>
+            <div class="text-[10px] text-rose-700 mt-1">{% trans 'Futa kabisa au weka stock ya bidhaa zote kuwa 0.' %}</div>
+          </div>
+          <div class="flex flex-wrap gap-2 justify-end">
+            <button type="button" onclick="hubExecuteAll('deplete_stock')" class="px-4 py-2.5 rounded-xl bg-white text-amber-700 border border-amber-200 text-xs font-black">{% trans 'Stock 0 Zote' %}</button>
+            <button type="button" onclick="hubExecuteAll('delete')" class="px-4 py-2.5 rounded-xl bg-rose-600 text-white text-xs font-black">{% trans 'Futa Zote' %}</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="deleteProgressWrap" class="hidden rounded-2xl border border-gray-100 bg-gray-50 p-4">
+        <div class="flex items-center justify-between text-xs font-black text-gray-700">
+          <span id="deleteProgressText">Inaendelea...</span><span id="deleteProgressPercent">0%</span>
+        </div>
+        <div class="mt-2 h-2 rounded-full bg-gray-200 overflow-hidden"><div id="deleteProgressBar" class="h-full w-0 bg-purple-900"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="appleStatusPopup" class="fixed inset-0 z-[500] bg-slate-950/30 backdrop-blur-[2px] hidden items-center justify-center p-4">
+  <div id="appleStatusCard" class="bg-white/95 w-full max-w-sm rounded-[28px] shadow-2xl border border-white p-6">
+    <div class="flex items-start gap-3">
+      <div id="appleSuccessIcon" class="hidden w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 items-center justify-center shrink-0">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12.5 9.2 17 19 7"/></svg>
+      </div>
+      <div id="appleErrorIcon" class="hidden w-10 h-10 rounded-xl bg-rose-50 text-rose-600 items-center justify-center shrink-0">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <h3 id="appleStatusTitle" class="text-base font-black text-gray-900">{% trans 'Result' %}</h3>
+        <p id="appleStatusMessage" class="text-sm text-gray-500 mt-1 leading-5"></p>
+      </div>
+      <button type="button" onclick="closeAppleStatus()" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-gray-200">&times;</button>
+    </div>
+  </div>
+</div>
+
+
+<style id="inventory-alert-float-sound-surgery">
+  /* STOCK ALERT SURGERY — subtle floating motion; no layout/architecture changes. */
+  #inventoryAlertFab{
+    position:fixed !important;
+    top:20px !important;
+    right:20px !important;
+    z-index:460 !important;
+    will-change:transform;
+    animation: inventoryAlertFloat 4.8s ease-in-out infinite;
+  }
+  #inventoryAlertFab > button{
+    position:relative;
+    will-change:transform;
+    animation: inventoryAlertPulse 2.8s ease-in-out infinite;
+  }
+  #inventoryAlertFab.is-alert-open,
+  #inventoryAlertFab.is-alert-open > button{
+    animation:none !important;
+  }
+  @keyframes inventoryAlertFloat{
+    0%,100%{transform:translate3d(0,0,0) rotate(0deg);}
+    25%{transform:translate3d(4px,-7px,0) rotate(.35deg);}
+    50%{transform:translate3d(-3px,-11px,0) rotate(-.3deg);}
+    75%{transform:translate3d(6px,-5px,0) rotate(.25deg);}
+  }
+  @keyframes inventoryAlertPulse{
+    0%,100%{box-shadow:0 12px 28px rgba(15,23,42,.10);}
+    50%{box-shadow:0 16px 34px rgba(220,38,38,.16);}
+  }
+  #inventoryAlertDot{
+    animation: inventoryAlertDotPulse 1.25s ease-in-out infinite;
+  }
+  @keyframes inventoryAlertDotPulse{
+    0%,100%{transform:scale(1);opacity:1;}
+    50%{transform:scale(1.28);opacity:.68;}
+  }
+  @media (max-width:640px){
+    #inventoryAlertFab{
+      top:auto !important;
+      right:14px !important;
+      bottom:calc(76px + env(safe-area-inset-bottom)) !important;
+    }
+  }
+  @media (prefers-reduced-motion: reduce){
+    #inventoryAlertFab,
+    #inventoryAlertFab > button,
+    #inventoryAlertDot{
+      animation:none !important;
+    }
+  }
+</style>
+
+<!-- FLOATING INVENTORY ALERT -->
+<div id="inventoryAlertFab" class="fixed top-4 right-4 z-[460] hidden">
+  <button type="button" onclick="toggleInventoryAlerts()" class="relative flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/95 backdrop-blur-xl border border-gray-200 shadow-xl hover:shadow-2xl transition-all">
+    <span id="inventoryAlertDot" class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+    <span class="text-xs font-black text-gray-800">{% trans 'Stock Alert' %}</span>
+    <span id="inventoryAlertBadge" class="min-w-5 h-5 px-1.5 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center">0</span>
+  </button>
+  <div id="inventoryAlertPanel" class="hidden mt-2 w-[min(92vw,380px)] rounded-3xl bg-white/98 backdrop-blur-xl border border-gray-200 shadow-2xl overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between gap-3">
+      <div><div class="text-[10px] uppercase tracking-[.16em] text-gray-400 font-black">{% trans 'Live Inventory' %}</div><h3 class="text-base font-black text-gray-900 mt-1">{% trans 'Alerts za Stoo' %}</h3></div>
+      <button type="button" onclick="refreshInventoryAlerts(true)" class="text-xs font-black text-purple-700 hover:text-purple-900">{% trans 'Refresh' %}</button>
+    </div>
+    <div id="inventoryAlertPanelBody" class="max-h-[60vh] overflow-y-auto p-4 space-y-3">
+      <div class="text-sm text-gray-400 text-center py-8">{% trans 'Inatafuta alerts...' %}</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const DELETE_URL = "{% url 'delete_product' 0 %}";
+  const CSRF = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+  let currentDeleteProductId = null;
+  let currentDeleteProductName = '';
+  let statusTimer = null;
+
+  function apiUrl(id){ return DELETE_URL.replace(/0(?=[^0]*$)/, String(id)); }
+  function selectedIds(){ return Array.from(document.querySelectorAll('.product-checkbox:checked')).map(x=>x.value).filter(Boolean); }
+  function categoryIds(catId){ return Object.values(productData).filter(p=>String(p.categoryId)===String(catId)).map(p=>String(p.id)); }
+
+  window.fungaDeleteHub = function(){
+    modal('deleteHubModal', false);
+  };
+
+  window.funguaDeleteHub = function(){
+    populateCategoryOptions();
+    updateSelectedCount();
+    hubCategoryChanged();
+    modal('deleteHubModal', true);
+  };
+
+  function populateCategoryOptions(){
+    const select=document.getElementById('hubCatSelect');
+    if(!select) return;
+    const seen=new Set();
+    let html='<option value="">Chagua Kategoria...</option>';
+    Object.values(productData).forEach(p=>{
+      if(p.categoryId && !seen.has(String(p.categoryId))){
+        seen.add(String(p.categoryId));
+        html += `<option value="${escAttr(p.categoryId)}">${escHtml(p.category || 'Kawaida')}</option>`;
+      }
+    });
+    select.innerHTML=html;
+  }
+
+  function escHtml(v){ const d=document.createElement('div'); d.textContent=v ?? ''; return d.innerHTML; }
+  function escAttr(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  window.updateSelectedCount = function(){
+    const ids=selectedIds();
+    const label=document.getElementById('hubSelectedCount');
+    const hint=document.getElementById('hubSelectedHint');
+    const del=document.getElementById('hubBtnSelected');
+    const zero=document.getElementById('hubBtnSelectedZero');
+    if(label) label.textContent = ids.length ? `Umechagua bidhaa: ${ids.length}` : inventoryT('no_selected');
+    if(hint) hint.textContent = ids.length ? 'Unaweza kuzifuta kabisa au kuweka stock = 0.' : inventoryT('select_table_first');
+    if(del) del.disabled=!ids.length;
+    if(zero) zero.disabled=!ids.length;
+  };
+
+  window.toggleSelectAll = function(){
+    const all=document.getElementById('selectAllCheckbox') || document.getElementById('selectAllCb');
+    const checked=!!all?.checked;
+    document.querySelectorAll('.product-checkbox').forEach(cb=>cb.checked=checked);
+    updateSelectedCount();
+  };
+
+  window.toggleSelectAllAndRefresh = function(){
+    const all=document.getElementById('selectAllCheckbox') || document.getElementById('selectAllCb');
+    if(all) all.checked=true;
+    toggleSelectAll();
+  };
+
+  // Keep this page's checkbox plumbing resilient if the surrounding template changes.
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const theadTr=document.querySelector('thead tr');
+    if(theadTr && !document.getElementById('selectAllCheckbox') && !document.getElementById('selectAllCb')){
+      const th=document.createElement('th');
+      th.className='p-4 w-10 text-center';
+      th.innerHTML='<input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()" class="w-4 h-4 rounded border-gray-300 text-purple-600 cursor-pointer">';
+      theadTr.insertBefore(th, theadTr.firstChild);
+    }
+    document.querySelectorAll('tr.product-row').forEach(row=>{
+      if(!row.querySelector('.product-checkbox')){
+        const td=document.createElement('td'); td.className='p-4 text-center';
+        td.innerHTML=`<input type="checkbox" class="product-checkbox w-4 h-4 rounded border-gray-300 text-purple-600 cursor-pointer" value="${escAttr(row.dataset.id)}" onchange="updateSelectedCount()">`;
+        row.insertBefore(td,row.firstChild);
+      }
+    });
+    const emptyCell=document.querySelector('td[colspan="6"]'); if(emptyCell) emptyCell.setAttribute('colspan','7');
+    populateCategoryOptions(); updateSelectedCount();
+  });
+
+  window.hubCategoryChanged = function(){
+    const cat=document.getElementById('hubCatSelect')?.value || '';
+    const warning=document.getElementById('hubCatWarning');
+    const countEl=document.getElementById('hubCatCount');
+    const del=document.getElementById('hubBtnCategory');
+    const zero=document.getElementById('hubBtnCategoryZero');
+    const ids=cat ? categoryIds(cat) : [];
+    if(countEl) countEl.textContent = cat ? `${ids.length} bidhaa` : '—';
+    if(del) del.disabled=!ids.length;
+    if(zero) zero.disabled=!ids.length;
+    if(warning){
+      warning.classList.toggle('hidden',!cat);
+      warning.innerHTML = cat ? `⚠️ Operation itahusu bidhaa <strong>${ids.length}</strong> za kategoria hii.` : '';
+    }
+  };
+
+  window.funguaDelete = function(id,name){
+    currentDeleteProductId=String(id);
+    currentDeleteProductName=name || 'Bidhaa';
+    const text=document.getElementById('deleteText');
+    if(text) text.textContent=`"${currentDeleteProductName}" — chagua operation unayotaka kufanya.`;
+    modal('deleteModal',true);
+  };
+  window.fungaDeleteModal = window.fungaDelete = function(){ modal('deleteModal',false); };
+
+  window.executeSingleDelete = async function(mode){
+    if(!currentDeleteProductId) return;
+    if(mode==='delete'){
+      // Ulinzi wa mwisho wa UI; backend bado ndio authority.
+      if(!window.confirm(`Futa kabisa "${currentDeleteProductName}"?\n\nKama ina historia iliyolindwa, TradeCore haitafuta record hiyo.`)) return;
+    }
+    await runInventoryActions([currentDeleteProductId],mode);
+  };
+
+  window.hubExecuteSelected = function(mode){
+    const ids=selectedIds();
+    if(!ids.length){ alert('Tafadhali chagua bidhaa kwanza.'); return; }
+    if(mode==='delete' && !confirm(`Futa kabisa bidhaa ${ids.length} ulizochagua?`)) return;
+    runInventoryActions(ids,mode);
+  };
+
+  window.hubExecuteCategory = function(mode){
+    const cat=document.getElementById('hubCatSelect')?.value || '';
+    const ids=cat ? categoryIds(cat) : [];
+    if(!ids.length){ alert('Chagua category yenye bidhaa kwanza.'); return; }
+    const name=document.getElementById('hubCatSelect')?.selectedOptions?.[0]?.text || 'Kategoria';
+    if(mode==='delete' && !confirm(`Futa kabisa bidhaa ${ids.length} za "${name}"?`)) return;
+    runInventoryActions(ids,mode);
+  };
+
+  window.hubExecuteAll = function(mode){
+    const ids=Object.values(productData).map(p=>String(p.id));
+    if(!ids.length){ alert(inventoryT('no_product')); return; }
+    if(mode==='delete' && !confirm(`FUTA KABISA bidhaa zote ${ids.length} za stoo?\n\nHii ni operation ya hatari.`)) return;
+    if(mode==='deplete_stock' && !confirm(`Weka stock ya bidhaa zote ${ids.length} kuwa 0?`)) return;
+    runInventoryActions(ids,mode);
+  };
+
+  async function postAction(id,mode){
+    const fd=new FormData();
+    fd.append('csrfmiddlewaretoken',CSRF);
+    fd.append('mode',mode);
+    fd.append('action','inventory_delete');
+    const res=await fetch(apiUrl(id),{
+      method:'POST',body:fd,
+      headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},
+      credentials:'same-origin'
+    });
+    let data=null;
+    try{ data=await res.json(); }catch(_){ data={ok:false,message:'Server ilirudisha response isiyotarajiwa.'}; }
+    if(!res.ok || !data?.ok){
+      const err=new Error(data?.message || `Request imefeli (${res.status})`);
+      err.code=data?.code || `HTTP_${res.status}`;
+      err.status=res.status; err.data=data;
+      throw err;
+    }
+    return data;
+  }
+
+  async function runInventoryActions(ids,mode){
+    ids=[...new Set(ids.map(String))].filter(Boolean);
+    if(!ids.length) return;
+    fungaDeleteHub();
+    modal('deleteModal',false);
+    const wrap=document.getElementById('deleteProgressWrap');
+    const textEl=document.getElementById('deleteProgressText');
+    const pctEl=document.getElementById('deleteProgressPercent');
+    const bar=document.getElementById('deleteProgressBar');
+    if(wrap){wrap.classList.remove('hidden');}
+    let success=0,failed=0,protectedCount=0,details=[];
+    for(let i=0;i<ids.length;i++){
+      const pct=Math.round(((i+1)/ids.length)*100);
+      if(textEl) textEl.textContent=`Inafanya operation ${i+1} / ${ids.length}...`;
+      if(pctEl) pctEl.textContent=`${pct}%`;
+      if(bar) bar.style.width=`${pct}%`;
+      try{
+        const data=await postAction(ids[i],mode);
+        success++;
+        details.push(data);
+      }catch(err){
+        failed++;
+        if(err.code==='protected') protectedCount++;
+        details.push({id:ids[i],message:err.message,code:err.code});
+      }
+    }
+
+    const actionLabel=mode==='delete'?'kufuta':'kuweka stock 0';
+    if(failed===0){
+      showAppleStatus('success','Imefanikiwa!',`${success} bidhaa zimekwisha ${actionLabel}.`);
+    }else if(success>0){
+      const extra=protectedCount?` ${protectedCount} zililindwa kwa sababu zina historia ya mauzo.`:'';
+      showAppleStatus('error',inventoryT('half_success'),`${success} zimefanikiwa, ${failed} zimeshindikana.${extra}`);
+    }else{
+      const first=details.find(x=>x && x.message)?.message || inventoryT('no_changed');
+      showAppleStatus('error','Imeshindikana',first);
+    }
+  }
+
+  window.closeAppleStatus=function(){
+    const popup=document.getElementById('appleStatusPopup');
+    if(popup) popup.classList.add('hidden');
+  };
+  window.showAppleStatus=function(type,title,message){
+    const popup=document.getElementById('appleStatusPopup'),titleEl=document.getElementById('appleStatusTitle'),msg=document.getElementById('appleStatusMessage'),s=document.getElementById('appleSuccessIcon'),e=document.getElementById('appleErrorIcon');
+    if(!popup) return;
+    clearTimeout(statusTimer);
+    titleEl.textContent=title||'Result';
+    msg.textContent=message||'';
+    s.classList.toggle('hidden',type!=='success'); s.classList.toggle('flex',type==='success');
+    e.classList.toggle('hidden',type==='success'); e.classList.toggle('flex',type!=='success');
+    popup.classList.remove('hidden'); popup.classList.add('flex');
+    statusTimer=setTimeout(()=>{ closeAppleStatus(); window.location.reload(); }, type==='success'?450:2200);
+  };
+})();
+</script>
+
+
+<script>
+(function(){
+  let currentInventoryView='stock';
+  let alertPollTimer=null;
+  let alertRefreshInFlight=false;
+  let previousAlertKeys=new Set();
+  function rows(){return Array.from(document.querySelectorAll('tr.product-row, .inventory-product-card'));}
+  function classify(stock){stock=Number(stock||0); return stock<=5?'stock':'normal';}
+  function syncInventoryStatusIndicator(){
+    const wrap=document.querySelector('#inventoryStatusSwitch .inventory-status-pills');
+    const active=wrap?.querySelector('.inventory-view-btn.is-active');
+    if(!wrap||!active)return;
+    const wr=wrap.getBoundingClientRect(), ar=active.getBoundingClientRect();
+    wrap.style.setProperty('--tc-status-x', `${Math.max(0, ar.left-wr.left-3)}px`);
+    wrap.style.setProperty('--tc-status-w', `${Math.max(0, ar.width)}px`);
+  }
+
+  window.setInventoryView=function(view,btn){
+    currentInventoryView=view;
+    const target=btn || document.querySelector(`.inventory-view-btn[data-view="${view}"]`);
+    document.querySelectorAll('.inventory-view-btn').forEach(b=>{
+      b.classList.remove('bg-purple-900','text-white','shadow-sm','is-active');
+      b.classList.add('text-gray-600','hover:bg-gray-50');
+      b.setAttribute('aria-selected','false');
+    });
+    if(target){
+      target.classList.remove('text-gray-600','hover:bg-gray-50');
+      target.classList.add('is-active','bg-purple-900','text-white','shadow-sm');
+      target.setAttribute('aria-selected','true');
+    }
+    requestAnimationFrame(syncInventoryStatusIndicator);
+    rows().forEach(r=>{
+      const status=classify(r.dataset.stock);
+      const category=(document.getElementById('inventoryCategoryFilter')?.value||'ALL');
+      r.style.display=((category==='ALL'||r.dataset.category===category)&&(view==='all'||(view==='stock'&&status==='stock')||(view==='normal'&&status==='normal')))?'':'none';
+    });
+    const hint=document.getElementById('inventoryViewHint');
+    if(hint){hint.textContent=view==='stock'?'STOCK: bidhaa zenye stock ya tahadhari (≤ 5). Zikiongezwa stock ya kutosha zinaingia KAWAIDA.':view==='normal'?'KAWAIDA: bidhaa zenye stock zaidi ya 5.':'ZOTE: bidhaa zote zilizosajiliwa, bila kujali kiwango cha stock.';}
+  };
+  window.setInventoryCategory=function(category){
+    const active=document.querySelector('.inventory-view-btn.bg-purple-900') || document.querySelector('.inventory-view-btn[data-view="'+currentInventoryView+'"]');
+    window.setInventoryView(currentInventoryView, active);
+  };
+  function updateViewCounts(){
+    let stock=0,normal=0,all=rows().length;
+    rows().forEach(r=>classify(r.dataset.stock)==='stock'?stock++:normal++);
+    document.getElementById('countStockView').textContent=stock;
+    document.getElementById('countNormalView').textContent=normal;
+    document.getElementById('countAllView').textContent=all;
+  }
+  function esc(v){const d=document.createElement('div');d.textContent=v??'';return d.innerHTML;}
+  function renderAlerts(data){
+    const low=data.low_stock||[], out=data.out_of_stock||[], total=low.length+out.length;
+    const fab=document.getElementById('inventoryAlertFab'), badge=document.getElementById('inventoryAlertBadge'), body=document.getElementById('inventoryAlertPanelBody');
+    if(!fab||!badge||!body)return;
+    fab.classList.toggle('hidden', total===0);
+    badge.textContent=String(total);
+    if(total===0){body.innerHTML='<div class="text-sm text-gray-400 text-center py-8">Hakuna alert ya stock kwa sasa.</div>';return;}
+    let html='';
+    if(out.length){
+      html+='<div><div class="text-[10px] uppercase tracking-widest font-black text-rose-600 mb-2">Zimeisha kabisa · '+out.length+'</div>';
+      html+=out.map(p=>`<div class="p-3 rounded-2xl border border-rose-100 bg-rose-50/70 mb-2 flex items-center justify-between gap-3"><div class="min-w-0"><div class="font-black text-gray-900 truncate">${esc(p.name)}</div><div class="text-[10px] text-gray-500">${esc(p.category||'Kawaida')} · Store ${Number(p.store_stock||0)} · Duka ${Number(p.shop_stock||0)}</div></div><span class="px-2 py-1 rounded-lg bg-rose-600 text-white text-[10px] font-black">${Number(p.stock||0)}</span></div>`).join('');
+      html+='</div>';
+    }
+    if(low.length){
+      html+='<div><div class="text-[10px] uppercase tracking-widest font-black text-amber-600 mb-2">Karibu kuisha · '+low.length+'</div>';
+      html+=low.map(p=>`<div class="p-3 rounded-2xl border border-amber-100 bg-amber-50/70 mb-2 flex items-center justify-between gap-3"><div class="min-w-0"><div class="font-black text-gray-900 truncate">${esc(p.name)}</div><div class="text-[10px] text-gray-500">${esc(p.category||'Kawaida')} · Store ${Number(p.store_stock||0)} · Duka ${Number(p.shop_stock||0)}</div></div><span class="px-2 py-1 rounded-lg bg-amber-500 text-white text-[10px] font-black">${Number(p.stock||0)}</span></div>`).join('');
+      html+='</div>';
+    }
+    body.innerHTML=html;
+  }
+  window.toggleInventoryAlerts=function(){
+    const fab=document.getElementById('inventoryAlertFab');
+    const panel=document.getElementById('inventoryAlertPanel');
+    if(!panel)return;
+    panel.classList.toggle('hidden');
+    fab?.classList.toggle('is-alert-open', !panel.classList.contains('hidden'));
+  };
+  let inventoryAudioContext=null;
+  let inventoryAudioUnlocked=false;
+
+  function unlockInventoryAlertAudio(){
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC)return;
+      if(!inventoryAudioContext) inventoryAudioContext=new AC();
+      if(inventoryAudioContext.state==='suspended') inventoryAudioContext.resume();
+      inventoryAudioUnlocked=true;
+    }catch(e){}
+  }
+
+  function playInventoryAlertSound(){
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC)return;
+      if(!inventoryAudioContext) inventoryAudioContext=new AC();
+      if(inventoryAudioContext.state==='suspended'){
+        inventoryAudioContext.resume().then(()=>{
+          if(inventoryAudioUnlocked) playInventoryAlertSound();
+        }).catch(()=>{});
+        return;
+      }
+      const ctx=inventoryAudioContext;
+      const now=ctx.currentTime;
+      const gain=ctx.createGain();
+      const osc=ctx.createOscillator();
+      osc.type='sine';
+      osc.frequency.setValueAtTime(880,now);
+      osc.frequency.exponentialRampToValueAtTime(660,now+0.12);
+      gain.gain.setValueAtTime(0.0001,now);
+      gain.gain.exponentialRampToValueAtTime(0.09,now+0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001,now+0.28);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now+0.3);
+    }catch(e){}
+  }
+
+  ['pointerdown','touchstart','keydown'].forEach(evt=>{
+    window.addEventListener(evt,unlockInventoryAlertAudio,{once:true,passive:true});
+  });
+
+  window.refreshInventoryAlerts=async function(manual=false){
+    if(alertRefreshInFlight) return;
+    if(document.hidden && !manual) return;
+    alertRefreshInFlight=true;
+    const controller=typeof AbortController==='function'?new AbortController():null;
+    const timeoutId=controller?setTimeout(()=>controller.abort(),8000):null;
+    try{
+      const url=new URL(window.location.href);url.searchParams.set('inventory_alerts','1');
+      const res=await fetch(url.toString(),{headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},credentials:'same-origin',cache:'no-store',signal:controller?.signal});
+      const data=await res.json();
+      if(!res.ok||!data.ok) throw new Error(data.message||inventoryT('alert_refresh_failed'));
+      renderAlerts(data);
+      const current=new Set([...(data.out_of_stock||[]),...(data.low_stock||[])].map(p=>`${p.id}:${p.stock}`));
+      const hasNew=[...current].some(k=>!previousAlertKeys.has(k));
+
+      if(hasNew && previousAlertKeys.size){
+        playInventoryAlertSound();
+        const fab=document.getElementById('inventoryAlertFab');
+        if(fab && document.getElementById('inventoryAlertPanel')?.classList.contains('hidden')){
+          fab.animate(
+            [
+              {transform:'translate3d(0,0,0) scale(1)'},
+              {transform:'translate3d(-5px,0,0) scale(1.035)'},
+              {transform:'translate3d(5px,0,0) scale(1.02)'},
+              {transform:'translate3d(0,0,0) scale(1)'}
+            ],
+            {duration:520, easing:'ease-out'}
+          );
+        }
+      }
+
+      previousAlertKeys=current;
+      if(manual){showToast?.(inventoryT('alerts_updated'));}
+    }catch(e){
+      // Keep UI alive; next polling cycle will retry.
+    }finally{
+      if(timeoutId) clearTimeout(timeoutId);
+      alertRefreshInFlight=false;
+    }
+  };
+  document.addEventListener('DOMContentLoaded',()=>{
+    updateViewCounts();
+    const initial=document.querySelector('.inventory-view-btn[data-view="normal"]');
+    setInventoryView('normal',initial);
+    // Secondary network work starts after the inventory surface settles.
+    window.setTimeout(()=>refreshInventoryAlerts(false),1800);
+    clearInterval(alertPollTimer);alertPollTimer=setInterval(()=>refreshInventoryAlerts(false),30000);
+  });
+})();
+</script>
+
+
+<script id="tradecore-inventory-fullscreen-script">
+(function(){
+  function fitInventoryToViewport(){
+    const root = document.getElementById('inventoryPageRoot');
+    if(!root || window.innerWidth < 1024) return;
+    const rect = root.getBoundingClientRect();
+    const left = Math.max(0, rect.left);
+    root.style.setProperty('--inventory-root-left', left + 'px');
+  }
+  function updateInventoryDayName(){
+    const target=document.getElementById('inventoryDayName');
+    if(!target) return;
+    const dayName=new Intl.DateTimeFormat('sw-TZ',{weekday:'long'}).format(new Date());
+    target.textContent=dayName.charAt(0).toUpperCase()+dayName.slice(1);
+  }
+  // Base CSS already hides the inherited .tc-context greeting on Inventory.
+  // Keep a compatibility no-op and avoid scanning the entire document.
+  function removeInventoryGreeting(){}
+
+  // One early layout measurement is enough; avoid load/resize reflow loops.
+  document.addEventListener('DOMContentLoaded', ()=>{
+    requestAnimationFrame(()=>fitInventoryToViewport());
+    updateInventoryDayName();
+  });
+})();
+</script>
+
+
+<style id="tradecore-inventory-apple-surgery">
+.inventory-product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;max-height:calc(100vh - 280px);overflow-y:auto;overflow-x:hidden;padding:10px 4px 60px 4px;align-content:start;}
+.inventory-product-grid::-webkit-scrollbar{width:5px}.inventory-product-grid::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+.inventory-product-card{position:relative;background:rgba(255,255,255,.96);border:1px solid rgba(221,214,234,.82);border-radius:14px;overflow:visible;box-shadow:0 4px 15px rgba(46,27,78,.04);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s ease,border-color 0.3s ease;cursor:pointer;will-change:transform;z-index:1;}
+.inventory-product-card:hover{transform:scale(1.12) translateY(-4px);z-index:50;box-shadow:0 20px 40px -10px rgba(76,29,149,.25),0 0 0 1px rgba(139,92,246,.1);border-color:#8b5cf6;}
+.inventory-product-media{height:60px;background:linear-gradient(145deg,#faf8ff,#f2edfb);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:10px;}
+.inventory-product-card:hover .inventory-product-media{overflow:visible;}
+.inventory-product-media img{width:100%;height:100%;object-fit:contain;padding:6px;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.inventory-product-card:hover .inventory-product-media img{transform:scale(1.1);}
+.inventory-product-media span:first-child{width:36px;height:36px;border-radius:10px;background:#fff;color:#5b21b6;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;box-shadow:0 4px 15px rgba(91,33,182,.09)}
+.inventory-card-status{position:absolute!important;top:4px;left:4px!important;width:auto!important;height:auto!important;border-radius:6px;padding:3px 6px;font-size:8px!important;line-height:1;background:rgba(255,255,255,.9)!important;box-shadow:0 2px 8px rgba(0,0,0,.08)!important;font-weight:900;z-index:10;}
+.inventory-card-status.in{color:#047857!important}.inventory-card-status.low{color:#b45309!important}.inventory-card-status.out{color:#be123c!important}
+.inventory-product-card-body{padding:8px 10px;}
+.inventory-product-name{font-size:10px;font-weight:900;color:#20172d;line-height:1.2;min-height:24px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.inventory-product-meta{margin-top:2px;font-size:8px;font-weight:800;color:#958c9f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inventory-product-more{font-size:10px;color:#a198aa;padding:1px 3px;border-radius:6px;position:absolute;right:6px;top:64px;z-index:10;}.inventory-product-more:hover{background:#f3eef9;color:#5b21b6}
+.inventory-store-stock-row{display:flex;align-items:baseline;gap:4px;margin-top:6px}.inventory-store-stock-row span{font-size:7px;font-weight:900;color:#aaa0b1;letter-spacing:.1em}.inventory-store-stock-row strong{font-size:16px;font-weight:950;color:#5b21b6;line-height:1}.inventory-store-stock-row small{font-size:8px;font-weight:800;color:#958c9f}
+.inventory-grid-empty{grid-column:1/-1;padding:60px 20px;text-align:center;color:#aaa0b1;font-weight:800;background:#fff;border:1px dashed #e6dfed;border-radius:24px}
+.inventory-table-card.is-grid-hidden{display:none!important}
+.inventory-apple-modal{position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;padding:18px;}
+.inventory-apple-modal.hidden{display:none!important}.inventory-apple-backdrop{position:absolute;inset:0;background:rgba(28,17,43,.42);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.inventory-apple-card{position:relative;width:min(760px,100%);max-height:min(90dvh,900px);overflow:auto;background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.86);box-shadow:0 28px 80px rgba(20,10,38,.24);border-radius:30px;color:#241a2d}
+.inventory-mode-card{width:min(680px,100%);padding:18px}.inventory-work-card,.inventory-detail-card{padding:18px 18px 16px}.inventory-apple-grabber{display:none;width:42px;height:5px;border-radius:99px;background:#d9d1df;margin:1px auto 12px}
+.inventory-apple-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:2px 2px 16px}.inventory-apple-header h3{font-size:22px;line-height:1.1;font-weight:950;letter-spacing:-.02em}.inventory-apple-header p{margin-top:5px;font-size:11px;color:#978e9d;font-weight:650}.inventory-apple-close{width:38px;height:38px;border-radius:14px;background:#f5f1f8;color:#8f8596;font-size:22px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}.inventory-mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.inventory-mode-grid button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:4px;padding:16px;border-radius:22px;background:rgba(255,255,255,.82);border:1px solid #ebe4f1;box-shadow:0 6px 20px rgba(44,26,66,.05);transition:.18s ease}.inventory-mode-grid button:hover{transform:translateY(-1px);border-color:#cbb7df;box-shadow:0 12px 30px rgba(44,26,66,.08)}.inventory-mode-grid button span{width:38px;height:38px;border-radius:13px;background:#f1eaff;color:#6d28d9;font-size:20px;display:flex;align-items:center;justify-content:center}.inventory-mode-grid button:nth-child(2) span{background:#fff2df;color:#c06b00}.inventory-mode-grid button:nth-child(3) span{background:#eaf8f0;color:#14804f}.inventory-mode-grid button:nth-child(4) span{background:#fff0f3;color:#c72d54}.inventory-mode-grid button:nth-child(5) span{background:#f1eff8;color:#55416b}.inventory-mode-grid b{font-size:13px;font-weight:950}.inventory-mode-grid small{font-size:9px;color:#968d9c;font-weight:650}.inventory-form-stack{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.inventory-form-field{display:flex;flex-direction:column;gap:6px;min-width:0}.inventory-form-field label{font-size:9px;text-transform:uppercase;letter-spacing:.09em;font-weight:900;color:#948b9b}.inventory-input,.inventory-static-field{width:100%;border-radius:16px;border:1px solid #e4ddea;background:#fbf9fd;min-height:45px;padding:11px 12px;font-size:12px;font-weight:750;color:#32283b;outline:none;box-sizing:border-box}.inventory-input:focus{border-color:#9b6ade;box-shadow:0 0 0 4px rgba(124,58,237,.09);background:#fff}.inventory-static-field{display:flex;align-items:center;justify-content:space-between}.inventory-static-field span{font-size:9px;color:#978e9d;font-weight:800}.inventory-scan-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 10px;padding:10px;border-radius:18px;background:linear-gradient(135deg,#f5effd,#fffaf0);border:1px solid #ebe2f4}.inventory-scan-bar button{border:0;border-radius:14px;padding:10px 14px;background:#5b21b6;color:#fff;font-size:11px;font-weight:900;box-shadow:0 8px 20px rgba(91,33,182,.18)}.inventory-scan-bar span{font-size:10px;font-weight:900;color:#7d7184}.inventory-draft-items{max-height:38vh;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.inventory-transfer-picker{padding:12px;border-radius:20px;background:#fbf9fd;border:1px solid #ebe3f2;margin:10px 0 8px}
+.inventory-transfer-picker-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.inventory-transfer-picker-title{font-size:10px;font-weight:950;color:#3c3047;text-transform:uppercase;letter-spacing:.08em}
+.inventory-transfer-picker-hint{font-size:8px;color:#9a90a1;margin-top:3px;font-weight:700}
+.inventory-transfer-picker-actions{display:flex;gap:6px;flex:0 0 auto}
+.inventory-transfer-picker-actions button{min-height:30px;padding:0 9px;border-radius:10px;border:1px solid #e2d8ec;background:#fff;color:#5b21b6;font-size:8px;font-weight:900}
+.inventory-transfer-picker-actions button:hover{background:#f4effa}
+.inventory-transfer-picker-tools{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(130px,.8fr);gap:7px;margin-top:9px}
+.inventory-transfer-picker-tools .inventory-input{min-height:38px;padding:8px 10px;font-size:10px}
+.inventory-transfer-picker-list{max-height:30vh;overflow:auto;margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.inventory-transfer-picker-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:8px 9px;border-radius:14px;background:#fff;border:1px solid #ede7f2}
+.inventory-transfer-picker-row.is-selected{border-color:#c9b1eb;background:#faf6ff;box-shadow:0 3px 12px rgba(91,33,182,.06)}
+.inventory-transfer-picker-row input[type="checkbox"]{width:15px;height:15px;accent-color:#5b21b6}
+.inventory-transfer-picker-name{font-size:10px;font-weight:900;color:#302638;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inventory-transfer-picker-meta{font-size:7px;color:#9a90a1;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inventory-transfer-picker-stock{font-size:8px;color:#6d6375;font-weight:900;white-space:nowrap}
+.inventory-transfer-picker-stock strong{color:#5b21b6;font-size:10px}
+.inventory-transfer-picker-qty{width:62px;min-height:32px;border:1px solid #e2d8ec;background:#fff;border-radius:9px;text-align:center;font-size:10px;font-weight:900}
+.inventory-transfer-picker-empty{padding:18px 10px;text-align:center;color:#9b92a2;font-size:9px;font-weight:800}
+@media(max-width:767px){.inventory-transfer-picker-head{flex-direction:column}.inventory-transfer-picker-actions{width:100%}.inventory-transfer-picker-actions button{flex:1}.inventory-transfer-picker-tools{grid-template-columns:1fr}.inventory-transfer-picker-list{max-height:31vh}.inventory-transfer-picker-row{grid-template-columns:auto minmax(0,1fr) auto}.inventory-transfer-picker-stock{grid-column:2}.inventory-transfer-picker-qty{grid-column:3;grid-row:1/3}}
+.inventory-draft-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:9px;align-items:center;padding:10px;border-radius:18px;background:#fbfafc;border:1px solid #ede7f2}.inventory-draft-thumb{width:40px;height:40px;border-radius:13px;background:#f0ebf7;color:#5b21b6;display:flex;align-items:center;justify-content:center;font-weight:950}.inventory-draft-name{font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.inventory-draft-meta{font-size:8px;color:#998fa0;margin-top:2px}.inventory-qty-control{display:flex;align-items:center;gap:5px}.inventory-qty-control button{width:28px;height:28px;border-radius:9px;background:#fff;border:1px solid #e4ddea;font-weight:950}.inventory-qty-control input{width:58px;height:30px;text-align:center;border-radius:9px;border:1px solid #e4ddea;font-weight:900;font-size:11px}.inventory-remove{width:30px;height:30px;border-radius:10px;background:#fff1f3;color:#be123c;border:1px solid #ffd4dc;font-weight:900}.inventory-finish-row{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.inventory-secondary-btn,.inventory-primary-btn{min-height:44px;padding:0 17px;border-radius:15px;font-size:11px;font-weight:900}.inventory-secondary-btn{background:#f3f0f5;color:#706579}.inventory-primary-btn{background:linear-gradient(135deg,#6d28d9,#5b21b6);color:#fff;box-shadow:0 12px 24px rgba(91,33,182,.18)}.inventory-scan-success-pulse{animation:inventoryScanSuccessPulse .28s ease-out}.inventory-scanner-card{width:min(620px,100%);padding:18px}.inventory-camera-wrap{position:relative;aspect-ratio:16/10;background:#160d21;border-radius:24px;overflow:hidden}.inventory-camera-wrap video{width:100%;height:100%;object-fit:cover}.inventory-camera-frame{position:absolute;left:12%;right:12%;top:24%;bottom:24%;border:2px solid rgba(255,255,255,.96);border-radius:20px;box-shadow:0 0 0 999px rgba(0,0,0,.12)}.inventory-camera-message{position:absolute;left:12px;right:12px;bottom:12px;padding:9px 11px;border-radius:13px;background:rgba(16,10,23,.56);backdrop-filter:blur(9px);color:#fff;font-size:10px;font-weight:700;text-align:center}.inventory-hid-row{display:flex;gap:8px;margin-top:10px}.inventory-hid-row input{flex:1;min-height:44px;border:1px solid #e5ddea;border-radius:15px;padding:0 13px;background:#fbf9fd;font-size:12px;font-weight:800;outline:none}.inventory-hid-row button{min-height:44px;padding:0 16px;border-radius:15px;background:#5b21b6;color:white;font-size:11px;font-weight:900}.inventory-detail-body{display:flex;flex-direction:column;gap:10px}.inventory-detail-hero{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;align-items:center;padding:14px;border-radius:22px;background:linear-gradient(135deg,#f6f0ff,#fffaf0);border:1px solid #ece2f4}.inventory-detail-image{width:92px;height:92px;border-radius:20px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#5b21b6;font-size:30px;font-weight:950}.inventory-detail-image img{width:100%;height:100%;object-fit:contain;padding:10px}.inventory-detail-name{font-size:18px;font-weight:950;color:#2b2034}.inventory-detail-meta{font-size:9px;color:#978d9e;margin-top:4px;font-weight:700}.inventory-detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.inventory-detail-stat{padding:11px;border-radius:17px;background:#fff;border:1px solid #ebe4f1}.inventory-detail-stat span{font-size:8px;text-transform:uppercase;letter-spacing:.07em;color:#a099a6;font-weight:900}.inventory-detail-stat b{display:block;font-size:18px;color:#5b21b6;margin-top:4px}.inventory-detail-section{padding:12px 14px;border-radius:20px;background:#fff;border:1px solid #eee7f3}.inventory-detail-section h4{font-size:10px;font-weight:950;color:#5a4d62;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}.inventory-verified-row,.inventory-movement-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #f0ebf4}.inventory-verified-row:last-child,.inventory-movement-row:last-child{border-bottom:0}.inventory-verified-row b,.inventory-movement-row b{font-size:10px}.inventory-verified-row span,.inventory-movement-row span{font-size:8px;color:#99909f;text-align:right}.inventory-detail-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:2px}.inventory-detail-actions button{min-height:42px;border-radius:14px;font-size:10px;font-weight:900;border:1px solid #e7dff0;background:#fff;color:#5b21b6}.inventory-detail-actions button.primary{background:#5b21b6;color:#fff;border-color:#5b21b6}
+@media(max-width:767px){.inventory-apple-modal{align-items:flex-end;padding:0}.inventory-apple-card{width:100%;max-height:92dvh;border-radius:28px 28px 0 0}.inventory-apple-grabber{display:block}.inventory-mode-grid{grid-template-columns:1fr 1fr}.inventory-form-stack{grid-template-columns:1fr}.inventory-apple-header h3{font-size:20px}.inventory-draft-items{max-height:32vh}.inventory-detail-grid{grid-template-columns:1fr 1fr 1fr}.inventory-detail-actions{grid-template-columns:1fr 1fr 1fr}.inventory-product-media{height:110px}.inventory-product-name{font-size:11px}}
+</style>
+
+<script id="tradecore-inventory-logic-surgery">
+(function(){
+  'use strict';
+  const CSRF=()=>document.querySelector('input[name="csrfmiddlewaretoken"]')?.value||'';
+  const esc=v=>{const d=document.createElement('div');d.textContent=v??'';return d.innerHTML;};
+  const money=v=>Number(v||0).toLocaleString('en-US');
+  const state={mode:null,items:[]};
+  let scanPopupTimer=null;
+  function showInventoryScanResult(ok,product,mode,message){
+    const popup=document.getElementById('inventoryScanSuccessPopup');
+    const icon=document.getElementById('inventoryScanPopupIcon');
+    const kicker=document.getElementById('inventoryScanPopupKicker');
+    const title=document.getElementById('inventoryScanSuccessTitle');
+    const meta=document.getElementById('inventoryScanSuccessMeta');
+    if(!popup)return;
+    if(ok){
+      try{if(navigator.vibrate)navigator.vibrate(45)}catch(e){}
+      if(icon){icon.className='mx-auto w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl font-black';icon.textContent='✓';}
+      if(kicker)kicker.textContent=inventoryT('barcode_scanned');
+      if(title){title.className='text-lg font-black text-gray-900 mt-1';title.textContent=product?.name || inventoryT('product_identified');}
+      const labels={stock_in:'Stock In',transfer:'Transfer',stock_take:'Stock Take',adjustment:'Adjustment',lookup:'Lookup'};
+      if(meta)meta.textContent=`Barcode ${product?.barcode || '-'} · ${labels[mode] || 'Scan'}`;
+    }else{
+      if(icon){icon.className='mx-auto w-14 h-14 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center text-3xl font-black';icon.textContent='!';}
+      if(kicker)kicker.textContent=inventoryT('scan_failed');
+      if(title){title.className='text-lg font-black text-rose-700 mt-1';title.textContent=inventoryT('barcode_not_found');}
+      if(meta)meta.textContent=message || inventoryT('product_not_found');
+    }
+    popup.classList.remove('hidden');popup.classList.add('flex');
+    clearTimeout(scanPopupTimer);
+    scanPopupTimer=setTimeout(()=>{popup.classList.add('hidden');popup.classList.remove('flex');},ok?900:1300);
+  }
+  function showInventoryScanSuccess(product,mode){showInventoryScanResult(true,product,mode,'');}
+  window.showInventoryScanSuccess=showInventoryScanSuccess;
+  window.showInventoryScanError=function(message){showInventoryScanResult(false,null,null,message)};
+
+  // Generic keyboard-wedge listener for USB/Bluetooth scanners (e.g. 9600D).
+  // Most of these devices act like a keyboard and append Enter after the barcode.
+  let wedgeBuffer=''; let wedgeTimer=null; let wedgeLastTime=0; let wedgeProcessing=false;
+  function isTextField(el){return !!el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.tagName==='SELECT'||el.isContentEditable);}
+  async function processWedge(value){
+    const clean=String(value||'').trim(); if(!clean||wedgeProcessing||!state.mode)return false;
+    wedgeProcessing=true;
+    try{return await window.tradecoreInventoryScanHandler?.(clean)}finally{wedgeProcessing=false;}
+  }
+  document.addEventListener('keydown',e=>{
+    if(!state.mode || e.ctrlKey || e.metaKey || e.altKey) return;
+    const active=document.activeElement;
+    const isScannerInput=active?.id==='tradecoreInventoryScannerInput';
+    if(isTextField(active) && !isScannerInput) return;
+    if(e.key==='Enter' || e.key==='Tab'){
+      if(wedgeBuffer){e.preventDefault();const value=wedgeBuffer;wedgeBuffer='';clearTimeout(wedgeTimer);processWedge(value);}
+      return;
+    }
+    if(e.key.length!==1 || /\s/.test(e.key)) return;
+    const now=performance.now();
+    if(now-wedgeLastTime>450) wedgeBuffer='';
+    wedgeLastTime=now;
+    wedgeBuffer+=e.key;
+    clearTimeout(wedgeTimer);
+    wedgeTimer=setTimeout(()=>{
+      const value=wedgeBuffer;wedgeBuffer='';
+      if(value.length>=4 && (!isTextField(document.activeElement) || document.activeElement?.id==='tradecoreInventoryScannerInput')) processWedge(value);
+    },120);
+  },true);
+
+  function syncInventoryPresentationIndicator(){
+    const wrap=document.querySelector('#inventoryStatusSwitch .inventory-view-switch');
+    const active=wrap?.querySelector('.inventory-presentation-btn.is-active');
+    if(!wrap||!active)return;
+    const wr=wrap.getBoundingClientRect(), ar=active.getBoundingClientRect();
+    wrap.style.setProperty('--tc-present-x', `${Math.max(0, ar.left-wr.left-3)}px`);
+    wrap.style.setProperty('--tc-present-w', `${Math.max(0, ar.width)}px`);
+  }
+
+  window.setInventoryPresentation=function(mode){
+    const grid=document.getElementById('inventoryGrid'),table=document.querySelector('.inventory-table-card');
+    const gridBtn=document.getElementById('inventoryGridViewBtn');
+    const listBtn=document.getElementById('inventoryListViewBtn');
+    if(!grid||!table)return;
+    const isGrid=mode!=='list';
+
+    /* Explicit state keeps Grid/List independent from CSS load order. */
+    grid.style.display=isGrid?'grid':'none';
+    table.style.display=isGrid?'none':'flex';
+
+    [gridBtn,listBtn].forEach(b=>{
+      b?.classList.remove('is-active');
+      b?.setAttribute('aria-selected','false');
+      b?.setAttribute('type','button');
+    });
+    const active=isGrid?gridBtn:listBtn;
+    active?.classList.add('is-active');
+    active?.setAttribute('aria-selected','true');
+
+    /* Keep the synchronous preload state aligned after user interaction. */
+    document.documentElement.classList.toggle('inventory-pref-grid',isGrid);
+    document.documentElement.classList.toggle('inventory-pref-list',!isGrid);
+
+    requestAnimationFrame(syncInventoryPresentationIndicator);
+    try{localStorage.setItem('tradecore_inventory_presentation_v1',isGrid?'grid':'list')}catch(e){}
+  };
+
+  // SURGERY FIX: Kurudisha uhai kwenye Modals zote na Manual Mode FAB
+  window.closeInventoryOverlay = function(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.classList.add('hidden');
+      el.setAttribute('aria-hidden','true');
+      if(state.mode && state.mode !== 'lookup') updateActiveModeFab(true); // Washa FAB tukifunga modal
+  }
+  
+  function openOverlay(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.classList.remove('hidden');
+      el.setAttribute('aria-hidden','false');
+      updateActiveModeFab(false); // Zima FAB tukifungua modal
+  }
+  
+  function updateActiveModeFab(forceShow) {
+      const fab = document.getElementById('activeInventoryModeFab');
+      if (!fab) return;
+      
+      const count = document.getElementById('activeModeCount');
+      const label = document.getElementById('activeModeLabel');
+      
+      // Ikiwa hatupo kwenye mode yoyote, au tuko kwenye 'lookup', jifanye haupo
+      if (!state.mode || state.mode === 'lookup') {
+          fab.classList.add('hidden');
+          return;
+      }
+      
+      if (count) count.textContent = state.items.length;
+      const labels = {stock_in: 'Stock In', transfer: 'Transfer', stock_take: 'Stock Take', adjustment: 'Adjustment'};
+      if (label) label.textContent = `Kamilisha ${labels[state.mode]}`;
+      
+      if (forceShow === true) {
+          fab.classList.remove('hidden');
+      } else if (forceShow === false) {
+          fab.classList.add('hidden');
+      }
+  }
+  
+  window.reopenActiveModeModal = function() {
+      if(state.mode==='transfer') openOverlay('inventoryTransferModal');
+      else if(state.mode==='stock_in') openOverlay('inventoryStockInModal');
+      else if(state.mode==='stock_take') openOverlay('inventoryStockTakeModal');
+      else if(state.mode==='adjustment') openOverlay('inventoryAdjustmentModal');
+  };
+  
+  window.openInventoryScanModes = function(){
+      state.mode = null;
+      state.items = [];
+      updateActiveModeFab(false);
+      openOverlay('inventoryScanModeModal');
+  };
+  
+  function transferSourceStock(product){
+    if(state.mode!=='transfer') return Number(product.store_stock ?? product.storeStock ?? product.stock ?? 0);
+    const fromId=Number(document.getElementById('inventoryTransferFrom')?.value || 0);
+    const storeId=Number('{{ store_location_id }}');
+    return fromId===storeId ? Number(product.store_stock ?? product.storeStock ?? product.stock ?? 0) : Number(product.shop_stock ?? product.shopStock ?? 0);
+  }
+  function transferSourceLabel(){
+    const fromId=Number(document.getElementById('inventoryTransferFrom')?.value || 0);
+    const storeId=Number('{{ store_location_id }}');
+    return fromId===storeId ? 'Store' : 'Duka (POS)';
+  }
+  function normalizeTransferQty(value,max){
+    const n=Math.floor(Number(value));
+    const cap=Math.max(0,Math.floor(Number(max)||0));
+    if(!Number.isFinite(n)) return Math.min(1,cap);
+    return Math.max(1,Math.min(n,cap));
+  }
+  function transferProductMatches(product){
+    const q=(document.getElementById('inventoryTransferPickerSearch')?.value || '').trim().toLowerCase();
+    const cat=document.getElementById('inventoryTransferPickerCategory')?.value || 'ALL';
+    const hay=[product.name,product.barcode,product.id].join(' ').toLowerCase();
+    return (!q || hay.includes(q)) && (cat==='ALL' || String(product.categoryId||'')===String(cat));
+  }
+  function renderTransferPicker(){
+    const box=document.getElementById('inventoryTransferPickerList');
+    const hint=document.getElementById('inventoryTransferSourceHint');
+    if(!box || state.mode!=='transfer') return;
+    const source=transferSourceLabel();
+    if(hint) hint.textContent=`${source} · stock inayopatikana itaonekana hapa`;
+    const products=Object.values(productData || {}).filter(p=>transferProductMatches(p) && transferSourceStock(p)>0).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+    if(!products.length){box.innerHTML='<div class="inventory-transfer-picker-empty">Hakuna bidhaa yenye stock inayolingana na utafutaji.</div>';return;}
+    box.innerHTML=products.map(p=>{
+      const id=Number(p.id),stock=transferSourceStock(p),selected=state.items.find(x=>x.id===id),qty=selected?Math.min(Number(selected.qty||1),stock):0;
+      return `<label class="inventory-transfer-picker-row ${selected?'is-selected':''}"><input type="checkbox" ${selected?'checked':''} onchange="toggleTransferPickerItem(${id},this.checked)"><div class="min-w-0"><div class="inventory-transfer-picker-name">${esc(p.name)}</div><div class="inventory-transfer-picker-meta">ID #${id} · ${esc(p.barcode||'No barcode')} · ${esc(p.category||'Kawaida')}</div></div><div class="inventory-transfer-picker-stock">Stock <strong>${stock}</strong></div><input class="inventory-transfer-picker-qty" type="number" min="1" max="${stock}" value="${qty||1}" ${selected?'':'disabled'} onchange="setTransferPickerQty(${id},this.value)" onclick="event.stopPropagation()"></label>`;
+    }).join('');
+  }
+  window.toggleTransferPickerItem=function(id,checked){
+    const product=productData[id]; if(!product)return;
+    const existing=state.items.find(x=>x.id===Number(id));
+    if(checked){
+      if(!existing) mergeItem(product,{qty:1,physical:transferSourceStock(product)});
+    }else if(existing){
+      state.items=state.items.filter(x=>x.id!==Number(id));
+      renderDraftItems();
+    }
+    renderTransferPicker();
+  };
+  window.setTransferPickerQty=function(id,value){
+    const item=state.items.find(x=>x.id===Number(id)); if(!item)return;
+    item.qty=normalizeTransferQty(value,transferSourceStock(productData[id]||{}));
+    renderDraftItems(); renderTransferPicker();
+  };
+  window.selectVisibleTransferProducts=function(){
+    if(state.mode!=='transfer')return;
+    Object.values(productData||{}).filter(p=>transferProductMatches(p)&&transferSourceStock(p)>0).forEach(p=>{
+      if(!state.items.some(x=>x.id===Number(p.id)))state.items.push({id:Number(p.id),name:p.name,barcode:p.barcode||'',stock:transferSourceStock(p),store_stock:Number(p.store_stock||p.storeStock||0),shop_stock:Number(p.shop_stock||p.shopStock||0),qty:1,physical:transferSourceStock(p),direction:'REMOVE',reason:''});
+    });
+    renderDraftItems(); renderTransferPicker();
+  };
+  window.clearTransferProductSelection=function(){
+    if(state.mode!=='transfer')return;
+    state.items=[];renderDraftItems();renderTransferPicker();
+  };
+  window.syncInventoryTransferSource=function(){
+    const from=document.getElementById('inventoryTransferFrom'),to=document.getElementById('inventoryTransferTo');
+    if(!from||!to)return;
+    if(from.value===to.value){
+      to.value=Number(from.value)===Number('{{ store_location_id }}')?'{{ shop_location_id }}':'{{ store_location_id }}';
+    }
+    state.items=[];renderDraftItems();renderTransferPicker();
+  };
+  window.syncInventoryTransferDirection=function(){
+    const reason=document.getElementById('inventoryTransferReason')?.value;
+    const from=document.getElementById('inventoryTransferFrom');
+    const to=document.getElementById('inventoryTransferTo');
+    if(!from||!to)return;
+    if(reason==='RETURN_TO_STORE'||reason==='DAMAGED'||reason==='EXPIRED'||reason==='CUSTOMER_RETURN'){
+      from.value='{{ shop_location_id }}'; to.value='{{ store_location_id }}';
+    }else{
+      from.value='{{ store_location_id }}'; to.value='{{ shop_location_id }}';
+    }
+    state.items=[];renderDraftItems();renderTransferPicker();
+  };
+
+  function resetMode(mode){state.mode=mode;state.items=[];renderDraftItems(); updateActiveModeFab(); if(mode==='transfer')renderTransferPicker();}
+  window.startInventoryMode=function(mode){
+    closeInventoryOverlay('inventoryScanModeModal');resetMode(mode);
+    if(mode==='transfer'){ window.setInventoryView?.('all', document.querySelector('.inventory-view-btn[data-view=\"all\"]')); openOverlay('inventoryTransferModal'); renderTransferPicker(); }
+    else if(mode==='stock_in')openOverlay('inventoryStockInModal');
+    else if(mode==='stock_take')openOverlay('inventoryStockTakeModal');
+    else if(mode==='adjustment')openOverlay('inventoryAdjustmentModal');
+    if(mode!=='lookup') setTimeout(()=>TradeCoreMobile.openInventoryScanner(mode),180);
+    else setTimeout(()=>TradeCoreMobile.openInventoryScanner('lookup'),180);
+  };
+
+  function mergeItem(product,extra={}){
+     const id=Number(product.id);
+     const currentStock=Math.max(0,Number(product.store_stock??product.storeStock??product.stock??0));
+     const max=state.mode==='transfer'
+       ? transferSourceStock(product)
+       : Math.max(currentStock,1);
+
+     // Transfer requires stock at the selected source. Stock In, Stock Take and
+     // Adjustment must also be able to start from a zero-stock product.
+     if(state.mode==='transfer' && max<=0){
+       showAppleStatus('error',inventoryT('stock_missing'),`${product.name} haina stock kwenye ${transferSourceLabel()}.`);
+       return;
+     }
+
+     const found=state.items.find(x=>x.id===id);
+     if(found){
+       found.stock=currentStock;
+       found.store_stock=Number(product.store_stock??product.storeStock??0);
+       found.shop_stock=Number(product.shop_stock??product.shopStock??0);
+
+       if(state.mode==='stock_take'){
+         found.physical=Math.max(0,Number(found.physical||0)+Number(extra.physicalIncrement||0));
+       }else{
+         found.qty=Math.min(
+           max,
+           Math.max(1,Number(found.qty||0)+Number(extra.qty||1))
+         );
+         if(extra.physical!==undefined) found.physical=Number(extra.physical);
+       }
+     }else{
+       const initialQty=Math.min(max,Math.max(1,Number(extra.qty||1)));
+       const initialPhysical=state.mode==='stock_take'
+         ? Math.max(0,Number(extra.physicalInitial??1))
+         : (extra.physical!==undefined ? Number(extra.physical) : currentStock);
+
+       state.items.push({
+         id,
+         name:product.name,
+         barcode:product.barcode||'',
+         stock:currentStock,
+         store_stock:Number(product.store_stock??product.storeStock??0),
+         shop_stock:Number(product.shop_stock??product.shopStock??0),
+         qty:initialQty,
+         physical:initialPhysical,
+         direction:extra.direction || (state.mode==='adjustment' && currentStock<=0 ? 'ADD' : 'REMOVE'),
+         reason:extra.reason||''
+       });
+     }
+     renderDraftItems();
+     if(state.mode==='transfer')renderTransferPicker();
+   }
+
+  window.tradecoreInventoryScanHandler=async function(code){
+    const clean=String(code||'').trim();
+    if(!clean)return false;
+    const res=await fetch(`{% url 'inventory_scan_api' %}?q=${encodeURIComponent(clean)}`,{credentials:'same-origin',headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},cache:'no-store'});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||!data.ok){
+      const msg=data.message||inventoryT('barcode_missing');
+      window.setTradeCoreInventoryScannerMessage?.(msg);
+      showInventoryScanResult(false,null,state.mode,msg);
+      return false;
+    }
+    const p=data.product;
+    if(state.mode==='transfer' && transferSourceStock(p)<=0){
+      const msg=`${p.name} haina stock kwenye ${transferSourceLabel()}.`;
+      window.setTradeCoreInventoryScannerMessage?.(msg);
+      showInventoryScanResult(false,p,state.mode,msg);
+      return false;
+    }
+    if(state.mode==='lookup'){
+      showInventoryScanSuccess(p,'Lookup');
+      TradeCoreMobile.closeInventoryScanner();openInventoryProduct(p.id);return true;
+    }
+    if(state.mode==='stock_take'){
+      const existing=state.items.find(x=>x.id===Number(p.id));
+      if(existing){
+        mergeItem(p,{physicalIncrement:1});
+      }else{
+        mergeItem(p,{qty:1,physicalInitial:1});
+      }
+    }else{
+      mergeItem(p,{qty:1,physical:transferSourceStock(p)});
+    }
+    showInventoryScanSuccess(p, state.mode);
+    window.setTradeCoreInventoryScannerMessage?.(`${p.name} · ${state.mode==='transfer'?transferSourceLabel():'Store'} ${state.mode==='transfer'?transferSourceStock(p):p.store_stock}`);return true;
+  };
+
+  function renderDraftItems(){
+    const targets={transfer:'inventoryTransferItems',stock_in:'inventoryStockInItems',stock_take:'inventoryStockTakeItems',adjustment:'inventoryAdjustmentItems'};
+    const box=document.getElementById(targets[state.mode]);
+    if(!box)return;
+    if(!state.items.length){box.innerHTML='<div class="py-8 text-center text-[10px] text-gray-400 font-bold">Scan bidhaa ili ziingie hapa.</div>';}
+    else box.innerHTML=state.items.map((it,i)=>{
+      const extra=state.mode==='stock_take'?`<div class="inventory-qty-control"><button type="button" onclick="changeInventoryTake(${i},-1)">−</button><input type="number" min="0" value="${Number(it.physical??it.stock)}" onchange="setInventoryTake(${i},this.value)"><button type="button" onclick="changeInventoryTake(${i},1)">+</button></div>`:
+        state.mode==='adjustment'?`<select class="inventory-input" style="width:96px;min-height:32px;padding:5px 7px;font-size:9px" onchange="setInventoryDirection(${i},this.value)"><option value="REMOVE" ${it.direction==='REMOVE'?'selected':''}>Toa</option><option value="ADD" ${it.direction==='ADD'?'selected':''}>Ongeza</option></select><input class="inventory-input" style="width:62px;min-height:32px;padding:5px 7px;font-size:10px" type="number" min="1" value="${Number(it.qty||1)}" onchange="setInventoryQty(${i},this.value)">`:
+        `<div class="inventory-qty-control"><button type="button" onclick="changeInventoryQty(${i},-1)">−</button><input type="number" min="1" max="${state.mode==='transfer'?Number(it.stock||0):999999}" value="${Number(it.qty||1)}" onchange="setInventoryQty(${i},this.value)"><button type="button" onclick="changeInventoryQty(${i},1)">+</button></div>`;
+      return `<div class="inventory-draft-row"><div class="inventory-draft-thumb">${esc((it.name||'?').charAt(0).toUpperCase())}</div><div class="min-w-0"><div class="inventory-draft-name">${esc(it.name)}</div><div class="inventory-draft-meta">${state.mode==='transfer'?esc(transferSourceLabel()):'Store'} ${Number(it.stock||0)} · ${esc(it.barcode||'No barcode')}</div></div>${extra}<button type="button" class="inventory-remove" onclick="removeInventoryItem(${i})">×</button></div>`;
+    }).join('');
+    const total=state.items.reduce((n,x)=>n+Number(x.qty||0),0);
+    document.getElementById('inventoryTransferCount')&&(document.getElementById('inventoryTransferCount').textContent=`${state.items.length} bidhaa · ${total} units`);
+    document.getElementById('inventoryStockInCount')&&(document.getElementById('inventoryStockInCount').textContent=`${state.items.length} bidhaa · ${total} units`);
+    document.getElementById('inventoryStockTakeCount')&&(document.getElementById('inventoryStockTakeCount').textContent=`${state.items.length} bidhaa`);
+    document.getElementById('inventoryAdjustmentCount')&&(document.getElementById('inventoryAdjustmentCount').textContent=`${state.items.length} bidhaa`);
+    
+    // SURGERY: Hii hapa inaita kile kitufe cheusi (FAB) kielewe ukichagua bidhaa manually
+    updateActiveModeFab();
+  }
+  window.setInventoryQty=(i,v)=>{if(!state.items[i])return;const max=state.mode==='transfer'?Number(state.items[i].stock||0):999999;state.items[i].qty=Math.max(1,Math.min(max,Number.isFinite(Number(v))?Math.floor(Number(v)):1));renderDraftItems();if(state.mode==='transfer')renderTransferPicker()};
+  window.changeInventoryQty=(i,d)=>{if(!state.items[i])return;const max=state.mode==='transfer'?Number(state.items[i].stock||0):999999;state.items[i].qty=Math.max(1,Math.min(max,Math.floor(Number(state.items[i].qty||1)+d)));renderDraftItems();if(state.mode==='transfer')renderTransferPicker()};
+  window.removeInventoryItem=(i)=>{state.items.splice(i,1);renderDraftItems();if(state.mode==='transfer')renderTransferPicker()};
+  window.setInventoryTake=(i,v)=>{state.items[i].physical=Math.max(0,Number(v||0));renderDraftItems()};
+  window.changeInventoryTake=(i,d)=>{state.items[i].physical=Math.max(0,Number(state.items[i].physical||0)+d);renderDraftItems()};
+  window.setInventoryDirection=(i,v)=>{state.items[i].direction=v;renderDraftItems()};
+
+  async function postJson(url, payload){
+    const body=new URLSearchParams();Object.entries(payload).forEach(([k,v])=>body.append(k,typeof v==='string'?v:JSON.stringify(v)));
+    const res=await fetch(url,{method:'POST',credentials:'same-origin',headers:{'X-CSRFToken':CSRF(),'X-Requested-With':'XMLHttpRequest','Accept':'application/json','Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body,cache:'no-store'});
+    const data=await res.json().catch(()=>({message:inventoryT('unexpected_response')}));
+    if(!res.ok||!data.ok)throw new Error(data.message||inventoryT('operation_failed'));
+    return data;
+  }
+  function done(message){
+    ['inventoryTransferModal','inventoryStockInModal','inventoryStockTakeModal','inventoryAdjustmentModal'].forEach(closeInventoryOverlay);
+    state.items=[];
+    renderDraftItems();
+    if (typeof window.showAppleStatus === 'function') {
+        window.showAppleStatus('success', 'Imekamilika!', message);
+    } else {
+        window.showToast?.(message);
+        setTimeout(()=>window.location.reload(),250);
+    }
+  }
+
+  // Universal scanner bridge: HID/keyboard-wedge, serial bridge na camera
+  // zinaweza kutumia handler hii bila kuingilia POS scanner ya kawaida.
+  function installInventoryGlobalScannerBridge(){
+    const base=window.scanBarcodeValue;
+    if(base && base.__tradecoreInventoryBridge) return;
+    const baseFn=typeof base==='function' ? base : null;
+    const bridge=async function(value){
+      if(state.mode) return await window.tradecoreInventoryScanHandler(value);
+      return baseFn ? await baseFn(value) : false;
+    };
+    bridge.__tradecoreInventoryBridge=true;
+    window.scanBarcodeValue=bridge;
+  }
+  installInventoryGlobalScannerBridge();
+  window.addEventListener('load',installInventoryGlobalScannerBridge,{once:false});
+  setTimeout(installInventoryGlobalScannerBridge,1200);
+
+  window.finishInventoryTransfer=async function(){
+    if(!state.items.length){showAppleStatus('error', 'Imeshindikana', inventoryT('scan_select_first'));return}
+    const fromId=Number(document.getElementById('inventoryTransferFrom')?.value||0),toId=Number(document.getElementById('inventoryTransferTo')?.value||0);
+    if(!fromId||!toId||fromId===toId){showAppleStatus('error',inventoryT('invalid_transfer'),inventoryT('locations_different'));return}
+    const invalid=state.items.find(x=>{const qty=Number(x.qty),stock=transferSourceStock(productData[x.id]||{});return !Number.isInteger(qty)||qty<=0||qty>stock;});
+    if(invalid){showAppleStatus('error',inventoryT('invalid_quantity'),`${invalid.name}: chagua 1 hadi ${transferSourceStock(productData[invalid.id]||{})} kutoka ${transferSourceLabel()}.`);return}
+    const reasonCode=document.getElementById('inventoryTransferReason').value;
+    try{const d=await postJson('{% url 'inventory_transfer' %}',{from_location_id:fromId,to_location_id:toId,reason_code:reasonCode,reason_text:document.getElementById('inventoryTransferReasonText').value,notes:document.getElementById('inventoryTransferReasonText').value,items:state.items.map(x=>({id:x.id,qty:Math.floor(Number(x.qty))}))});done(`Transfer ${d.reference} imetumwa na inasubiri kupokelewa ${d.to||'Duka'}.`)}catch(e){showAppleStatus('error', inventoryT('generic_error'), e.message)}
+  };
+  window.finishInventoryStockIn=async function(){
+    if(!state.items.length){showAppleStatus('error', 'Imeshindikana', inventoryT('scan_select_first'));return}
+    const supplier=document.getElementById('inventoryStockInSupplier').value.trim();if(!supplier){showAppleStatus('error', inventoryT('info_incomplete'), inventoryT('supplier_required'));return}
+    try{const d=await postJson('{% url 'inventory_stock_in' %}',{supplier,reference:document.getElementById('inventoryStockInReference').value.trim(),notes:document.getElementById('inventoryStockInNotes').value,items:state.items.map(x=>({id:x.id,qty:x.qty}))});done(`Stock In ${d.reference} imehifadhiwa.`)}catch(e){showAppleStatus('error', inventoryT('generic_error'), e.message)}
+  };
+  window.finishInventoryStockTake=async function(){
+    if(!state.items.length){showAppleStatus('error', 'Imeshindikana', inventoryT('scan_select_first'));return}
+    try{const d=await postJson('{% url 'inventory_stock_take' %}',{notes:document.getElementById('inventoryStockTakeNotes').value,items:state.items.map(x=>({id:x.id,physical:x.physical,notes:''}))});done(`Stock Take ${d.reference} imekamilika.`)}catch(e){showAppleStatus('error', inventoryT('generic_error'), e.message)}
+  };
+  window.finishInventoryAdjustment=async function(){
+    if(!state.items.length){showAppleStatus('error', 'Imeshindikana', inventoryT('scan_select_first'));return}
+    const notes=document.getElementById('inventoryAdjustmentNotes').value;
+    try{const d=await postJson('{% url 'inventory_adjustment' %}',{notes,items:state.items.map(x=>({id:x.id,qty:x.qty,direction:x.direction,reason:notes}))});done(`Adjustment ${d.reference} imekamilika.`)}catch(e){showAppleStatus('error', inventoryT('generic_error'), e.message)}
+  };
+
+  window.isInventoryScanModeActive=function(){return !!state.mode};
+  window.selectInventorySearchProduct=function(id){fungaSearchModal();window.openInventoryProduct(Number(id));};
+
+  window.openInventoryProduct=async function(id){
+    if(state.mode){
+      const product=productData[id];
+      if(product){
+        mergeItem(product,{qty:1,physical:state.mode==='transfer'?transferSourceStock(product):product.stock});
+        showInventoryScanSuccess(product,state.mode);
+        window.showToast?.(`${product.name} imeongezwa kwenye ${state.mode}.`);
+      }
+      return;
+    }
+    const box=document.getElementById('inventoryDetailBody');if(!box)return;box.innerHTML='<div class="py-10 text-center text-sm text-gray-400">Inapakia taarifa...</div>';openOverlay('inventoryProductDetailModal');
+    try{
+      const res=await fetch(`{% url 'inventory_product_detail' 0 %}`.replace('/0/detail/','/'+id+'/detail/'),{credentials:'same-origin',headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},cache:'no-store'});const d=await res.json();if(!res.ok||!d.ok)throw new Error(d.message||'Imeshindikana');const p=d.product;
+      document.getElementById('inventoryDetailTitle').textContent=p.name;document.getElementById('inventoryDetailSubtitle').textContent=`Barcode · ${p.barcode||'Haijawekwa'} · ${p.category||'Kawaida'}`;
+      const store=p.stock.find(x=>/store/i.test(x.name));const shop=p.stock.find(x=>/duka|pos/i.test(x.name));
+      const vstore=p.verified.find(x=>x.location===store?.name);const vshop=p.verified.find(x=>x.location===shop?.name);
+      const movementHtml=p.movements.slice(0,10).map(m=>`<div class="inventory-movement-row"><div><b>${esc(m.label)}</b><div class="inventory-detail-meta">${esc(m.reference)} · ${esc(m.actor)}</div></div><span>${esc(m.time)}<br>${esc(m.reason||'')}</span></div>`).join('')||'<div class="text-[10px] text-gray-400 py-3">Hakuna movement iliyorekodiwa.</div>';
+      const barcodePrintUrl=`{% url 'print_product_barcode' 0 %}`.replace('/0/barcode/','/'+p.id+'/barcode/');
+      const barcodeRegenerateUrl=`{% url 'regenerate_product_barcode' 0 %}`.replace('/0/barcode/regenerate/','/'+p.id+'/barcode/regenerate/');
+      box.innerHTML=`<div class="inventory-detail-hero"><div class="inventory-detail-image">${esc((p.name||'?').charAt(0).toUpperCase())}</div><div><div class="inventory-detail-name">${esc(p.name)}</div><div class="inventory-detail-meta">Buying TZS ${money(p.buying)} · Selling TZS ${money(p.selling)}</div></div></div><div class="inventory-detail-grid"><div class="inventory-detail-stat"><span>Store Live</span><b>${store?.quantity??0}</b></div><div class="inventory-detail-stat"><span>Duka Live</span><b>${shop?.quantity??0}</b></div><div class="inventory-detail-stat"><span>Total Live</span><b>${(store?.quantity??0)+(shop?.quantity??0)}</b></div></div><div class="inventory-detail-section"><h4>Last Verified Stock 🔒</h4>${vstore?`<div class="inventory-verified-row"><b>Store ${vstore.quantity}</b><span>${esc(vstore.date?new Date(vstore.date).toLocaleString('sw-TZ',{dateStyle:'medium',timeStyle:'short'}):'')}</span></div>`:'<div class="text-[10px] text-gray-400">Bado hakuna Stock Take iliyothibitisha Store.</div>'}${vshop?`<div class="inventory-verified-row"><b>Duka ${vshop.quantity}</b><span>${esc(vshop.date?new Date(vshop.date).toLocaleString('sw-TZ',{dateStyle:'medium',timeStyle:'short'}):'')}</span></div>`:''}</div><div class="inventory-detail-section"><h4>Recent Movement</h4>${movementHtml}</div><div class="inventory-detail-section inventory-barcode-tools"><div class="flex items-center justify-between gap-2 mb-2"><h4>Barcode</h4><span class="text-[10px] font-black text-gray-400">${esc(p.barcode||'Haijawekwa')}</span></div><div class="grid grid-cols-2 gap-2"><a target="_blank" rel="noopener" href="${barcodePrintUrl}" class="px-3 py-3 rounded-xl bg-purple-900 text-amber-300 text-center font-black text-[10px]">▤ View Barcode</a><form method="POST" action="${barcodeRegenerateUrl}" class="m-0"><input type="hidden" name="csrfmiddlewaretoken" value="${esc(document.querySelector('[name=csrfmiddlewaretoken]')?.value||'')}"><button type="submit" class="w-full px-3 py-3 rounded-xl bg-gray-100 text-gray-800 font-black text-[10px]">✦ Generate Barcode</button></form></div></div><div class="inventory-detail-actions"><button type="button" onclick="closeInventoryOverlay('inventoryProductDetailModal');startInventoryMode('stock_take')">{% trans 'Stock Take' %}</button><button type="button" onclick="closeInventoryOverlay('inventoryProductDetailModal');startInventoryMode('transfer')">Transfer</button><button type="button" class="primary" onclick="closeInventoryOverlay('inventoryProductDetailModal');startInventoryMode('stock_in')">{% trans 'Stock In' %}</button></div>`;
+      const barcodeForm=box.querySelector('.inventory-barcode-tools form');
+      if(barcodeForm){barcodeForm.addEventListener('submit', handleGenerateBarcode);}
+    }catch(e){box.innerHTML=`<div class="py-10 text-center text-rose-500 font-bold">${esc(e.message)}</div>`}
+  };
+
+  // =========================================================
+  // AI PRODUCT IMAGES — LAZY, ONE-TIME, INVENTORY-FRIENDLY
+  // Reuses the existing TradeCore product-image AI action already wired in POS.
+  // =========================================================
+  let inventoryAiImageActiveRequests = 0;
+  const inventoryAiImageMaxConcurrent = 2;
+
+  function getInventoryCsrfToken(){
+    return document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
+  }
+
+  async function generateInventoryAiProductImage(card){
+    if(!card || card.dataset.aiImageRequested === '1') return;
+
+    const media = card.querySelector('[data-ai-product-image]');
+    if(!media || card.dataset.aiImageReady === '1') return;
+    if(inventoryAiImageActiveRequests >= inventoryAiImageMaxConcurrent) return;
+
+    card.dataset.aiImageRequested = '1';
+    inventoryAiImageActiveRequests += 1;
+
+    const placeholder = media.querySelector('.inventory-ai-placeholder');
+    if(placeholder){
+      placeholder.classList.add('inventory-ai-loading');
+      placeholder.innerHTML =
+        '<span class="text-base font-black text-purple-300">✦</span>' +
+        '<span class="text-[7px] font-black uppercase tracking-wider mt-0.5 text-purple-400">Designing</span>';
+    }
+
+    const fd = new FormData();
+    fd.append('action','generate_product_ai_image');
+    fd.append('product_id',card.dataset.id || '');
+    fd.append('csrfmiddlewaretoken',getInventoryCsrfToken());
+
+    try{
+      // The POS page already exposes this working AI action; call the same endpoint
+      // without changing Inventory's own business/backend actions.
+      const response = await fetch('{% url 'mauzo' %}',{
+        method:'POST',
+        credentials:'same-origin',
+        headers:{
+          'X-Requested-With':'XMLHttpRequest',
+          'Accept':'application/json'
+        },
+        body:fd,
+        cache:'no-store'
+      });
+
+      const data = await response.json().catch(()=>({}));
+      if(!response.ok || !data.ok){
+        throw new Error(data.message || 'AI image haijaweza kutengenezwa.');
+      }
+
+      const imageSrc = data.image_data_uri || data.image_url;
+      if(!imageSrc) throw new Error('AI haikurudisha picha ya bidhaa.');
+
+      const img = document.createElement('img');
+      img.src = imageSrc;
+      img.alt = card.dataset.name || 'Product';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.className = 'w-full h-full object-contain p-2';
+
+      img.addEventListener('error',function(){
+        this.remove();
+        if(!media.querySelector('.inventory-ai-placeholder')){
+          const fallback = document.createElement('div');
+          fallback.className = 'inventory-ai-placeholder w-full h-full flex flex-col items-center justify-center text-purple-300';
+          fallback.innerHTML =
+            '<span class="text-lg font-black leading-none">' +
+            ((card.dataset.name || '?').trim().charAt(0).toUpperCase() || '?') +
+            '</span>' +
+            '<span class="text-[7px] font-black uppercase tracking-wider mt-0.5 opacity-70">AI</span>';
+          media.appendChild(fallback);
+        }
+      });
+
+      media.innerHTML = '';
+      media.appendChild(img);
+      card.dataset.aiImageReady = '1';
+
+    }catch(error){
+      card.dataset.aiImageFailed = '1';
+      if(placeholder){
+        placeholder.classList.remove('inventory-ai-loading');
+        placeholder.innerHTML =
+          '<span class="text-base font-black text-purple-200">✦</span>' +
+          '<span class="text-[7px] font-black uppercase tracking-wider mt-0.5 opacity-70">AI</span>';
+        placeholder.title = error?.message || 'AI image haijaweza kutengenezwa.';
+      }
+    }finally{
+      inventoryAiImageActiveRequests -= 1;
+      kickInventoryAiImageQueue();
+    }
+  }
+
+  function kickInventoryAiImageQueue(){
+    if(inventoryAiImageActiveRequests >= inventoryAiImageMaxConcurrent) return;
+
+    const cards = Array.from(document.querySelectorAll(
+      '#inventoryGrid .inventory-product-card[data-id]:not([data-ai-image-ready="1"]):not([data-ai-image-requested="1"])'
+    ));
+
+    const scrollRoot = document.getElementById('inventoryGrid');
+    const rootRect = scrollRoot ? scrollRoot.getBoundingClientRect() : {top:0,bottom:window.innerHeight};
+
+    for(const card of cards){
+      if(inventoryAiImageActiveRequests >= inventoryAiImageMaxConcurrent) break;
+      const rect = card.getBoundingClientRect();
+      const visibleSoon = rect.top < rootRect.bottom + 600 && rect.bottom > rootRect.top - 600;
+      if(visibleSoon) generateInventoryAiProductImage(card);
+    }
+  }
+
+  function initInventoryAiProductImages(){
+    const cards = document.querySelectorAll('#inventoryGrid .inventory-product-card[data-id]');
+    if(!cards.length) return;
+
+    if('IntersectionObserver' in window){
+      const observer = new IntersectionObserver(entries=>{
+        entries.forEach(entry=>{
+          if(!entry.isIntersecting) return;
+          const card = entry.target;
+          if(card.dataset.aiImageReady !== '1' && card.dataset.aiImageRequested !== '1'){
+            generateInventoryAiProductImage(card);
+          }
+        });
+      },{
+        root:document.getElementById('inventoryGrid'),
+        rootMargin:'600px 0px',
+        threshold:0.01
+      });
+
+      cards.forEach(card=>{
+        if(card.dataset.aiImageReady !== '1' && card.querySelector('.inventory-ai-placeholder')) observer.observe(card);
+      });
+    }
+
+    kickInventoryAiImageQueue();
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    let p='grid';
+    try{p=localStorage.getItem('tradecore_inventory_presentation_v1')||'grid'}catch(e){}
+    setInventoryPresentation(p);
+    document.getElementById('tradecoreInventoryScannerInput')?.addEventListener('keydown',e=>{
+      if(e.key==='Enter'||(e.key==='Tab'&&e.currentTarget.value.trim().length>=4)){
+        e.preventDefault();
+        TradeCoreMobile.submitInventoryScannerInput();
+      }
+    });
+    // AI images are not generated automatically while opening Inventory.
+    // Mauzo remains the AI generation surface; saved Bidhaa.picha values still render here.
+  });
+
+  window.addEventListener('resize',()=>{requestAnimationFrame(()=>{syncInventoryStatusIndicator();syncInventoryPresentationIndicator()})},{passive:true});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){['inventoryScanModeModal','inventoryTransferModal','inventoryStockInModal','inventoryStockTakeModal','inventoryAdjustmentModal','inventoryProductDetailModal'].forEach(closeInventoryOverlay)}});
+})();
+</script>
+
+<!-- SURGERY: Kitufe Kinachoelea (Floating Cart) kwa ajili ya Manual Mode -->
+<div id="activeInventoryModeFab" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[450] hidden transition-all duration-300">
+   <button onclick="reopenActiveModeModal()" class="px-6 py-3.5 rounded-full bg-gray-900 text-white font-black shadow-2xl border border-gray-700 flex items-center gap-3 hover:scale-105 transition-transform">
+       <span class="flex items-center justify-center w-6 h-6 bg-purple-500 text-white rounded-full text-[11px]" id="activeModeCount">0</span>
+       <span id="activeModeLabel" class="text-sm">{% trans 'Kamilisha Muamala' %}</span>
+       <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+   </button>
+</div>
+
+</div>
+
+<style id="tradecore-inventory-brand-highlight-final">
+  .inventory-value-summary-card{background:#5b21b6 !important;border-color:#5b21b6 !important;color:#fff !important;}
+  .inventory-value-summary-card [data-compact-money]{color:#fcd34d !important;}
+</style>
+{% endblock %}

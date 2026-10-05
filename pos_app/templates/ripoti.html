@@ -1,0 +1,2386 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load humanize %}
+
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+
+{{ sales_chart_data|json_script:"salesChartData" }}
+{{ cashflow_data|json_script:"cashflowData" }}
+{{ trending_data|json_script:"trendingData" }}
+{{ customer_daily_report|json_script:"customerDailyReport" }}
+{{ employee_daily_report|json_script:"employeeDailyReport" }}
+
+<style>
+    .metric-card {
+        transition: transform .2s ease,
+                    box-shadow .2s ease,
+                    border-color .2s ease;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 30px rgba(49,20,93,.08);
+    }
+
+    .metric-card.active-metric {
+        border-width: 2px;
+        border-color: #581c87;
+        background: #faf5ff;
+    }
+
+    .tc-btn {
+        min-height: 42px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .45rem;
+        transition: .2s ease;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .apple-segment {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px;
+        background: rgba(248,250,252,.92);
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+    }
+
+    .apple-segment-btn {
+        min-height: 36px;
+        padding: .5rem .8rem;
+        border-radius: 12px;
+        font-size: 11px;
+        line-height: 1;
+        font-weight: 800;
+        color: #6b7280;
+        background: transparent;
+        transition: background .2s ease, color .2s ease, box-shadow .2s ease, transform .2s ease;
+        -webkit-tap-highlight-color: transparent;
+        cursor: pointer;
+        border: 0;
+    }
+
+    .apple-segment-btn:hover {
+        color: #374151;
+        transform: translateY(-1px);
+    }
+
+    .apple-segment-btn.is-active {
+        background: #ffffff;
+        color: #581c87;
+        box-shadow: 0 4px 14px rgba(15,23,42,.08), 0 1px 3px rgba(15,23,42,.08);
+    }
+
+    .trend-up {
+        color: #047857;
+        background: #ecfdf5;
+        border-color: #bbf7d0;
+    }
+
+    .trend-down {
+        color: #be123c;
+        background: #fff1f2;
+        border-color: #fecdd3;
+    }
+
+    .trend-flat {
+        color: #6b7280;
+        background: #f3f4f6;
+        border-color: #e5e7eb;
+    }
+
+    .tc-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .tc-empty {
+        border: 1px dashed #e5e7eb;
+        background: linear-gradient(180deg,#fafafa,#fff);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    /* Mini trend lines inside the two primary sales cards. */
+    .metric-sales-row {
+        align-items: stretch;
+    }
+
+    .metric-card.metric-primary {
+        min-height: 188px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .metric-sparkline {
+        width: 100%;
+        height: 58px;
+        margin-top: auto;
+        padding-top: 10px;
+    }
+
+    .metric-sparkline svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+    }
+
+    .metric-sparkline path {
+        fill: none;
+        stroke-width: 4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .metric-sparkline .spark-end {
+        fill: #fff;
+        stroke-width: 3;
+    }
+
+    @media (max-width: 640px) {
+        .metric-card.metric-primary {
+            min-height: 172px;
+        }
+    }
+
+    @media print {
+        .print-hidden {
+            display: none !important;
+        }
+    }
+
+/* =========================================================
+   TRADECORE — RIPOTI PAGE SPACING
+   Kulenga <main> moja kwa moja na kuweka 42px kushoto na kulia.
+========================================================= */
+body:has(#analysisCanvas) main {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    padding-left: 42px !important;
+    padding-right: 42px !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 1024px) {
+    body:has(#analysisCanvas) main {
+        padding-left: 24px !important;
+        padding-right: 24px !important;
+    }
+}
+
+@media (max-width: 640px) {
+    body:has(#analysisCanvas) main {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+}
+
+</style>
+
+<div id="toastNotification"
+     class="fixed top-5 left-1/2 -translate-x-1/2
+            z-[250] -translate-y-20 opacity-0
+            transition-all duration-300
+            bg-gray-900 text-white px-6 py-3
+            rounded-full shadow-2xl font-bold
+            text-sm flex items-center gap-2
+            pointer-events-none"
+     role="status"
+     aria-live="polite">
+
+    <span id="toastMessage"></span>
+</div>
+
+<!-- HEADER -->
+<div class="flex flex-col md:flex-row
+            md:items-center justify-between
+            mb-6 gap-4">
+
+    <div>
+
+        <div class="flex items-center gap-2 mb-2">
+            <span class="text-[9px] font-black
+                         uppercase tracking-[.18em]
+                         text-purple-600 bg-purple-50
+                         border border-purple-100
+                         px-2.5 py-1 rounded-full">
+                {% trans 'Business Intelligence' %}
+            </span>
+
+            <span class="text-[9px] font-bold text-gray-400">
+                {% trans 'Database Live' %}
+            </span>
+        </div>
+
+        <h1 class="text-3xl font-light text-gray-700">
+            {% trans 'Ripoti &' %}
+            <span class="font-black text-purple-900">
+                {% trans 'Uchambuzi' %}
+            </span>
+        </h1>
+
+        <p class="text-sm text-gray-500 mt-1">
+            {% trans 'Chagua kipindi na uchambue mauzo, matumizi, faida na cash flow.' %}
+        </p>
+
+    </div>
+
+    <div class="flex items-center gap-3 print-hidden">
+
+        <form method="get">
+
+            <select name="period"
+                    onchange="this.form.submit()"
+                    class="bg-white border border-gray-200
+                           px-4 py-2.5 rounded-2xl
+                           text-sm font-bold text-gray-600
+                           focus:outline-none shadow-sm">
+
+                <option value="week"
+                    {% if report_period == "week" %}selected{% endif %}>
+                    {% trans 'Wiki Hii' %}
+                </option>
+
+                <option value="month"
+                    {% if report_period == "month" %}selected{% endif %}>
+                    {% trans 'Mwezi Huu' %}
+                </option>
+
+                <option value="year"
+                    {% if report_period == "year" %}selected{% endif %}>
+                    {% trans 'Mwaka Huu' %}
+                </option>
+
+            </select>
+
+        </form>
+
+        <a href="{% url 'daily_report' %}" class="tc-btn px-4 bg-purple-50 text-purple-900 border border-purple-100 hover:bg-purple-100" title="{% trans 'Ripoti kamili ya kila siku' %}">{% trans 'Daily Report' %}</a>
+
+        <button type="button"
+                onclick="printRipotiReport()"
+                class="tc-btn bg-purple-900
+                       hover:bg-purple-800
+                       text-amber-400 px-6 shadow-lg">
+            {% trans 'Chapisha / PDF' %}
+        </button>
+
+    </div>
+
+</div>
+
+<!-- METRICS + CHART -->
+<div class="flex flex-col lg:flex-row
+            gap-6 mb-8">
+
+    <div class="w-full lg:w-1/3
+                flex flex-col gap-3">
+
+        <!-- Primary sales metrics: deliberately kept in one row on desktop. -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 metric-sales-row">
+
+            <button type="button"
+                    data-metric="gross_sales"
+                    class="metric-card metric-primary active-metric
+                           bg-white p-4 rounded-2xl
+                           shadow-sm border border-purple-200
+                           text-left h-full"
+                    ondblclick="funguaMetricDetail('Gross Sales','gross_sales')">
+
+                <p class="text-[10px] font-black
+                          text-emerald-600 uppercase">
+                    {% trans 'Gross Sales' %}
+                </p>
+
+                <h3 class="text-xl font-black text-gray-900 mt-1">
+                    TZS {{ gross_sales|default_if_none:"—"|floatformat:0|intcomma }}
+                </h3>
+
+                <div class="metric-sparkline" data-sparkline="gross" aria-hidden="true">
+                    <svg viewBox="0 0 260 58" preserveAspectRatio="none">
+                        <path class="spark-path" stroke="#6d3df2" d=""></path>
+                        <circle class="spark-end" stroke="#6d3df2" cx="0" cy="0" r="3.8"></circle>
+                    </svg>
+                </div>
+
+            </button>
+
+            <button type="button"
+                    data-metric="total_sales"
+                    class="metric-card metric-primary bg-white p-4
+                           rounded-2xl shadow-sm
+                           border border-blue-100 text-left h-full"
+                    ondblclick="funguaMetricDetail('Total Net Sales','total_sales')">
+
+                <p class="text-[10px] font-black
+                          text-blue-600 uppercase">
+                    {% trans 'Total Net Sales' %}
+                </p>
+
+                <h3 class="text-xl font-black text-gray-900 mt-1">
+                    TZS {{ net_sales|default_if_none:"—"|floatformat:0|intcomma }}
+                </h3>
+
+                <div class="metric-sparkline" data-sparkline="net" aria-hidden="true">
+                    <svg viewBox="0 0 260 58" preserveAspectRatio="none">
+                        <path class="spark-path" stroke="#d1a21a" d=""></path>
+                        <circle class="spark-end" stroke="#d1a21a" cx="0" cy="0" r="3.8"></circle>
+                    </svg>
+                </div>
+
+            </button>
+
+        </div>
+
+        <button type="button"
+                data-metric="expenses"
+                class="metric-card bg-white p-4
+                       rounded-2xl shadow-sm
+                       border border-rose-100 text-left"
+                ondblclick="funguaMetricDetail('Total Expenses','expenses')">
+
+            <p class="text-[10px] font-black
+                      text-rose-600 uppercase">
+                {% trans 'Total Expenses' %}
+            </p>
+
+            <h3 class="text-xl font-black text-gray-900 mt-1">
+                TZS {{ total_expenses|default_if_none:"—"|floatformat:0|intcomma }}
+            </h3>
+
+        </button>
+
+        <button type="button"
+                data-metric="profit"
+                class="metric-card bg-gradient-to-br
+                       from-purple-900 to-purple-800
+                       p-4 rounded-2xl shadow-md
+                       text-left text-white"
+                ondblclick="funguaMetricDetail('Net Profit','profit')">
+
+            <p class="text-[10px] font-black
+                      text-purple-200 uppercase">
+                {% trans 'Net Profit' %}
+            </p>
+
+            <h3 class="text-xl font-black
+                       text-amber-400 mt-1">
+                TZS {{ net_profit|default_if_none:"—"|floatformat:0|intcomma }}
+            </h3>
+
+            <p class="text-[9px] text-purple-200 mt-1">
+                {% trans 'Sales − COGS − Expenses' %}
+            </p>
+
+        </button>
+
+        <button type="button"
+                data-metric="cashflow"
+                class="metric-card bg-white p-4
+                       rounded-2xl shadow-sm
+                       border border-indigo-100 text-left"
+                ondblclick="funguaCashFlowModal()">
+
+            <p class="text-[10px] font-black
+                      text-indigo-600 uppercase">
+                {% trans 'Cash Flow' %}
+            </p>
+
+            <h3 class="text-xl font-black text-gray-900 mt-1">
+                {% trans 'Njia za Malipo' %}
+            </h3>
+
+        </button>
+
+    </div>
+
+    <div class="w-full lg:w-2/3
+                bg-white p-6 rounded-3xl
+                shadow-sm border border-gray-100
+                min-h-[420px]">
+
+        <div class="flex flex-col sm:flex-row
+                    sm:justify-between sm:items-center
+                    gap-3 mb-4
+                    border-b border-gray-100
+                    pb-4">
+
+            <div>
+
+                <h3 id="chartTitle"
+                    class="font-black text-purple-900 text-xl">
+                    {% trans 'Analysis: Gross Sales' %}
+                </h3>
+
+                <p id="chartSubtitle"
+                   class="text-xs text-gray-400">
+                    {% trans 'Mauzo ya kipindi kilichochaguliwa' %}
+                </p>
+
+            </div>
+
+            <div class="apple-segment" role="group" aria-label="{% trans 'Chart type' %}">
+
+                <button type="button"
+                        data-chart-type="bar"
+                        class="chart-type-btn apple-segment-btn is-active">
+                    {% trans 'Bar' %}
+                </button>
+
+                <button type="button"
+                        data-chart-type="line"
+                        class="chart-type-btn apple-segment-btn">
+                    {% trans 'Line' %}
+                </button>
+
+                <button type="button"
+                        data-chart-type="mixed"
+                        class="chart-type-btn apple-segment-btn">
+                    {% trans 'Mix' %}
+                </button>
+
+                <button type="button"
+                        data-chart-type="pie"
+                        class="chart-type-btn apple-segment-btn">
+                    {% trans 'Pie' %}
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="relative h-[320px]">
+            <canvas id="analysisCanvas"></canvas>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- BOTTOM SECTION: TRENDING & REPORTS -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+
+    <!-- TOP 3 TRENDING CARD (Inachukua nafasi ndogo upande wa kushoto) -->
+    <div class="lg:col-span-5 xl:col-span-4 bg-amber-50 p-6 rounded-[30px] border border-amber-100 shadow-sm flex flex-col">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
+            <h4 class="text-amber-700 font-black uppercase text-[11px] tracking-widest">{% trans 'Top 3 Trending' %}</h4>
+            <div class="apple-segment" role="group" aria-label="{% trans 'Trending period' %}">
+                <button type="button" id="trendDay" class="trend-period-btn apple-segment-btn is-active">{% trans 'Siku' %}</button>
+                <button type="button" id="trendWeek" class="trend-period-btn apple-segment-btn">{% trans 'Wiki' %}</button>
+                <button type="button" id="trendMonth" class="trend-period-btn apple-segment-btn">{% trans 'Mwezi' %}</button>
+            </div>
+        </div>
+
+        <!-- Container ya List itakayoletwa na JS -->
+        <div id="trendingList" class="space-y-3 flex-1">
+            <!-- Items zitaingia hapa -->
+        </div>
+    </div>
+
+    <!-- REPORT BUTTONS (Zinachukua nafasi iliyobaki kulia) -->
+    <div class="lg:col-span-7 xl:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        
+        <div class="bg-white p-6 rounded-[30px] shadow-sm border border-gray-100 flex flex-col">
+            <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">👤</div>
+            <h3 class="font-black text-gray-900 text-lg mb-1">{% trans 'Customer Daily Report' %}</h3>
+            <p class="text-xs text-gray-500 mb-6">{% trans 'Wateja na mauzo yaliyofanyika leo.' %}</p>
+            <button type="button" id="customerReportBtn" class="tc-btn w-full bg-gray-900 text-white hover:bg-blue-600 mt-auto">{% trans 'Tazama Ripoti ya Wateja' %}</button>
+        </div>
+
+        <div class="bg-white p-6 rounded-[30px] shadow-sm border border-gray-100 flex flex-col">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">👨‍💼</div>
+            <h3 class="font-black text-gray-900 text-lg mb-1">{% trans 'Employee Daily Report' %}</h3>
+            <p class="text-xs text-gray-500 mb-6">{% trans 'Transactions na mauzo ya kila mhudumu leo.' %}</p>
+            <button type="button" id="employeeReportBtn" class="tc-btn w-full bg-gray-900 text-white hover:bg-emerald-600 mt-auto">{% trans 'Tazama Ripoti ya Wafanyakazi' %}</button>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- DETAIL MODAL -->
+<div id="detailModal"
+     class="fixed inset-0 hidden
+            items-center justify-center
+            bg-slate-900/60
+            backdrop-blur-md z-[160]
+            p-4 opacity-0"
+     role="dialog"
+     aria-modal="true"
+     aria-hidden="true">
+
+    <div id="detailModalCard"
+         class="bg-white rounded-[40px]
+                max-w-md w-full p-8
+                shadow-2xl scale-95 opacity-0">
+
+        <button type="button"
+                data-close="detailModal"
+                class="float-right text-gray-400
+                       text-2xl">
+            {% trans '&times;' %}
+        </button>
+
+        <h3 id="detailTitle"
+            class="text-2xl font-black
+                   text-gray-900 mb-2">
+            —
+        </h3>
+
+        <p id="detailValue"
+           class="text-purple-900
+                  font-black text-2xl mb-4">
+            —
+        </p>
+
+        <p id="detailText"
+           class="text-gray-600 text-sm
+                  leading-relaxed">
+            —
+        </p>
+
+        <button type="button"
+                data-close="detailModal"
+                class="w-full mt-8
+                       bg-gray-900
+                       text-white
+                       font-black py-4
+                       rounded-2xl">
+            {% trans 'Funga' %}
+        </button>
+
+    </div>
+
+</div>
+
+<!-- CASH FLOW -->
+<div id="cashFlowModal"
+     class="fixed inset-0 hidden
+            items-center justify-center
+            bg-slate-900/60
+            backdrop-blur-md z-[160]
+            p-4 opacity-0"
+     role="dialog"
+     aria-modal="true"
+     aria-hidden="true">
+
+    <div id="cashFlowModalCard"
+         class="bg-white rounded-[40px]
+                max-w-md w-full p-8
+                shadow-2xl scale-95 opacity-0">
+
+        <div class="flex justify-between items-center mb-6">
+
+            <h3 class="text-2xl font-black">
+                {% trans 'Mchanganuo wa Malipo' %}
+            </h3>
+
+            <button type="button"
+                    data-close="cashFlowModal"
+                    class="text-2xl text-gray-400">
+                {% trans '&times;' %}
+            </button>
+
+        </div>
+
+        <div id="cashFlowBody"
+             class="space-y-3">
+        </div>
+
+        <div class="mt-6 bg-gray-900
+                    p-5 rounded-3xl text-center">
+
+            <p class="text-[10px]
+                      text-gray-400 uppercase">
+                {% trans 'Jumla ya Makusanyo' %}
+            </p>
+
+            <h2 id="cashFlowTotal"
+                class="text-3xl font-black
+                       text-amber-400">
+                {% trans 'TZS —' %}
+            </h2>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- CUSTOMER REPORT -->
+<div id="customerReportModal"
+     class="fixed inset-0 hidden
+            items-center justify-center
+            bg-slate-900/60
+            backdrop-blur-md z-[160]
+            p-4 opacity-0"
+     role="dialog"
+     aria-modal="true"
+     aria-hidden="true">
+
+    <div id="customerReportModalCard"
+         class="bg-white rounded-[40px]
+                max-w-4xl w-full p-8
+                shadow-2xl scale-95 opacity-0
+                max-h-[90vh] flex flex-col">
+
+        <div class="flex justify-between
+                    items-center mb-6">
+
+            <h3 class="text-2xl
+                       font-black">
+                {% trans 'Customer Daily Report' %}
+            </h3>
+
+            <button type="button"
+                    data-close="customerReportModal"
+                    class="text-2xl text-gray-400">
+                {% trans '&times;' %}
+            </button>
+
+        </div>
+
+        <div class="overflow-auto
+                    custom-scrollbar">
+
+            <table class="w-full min-w-[900px]">
+
+                <thead>
+                    <tr class="text-[10px]
+                               uppercase
+                               text-gray-500
+                               border-b">
+
+                        <th class="p-3 text-left">{% trans 'Mteja' %}</th>
+                        <th class="p-3 text-center">{% trans 'Siku' %}</th>
+                        <th class="p-3 text-center">{% trans 'Tarehe' %}</th>
+                        <th class="p-3 text-center">{% trans 'Muda' %}</th>
+                        <th class="p-3 text-left">{% trans 'Bidhaa' %}</th>
+                        <th class="p-3 text-right">{% trans 'Kiasi' %}</th>
+
+                    </tr>
+                </thead>
+
+                <tbody id="customerReportBody">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- EMPLOYEE REPORT -->
+<div id="employeeReportModal"
+     class="fixed inset-0 hidden
+            items-center justify-center
+            bg-slate-900/60
+            backdrop-blur-md z-[160]
+            p-4 opacity-0"
+     role="dialog"
+     aria-modal="true"
+     aria-hidden="true">
+
+    <div id="employeeReportModalCard"
+         class="bg-white rounded-[40px]
+                max-w-3xl w-full p-8
+                shadow-2xl scale-95 opacity-0
+                max-h-[90vh] flex flex-col">
+
+        <div class="flex justify-between
+                    items-center mb-6">
+
+            <h3 class="text-2xl
+                       font-black">
+                {% trans 'Employee Daily Report' %}
+            </h3>
+
+            <button type="button"
+                    data-close="employeeReportModal"
+                    class="text-2xl text-gray-400">
+                {% trans '&times;' %}
+            </button>
+
+        </div>
+
+        <div class="overflow-auto
+                    custom-scrollbar">
+
+            <table class="w-full min-w-[650px]">
+
+                <thead>
+                    <tr class="text-[10px]
+                               uppercase
+                               text-gray-500
+                               border-b">
+
+                        <th class="p-3 text-left">{% trans 'Mfanyakazi' %}</th>
+                        <th class="p-3 text-center">{% trans 'Miamala' %}</th>
+                        <th class="p-3 text-right">{% trans 'Jumla' %}</th>
+
+                    </tr>
+                </thead>
+
+                <tbody id="employeeReportBody">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    let activeMetric = "gross_sales";
+    let chartType = "bar";
+    let activeTrendMode = "day";
+    let chart = null;
+    let activeModal = null;
+
+    const metricInfo = {
+        gross_sales: {
+            title: "{% trans 'Gross Sales' %}",
+            subtitle: "{% trans 'Mauzo ghafi' %}",
+            description:
+                "{% trans 'Jumla ya bei ya kuuza kabla ya gharama za bidhaa na matumizi.' %}"
+        },
+
+        total_sales: {
+            title: "{% trans 'Total Net Sales' %}",
+            subtitle: "{% trans 'Mauzo yaliyorekodiwa' %}",
+            description:
+                "{% trans 'Jumla ya pesa iliyorekodiwa kwenye mauzo baada ya adjustments.' %}"
+        },
+
+        expenses: {
+            title: "{% trans 'Total Expenses' %}",
+            subtitle: "{% trans 'Matumizi ya kipindi' %}",
+            description:
+                "{% trans 'Jumla ya matumizi yaliyorekodiwa ndani ya kipindi.' %}"
+        },
+
+        profit: {
+            title: "{% trans 'Net Profit' %}",
+            subtitle: "{% trans 'Faida baada ya COGS na matumizi' %}",
+            description:
+                "{% trans 'Net Sales minus Cost of Goods Sold minus Expenses.' %}"
+        }
+    };
+
+    function json(id, fallback) {
+        const node = document.getElementById(id);
+
+        if (!node) return fallback;
+
+        try {
+            return JSON.parse(node.textContent || "");
+        } catch (error) {
+            console.error(
+                "JSON parsing error:",
+                id,
+                error
+            );
+
+            return fallback;
+        }
+    }
+
+    const sales = json(
+        "salesChartData",
+        {labels: [], values: []}
+    );
+
+    const cashflow = json(
+        "cashflowData",
+        {labels: [], values: []}
+    );
+
+    const rawTrending = json(
+        "trendingData",
+        {
+            day: [],
+            week: [],
+            month: []
+        }
+    );
+
+    const normalizeTrending = value =>
+        Array.isArray(value)
+            ? value
+            : (value && value.name)
+                ? [value]
+                : [];
+
+    const trending = {
+        day: normalizeTrending(rawTrending.day),
+        week: normalizeTrending(rawTrending.week),
+        month: normalizeTrending(rawTrending.month),
+    };
+
+    const customers = json(
+        "customerDailyReport",
+        []
+    );
+
+    const employees = json(
+        "employeeDailyReport",
+        [] 
+    );
+
+    function money(value) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return "—";
+
+        const sign = n < 0 ? "-" : "";
+        const abs = Math.abs(n);
+
+        if (abs >= 1000000000) {
+            return `${sign}${(abs / 1000000000).toFixed(abs >= 10000000000 ? 0 : 2).replace(/\.00$/, "")}B`;
+        }
+
+        if (abs >= 1000000) {
+            return `${sign}${(abs / 1000000).toFixed(abs >= 10000000 ? 0 : 2).replace(/\.00$/, "")}M`;
+        }
+
+        if (abs >= 1000) {
+            return `${sign}${(abs / 1000).toFixed(abs >= 100000 ? 0 : 1).replace(/\.0$/, "")}K`;
+        }
+
+        return `${sign}${Math.round(abs).toLocaleString("en-TZ")}`;
+    }
+
+    function compactMetricCards() {
+        document.querySelectorAll(".metric-card[data-metric]").forEach(card => {
+            if (card.dataset.metric === "cashflow") return;
+
+            const valueEl = card.querySelector("h3");
+            if (!valueEl) return;
+
+            const raw = valueEl.textContent.replace(/[^0-9.-]/g, "");
+            if (!raw) return;
+
+            const value = Number(raw);
+            if (!Number.isFinite(value)) return;
+
+            valueEl.textContent = `TZS ${money(value)}`;
+        });
+    }
+
+    function drawMetricSparkline(container, values) {
+        const path = container?.querySelector(".spark-path");
+        const end = container?.querySelector(".spark-end");
+        if (!path || !end) return;
+
+        let points = Array.isArray(values)
+            ? values.map(Number).filter(Number.isFinite)
+            : [];
+
+        if (points.length < 2) {
+            points = points.length === 1
+                ? [points[0], points[0]]
+                : [0, 0, 0, 0, 0, 0];
+        }
+
+        const min = Math.min(...points);
+        const max = Math.max(...points);
+        const range = max - min || Math.max(Math.abs(max) * 0.08, 1);
+        const left = 3;
+        const right = 257;
+        const top = 6;
+        const bottom = 50;
+        const step = (right - left) / (points.length - 1);
+
+        const coords = points.map((value, index) => {
+            const x = left + (step * index);
+            const y = bottom - (((value - min) / range) * (bottom - top));
+            return [x, y];
+        });
+
+        const d = coords
+            .map(([x, y], index) => `${index ? "L" : "M"} ${x.toFixed(1)} ${y.toFixed(1)}`)
+            .join(" ");
+
+        path.setAttribute("d", d);
+
+        const [lastX, lastY] = coords[coords.length - 1];
+        end.setAttribute("cx", lastX.toFixed(1));
+        end.setAttribute("cy", lastY.toFixed(1));
+    }
+
+    function renderMetricSparklines() {
+        const base = Array.isArray(sales?.values) ? sales.values : [];
+        const gross = Number(document.querySelector('[data-metric="gross_sales"] h3')?.textContent.replace(/[^0-9.-]/g, ""));
+        const net = Number(document.querySelector('[data-metric="total_sales"] h3')?.textContent.replace(/[^0-9.-]/g, ""));
+        const ratio = Number.isFinite(gross) && gross > 0 && Number.isFinite(net)
+            ? Math.max(0.65, Math.min(1, net / gross))
+            : 0.82;
+
+        drawMetricSparkline(
+            document.querySelector('[data-sparkline="gross"]'),
+            base
+        );
+
+        drawMetricSparkline(
+            document.querySelector('[data-sparkline="net"]'),
+            base.map(value => Number(value) * ratio)
+        );
+    }
+
+    function safe(value) {
+        return String(
+            value ?? ""
+        )
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function toast(message) {
+
+        const el =
+            document.getElementById(
+                "toastNotification"
+            );
+
+        const text =
+            document.getElementById(
+                "toastMessage"
+            );
+
+        if (!el || !text) return;
+
+        text.textContent = message;
+
+        el.classList.remove(
+            "-translate-y-20",
+            "opacity-0"
+        );
+
+        el.classList.add(
+            "translate-y-0",
+            "opacity-100"
+        );
+
+        clearTimeout(
+            toast.timer
+        );
+
+        toast.timer = setTimeout(
+            () => {
+                el.classList.remove(
+                    "translate-y-0",
+                    "opacity-100"
+                );
+
+                el.classList.add(
+                    "-translate-y-20",
+                    "opacity-0"
+                );
+            },
+            2500
+        );
+    }
+
+    function renderChart() {
+
+        const canvas =
+            document.getElementById(
+                "analysisCanvas"
+            );
+
+        if (
+            !canvas ||
+            typeof Chart === "undefined"
+        ) {
+            return;
+        }
+
+        if (chart) {
+            chart.destroy();
+        }
+
+        const info =
+            metricInfo[activeMetric];
+
+        const labels =
+            activeMetric === "cashflow"
+                ? cashflow.labels
+                : sales.labels;
+
+        const values =
+            activeMetric === "cashflow"
+                ? cashflow.values
+                : sales.values;
+
+        const isPie = chartType === "pie";
+        const isMixed = chartType === "mixed";
+
+        const datasets = isMixed
+            ? [
+                {
+                    type: "bar",
+                    label: info
+                        ? `${info.title} • {% trans 'Bar' %}`
+                        : "{% trans 'Report • Bar' %}",
+                    data: values,
+                    backgroundColor: "rgba(88, 28, 135, .18)",
+                    borderColor: "#581c87",
+                    borderWidth: 1.5,
+                    borderRadius: 8,
+                    maxBarThickness: 34,
+                },
+                {
+                    type: "line",
+                    label: info
+                        ? `${info.title} • {% trans 'Line' %}`
+                        : "{% trans 'Report • Line' %}",
+                    data: values,
+                    backgroundColor: "transparent",
+                    borderColor: "#f59e0b",
+                    borderWidth: 2.5,
+                    tension: .3,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: "#ffffff",
+                    pointBorderColor: "#f59e0b",
+                    pointBorderWidth: 2,
+                },
+            ]
+            : [{
+                label: info
+                    ? info.title
+                    : "Report",
+                data: values,
+                backgroundColor: isPie
+                    ? [
+                        "#10b981",
+                        "#3b82f6",
+                        "#581c87",
+                        "#f59e0b",
+                        "#f43f5e",
+                        "#6366f1"
+                    ]
+                    : chartType === "line"
+                        ? "rgba(245, 158, 11, .08)"
+                        : "rgba(88, 28, 135, .18)",
+                borderColor: chartType === "line"
+                    ? "#f59e0b"
+                    : "#581c87",
+                borderWidth: isPie ? 2 : 2,
+                borderRadius: isPie ? 0 : 8,
+                tension: .3,
+                fill: chartType === "line",
+                maxBarThickness: 34,
+            }];
+
+        chart = new Chart(
+            canvas.getContext("2d"),
+            {
+                type: isMixed ? "bar" : chartType,
+                data: {
+                    labels: labels,
+                    datasets: datasets,
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: "index",
+                    },
+                    plugins: {
+                        legend: {
+                            display: isPie || isMixed,
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 8,
+                                boxHeight: 8,
+                                padding: 16,
+                                font: {
+                                    size: 10,
+                                    weight: "700",
+                                },
+                            },
+                        },
+                    },
+                    scales: isPie
+                        ? {}
+                        : {
+                            x: {
+                                grid: {
+                                    display: false,
+                                },
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: "rgba(148,163,184,.12)",
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 10,
+                                    },
+                                },
+                            },
+                        },
+                },
+            }
+        );
+    }
+
+    function selectMetric(key) {
+
+        if (!metricInfo[key]) {
+            return;
+        }
+
+        activeMetric = key;
+
+        document.querySelectorAll(
+            ".metric-card"
+        ).forEach(
+            card =>
+                card.classList.remove(
+                    "active-metric"
+                )
+        );
+
+        document.querySelector(
+            `[data-metric="${key}"]`
+        )?.classList.add(
+            "active-metric"
+        );
+
+        document.getElementById(
+            "chartTitle"
+        ).textContent =
+            "{% trans 'Analysis:' %} " +
+            metricInfo[key].title;
+
+        document.getElementById(
+            "chartSubtitle"
+        ).textContent =
+            metricInfo[key].subtitle;
+
+        renderChart();
+
+        toast(
+            metricInfo[key].title +
+            " imepakiwa."
+        );
+    }
+
+    function selectChartType(type) {
+
+        if (
+            !["bar", "line", "mixed", "pie"]
+                .includes(type)
+        ) {
+            return;
+        }
+
+        chartType = type;
+
+        document.querySelectorAll(
+            ".chart-type-btn"
+        ).forEach(
+            button => {
+                button.classList.remove(
+                    "is-active"
+                );
+            }
+        );
+
+        const active =
+            document.querySelector(
+                `[data-chart-type="${type}"]`
+            );
+
+        if (active) {
+            active.classList.add(
+                "is-active"
+            );
+        }
+
+        renderChart();
+    }
+
+    function openModal(
+        modalId
+    ) {
+
+        const modal =
+            document.getElementById(
+                modalId
+            );
+
+        const card =
+            document.getElementById(
+                modalId + "Card"
+            );
+
+        if (!modal || !card) {
+            return;
+        }
+
+        activeModal = modal;
+
+        modal.classList.remove(
+            "hidden",
+            "opacity-0"
+        );
+
+        modal.classList.add(
+            "flex"
+        );
+
+        modal.style.opacity = "1";
+
+        card.classList.remove(
+            "scale-95",
+            "opacity-0"
+        );
+
+        card.classList.add(
+            "scale-100",
+            "opacity-100"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+    }
+
+    function closeModal(
+        modalId
+    ) {
+
+        const modal =
+            document.getElementById(
+                modalId
+            );
+
+        const card =
+            document.getElementById(
+                modalId + "Card"
+            );
+
+        if (!modal || !card) {
+            return;
+        }
+
+        modal.classList.add(
+            "opacity-0"
+        );
+
+        card.classList.remove(
+            "scale-100",
+            "opacity-100"
+        );
+
+        card.classList.add(
+            "scale-95",
+            "opacity-0"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        setTimeout(
+            () => {
+
+                modal.classList.add(
+                    "hidden"
+                );
+
+                modal.classList.remove(
+                    "flex"
+                );
+
+                activeModal = null;
+
+            },
+            250
+        );
+    }
+
+    window.funguaMetricDetail =
+        function (title, key) {
+
+            document.getElementById(
+                "detailTitle"
+            ).textContent = title;
+
+            const card =
+                document.querySelector(
+                    `[data-metric="${key}"]`
+                );
+
+            const value =
+                card
+                    ?.querySelector("h3")
+                    ?.textContent
+                    ?.trim() || "—";
+
+            document.getElementById(
+                "detailValue"
+            ).textContent =
+                value;
+
+            document.getElementById(
+                "detailText"
+            ).textContent =
+                metricInfo[key]?.description || "";
+
+            openModal(
+                "detailModal"
+            );
+        };
+
+    function renderCashFlow() {
+
+        const body =
+            document.getElementById(
+                "cashFlowBody"
+            );
+
+        const totalEl =
+            document.getElementById(
+                "cashFlowTotal"
+            );
+
+        if (!body || !totalEl) return;
+
+        body.innerHTML = "";
+
+        let total = 0;
+
+        if (
+            !cashflow.labels.length
+        ) {
+
+            body.innerHTML = `
+                <div class="tc-empty
+                            p-6 rounded-2xl
+                            text-center">
+                    <p class="text-sm
+                              font-black
+                              text-gray-500">
+                        Hakuna cash flow data
+                        kwa kipindi hiki.
+                    </p>
+                </div>
+            `;
+
+            totalEl.textContent = "—";
+            return;
+
+        } else {
+
+            cashflow.labels.forEach(
+                (label, index) => {
+
+                    const amount =
+                        Number(
+                            cashflow.values[index] || 0
+                        );
+
+                    total += amount;
+
+                    body.insertAdjacentHTML(
+                        "beforeend",
+                        `
+                        <div class="flex justify-between
+                                    items-center
+                                    p-4 bg-gray-50
+                                    rounded-2xl
+                                    border border-gray-100">
+
+                            <span class="font-black
+                                         text-gray-700">
+                                ${safe(label)}
+                            </span>
+
+                            <span class="font-black
+                                         text-purple-900">
+                                TZS ${money(amount)}
+                            </span>
+
+                        </div>
+                        `
+                    );
+                }
+            );
+
+        }
+
+        totalEl.textContent =
+            "TZS " +
+            money(total);
+    }
+
+    function renderTrending(mode) {
+        const items = Array.isArray(trending[mode])
+            ? trending[mode]
+            : [];
+
+        const listContainer = document.getElementById(
+            "trendingList"
+        );
+        if (!listContainer) return;
+
+        activeTrendMode = mode;
+        listContainer.innerHTML = "";
+
+        if (!items.length) {
+            listContainer.innerHTML = `
+                <div class="text-center p-6 bg-white/55 rounded-3xl border border-amber-100/70">
+                    <p class="text-sm font-bold text-amber-600">
+                        Hakuna data ya mauzo kwa kipindi hiki.
+                    </p>
+                </div>`;
+        } else {
+            items.slice(0, 3).forEach((item, idx) => {
+                const quantity = Number(item.quantity);
+                const quantityText = Number.isFinite(quantity)
+                    ? quantity.toLocaleString("en-TZ")
+                    : "—";
+
+                const percent = Number(item.percent);
+                const hasPercent = Number.isFinite(percent);
+                const isNew = item.percent === null || item.percent === undefined;
+                const isUp = item.up === true || (hasPercent && percent > 0);
+                const isDown = item.up === false && hasPercent && percent < 0;
+                const trendClass = isNew
+                    ? "trend-up"
+                    : isUp
+                        ? "trend-up"
+                        : isDown
+                            ? "trend-down"
+                            : "trend-flat";
+                const arrow = isNew || isUp
+                    ? "↗"
+                    : isDown
+                        ? "↘"
+                        : "→";
+                const trendText = isNew
+                    ? "New"
+                    : hasPercent
+                        ? `${Math.abs(percent).toLocaleString("en-TZ", {maximumFractionDigits: 1})}%`
+                        : "—";
+
+                listContainer.insertAdjacentHTML("beforeend", `
+                    <div class="flex items-center justify-between gap-3 p-4 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                         ondblclick="funguaTrendingDetail()">
+
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-9 h-9 shrink-0 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center font-black text-xs border border-amber-100">
+                                #${idx + 1}
+                            </div>
+
+                            <div class="min-w-0">
+                                <p class="font-black text-gray-800 text-sm truncate pr-2">
+                                    ${safe(item.name || "—")}
+                                </p>
+                                <p class="text-[10px] text-gray-500 font-bold mt-0.5">
+                                    Pcs ${quantityText} zimeuzwa
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="inline-flex items-center gap-1.5 border px-2.5 py-1.5 rounded-full text-[10px] font-black ${trendClass} shrink-0"
+                             title="{% trans 'Mabadiliko dhidi ya kipindi kilichopita' %}">
+                            <span class="text-[13px] leading-none">${arrow}</span>
+                            <span>${trendText}</span>
+                        </div>
+
+                    </div>
+                `);
+            });
+        }
+
+        document.querySelectorAll(
+            ".trend-period-btn"
+        ).forEach(button => {
+            button.classList.toggle(
+                "is-active",
+                button.id === `trend${mode.charAt(0).toUpperCase()}${mode.slice(1)}`
+            );
+        });
+    }
+
+    function renderCustomerReport() {
+
+        const body =
+            document.getElementById(
+                "customerReportBody"
+            );
+
+        body.innerHTML = "";
+
+        if (!customers.length) {
+
+            body.innerHTML = `
+                <tr>
+                    <td colspan="6"
+                        class="p-10 text-center">
+                        Hakuna mauzo ya wateja leo.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        customers.forEach(
+            row => {
+
+                body.insertAdjacentHTML(
+                    "beforeend",
+                    `
+                    <tr class="border-b
+                               border-gray-100">
+
+                        <td class="p-4
+                                   font-black">
+                            ${safe(row.customer)}
+                        </td>
+
+                        <td class="p-4
+                                   text-center
+                                   font-bold">
+                            ${safe(row.day || "—")}
+                        </td>
+
+                        <td class="p-4
+                                   text-center
+                                   text-xs">
+                            ${safe(row.date || "—")}
+                        </td>
+
+                        <td class="p-4
+                                   text-center">
+                            ${safe(row.time)}
+                        </td>
+
+                        <td class="p-4 text-xs">
+                            ${safe(row.product)}
+                            × ${Number(
+                                row.quantity || 0
+                            )}
+                        </td>
+
+                        <td class="p-4
+                                   text-right
+                                   font-black
+                                   text-emerald-600">
+                            TZS ${money(row.amount)}
+                        </td>
+
+                    </tr>
+                    `
+                );
+
+            }
+        );
+    }
+
+    function renderEmployeeReport() {
+
+        const body =
+            document.getElementById(
+                "employeeReportBody"
+            );
+
+        body.innerHTML = "";
+
+        if (!employees.length) {
+
+            body.innerHTML = `
+                <tr>
+                    <td colspan="3"
+                        class="p-10 text-center">
+                        Hakuna mauzo ya wafanyakazi leo.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        employees.forEach(
+            row => {
+
+                body.insertAdjacentHTML(
+                    "beforeend",
+                    `
+                    <tr class="border-b
+                               border-gray-100">
+
+                        <td class="p-4
+                                   font-black">
+                            ${safe(row.name)}
+                        </td>
+
+                        <td class="p-4
+                                   text-center
+                                   font-black">
+                            ${Number(
+                                row.transactions || 0
+                            )}
+                        </td>
+
+                        <td class="p-4
+                                   text-right
+                                   font-black
+                                   text-emerald-600">
+                            TZS ${money(row.total_sales)}
+                        </td>
+
+                    </tr>
+                    `
+                );
+
+            }
+        );
+    }
+
+    window.funguaCashFlowModal =
+        function () {
+
+            renderCashFlow();
+            openModal(
+                "cashFlowModal"
+            );
+
+        };
+
+    window.funguaCustomerReportModal =
+        function () {
+
+            renderCustomerReport();
+
+            openModal(
+                "customerReportModal"
+            );
+
+        };
+
+    window.funguaEmployeeReportModal =
+        function () {
+
+            renderEmployeeReport();
+
+            openModal(
+                "employeeReportModal"
+            );
+
+        };
+
+    window.funguaTrendingDetail =
+        function () {
+
+            const mode = activeTrendMode || "day";
+            const labels = {
+                day: "{% trans 'Siku Leo' %}",
+                week: "{% trans 'Wiki Hii' %}",
+                month: "{% trans 'Mwezi Huu' %}",
+            };
+
+            const items = Array.isArray(
+                trending[mode]
+            )
+                ? trending[mode]
+                : [];
+
+            const topItem = items[0] || null;
+            const percent = topItem
+                ? Number(topItem.percent)
+                : NaN;
+            const hasPercent = Number.isFinite(percent);
+            const change = topItem
+                ? (
+                    topItem.percent === null || topItem.percent === undefined
+                        ? "New"
+                        : hasPercent
+                            ? `${Math.abs(percent)}% ${percent > 0 ? "↗" : percent < 0 ? "↘" : "→"}`
+                            : "—"
+                )
+                : "—";
+
+            document.getElementById(
+                "detailTitle"
+            ).textContent =
+                `{% trans 'Trending:' %} ${labels[mode] || mode}`;
+
+            document.getElementById(
+                "detailValue"
+            ).textContent =
+                topItem
+                    ? `${topItem.name || "—"} • Pcs ${Number(topItem.quantity || 0).toLocaleString("en-TZ")}`
+                    : "{% trans 'Hakuna data' %}";
+
+            document.getElementById(
+                "detailText"
+            ).textContent =
+                topItem
+                    ? `Bidhaa iliyoongoza kwa quantity ndani ya ${labels[mode] || "kipindi hiki"}. Mabadiliko dhidi ya kipindi kilichopita: ${change}.`
+                    : "{% trans 'Hakuna mauzo yaliyopatikana.' %}";
+
+            openModal(
+                "detailModal"
+            );
+        };
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+
+            compactMetricCards();
+            renderMetricSparklines();
+            renderChart();
+            const defaultTrendMode = trending.day.length
+                ? "day"
+                : "week";
+            renderTrending(defaultTrendMode);
+
+            document.querySelectorAll(
+                ".metric-card"
+            ).forEach(
+                card =>
+                    card.addEventListener(
+                        "click",
+                        () =>
+                            selectMetric(
+                                card.dataset.metric
+                            )
+                    )
+            );
+
+            document.querySelectorAll(
+                ".chart-type-btn"
+            ).forEach(
+                button =>
+                    button.addEventListener(
+                        "click",
+                        () =>
+                            selectChartType(
+                                button.dataset.chartType
+                            )
+                    )
+            );
+
+            ["day", "week", "month"].forEach(
+                mode => {
+                    const button = document.getElementById(
+                        `trend${mode.charAt(0).toUpperCase()}${mode.slice(1)}`
+                    );
+
+                    button?.addEventListener(
+                        "click",
+                        () => {
+                            renderTrending(mode);
+                        }
+                    );
+                }
+            );
+
+            document.getElementById(
+                "customerReportBtn"
+            )?.addEventListener(
+                "click",
+                window.funguaCustomerReportModal
+            );
+
+            document.getElementById(
+                "employeeReportBtn"
+            )?.addEventListener(
+                "click",
+                window.funguaEmployeeReportModal
+            );
+
+            document.querySelectorAll(
+                "[data-close]"
+            ).forEach(
+                button =>
+                    button.addEventListener(
+                        "click",
+                        () =>
+                            closeModal(
+                                button.dataset.close
+                            )
+                    )
+            );
+
+            document.querySelectorAll(
+                "[role='dialog']"
+            ).forEach(
+                modal =>
+                    modal.addEventListener(
+                        "mousedown",
+                        event => {
+
+                            if (
+                                event.target === modal
+                            ) {
+                                closeModal(
+                                    modal.id
+                                );
+                            }
+
+                        }
+                    )
+            );
+
+        }
+    );
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (!activeModal) {
+                return;
+            }
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeModal(
+                    activeModal.id
+                );
+
+            }
+
+        }
+    );
+
+})();
+</script>
+
+<!-- =========================================================
+     RIPOTI — SCROLL, HEADER & PRINT SUPPORT
+     Page-specific styling; shared base architecture remains untouched.
+========================================================= -->
+<style>
+    /* The lower report content scrolls; the greeting/header stays visually fixed. */
+    body:has(#analysisCanvas) #ripotiPageScroll {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-gutter: stable !important;
+        padding-right: 4px !important;
+        padding-bottom: 42px !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+
+    body:has(#analysisCanvas) #ripotiPageScroll::-webkit-scrollbar {
+        width: 7px !important;
+    }
+
+    body:has(#analysisCanvas) #ripotiPageScroll::-webkit-scrollbar-track {
+        background: transparent !important;
+    }
+
+    body:has(#analysisCanvas) #ripotiPageScroll::-webkit-scrollbar-thumb {
+        background: rgba(88,28,135,.18) !important;
+        border-radius: 999px !important;
+    }
+
+    body:has(#analysisCanvas) .ripoti-hello-static {
+        position: relative !important;
+        z-index: 50 !important;
+        flex: 0 0 auto !important;
+        isolation: isolate !important;
+        background: linear-gradient(
+            180deg,
+            rgba(255,255,255,.90) 0%,
+            rgba(255,255,255,.68) 70%,
+            rgba(255,255,255,.24) 100%
+        ) !important;
+        border: 1px solid rgba(255,255,255,.62) !important;
+        box-shadow:
+            0 12px 34px rgba(15,23,42,.055),
+            inset 0 1px 0 rgba(255,255,255,.86) !important;
+        backdrop-filter: blur(18px) saturate(145%) !important;
+        -webkit-backdrop-filter: blur(18px) saturate(145%) !important;
+    }
+
+    body:has(#analysisCanvas) .ripoti-hello-static::after {
+        content: "" !important;
+        position: absolute !important;
+        left: -1px !important;
+        right: -1px !important;
+        bottom: -1px !important;
+        height: 42px !important;
+        pointer-events: none !important;
+        z-index: 2 !important;
+        background: linear-gradient(
+            180deg,
+            rgba(255,255,255,.52) 0%,
+            rgba(255,255,255,.24) 40%,
+            rgba(255,255,255,0) 100%
+        ) !important;
+        filter: blur(1px) !important;
+        mask-image: linear-gradient(to bottom, #000 0%, transparent 100%) !important;
+        -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 100%) !important;
+    }
+
+    @media (min-width: 768px) {
+        body:has(#analysisCanvas) .content-wrapper > div:first-child {
+            display: flex !important;
+            flex-direction: column !important;
+            min-height: 0 !important;
+            overflow: hidden !important;
+        }
+    }
+
+    /* Dedicated print document; this is intentionally not the dashboard DOM. */
+    #ripotiPrintReport {
+        display: none !important;
+    }
+</style>
+
+<script>
+(function () {
+    "use strict";
+
+    function esc(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function jsonData(id, fallback) {
+        const node = document.getElementById(id);
+        if (!node) return fallback;
+        try {
+            return JSON.parse(node.textContent || "");
+        } catch (e) {
+            console.error("Ripoti print JSON error:", id, e);
+            return fallback;
+        }
+    }
+
+    function money(value) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return "—";
+
+        const sign = n < 0 ? "-" : "";
+        const abs = Math.abs(n);
+
+        if (abs >= 1000000000) {
+            return `${sign}${(abs / 1000000000).toFixed(abs >= 10000000000 ? 0 : 2).replace(/\.00$/, "")}B`;
+        }
+
+        if (abs >= 1000000) {
+            return `${sign}${(abs / 1000000).toFixed(abs >= 10000000 ? 0 : 2).replace(/\.00$/, "")}M`;
+        }
+
+        if (abs >= 1000) {
+            return `${sign}${(abs / 1000).toFixed(abs >= 100000 ? 0 : 1).replace(/\.0$/, "")}K`;
+        }
+
+        return `${sign}${Math.round(abs).toLocaleString("en-TZ")}`;
+    }
+
+    function currentPeriodLabel() {
+        const select = document.querySelector('select[name="period"]');
+        return select?.options?.[select.selectedIndex]?.textContent?.trim()
+            || "{% trans 'Kipindi cha ripoti' %}";
+    }
+
+    function currentMetricKey() {
+        return document.querySelector('.metric-card.active-metric')?.dataset?.metric
+            || "gross_sales";
+    }
+
+    function currentMetricTitle() {
+        const title = document.getElementById("chartTitle")?.textContent?.trim() || "Analysis";
+        return title.replace(/^Analysis:\s*/i, "");
+    }
+
+    function metricValue(key) {
+        return document.querySelector(`[data-metric="${key}"] h3`)?.textContent?.trim() || "—";
+    }
+
+    function trendText(item) {
+        if (!item) return { text: "—", cls: "neutral" };
+        if (item.percent === null || item.percent === undefined) {
+            return { text: "{% trans 'New ↗' %}", cls: "up" };
+        }
+        const pct = Number(item.percent);
+        if (!Number.isFinite(pct)) return { text: "—", cls: "neutral" };
+        if (pct > 0) return { text: `${Math.abs(pct)}% ↗`, cls: "up" };
+        if (pct < 0) return { text: `${Math.abs(pct)}% ↘`, cls: "down" };
+        return { text: "{% trans '0% →' %}", cls: "neutral" };
+    }
+
+    // =========================================================================
+    // PROFESSIONAL A4 PRINT ENGINE
+    // =========================================================================
+
+    function makePrintHtml() {
+        const sales = jsonData("salesChartData", { labels: [], values: [] });
+        const cashflow = jsonData("cashflowData", { labels: [], values: [] });
+        const trending = jsonData("trendingData", { day: [], week: [], month: [] });
+        const customers = jsonData("customerDailyReport", []);
+        const employees = jsonData("employeeDailyReport", []);
+        
+        // 1. Kamata Picha ya Chati
+        const canvas = document.getElementById("analysisCanvas");
+        let chartSrc = "";
+        if (canvas) {
+            const tempCanvas = document.createElement("canvas");
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const ctx = tempCanvas.getContext("2d");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            ctx.drawImage(canvas, 0, 0);
+            chartSrc = tempCanvas.toDataURL("image/png");
+        }
+
+        const now = new Date();
+        const generated = now.toLocaleString("sw-TZ", {
+            year: "numeric", month: "short", day: "2-digit",
+            hour: "2-digit", minute: "2-digit"
+        });
+
+        // 2. Jenga Jedwali la Cashflow
+        let cfTotal = 0;
+        const cfRows = (cashflow.labels || []).map((lbl, i) => {
+            const amt = Number(cashflow.values[i] || 0);
+            cfTotal += amt;
+            return `<tr><td class="strong">${esc(lbl)}</td><td class="right">TZS ${money(amt)}</td></tr>`;
+        }).join("");
+        const cashflowHtml = `
+            <section class="section">
+                <h2>{% trans 'Cash Flow / Njia za Malipo' %}</h2>
+                <table>
+                    <thead><tr><th>{% trans 'Njia ya Malipo' %}</th><th class="right" style="width:30%">{% trans 'Jumla' %}</th></tr></thead>
+                    <tbody>${cfRows || '<tr><td colspan="2" class="center muted">{% trans 'Hakuna data ya malipo.' %}</td></tr>'}</tbody>
+                    <tfoot><tr><td class="strong">{% trans 'Jumla ya Makusanyo' %}</td><td class="right up">TZS ${money(cfTotal)}</td></tr></tfoot>
+                </table>
+            </section>`;
+
+        // 3. Jenga Jedwali la Trending
+        const trItems = (trending["week"] || []).slice(0, 3);
+        const trRows = trItems.map((item, i) => {
+            let tText = "—", tCls = "muted";
+            if (item.percent == null) { tText = "{% trans 'New ↗' %}"; tCls = "up"; }
+            else if (item.percent > 0) { tText = `${Math.abs(item.percent)}% ↗`; tCls = "up"; }
+            else if (item.percent < 0) { tText = `${Math.abs(item.percent)}% ↘`; tCls = "down"; }
+            else { tText = "{% trans '0% →' %}"; }
+            return `<tr>
+                <td class="center">${i+1}</td>
+                <td class="strong">${esc(item.name)}</td>
+                <td class="right">${money(item.quantity)}</td>
+                <td class="right ${tCls}">${tText}</td>
+            </tr>`;
+        }).join("");
+        const trendingHtml = `
+            <section class="section">
+                <h2>{% trans 'Top 3 Trending (Wiki Hii)' %}</h2>
+                <table>
+                    <thead><tr><th class="center" style="width:5%">#</th><th>{% trans 'Bidhaa' %}</th><th class="right" style="width:20%">{% trans 'Quantity' %}</th><th class="right" style="width:20%">{% trans 'Mabadiliko' %}</th></tr></thead>
+                    <tbody>${trRows || '<tr><td colspan="4" class="center muted">{% trans 'Hakuna data ya mauzo.' %}</td></tr>'}</tbody>
+                </table>
+            </section>`;
+
+        // 4. Jenga Jedwali la Wateja (Hapa tumeondoa fixed widths ili Bidhaa ipumue)
+        const custRows = customers.map(row => `<tr>
+            <td class="strong">${esc(row.customer || "{% trans 'Walk-in' %}")}</td>
+            <td class="center">${esc(row.day || "—")}</td>
+            <td class="center">${esc(row.date || "—")}</td>
+            <td class="center">${esc(row.time || "—")}</td>
+            <td>${esc(row.product)} &times; ${Number(row.quantity||0)}</td>
+            <td class="right up">TZS ${money(row.amount)}</td>
+        </tr>`).join("");
+        const custHtml = `
+            <div class="page-break-before"></div>
+            <section class="section">
+                <h2>{% trans 'Ripoti ya Wateja (Customer Daily Report)' %}</h2>
+                <table>
+                    <thead><tr><th>{% trans 'Mteja' %}</th><th class="center">{% trans 'Siku' %}</th><th class="center">{% trans 'Tarehe' %}</th><th class="center">{% trans 'Muda' %}</th><th>{% trans 'Bidhaa' %}</th><th class="right">{% trans 'Kiasi' %}</th></tr></thead>
+                    <tbody>${custRows || '<tr><td colspan="6" class="center muted">{% trans 'Hakuna mauzo ya wateja.' %}</td></tr>'}</tbody>
+                </table>
+            </section>`;
+
+        // 5. Jenga Jedwali la Wafanyakazi
+        const empRows = employees.map(row => `<tr>
+            <td class="strong">${esc(row.name)}</td>
+            <td class="center">${Number(row.transactions||0)}</td>
+            <td class="right up">TZS ${money(row.total_sales)}</td>
+        </tr>`).join("");
+        const empHtml = `
+            <section class="section">
+                <h2>{% trans 'Ripoti ya Wafanyakazi (Employee Daily Report)' %}</h2>
+                <table>
+                    <thead><tr><th>{% trans 'Mfanyakazi' %}</th><th class="center" style="width:20%">{% trans 'Miamala' %}</th><th class="right" style="width:30%">{% trans 'Jumla' %}</th></tr></thead>
+                    <tbody>${empRows || '<tr><td colspan="3" class="center muted">{% trans 'Hakuna mauzo ya wafanyakazi.' %}</td></tr>'}</tbody>
+                </table>
+            </section>`;
+
+        // 6. Unganisha Karatasi Kamili ya A4
+        return `<!doctype html>
+<html lang="sw">
+<head>
+<meta charset="utf-8">
+<title>TradeCore — {% trans 'Ripoti Rasmi ya Biashara' %}</title>
+<style>
+@page { size: A4 portrait; margin: 12mm; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+body { margin: 0; padding: 0; background: #ffffff; color: #1f2937; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9pt; line-height: 1.4; }
+
+.sheet { width: 100%; max-width: 185mm; margin: 0 auto; }
+
+/* Kichwa */
+.header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #581c87; padding-bottom: 12px; margin-bottom: 20px; }
+.brand-area h1 { margin: 0; font-size: 26pt; font-weight: 900; color: #581c87; letter-spacing: -0.5px; line-height: 1; }
+.brand-area .doc-type { margin: 4px 0 0 0; font-size: 10pt; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; }
+.meta-area { text-align: right; }
+.meta-area .period { font-size: 12pt; font-weight: 800; color: #111827; margin: 0 0 4px 0; }
+.meta-area .date { font-size: 8pt; color: #6b7280; margin: 0; }
+
+/* Metrics */
+.summary { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.metric { flex: 1; padding: 12px 10px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; }
+.metric.highlight { background: #581c87; border-color: #581c87; }
+.metric-label { font-size: 7pt; color: #64748b; text-transform: uppercase; font-weight: 800; margin-bottom: 4px; }
+.metric-value { font-size: 13pt; font-weight: 800; color: #0f172a; }
+.metric.highlight .metric-label { color: #d8b4fe; }
+.metric.highlight .metric-value { color: #fcd34d; }
+
+/* Sections */
+.section { margin-bottom: 20px; } /* Tumeondoa page-break-inside:avoid hapa kuruhusu jedwali litiririke */
+.section h2 { margin: 0 0 10px 0; padding: 6px 10px; background: #f3f4f6; color: #4c1d95; font-size: 9.5pt; font-weight: 800; text-transform: uppercase; border-left: 4px solid #581c87; }
+
+/* Majedwali mapya yanayopumua (Auto Layout) */
+table { width: 100%; border-collapse: collapse; margin-bottom: 8px; table-layout: auto; }
+th, td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #e2e8f0; vertical-align: middle; word-wrap: break-word; }
+th { background: #f8fafc; color: #334155; font-size: 7.5pt; font-weight: 800; text-transform: uppercase; border-bottom: 2px solid #cbd5e1; border-top: 1px solid #e2e8f0; white-space: nowrap; }
+tr { page-break-inside: avoid; break-inside: avoid; } /* Inazuia mstari usikatwe kati kati */
+tr:nth-child(even) td { background-color: #f8fafc; }
+tfoot td { background: #f1f5f9; font-weight: 800; border-top: 2px solid #cbd5e1; }
+
+.right { text-align: right; }
+.center { text-align: center; }
+.strong { font-weight: 800; color: #111827; }
+.up { color: #059669; font-weight: 800; }
+.down { color: #e11d48; font-weight: 800; }
+.muted { color: #64748b; }
+
+.chart-box { border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 16px; background: #fff; page-break-inside: avoid; }
+.chart-box img { max-width: 100%; max-height: 75mm; object-fit: contain; }
+
+/* Sahihi na Footer */
+.signatures { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; page-break-inside: avoid; }
+.sign-box { width: 40%; text-align: center; }
+.sign-line { border-top: 1px dashed #94a3b8; padding-top: 6px; font-size: 8.5pt; color: #475569; font-weight: 700; margin-top: 40px; }
+
+.footer { margin-top: 15px; padding-top: 10px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 7.5pt; color: #94a3b8; }
+.page-break-before { break-before: page; page-break-before: always; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+    <header class="header">
+        <div class="brand-area">
+            <h1>TRADECORE</h1>
+            <p class="doc-type">{% trans 'Ripoti Rasmi ya Biashara' %}</p>
+        </div>
+        <div class="meta-area">
+            <h2 class="period">${esc(currentPeriodLabel())}</h2>
+            <p class="date">{% trans 'Imechapishwa:' %} ${esc(generated)}</p>
+        </div>
+    </header>
+
+    <section class="section">
+        <h2>{% trans 'Muhtasari wa Fedha' %}</h2>
+        <div class="summary">
+            <div class="metric"><div class="metric-label">{% trans 'Gross Sales' %}</div><div class="metric-value">${esc(metricValue("gross_sales"))}</div></div>
+            <div class="metric"><div class="metric-label">{% trans 'Total Net Sales' %}</div><div class="metric-value">${esc(metricValue("total_sales"))}</div></div>
+            <div class="metric"><div class="metric-label">{% trans 'Total Expenses' %}</div><div class="metric-value">${esc(metricValue("expenses"))}</div></div>
+            <div class="metric highlight"><div class="metric-label">{% trans 'Net Profit' %}</div><div class="metric-value">${esc(metricValue("profit"))}</div></div>
+        </div>
+    </section>
+
+    ${chartSrc ? `
+    <section class="section">
+        <h2>{% trans 'Uchambuzi wa Grafu' %} (${esc(currentMetricTitle())})</h2>
+        <div class="chart-box"><img src="${chartSrc}" alt="{% trans 'Analysis chart' %}"></div>
+    </section>` : ''}
+
+    ${cashflowHtml}
+    ${trendingHtml}
+    ${custHtml}
+    ${empHtml}
+
+    <div class="signatures">
+        <div class="sign-box"><div class="sign-line">{% trans 'Sahihi ya Muandaaji' %}</div></div>
+        <div class="sign-box"><div class="sign-line">{% trans 'Sahihi ya Meneja / Boss' %}</div></div>
+    </div>
+
+    <footer class="footer">
+        TradeCore POS &copy; ${now.getFullYear()} • {% trans 'Imesindikwa na Mfumo wa TradeCore Business Intelligence' %}
+    </footer>
+
+</div>
+</body></html>`;
+    }
+
+    window.printRipotiReport = function () {
+        // 1. Kusanya data na kutengeneza HTML ya document
+        const htmlData = makePrintHtml();
+        
+        // 2. Tunatumia Iframe iliyofichwa badala ya Pop-up kuzuia 'about:blank' na Ad-blockers
+        let printFrame = document.getElementById("tradecore-print-frame");
+        if (!printFrame) {
+            printFrame = document.createElement("iframe");
+            printFrame.id = "tradecore-print-frame";
+            // Ficha iframe isiweze kuonekana kwenye kioo
+            printFrame.style.position = "absolute";
+            printFrame.style.width = "0";
+            printFrame.style.height = "0";
+            printFrame.style.border = "none";
+            document.body.appendChild(printFrame);
+        }
+
+        // 3. Andika ripoti rasmi ndani ya hiyo iframe nyuma ya pazia
+        const frameDoc = printFrame.contentWindow.document;
+        frameDoc.open();
+        frameDoc.write(htmlData);
+        frameDoc.close();
+
+        // 4. Subiri nusu sekunde ili chati ipate muda wa kuchoreka, kisha fungua Print Dialog!
+        setTimeout(() => {
+            printFrame.contentWindow.focus();
+            printFrame.contentWindow.print();
+        }, 500);
+    };
+    
+    function findGreeting(host) {
+        const candidates = Array.from(host.querySelectorAll("div,section,article,header,aside,[data-greeting]"));
+        const matches = candidates.filter(el => {
+            const text = (el.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
+            return el.matches(".greeting,[data-greeting]")
+                || ((text.includes("welcome back") || text.includes("karibu tena")) && text.length <= 260);
+        });
+        if (!matches.length) return null;
+        const hostRect = host.getBoundingClientRect();
+        const scored = matches.map(el => {
+            const r = el.getBoundingClientRect();
+            return {
+                el,
+                score:
+                    (r.width >= hostRect.width * .5 ? 20 : 0) +
+                    (r.height <= 220 ? 15 : 0) +
+                    (r.top >= hostRect.top - 12 ? 10 : 0) +
+                    (el.matches(".greeting,[data-greeting]") ? 50 : 0)
+            };
+        }).sort((a,b) => b.score - a.score);
+        return scored[0]?.el || null;
+    }
+
+    function setupScroll() {
+        const host = document.querySelector('body:has(#analysisCanvas) .content-wrapper > div:first-child');
+        if (!host || host.dataset.ripotiScrollReady === "1") return;
+
+        const hello = findGreeting(host);
+        const scroll = document.createElement("div");
+        scroll.id = "ripotiPageScroll";
+
+        const nodes = Array.from(host.childNodes);
+        const directHello = !!hello && hello.parentElement === host;
+
+        if (directHello) {
+            hello.classList.add("ripoti-hello-static");
+            nodes.forEach(node => {
+                if (node !== hello) scroll.appendChild(node);
+            });
+            host.appendChild(scroll);
+        } else {
+            nodes.forEach(node => scroll.appendChild(node));
+            host.appendChild(scroll);
+            if (hello) {
+                hello.classList.add("ripoti-hello-static");
+                hello.style.position = "sticky";
+                hello.style.top = "0";
+                hello.style.marginBottom = "0";
+                hello.style.zIndex = "50";
+            }
+        }
+
+        host.style.minHeight = "0";
+        host.style.overflow = "hidden";
+        host.style.display = "flex";
+        host.style.flexDirection = "column";
+        host.style.height = Math.max(320, Math.floor(window.innerHeight - host.getBoundingClientRect().top - 8)) + "px";
+        host.dataset.ripotiScrollReady = "1";
+
+        function fit() {
+            const r = host.getBoundingClientRect();
+            const h = Math.floor(window.innerHeight - r.top - 8);
+            if (h > 320) host.style.height = h + "px";
+        }
+        window.addEventListener("resize", fit, { passive: true });
+        requestAnimationFrame(fit);
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", setupScroll, { once: true });
+    } else {
+        setupScroll();
+    }
+})();
+</script>
+
+{% endblock %}

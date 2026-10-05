@@ -1,0 +1,1094 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'sw' }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#f7f5fa">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>{% trans 'TradeCore Premium' %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --tc-purple: #5b21b6;
+            --tc-purple-dark: #3f156f;
+            --tc-purple-soft: rgba(91,33,182,.07);
+            --tc-gold: #d4af37;
+            --tc-ink: #17131d;
+            --tc-muted: #766f80;
+            --tc-bg: #f7f5fa;
+            --tc-line: rgba(31,25,45,.09);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html { background: var(--tc-bg); scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+            color: var(--tc-ink);
+            background:
+                radial-gradient(circle at 12% 0%, rgba(91,33,182,.07), transparent 28%),
+                radial-gradient(circle at 88% 100%, rgba(212,175,55,.08), transparent 28%),
+                var(--tc-bg);
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        button, input { font: inherit; }
+
+        /* APPLE TYPOGRAPHY — SF Pro system stack */
+        .tc-brand-name,
+        .tc-hero h1,
+        .tc-title,
+        .tc-price strong,
+        .tc-side h2,
+        .tc-sheet h3 {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            font-synthesis: none;
+        }
+
+        .tc-hero h1 { font-weight: 750; letter-spacing: -0.045em; }
+        .tc-title { font-weight: 700; letter-spacing: -0.035em; }
+        .tc-price strong { font-weight: 750; letter-spacing: -0.04em; }
+        .tc-brand-name { font-weight: 650; letter-spacing: -0.025em; }
+        .tc-side h2, .tc-sheet h3 { font-weight: 650; letter-spacing: -0.025em; }
+        .tc-feature, .tc-method b, .tc-primary, .tc-kicker, .tc-badge { font-weight: 600; }
+        .tc-hero p, .tc-copy, .tc-side p, .tc-note, .tc-footer { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; }
+        .tc-primary { letter-spacing: -0.01em; }
+        .tc-shell { position:relative; z-index:3; width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48px; }
+        .tc-topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:26px; }
+        .tc-brand { display:inline-flex; align-items:center; gap:10px; text-decoration:none; color:inherit; }
+        .tc-brand-mark {
+            width:42px; height:42px; border-radius:14px; display:grid; place-items:center;
+            background:linear-gradient(145deg, var(--tc-purple-dark), #7c3aed);
+            color:#fff; border:1px solid rgba(212,175,55,.32); box-shadow:0 12px 28px rgba(91,33,182,.18);
+            font-weight:900; letter-spacing:-.04em;
+        }
+        .tc-brand-name { font-size:16px; font-weight:800; letter-spacing:-.04em; }
+        .tc-brand-sub { margin-top:1px; font-size:9px; color:#8b8490; letter-spacing:.14em; text-transform:uppercase; font-weight:700; }
+        .tc-top-link { color:#655d6b; text-decoration:none; font-size:12px; font-weight:700; }
+        .tc-top-link:hover { color:var(--tc-purple); }
+
+        .tc-hero { text-align:center; margin: -15px auto 34px; max-width:720px; }
+        .tc-pill {
+            display:inline-flex; align-items:center; gap:8px; padding:8px 11px; border-radius:999px;
+            background:rgba(255,255,255,.72); border:1px solid rgba(91,33,182,.1);
+            box-shadow:0 8px 28px rgba(39,20,68,.05); color:var(--tc-purple); font-size:9px;
+            font-weight:800; letter-spacing:.15em; text-transform:uppercase;
+        }
+        .tc-dot { width:7px; height:7px; border-radius:999px; background:var(--tc-gold); box-shadow:0 0 0 4px rgba(212,175,55,.12); }
+        .tc-hero h1 { margin:18px 0 15px; font-size:clamp(38px,6vw,64px); line-height:1.10; letter-spacing:-.01em; font-weight:850; }
+        .tc-gradient { background:linear-gradient(90deg,var(--tc-purple-dark),var(--tc-purple)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+        .tc-hero p { margin:0 auto; max-width:640px; color:#6f6877; font-size:15px; line-height:1.65; font-weight:520; }
+
+        .tc-grid { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr); gap:20px; align-items:stretch; }
+        .tc-card {
+            background:rgba(255,255,255,.86); border:1px solid rgba(255,255,255,.92); border-radius:30px;
+            box-shadow:0 24px 70px rgba(39,20,68,.08), 0 1px 4px rgba(39,20,68,.03);
+            backdrop-filter:blur(28px); -webkit-backdrop-filter:blur(28px);
+        }
+        .tc-premium { position:relative; padding:34px; overflow:hidden; border:1.5px solid rgba(91,33,182,.16); }
+        .tc-premium::after { content:""; position:absolute; inset:auto -80px -110px auto; width:280px; height:280px; border-radius:999px; background:rgba(91,33,182,.05); filter:blur(10px); pointer-events:none; }
+        .tc-badge { position:absolute; top:0; right:0; padding:8px 13px; border-radius:0 0 0 16px; background:linear-gradient(90deg,#c39f2c,#e5cb75); color:#fff; font-size:9px; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }
+        .tc-kicker { color:var(--tc-purple); font-size:10px; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }
+        .tc-title { margin:10px 0 4px; font-size:34px; line-height:1; letter-spacing:-.055em; font-weight:900; }
+        .tc-price { display:flex; align-items:flex-end; gap:7px; margin-top:18px; }
+        .tc-price strong { font-size:48px; line-height:.92; letter-spacing:-.065em; font-weight:950; }
+        .tc-price span { color:#8c8593; font-size:12px; font-weight:800; padding-bottom:5px; }
+        .tc-copy { margin-top:14px; color:#706978; font-size:13px; line-height:1.65; max-width:560px; }
+        .tc-features { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 20px; margin:24px 0 26px; }
+        .tc-feature { display:flex; align-items:center; gap:9px; color:#4b4552; font-size:12px; font-weight:700; }
+        .tc-check { width:22px; height:22px; flex:0 0 22px; display:grid; place-items:center; border-radius:999px; background:rgba(91,33,182,.07); color:var(--tc-purple); }
+        .tc-check.gold { background:rgba(212,175,55,.12); color:#9a7c1e; }
+        .tc-primary {
+            width:100%; border:0; border-radius:18px; padding:15px 18px; color:#fff; cursor:pointer;
+            background:linear-gradient(135deg,var(--tc-purple-dark),var(--tc-purple));
+            box-shadow:0 16px 32px rgba(91,33,182,.22); font-size:14px; font-weight:900;
+            display:flex; align-items:center; justify-content:center; gap:9px; transition:transform .18s ease, box-shadow .18s ease;
+        }
+        .tc-primary:hover { transform:translateY(-1px); box-shadow:0 20px 40px rgba(91,33,182,.26); }
+        .tc-primary:active { transform:scale(.985); }
+        .tc-primary:disabled { opacity:.65; cursor:wait; transform:none; }
+        
+        /* Rangi ya dhahabu kwa button ya Premium */
+        .tc-gold-btn {
+            background: linear-gradient(135deg, #d4af37, #b8860b) !important;
+            box-shadow: 0 16px 32px rgba(212, 175, 55, 0.25) !important;
+        }
+        .tc-gold-btn:hover { box-shadow: 0 20px 40px rgba(212, 175, 55, 0.35) !important; }
+        
+        .tc-secure { margin-top:11px; text-align:center; color:#98919f; font-size:10px; font-weight:700; }
+
+        .tc-side { padding:26px; display:flex; flex-direction:column; gap:20px; }
+        .tc-side-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+        .tc-side h2 { margin:0; font-size:18px; letter-spacing:-.035em; font-weight:900; }
+        .tc-side p { margin:4px 0 0; color:#837c89; font-size:11px; line-height:1.55; }
+        .tc-side-price { color:var(--tc-purple); font-size:15px; font-weight:950; white-space:nowrap; }
+        .tc-methods { display:grid; gap:11px; }
+        .tc-method {
+            border:1px solid var(--tc-line); background:#fff; border-radius:20px; padding:16px; text-align:left; cursor:pointer;
+            display:flex; align-items:center; justify-content:space-between; gap:14px; transition:all .18s ease;
+        }
+        .tc-method:hover { border-color:rgba(91,33,182,.22); box-shadow:0 12px 28px rgba(39,20,68,.06); transform:translateY(-1px); }
+        .tc-method-left { display:flex; align-items:center; gap:12px; min-width:0; }
+        .tc-method-icon { width:38px; height:38px; border-radius:14px; display:grid; place-items:center; background:var(--tc-purple-soft); color:var(--tc-purple); font-weight:950; }
+        .tc-method-icon.gold { background:rgba(212,175,55,.13); color:#8f741f; }
+        .tc-method b { display:block; font-size:12px; font-weight:900; }
+        .tc-method small { display:block; margin-top:2px; color:#918a97; font-size:10px; font-weight:600; }
+        .tc-chevron { color:#a29aa9; }
+        .tc-note { padding:13px 14px; border-radius:18px; background:#faf8fc; border:1px solid rgba(91,33,182,.07); color:#716a78; font-size:10px; line-height:1.55; font-weight:650; }
+        .tc-note strong { color:var(--tc-purple); }
+        .tc-footer { margin-top:28px; display:flex; justify-content:space-between; align-items:center; gap:12px; color:#a19aa7; font-size:10px; font-weight:700; }
+        .tc-footer a { 
+            color: var(--tc-purple); 
+            text-decoration: none; 
+            padding: 8px 14px; 
+            border-radius: 999px; 
+            background: rgba(91,33,182,.06); 
+            font-weight: 800; 
+            transition: all .2s ease; 
+        }
+        .tc-footer a:hover { 
+            background: rgba(91,33,182,.12); 
+            transform: translateY(-1px); 
+        }
+
+        .tc-overlay { position:fixed; inset:0; z-index:100; display:none; background:rgba(23,19,29,.24); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); padding:18px; align-items:center; justify-content:center; }
+        .tc-overlay.open { display:flex; animation:fadeIn .18s ease; }
+        .tc-sheet { width:min(540px,100%); max-height:min(90vh,760px); overflow-y:auto; overflow-x:hidden; background:rgba(255,255,255,.98); border:1px solid rgba(255,255,255,.96); border-radius:32px; box-shadow:0 34px 100px rgba(20,13,32,.24); padding:32px; animation:sheetIn .22s cubic-bezier(.2,.8,.2,1); scrollbar-width: none; /* Firefox */ -ms-overflow-style: none; /* IE and Edge */ }
+        .tc-sheet::-webkit-scrollbar { display: none; /* Chrome, Safari, Opera */ }
+        .tc-sheet-head { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
+        .tc-sheet h3 { margin:0; font-size:23px; font-weight:950; letter-spacing:-.045em; }
+        .tc-sheet .sub { margin-top:4px; color:#85808a; font-size:11px; line-height:1.5; }
+        .tc-close { width:34px; height:34px; border:0; border-radius:999px; background:#f3f1f5; color:#6f6877; cursor:pointer; font-size:20px; line-height:1; }
+        .tc-amount-row { margin:18px 0; padding:13px 14px; border-radius:18px; background:#fbfafd; border:1px solid rgba(91,33,182,.08); display:flex; justify-content:space-between; align-items:center; }
+        .tc-amount-row span { color:#89818f; font-size:10px; font-weight:750; }
+        .tc-amount-row strong { color:var(--tc-purple); font-size:14px; font-weight:950; }
+        .tc-label { display:block; margin-bottom:8px; color:#625b69; font-size:10px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+        .tc-provider-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-bottom:15px; }
+        .tc-provider { border:1px solid var(--tc-line); background:#fff; border-radius:17px; padding:12px; cursor:pointer; text-align:left; display:flex; align-items:center; gap:9px; }
+        .tc-provider.active { border-color:var(--tc-purple); background:rgba(91,33,182,.055); box-shadow:0 8px 20px rgba(91,33,182,.08); }
+        .tc-provider .mini { width:30px; height:30px; border-radius:11px; display:grid; place-items:center; background:var(--tc-purple-soft); color:var(--tc-purple); font-size:11px; font-weight:950; }
+        .tc-provider b { font-size:10px; font-weight:900; }
+        .tc-input { width:100%; padding:14px 14px; border-radius:16px; border:1px solid rgba(31,25,45,.11); outline:none; background:#fff; color:#1f1b24; font-size:14px; font-weight:700; transition:border-color .16s ease, box-shadow .16s ease; }
+        .tc-input:focus { border-color:rgba(91,33,182,.42); box-shadow:0 0 0 4px rgba(91,33,182,.07); }
+        .tc-hint { margin-top:7px; color:#9a93a1; font-size:9px; line-height:1.5; }
+        .tc-status { margin-top:15px; display:none; padding:14px; border-radius:17px; font-size:10px; line-height:1.55; font-weight:750; }
+        .tc-status.show { display:block; }
+        .tc-status.info { background:#f6f2fb; color:#5f4280; border:1px solid rgba(91,33,182,.09); }
+        .tc-status.success { background:#f1faf5; color:#256040; border:1px solid rgba(37,96,64,.10); }
+        .tc-status.error { background:#fff6f6; color:#8d3d3d; border:1px solid rgba(141,61,61,.10); }
+        .tc-spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.38); border-top-color:#fff; border-radius:999px; animation:spin .7s linear infinite; }
+        .tc-bank-grid { display:grid; gap:10px; margin-top:15px; }
+        .tc-bank-row { padding:13px 14px; border-radius:16px; background:#fbfafd; border:1px solid rgba(31,25,45,.07); }
+        .tc-bank-row span { display:block; color:#98919e; font-size:9px; font-weight:700; margin-bottom:3px; text-transform:uppercase; letter-spacing:.05em; }
+        .tc-bank-row b { color:#332d39; font-size:13px; font-weight:900; word-break:break-word; }
+        .tc-copy { margin-top:12px; width:100%; border:1px solid rgba(91,33,182,.12); border-radius:15px; background:#fff; color:var(--tc-purple); padding:12px; font-size:11px; font-weight:900; cursor:pointer; }
+        .tc-bank-ref { margin-top:10px; padding:12px 13px; border-radius:15px; background:rgba(212,175,55,.09); color:#715e23; font-size:10px; line-height:1.5; font-weight:800; }
+        .tc-bank-action { margin-top:14px; }
+        .tc-divider { height:1px; background:rgba(31,25,45,.07); margin:18px 0; }
+        .tc-center { text-align:center; }
+        .tc-success-icon { width:62px; height:62px; margin:2px auto 14px; border-radius:22px; display:grid; place-items:center; background:rgba(212,175,55,.14); color:#93751d; }
+        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+        @keyframes sheetIn { from { opacity:0; transform:translateY(16px) scale(.985) } to { opacity:1; transform:translateY(0) scale(1) } }
+        @keyframes spin { to { transform:rotate(360deg) } }
+
+        @media (max-width: 850px) {
+            .tc-grid { grid-template-columns:1fr; }
+        }
+        @media (max-width: 560px) {
+            .tc-shell { width:min(100% - 20px, 1120px); padding-top:18px; }
+            .tc-topbar { margin-bottom:18px; }
+            .tc-brand-sub { display:none; }
+            .tc-top-link { font-size:11px; }
+            .tc-hero { margin-bottom:24px; }
+            .tc-hero h1 { font-size:41px; }
+            .tc-hero p { font-size:13px; }
+            .tc-premium, .tc-side { padding:22px; }
+            .tc-title { font-size:31px; }
+            .tc-price strong { font-size:42px; }
+            .tc-features { grid-template-columns:1fr; }
+            .tc-overlay { padding:0; align-items:flex-end; }
+            .tc-sheet { width:100%; max-height:92vh; border-radius:28px 28px 0 0; padding:28px 22px calc(28px + env(safe-area-inset-bottom)); }
+        }
+    </style>
+
+
+    <!-- ============================================================
+         BILLING VISUAL SURGERY — MATCH REGISTRATION
+         Top image + lower white dotted canvas.
+         Hero image is configurable via billing_hero_image / TRADECORE_BILLING_HERO_IMAGE.
+         ============================================================ -->
+    <style id="tradecore-billing-registration-surface">
+        html {
+            background: #ffffff !important;
+        }
+
+        body {
+            position: relative;
+            overflow-x: hidden;
+            background-color: #ffffff !important;
+            background-image: radial-gradient(#d1d5db 1px, transparent 1px) !important;
+            background-size: 24px 24px !important;
+            background-position: 0 0 !important;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            z-index: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: clamp(235px, 27vh, 320px);
+            min-height: 235px;
+            max-height: 320px;
+            background-image:
+                linear-gradient(
+                    to bottom,
+                    rgba(14,12,18,.04) 0%,
+                    rgba(14,12,18,.08) 34%,
+                    rgba(255,255,255,.24) 58%,
+                    rgba(255,255,255,.78) 82%,
+                    rgba(255,255,255,1) 100%
+                ),
+                url("{% static billing_hero_image|default:'TradeCore Monthly Plan Banner.png' %}");
+            background-size: cover;
+            background-position: center 37%;
+            background-repeat: no-repeat;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 360px;
+            pointer-events: none;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,.08) 34%,
+                rgba(255,255,255,.48) 62%,
+                rgba(255,255,255,.90) 82%,
+                rgba(255,255,255,1) 100%
+            );
+        }
+
+        /* Keep every real billing surface above the decorative background. */
+        .tc-page-shell,
+        .tc-topbar,
+        .tc-layout,
+        .tc-apple-card,
+        .tc-footer {
+            position: relative;
+            z-index: 2;
+        }
+
+        .tc-page-shell {
+            background: transparent !important;
+        }
+
+        .tc-topbar {
+            z-index: 20;
+        }
+
+        .tc-brand-mark {
+            box-shadow: 0 10px 24px rgba(91,33,182,.18);
+        }
+
+        .tc-top-link {
+            display: inline-flex;
+            align-items: center;
+            min-height: 34px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            color: #ffffff !important;
+            background: rgba(22,18,29,.30);
+            border: 1px solid rgba(255,255,255,.24);
+            box-shadow: 0 8px 20px rgba(0,0,0,.10);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            white-space: nowrap;
+            text-shadow: 0 1px 8px rgba(0,0,0,.20);
+        }
+
+        .tc-top-link strong {
+            color: #f3c64d !important;
+        }
+
+        .tc-apple-card {
+            background: rgba(255,255,255,.96) !important;
+            border-color: rgba(229,231,235,.82) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow:
+                0 24px 70px rgba(39,20,68,.10),
+                0 0 0 1px rgba(212,175,55,.08) !important;
+        }
+
+        .tc-premium-card {
+            border: 2.5px solid #d4af37 !important;
+            box-shadow:
+                0 24px 70px rgba(39,20,68,.10),
+                0 0 0 1px rgba(212,175,55,.18),
+                0 10px 34px rgba(212,175,55,.10) !important;
+        }
+
+        @media (max-width: 767px) {
+            body::before {
+                height: 24vh;
+                min-height: 145px;
+                max-height: 225px;
+                background-position: center 24%;
+            }
+
+            body::after {
+                height: 260px;
+                background: linear-gradient(
+                    to bottom,
+                    rgba(255,255,255,0) 0,
+                    rgba(255,255,255,.12) 34%,
+                    rgba(255,255,255,.58) 68%,
+                    rgba(255,255,255,1) 100%
+                );
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition-duration: .001ms !important;
+                animation-duration: .001ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* FINAL BILLING COMMERCIAL LAYOUT */
+        .tc-grid {
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:18px;
+            align-items:stretch;
+        }
+        .tc-starter,
+        .tc-premium {
+            position:relative;
+            overflow:hidden;
+            min-height:100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .tc-starter {
+            padding:30px;
+            background:rgba(255,255,255,.97);
+            border:1.5px solid rgba(31,25,45,.10);
+            border-bottom:4px solid var(--tc-gold);
+        }
+        .tc-starter-badge {
+            background:rgba(212,175,55,.11);
+            color:#80661e;
+            border:1px solid rgba(212,175,55,.18);
+        }
+        .tc-mini-features {
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:10px;
+            margin:22px 0 24px;
+        }
+        .tc-mini-feature { display:flex; align-items:center; gap:8px; color:#4b4552; font-size:11px; font-weight:600; }
+        .tc-mini-dot {
+            width:20px; height:20px; flex:0 0 20px; border-radius:999px;
+            display:grid; place-items:center; background:rgba(91,33,182,.07); color:var(--tc-purple); font-size:10px;
+        }
+        .tc-starter::after {
+            content:""; position:absolute; width:220px; height:220px; right:-95px; bottom:-115px;
+            border-radius:999px; background:rgba(212,175,55,.055); pointer-events:none;
+        }
+        .tc-premium-card {
+            padding:34px;
+            border:2.5px solid var(--tc-gold) !important;
+            box-shadow:0 24px 70px rgba(39,20,68,.10),0 0 0 1px rgba(212,175,55,.18),0 12px 34px rgba(212,175,55,.10) !important;
+        }
+        .tc-offer-bar {
+            grid-column:1/-1; position:relative; overflow:hidden; padding:24px 28px;
+            background:rgba(255,255,255,.97); border:1.5px solid rgba(212,175,55,.28);
+        }
+        .tc-offer-bar::before {
+            content:""; position:absolute; left:-140px; bottom:-180px; width:310px; height:310px;
+            border-radius:999px; background:rgba(212,175,55,.055); pointer-events:none;
+        }
+        .tc-offer-inner {
+            position:relative; z-index:1; display:grid;
+            grid-template-columns:minmax(260px,.82fr) minmax(0,1.65fr); gap:22px; align-items:center;
+        }
+        .tc-offer-copy h2 { margin:0; font-size:23px; line-height:1.05; letter-spacing:-.04em; font-weight:700; }
+        .tc-offer-copy p { margin:8px 0 0; max-width:450px; color:#7c7582; font-size:11px; line-height:1.6; font-weight:500; }
+        .tc-offer-note { margin-top:9px; color:#9a93a0; font-size:9px; line-height:1.5; font-weight:600; }
+        .tc-offer-options { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; }
+        .tc-offer-option {
+            position:relative; min-height:84px; border:1px solid rgba(31,25,45,.09); background:#fff;
+            border-radius:18px; padding:12px; cursor:pointer; text-align:left; transition:all .18s ease;
+        }
+        .tc-offer-option:hover { transform:translateY(-1px); border-color:rgba(91,33,182,.20); box-shadow:0 12px 26px rgba(39,20,68,.06); }
+        .tc-offer-option.featured {
+            border:1.5px solid var(--tc-gold); background:linear-gradient(180deg,#fffdf6,#fff);
+            box-shadow:0 9px 24px rgba(212,175,55,.10);
+        }
+        .tc-offer-option .offer-badge { position:absolute; right:8px; top:8px; color:#84691d; font-size:7px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+        .tc-offer-option .months { color:#6e6674; font-size:9px; font-weight:750; }
+        .tc-offer-option .amount { margin-top:6px; color:var(--tc-purple); font-size:17px; font-weight:750; letter-spacing:-.03em; }
+        .tc-offer-option .saving { margin-top:3px; color:#8f7624; font-size:8px; font-weight:750; }
+        .tc-readonly-notice {
+            display:flex; align-items:center; justify-content:center; gap:7px; padding:10px 13px;
+            border:1px solid rgba(212,175,55,.20); border-radius:15px; background:rgba(255,255,255,.88);
+            color:#6d5a24; box-shadow:0 8px 22px rgba(39,20,68,.04); font-size:10px; line-height:1.5;
+            font-weight:650; text-align:center;
+        }
+        .tc-readonly-notice strong { color:#80661e; }
+        .tc-checkout-overlay .tc-sheet { width:min(560px,100%); }
+        .tc-duration-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-top:12px; }
+        .tc-duration {
+            position:relative; border:1px solid rgba(31,25,45,.10); background:#fff; border-radius:16px;
+            padding:12px 8px; cursor:pointer; text-align:center;
+        }
+        .tc-duration.active { border:1.5px solid var(--tc-gold); background:#fffdf6; box-shadow:0 8px 20px rgba(212,175,55,.09); }
+        .tc-custom-btn { display: block; width: 100%; margin-top: 10px; border: 1.5px dashed rgba(91,33,182,.3); background: #faf8fc; color: var(--tc-purple); padding: 12px; border-radius: 16px; font-size: 11px; font-weight: 800; text-align: center; cursor: pointer; transition: all .18s ease; }
+        .tc-custom-btn:hover { border-color: var(--tc-purple); background: rgba(91,33,182,.04); }
+        .tc-custom-btn.active { border: 1.5px solid var(--tc-purple) !important; background: rgba(91,33,182,.06); box-shadow: 0 4px 14px rgba(91,33,182,.1); border-style: solid; }
+        .tc-duration .d-months { display:block; color:#514a58; font-size:10px; font-weight:750; }
+        .tc-duration .d-price { display:block; margin-top:4px; color:var(--tc-purple); font-size:12px; font-weight:850; }
+        .tc-duration .d-save { display:block; margin-top:3px; color:#8c7425; font-size:7px; font-weight:800; }
+        .tc-custom-row { display:none; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
+        .tc-custom-row.show { display:grid; }
+        .tc-checkout-summary {
+            margin-top:16px; padding:14px; border-radius:18px; background:#faf8fc;
+            border:1px solid rgba(91,33,182,.08); display:flex; align-items:center; justify-content:space-between; gap:14px;
+        }
+        .tc-checkout-summary small { display:block; color:#918a97; font-size:9px; font-weight:700; }
+        .tc-checkout-summary strong { display:block; margin-top:3px; color:var(--tc-purple); font-size:20px; font-weight:800; letter-spacing:-.03em; }
+        .tc-checkout-summary .save { margin-top:3px; color:#8b7322; font-size:9px; font-weight:800; }
+        .tc-method-choice-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-top:13px; }
+        .tc-method-choice {
+            border:1px solid rgba(31,25,45,.10); background:#fff; border-radius:17px; padding:14px;
+            cursor:pointer; text-align:left; display:flex; align-items:center; gap:10px;
+        }
+        .tc-method-choice.active { border:1.5px solid var(--tc-purple); background:rgba(91,33,182,.045); }
+        .tc-method-choice b { display:block; font-size:10px; font-weight:850; }
+        .tc-method-choice small { display:block; margin-top:2px; color:#938c99; font-size:8px; font-weight:650; }
+        .tc-method-choice .mini {
+            width:34px; height:34px; border-radius:12px; display:grid; place-items:center;
+            background:rgba(91,33,182,.07); color:var(--tc-purple); font-size:11px; font-weight:900;
+        }
+        .tc-method-choice .mini.gold { background:rgba(212,175,55,.12); color:#8f741f; }
+        .tc-checkout-section { margin-top:15px; }
+        .tc-checkout-section.hidden { display:none; }
+        .tc-pay-title { margin-bottom:8px; color:#625b69; font-size:10px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+        .tc-provider-grid { margin-bottom:13px; }
+        .tc-provider { min-height:48px; }
+        .tc-bank-grid { margin-top:10px; }
+        .tc-bank-row b { font-weight:800; }
+        .tc-approval-note {
+            margin-top:10px; padding:10px 11px; border-radius:15px;
+            background:rgba(212,175,55,.08); color:#746124; font-size:9px; line-height:1.5; font-weight:650;
+        }
+        @media (max-width:980px) {
+            .tc-offer-inner { grid-template-columns:1fr; }
+            .tc-offer-options { grid-template-columns:repeat(4,minmax(0,1fr)); }
+        }
+        @media (max-width:760px) {
+            .tc-grid { grid-template-columns:1fr; }
+            .tc-offer-bar { grid-column:1/-1; }
+            .tc-offer-options { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .tc-duration-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        }
+        @media (max-width:560px) {
+            .tc-mini-features { grid-template-columns:1fr; }
+            .tc-offer-options { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .tc-method-choice-grid { grid-template-columns:1fr; }
+            .tc-custom-row { grid-template-columns:1fr; }
+        }
+    </style>
+
+</head>
+<body>
+<div class="tc-shell">
+    <div class="tc-topbar">
+        <a class="tc-brand" href="{% url 'dashboard' %}">
+            
+            
+        </a>
+        <a class="tc-top-link" href="{% url 'logout' %}">Toka</a>
+    </div>
+
+    <section class="tc-hero">
+        <div class="tc-pill"><span class="tc-dot"></span>TRADECORE PREMIUM</div>
+        <h1>Dhibiti Biashara, <span class="tc-gradient">Kuza Faida.</span></h1>
+        <p>Jaribu TradeCore kwa siku 30 bila malipo. Ukiona thamani yake, fungua Premium kwa TZS 20,000 tu kwa mwezi — au lipia muda mrefu upate TZS 15,000 kwa mwezi.</p>
+    </section>
+
+    {% if trial_read_only %}
+    <div class="tc-readonly-notice" style="margin:-8px auto 26px;max-width:850px;">
+        <strong>Trial imeisha.</strong>
+        Data zako bado zipo salama. Unaweza kuzitazama, lakini shughuli mpya zimefungwa hadi uwashe Premium.
+    </div>
+    {% endif %}
+
+    <div class="tc-grid">
+        <!-- STARTER -->
+        <section class="tc-card tc-starter">
+            <div class="tc-card-head">
+                <div>
+                    <div class="tc-kicker">TradeCore Starter</div>
+                    <div class="tc-title">30-Day Trial</div>
+                </div>
+                <span class="tc-plan-badge tc-starter-badge">BURE</span>
+            </div>
+
+            <div class="tc-price">
+                <strong>TZS 0</strong>
+                <span>/ 30 days</span>
+            </div>
+
+            <p class="tc-copy">Anza kutumia TradeCore kwenye biashara yako halisi na uone thamani yake kabla hujalipia.</p>
+
+            {% if subscription and subscription.is_trial_expired %}
+            <div class="tc-plan-status" style="background:rgba(212,175,55,.08);border-color:rgba(212,175,55,.16);color:#6d5a24;margin-bottom:14px;">
+                <strong>Trial imeisha.</strong><br>
+                Taarifa zako hazifutiki. Fungua Premium ili uendelee kufanya shughuli za biashara.
+            </div>
+            {% endif %}
+
+            <div class="tc-mini-features">
+                <div class="tc-mini-feature"><span class="tc-mini-dot">✓</span>POS & Mauzo</div>
+                <div class="tc-mini-feature"><span class="tc-mini-dot">✓</span>Bidhaa & Stoo</div>
+                <div class="tc-mini-feature"><span class="tc-mini-dot">✓</span>Wateja</div>
+                <div class="tc-mini-feature"><span class="tc-mini-dot">✓</span>Basic Reports</div>
+                <div class="tc-mini-feature"><span class="tc-mini-dot">✓</span>1 User</div>
+                <div class="tc-mini-feature"><span class="tc-mini-dot">✓</span>1 Branch</div>
+            </div>
+
+<a class="tc-primary" href="{% url 'dashboard' %}" style="margin-top:auto;text-decoration:none;">
+                {% if subscription and subscription.is_trial_expired %}
+                <span>Ingia Tena</span>
+                {% elif subscription and subscription.plan_type == "PREMIUM" and not subscription.is_premium_expired %}
+                <span>Rudi Kwenye Dashibodi</span>
+                {% else %}
+                <span>Anza Sasa — Ni Bure!</span>
+                {% endif %}
+                <span>→</span>
+            </a>
+            <div class="tc-secure">Furahia siku 30 za bure kabisa.</div>
+        </section>
+
+        <!-- PREMIUM -->
+        <section class="tc-card tc-premium tc-premium-card">
+            <div class="tc-badge">Inapendekezwa</div>
+            <div class="tc-kicker">TradeCore Premium</div>
+            <div class="tc-title">Kila kitu. Bila vikwazo.</div>
+
+            <div class="tc-price">
+                <strong>TZS 20,000</strong>
+                <span>/ mwezi</span>
+            </div>
+
+            <p class="tc-copy">Kwa biashara inayotaka control zaidi, automation, team management na uwezo wa kukua.</p>
+
+            <div class="tc-features">
+                <div class="tc-feature"><span class="tc-check">✓</span>Unlimited Users</div>
+                <div class="tc-feature"><span class="tc-check">✓</span>Multi-Branch Management</div>
+                <div class="tc-feature"><span class="tc-check">✓</span>Advanced Profit & Analytics</div>
+                <div class="tc-feature"><span class="tc-check">✓</span>Smart Inventory & Stock Transfer</div>
+                <div class="tc-feature"><span class="tc-check">✓</span>WhatsApp & SMS Automation</div>
+                <div class="tc-feature"><span class="tc-check gold">✓</span>Daily Business Reports</div>
+                <div class="tc-feature"><span class="tc-check">✓</span>Employee Management</div>
+                <div class="tc-feature"><span class="tc-check gold">✓</span>Priority Support</div>
+            </div>
+
+            <button class="tc-primary tc-gold-btn" type="button" id="openMobileBtn" style="margin-top:auto;">
+                <span>Anza Kutumia · Lipia Sasa</span><span>→</span>
+            </button>
+            <div class="tc-secure">Chagua muda na Mobile Money au Bank kwenye checkout.</div>
+        </section>
+
+        <!-- OFFER BAR -->
+        <aside class="tc-card tc-offer-bar">
+            <div class="tc-offer-inner">
+                <div class="tc-offer-copy">
+                    <div class="tc-kicker">Special Offer</div>
+                    <h2>Lipa zaidi. Okoa zaidi.</h2>
+                    <p>
+                        Mwezi 1 hadi 6 ni TZS 20,000 kwa mwezi.
+                        <strong>Kuanzia miezi 7, unalipa TZS 15,000 tu kwa mwezi.</strong>
+                    </p>
+                    <div class="tc-offer-note">Chagua offer hapa; checkout itafunguka na muda huo tayari umechaguliwa.</div>
+                </div>
+
+                <div class="tc-offer-options">
+                    {% for option in pricing_options %}
+                    <button class="tc-offer-option {% if option.months == 12 %}featured{% endif %}" type="button" data-offer-months="{{ option.months }}">
+                        {% if option.badge %}<span class="offer-badge">{{ option.badge }}</span>{% endif %}
+                        <span class="months">{{ option.label }}</span>
+                        <span class="amount">TZS {{ option.total_display }}</span>
+                        {% if option.discount %}
+                        <span class="saving">Okoa TZS {{ option.discount_display }}</span>
+                        {% else %}
+                        <span class="saving">TZS {{ option.monthly_display }}/mwezi</span>
+                        {% endif %}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <div class="tc-footer">
+        <span>&copy; 2026 Meron Tech</span>
+        <a href="{% url 'dashboard' %}">Rudi TradeCore</a>
+    </div>
+</div>
+
+<!-- UNIFIED PREMIUM CHECKOUT -->
+<div class="tc-overlay tc-checkout-overlay" id="checkoutOverlay" aria-hidden="true">
+    <div class="tc-sheet" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+        <div class="tc-sheet-head">
+            <div>
+                <h3 id="checkoutTitle">Fungua TradeCore Premium</h3>
+                <div class="sub">Chagua muda wa Premium, kisha chagua njia yako ya malipo.</div>
+            </div>
+            <button class="tc-close" type="button" data-close="checkoutOverlay">×</button>
+        </div>
+
+        <div class="tc-checkout-section">
+            <div class="tc-pay-title">Muda wa Premium</div>
+            <div class="tc-duration-grid" id="durationGrid">
+                {% for option in pricing_options %}
+                <button class="tc-duration {% if option.months == 1 %}active{% endif %}" type="button" data-months="{{ option.months }}">
+                    <span class="d-months">{{ option.label }}</span>
+                    <span class="d-price">TZS {{ option.total_display }}</span>
+                    {% if option.discount %}
+                    <span class="d-save">Okoa {{ option.discount_display }}</span>
+                    {% else %}
+                    <span class="d-save">TZS {{ option.monthly_display }}/mwezi</span>
+                    {% endif %}
+                </button>
+                {% endfor %}
+            </div>
+
+            <button class="tc-duration tc-custom-btn" type="button" data-months="0" id="customDurationBtn">
+                + Weka Muda Wako Mwenyewe (Custom)
+            </button>
+
+            <div class="tc-custom-row" id="customDurationRow">
+                <div>
+                    <label class="tc-label" for="customMonths">Idadi ya miezi</label>
+                    <input class="tc-input" id="customMonths" type="number" min="1" max="{{ premium_max_months }}" step="1" value="2">
+                    <div class="tc-hint">Miezi 1-6: 20K/mwezi. Miezi 7+: 15K/mwezi.</div>
+                </div>
+                <div class="tc-checkout-summary" style="margin-top:0;">
+                    <div><small>Bei kwa mwezi</small><strong id="customUnitPrice">TZS 15,000</strong></div>
+                    <div><small>Jumla</small><strong id="customTotal">TZS 105,000</strong></div>
+                </div>
+            </div>
+
+            <div class="tc-checkout-summary">
+                <div>
+                    <small>Utalipia kwa muda gani?</small>
+                    <strong id="summaryMonths">1 Mwezi</strong>
+                    <div class="save" id="summarySaving">TZS 20,000/mwezi</div>
+                </div>
+                <div style="text-align:right;">
+                    <small>Jumla</small>
+                    <strong id="summaryTotal">TZS 20,000</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="tc-checkout-section">
+            <div class="tc-pay-title">Chagua njia ya malipo</div>
+            <div class="tc-method-choice-grid">
+                <button class="tc-method-choice active" type="button" data-method="MOBILE">
+                    <span class="mini">M</span>
+                    <span><b>Mobile Money</b><small>Vodacom • Tigo • Airtel • HaloPesa</small></span>
+                </button>
+                <button class="tc-method-choice" type="button" data-method="BANK">
+                    <span class="mini gold">B</span>
+                    <span><b>Bank Transfer</b><small>Account details + reference</small></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="tc-checkout-section" id="mobilePaymentSection">
+            <div class="tc-pay-title">Mobile Money</div>
+            <div class="tc-provider-grid" id="providerGrid">
+                <button class="tc-provider active" type="button" data-network="VODAFONE"><span class="mini">M</span><b>Vodacom M-Pesa</b></button>
+                <button class="tc-provider" type="button" data-network="TIGO"><span class="mini">T</span><b>Tigo / Mixx by Yas</b></button>
+                <button class="tc-provider" type="button" data-network="AIRTEL"><span class="mini">A</span><b>Airtel Money</b></button>
+                <button class="tc-provider" type="button" data-network="HALOPESA"><span class="mini">H</span><b>HaloPesa</b></button>
+            </div>
+            <label class="tc-label" for="phoneInput">Namba ya simu</label>
+            <input id="phoneInput" class="tc-input" type="tel" inputmode="tel" autocomplete="tel" placeholder="07XX XXX XXX">
+            <div class="tc-hint">Mfano: 0712 345 678 au +255 712 345 678.</div>
+            <div class="tc-status" id="mobileStatus"></div>
+            <button class="tc-primary" type="button" id="startMobilePaymentBtn" style="margin-top:15px;">
+                <span>Lipa sasa</span><span id="mobilePayButtonAmount">TZS 20,000</span>
+            </button>
+            <div class="tc-hint tc-center" style="margin-top:11px;">PIN itaingizwa kwenye prompt ya provider, si TradeCore.</div>
+        </div>
+
+        <div class="tc-checkout-section hidden" id="bankPaymentSection">
+            {% if bank_account_number %}
+            <div class="tc-pay-title">Bank Transfer</div>
+            <div class="tc-bank-grid">
+                <div class="tc-bank-row"><span>Benki</span><b>{{ bank_name|default:'—' }}</b></div>
+                <div class="tc-bank-row"><span>Jina la Akaunti</span><b>{{ bank_account_name|default:'—' }}</b></div>
+                <div class="tc-bank-row"><span>Account Number</span><b id="bankAccountNumber">{{ bank_account_number }}</b></div>
+            </div>
+            <button class="tc-copy" type="button" id="copyAccountBtn">Copy Account Number</button>
+            <div class="tc-approval-note">
+                Baada ya transfer, bonyeza “Nimelipa kwa Benki”. Payment itaingia <strong>pending</strong>
+                hadi ithibitishwe. Kiasi: <strong id="bankAmountDisplay">TZS 20,000</strong>.
+            </div>
+            <div class="tc-status" id="bankStatus"></div>
+            <button class="tc-primary" type="button" id="bankPaidBtn" style="margin-top:14px;">Nimelipa kwa Benki</button>
+            {% else %}
+            <div class="tc-status show info" style="margin-top:18px;">Taarifa za bank bado hazijawekwa kwenye server. Chagua Mobile Money.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const checkoutOverlay = document.getElementById('checkoutOverlay');
+    const durationGrid = document.getElementById('durationGrid');
+    const customDurationBtn = document.getElementById('customDurationBtn');
+    const customDurationRow = document.getElementById('customDurationRow');
+    const customMonthsInput = document.getElementById('customMonths');
+    const summaryMonths = document.getElementById('summaryMonths');
+    const summaryTotal = document.getElementById('summaryTotal');
+    const summarySaving = document.getElementById('summarySaving');
+    const customUnitPrice = document.getElementById('customUnitPrice');
+    const customTotal = document.getElementById('customTotal');
+    const bankAmountDisplay = document.getElementById('bankAmountDisplay');
+    const mobilePayButtonAmount = document.getElementById('mobilePayButtonAmount');
+    const mobileSection = document.getElementById('mobilePaymentSection');
+    const bankSection = document.getElementById('bankPaymentSection');
+    const mobileStatus = document.getElementById('mobileStatus');
+    const bankStatus = document.getElementById('bankStatus');
+    const startMobileBtn = document.getElementById('startMobilePaymentBtn');
+    const bankPaidBtn = document.getElementById('bankPaidBtn');
+    const phoneInput = document.getElementById('phoneInput');
+    const providerButtons = Array.from(document.querySelectorAll('.tc-provider'));
+    const methodButtons = Array.from(document.querySelectorAll('.tc-method-choice'));
+    const offerButtons = Array.from(document.querySelectorAll('[data-offer-months]'));
+
+    let selectedMonths = 1;
+    let selectedNetwork = 'VODAFONE';
+    let pollingTimer = null;
+    const formatter = new Intl.NumberFormat('en-US');
+
+    function money(value) {
+        return 'TZS ' + formatter.format(Number(value || 0));
+    }
+
+    function calculatePreview(months) {
+        months = Math.max(1, Math.min(60, Number(months) || 1));
+        const unit = months > 6 ? 15000 : 20000;
+        const total = unit * months;
+        const discount = (20000 * months) - total;
+        return {months, unit, total, discount};
+    }
+
+    function monthLabel(months) {
+        return months === 1 ? '1 Mwezi' : months + ' Miezi';
+    }
+
+    let isCustomMode = false;
+    function setDuration(months) {
+        const preview = calculatePreview(months);
+        selectedMonths = preview.months;
+
+        document.querySelectorAll('.tc-duration').forEach(btn => {
+            const n = Number(btn.dataset.months);
+            if (n === 0) {
+                btn.classList.toggle('active', isCustomMode);
+            } else {
+                btn.classList.toggle('active', !isCustomMode && n === selectedMonths);
+            }
+        });
+
+        customDurationRow?.classList.toggle('show', isCustomMode);
+        if (isCustomMode && customMonthsInput && customMonthsInput.value != selectedMonths) {
+            customMonthsInput.value = selectedMonths;
+        }
+
+        if (summaryMonths) summaryMonths.textContent = monthLabel(selectedMonths);
+        if (summaryTotal) summaryTotal.textContent = money(preview.total);
+        if (summarySaving) {
+            summarySaving.textContent = preview.discount > 0
+                ? 'Okoa ' + money(preview.discount)
+                : money(preview.unit) + '/mwezi';
+        }
+        if (customUnitPrice) customUnitPrice.textContent = money(preview.unit);
+        if (customTotal) customTotal.textContent = money(preview.total);
+        if (bankAmountDisplay) bankAmountDisplay.textContent = money(preview.total);
+        if (mobilePayButtonAmount) mobilePayButtonAmount.textContent = money(preview.total);
+    }
+
+    function openCheckout(months = 1) {
+        if (!checkoutOverlay) return;
+        setDuration(months);
+        checkoutOverlay.classList.add('open');
+        checkoutOverlay.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeCheckout() {
+        if (!checkoutOverlay) return;
+        checkoutOverlay.classList.remove('open');
+        checkoutOverlay.setAttribute('aria-hidden', 'true');
+        if (pollingTimer) {
+            clearInterval(pollingTimer);
+            pollingTimer = null;
+        }
+    }
+
+    function setStatus(el, message, kind) {
+        if (!el) return;
+        el.textContent = message;
+        el.className = 'tc-status show ' + (kind || 'info');
+    }
+
+    function getCsrfToken() {
+        const tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (tokenInput) return tokenInput.value;
+        const cookie = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
+        return cookie ? decodeURIComponent(cookie.split('=')[1]) : '';
+    }
+
+    function postForm(url, fields) {
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                'X-CSRFToken': getCsrfToken(),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams(fields)
+        }).then(async response => {
+            let data = {};
+            try { data = await response.json(); } catch (_) {}
+            if (!response.ok) throw new Error(data.message || 'Imeshindikana kuwasiliana na server.');
+            return data;
+        });
+    }
+
+    document.getElementById('openMobileBtn')?.addEventListener('click', () => openCheckout(1));
+
+    offerButtons.forEach(btn => {
+        btn.addEventListener('click', () => openCheckout(Number(btn.dataset.offerMonths)));
+    });
+
+    document.querySelectorAll('.tc-duration').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const n = Number(btn.dataset.months);
+            if (n === 0) {
+                isCustomMode = true;
+                setDuration(Math.max(1, Math.min(60, Number(customMonthsInput?.value || 2))));
+                customMonthsInput?.focus();
+            } else {
+                isCustomMode = false;
+                setDuration(n);
+            }
+        });
+    });
+
+    customMonthsInput?.addEventListener('input', () => {
+        let value = Number(customMonthsInput.value);
+        if (value >= 1 && value <= 60) {
+            isCustomMode = true;
+            setDuration(value);
+        }
+    });
+
+    customMonthsInput?.addEventListener('blur', () => {
+        let value = Number(customMonthsInput.value || 1);
+        value = Math.max(1, Math.min(60, value));
+        customMonthsInput.value = value;
+        isCustomMode = true;
+        setDuration(value);
+    });
+
+    methodButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const method = btn.dataset.method;
+            methodButtons.forEach(item => item.classList.toggle('active', item === btn));
+            mobileSection?.classList.toggle('hidden', method !== 'MOBILE');
+            bankSection?.classList.toggle('hidden', method !== 'BANK');
+        });
+    });
+
+    document.querySelectorAll('[data-close]').forEach(btn => {
+        btn.addEventListener('click', closeCheckout);
+    });
+
+    checkoutOverlay?.addEventListener('click', event => {
+        if (event.target === checkoutOverlay) closeCheckout();
+    });
+
+    providerButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            providerButtons.forEach(item => item.classList.remove('active'));
+            btn.classList.add('active');
+            selectedNetwork = btn.dataset.network;
+        });
+    });
+
+    function finishMobileSuccess(message) {
+        setStatus(mobileStatus, message || 'Malipo yamepokelewa. Premium yako imeamilishwa.', 'success');
+        startMobileBtn.disabled = false;
+        startMobileBtn.innerHTML = '<span>Premium imeamilishwa</span><span>✓</span>';
+        setTimeout(() => { window.location.href = '{% url "dashboard" %}'; }, 1200);
+    }
+
+    function pollPayment(txRef) {
+        if (pollingTimer) clearInterval(pollingTimer);
+        let attempts = 0;
+        pollingTimer = setInterval(async () => {
+            attempts += 1;
+            try {
+                const response = await fetch(
+                    '{% url "mobile_payment_status" %}?tx_ref=' + encodeURIComponent(txRef),
+                    {headers:{'X-Requested-With':'XMLHttpRequest'}}
+                );
+                const data = await response.json();
+
+                if (data.payment_status === 'SUCCESSFUL') {
+                    clearInterval(pollingTimer);
+                    pollingTimer = null;
+                    finishMobileSuccess(data.message);
+                    return;
+                }
+
+                if (data.payment_status === 'FAILED') {
+                    clearInterval(pollingTimer);
+                    pollingTimer = null;
+                    setStatus(mobileStatus, data.message || 'Malipo hayajakamilika.', 'error');
+                    startMobileBtn.disabled = false;
+                    startMobileBtn.innerHTML = '<span>Jaribu Tena</span><span>↗</span>';
+                    return;
+                }
+
+                setStatus(mobileStatus, data.message || 'Bado tunasubiri uthibitisho wa malipo...', 'info');
+
+                if (attempts >= 12) {
+                    clearInterval(pollingTimer);
+                    pollingTimer = null;
+                    startMobileBtn.dataset.recheck = txRef;
+                    startMobileBtn.disabled = false;
+                    startMobileBtn.innerHTML = '<span>Angalia Tena</span><span>↻</span>';
+                }
+            } catch (_) {}
+        }, 2500);
+    }
+
+    async function startMobilePayment() {
+        const phone = phoneInput?.value.trim();
+        if (!phone) {
+            setStatus(mobileStatus, 'Weka namba ya simu kwanza.', 'error');
+            phoneInput?.focus();
+            return;
+        }
+
+        startMobileBtn.disabled = true;
+        startMobileBtn.innerHTML = '<span class="tc-spinner"></span><span>Tunatuma...</span>';
+        setStatus(mobileStatus, 'Tunasubiri mtandao wako uthibitishe ombi...', 'info');
+        delete startMobileBtn.dataset.recheck;
+
+        try {
+            const data = await postForm('{% url "initiate_mobile_payment" %}', {
+                network: selectedNetwork,
+                phone_number: phone,
+                months: String(selectedMonths)
+            });
+
+            if (data.state === 'already_active') {
+                finishMobileSuccess(data.message);
+                return;
+            }
+            if (data.state !== 'pending') {
+                throw new Error(data.message || 'Malipo hayakuanzishwa.');
+            }
+
+            setStatus(mobileStatus, data.message, 'info');
+            startMobileBtn.innerHTML = '<span>Nimesha-authorize kwenye simu</span><span>✓</span>';
+            startMobileBtn.disabled = false;
+            pollPayment(data.tx_ref);
+        } catch (error) {
+            setStatus(mobileStatus, error.message || 'Malipo hayakuanzishwa.', 'error');
+            startMobileBtn.disabled = false;
+            startMobileBtn.innerHTML = '<span>Jaribu Tena</span><span>↗</span>';
+        }
+    }
+
+    startMobileBtn?.addEventListener('click', async () => {
+        if (startMobileBtn.dataset.recheck) {
+            const txRef = startMobileBtn.dataset.recheck;
+            startMobileBtn.disabled = true;
+            startMobileBtn.innerHTML = '<span class="tc-spinner"></span><span>Tunathibitisha...</span>';
+            try {
+                const data = await postForm('{% url "recheck_mobile_payment" %}', {tx_ref: txRef});
+                if (data.payment_status === 'SUCCESSFUL') {
+                    finishMobileSuccess(data.message);
+                } else {
+                    setStatus(mobileStatus, data.message || 'Bado payment haijathibitishwa.', 'info');
+                    startMobileBtn.disabled = false;
+                    startMobileBtn.innerHTML = '<span>Angalia Tena</span><span>↻</span>';
+                }
+            } catch (error) {
+                setStatus(mobileStatus, error.message || 'Imeshindikana kuhakiki malipo.', 'error');
+                startMobileBtn.disabled = false;
+                startMobileBtn.innerHTML = '<span>Angalia Tena</span><span>↻</span>';
+            }
+            return;
+        }
+        await startMobilePayment();
+    });
+
+    document.getElementById('copyAccountBtn')?.addEventListener('click', async () => {
+        const value = document.getElementById('bankAccountNumber')?.textContent.trim();
+        if (!value) return;
+        try {
+            await navigator.clipboard.writeText(value);
+            setStatus(bankStatus, 'Account number ime-copywa.', 'success');
+        } catch (_) {
+            setStatus(bankStatus, 'Copy haikufanya kazi. Chagua account number na u-copy manually.', 'info');
+        }
+    });
+
+    bankPaidBtn?.addEventListener('click', async () => {
+        bankPaidBtn.disabled = true;
+        bankPaidBtn.innerHTML = '<span class="tc-spinner"></span><span>Tunahifadhi...</span>';
+        try {
+            const data = await postForm('{% url "submit_bank_payment" %}', {
+                months: String(selectedMonths)
+            });
+            setStatus(bankStatus, data.message + (data.reference ? ' Reference: ' + data.reference : ''), 'success');
+            bankPaidBtn.innerHTML = '<span>✓</span><span>Imewekwa Pending</span>';
+        } catch (error) {
+            setStatus(bankStatus, error.message || 'Imeshindikana kuhifadhi payment.', 'error');
+            bankPaidBtn.disabled = false;
+            bankPaidBtn.innerHTML = '<span>Nimelipa kwa Benki</span>';
+        }
+    });
+
+    setDuration(1);
+})();
+</script>
+</body>
+</html>
