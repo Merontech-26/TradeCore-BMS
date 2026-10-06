@@ -771,6 +771,36 @@
                     </div>
                 </div>
 
+                <!-- TRADECORE TECHNICAL SUPPORT -->
+                <div class="pt-3 mt-1 border-t border-gray-100">
+                    <div class="rounded-2xl border border-purple-100 bg-purple-50/70 p-4">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-purple-900 text-amber-400 flex items-center justify-center shrink-0 shadow-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M18 10a6 6 0 0 0-12 0v5a2 2 0 0 0 2 2h1v-5H7m10 0h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-1m-2 3h-4"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 20h6"/>
+                                </svg>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-xs font-black text-gray-900">{% trans "Technical Support" %}</p>
+                                <p class="text-[10px] text-gray-500 mt-0.5">{% trans "Unahitaji msaada wa TradeCore? Wasiliana nasi moja kwa moja." %}</p>
+                                <a href="tel:+255623777290" class="mt-2 inline-flex items-center gap-2 text-sm font-black text-purple-900 hover:text-purple-700 transition-colors" aria-label="{% trans "Piga Technical Support" %}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" d="M6.6 3.5l2.2-.5 1.7 4.1-1.5 1.2a15.8 15.8 0 0 0 6.7 6.7l1.2-1.5 4.1 1.7-.5 2.2a2 2 0 0 1-2.2 1.5C11.4 17.9 6.1 12.6 3.1 5.7A2 2 0 0 1 4.6 3.5z"/>
+                                    </svg>
+                                    0623 777 290
+                                </a>
+                                <div class="mt-1 text-[9px] font-bold text-gray-400">
+                                    {% trans "WhatsApp" %}: 0764 734 523
+                                </div>
+                            </div>
+                            <a href="tel:+255623777290" class="shrink-0 px-3 py-2 rounded-xl bg-purple-900 text-amber-400 text-[9px] font-black shadow-sm hover:bg-purple-800 transition-all">
+                                {% trans "Piga Support" %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <button onclick="fungaSettingsModal(); if(typeof showToast === 'function') showToast('{% trans "Mipangilio imehifadhiwa kikamilifu!" %}')" class="w-full mt-2 bg-purple-900 text-amber-400 font-bold py-3 rounded-xl shadow-md text-sm hover:bg-purple-800 transition-all">{% trans "Hifadhi Mipangilio" %}</button>
             </div>
         </div>
@@ -875,10 +905,17 @@
                         }
                     }
 
-                    requestAnimationFrame(() => {
-                        welcome.classList.remove("opacity-0");
-                    });
-                    
+                    welcome.classList.remove("opacity-0");
+                    welcomeCard.classList.remove("opacity-0");
+                    welcomeCard.style.opacity = "1";
+                    welcomeCard.style.transform = "scale(1) translateY(0)";
+                    welcome.setAttribute("aria-hidden", "false");
+
+                    // Restart the entrance animation cleanly for the registration success popup.
+                    welcomeCard.classList.remove("tc-welcome-animated");
+                    void welcomeCard.offsetWidth;
+                    welcomeCard.classList.add("tc-welcome-animated");
+
                     const duration = 3800; // Tumeongeza muda ili mtumiaji asome
                     if (welcomeProgress) {
                         welcomeProgress.style.transition = `transform ${duration}ms linear`;

@@ -6904,6 +6904,7 @@ def register_view(request):
     # ---------------------------------------------------------
     full_name = (request.POST.get("full_name") or "").strip()
     phone = (request.POST.get("phone") or "").strip()
+    whatsapp_no = (request.POST.get("whatsapp_no") or "").strip() # MPYA: Tumeidakia
     email = (request.POST.get("email") or "").strip().lower()
     username = (request.POST.get("username") or "").strip().lower()
     password = request.POST.get("password") or ""
@@ -7125,6 +7126,55 @@ def register_view(request):
         request.session["tradecore_welcome_user"] = username
         request.session["tradecore_welcome_role"] = "admin"
         request.session["tradecore_welcome_type"] = "trial"
+
+        # =========================================================
+        # AUTOMATIC ONBOARDING WHATSAPP KWA MWENYE DUKA
+        # =========================================================
+        try:
+            import requests
+            namba_lengo = whatsapp_no or phone or ""
+            recipient = re.sub(r"\D", "", namba_lengo)
+            
+            if recipient.startswith("0") and len(recipient) >= 10:
+                recipient = "255" + recipient[1:]
+            elif recipient.startswith("7") and len(recipient) >= 9:
+                recipient = "255" + recipient
+
+            if recipient.startswith("255") and len(recipient) == 12:
+                namba_ofisi = "255623777290" # WEKA NAMBA YAKO YA MERON TECH HAPA
+                
+                message_text = f"""Habari, {full_name}! 🎉
+
+Asante kwa kujiunga nasi TradeCore kusimamia na kukuza biashara yako.
+
+Je, unapata changamoto yoyote katika kusetup mfumo wako au kuingiza bidhaa?
+Wasiliana na kitengo chetu cha huduma kwa wateja muda wowote:
+
+💬 *Chat WhatsApp:* https://wa.me/{namba_ofisi}
+📞 *Piga Simu:* +{namba_ofisi}
+
+Kazi njema na biashara njema,
+*TradeCore by Meron Tech*"""
+
+                api_base = getattr(settings, "MOMO_API_BASE_URL", "https://business.momo.tz/api/v3").rstrip("/")
+                token = getattr(settings, "MOMO_API_TOKEN", "")
+                
+                if token:
+                    payload = {"recipient": recipient, "message": message_text}
+                    sender_id = getattr(settings, "MOMO_WHATSAPP_SENDER_ID", "")
+                    if sender_id:
+                        payload["sender_id"] = sender_id
+                        
+                    # Inatuma kwenye background bila kumchelewesha mteja anayeingia
+                    requests.post(
+                        f"{api_base}/whatsapp/send",
+                        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                        json=payload,
+                        timeout=5
+                    )
+        except Exception as e:
+            logger.error(f"Failed to send welcome message to new business owner: {e}")
+        # =========================================================
 
         target = redirect_by_role(user)
         target_url = target.url if hasattr(target, "url") else reverse("dashboard")

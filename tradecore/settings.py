@@ -72,12 +72,14 @@ if not SECRET_KEY:
 
 ALLOWED_HOSTS = _env_list(
     "ALLOWED_HOSTS",
-    default=["merontech.co.tz", "127.0.0.1", "localhost"],
+    default=["tradecore.merontech.co.tz", ".railway.app", "localhost", "127.0.0.1", "*"],
 )
 
+# CSRF Inazuia fomu zako zisifanye kazi kama domain hazipo hapa
+# Badala ya kutumia env tu, tunazi-hardcode domain zetu rasmi
 CSRF_TRUSTED_ORIGINS = _validate_origins(
     "CSRF_TRUSTED_ORIGINS",
-    _env_list("CSRF_TRUSTED_ORIGINS"),
+    _env_list("CSRF_TRUSTED_ORIGINS", default=["https://tradecore.merontech.co.tz", "https://*.railway.app"]),
 )
 
 
@@ -140,6 +142,7 @@ if DEBUG:
     CSRF_COOKIE_SECURE = False
 else:
     SECURE_SSL_REDIRECT = True
+    # Hii inasaidia Railway kujua kama connection ni HTTPS
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
     SESSION_COOKIE_SECURE = True
@@ -150,9 +153,11 @@ else:
     CSRF_COOKIE_HTTPONLY = False
     CSRF_COOKIE_SAMESITE = "Lax"
 
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+    # Hizi SECURE_HSTS zinaweza kukataa kufunguka kama Railway haijaseti SSL vizuri. 
+    # Tunazifunga (comment) kwa sasa, mpaka utakapo-link domain kamili ya Cloudflare au CPanel.
+    # SECURE_HSTS_SECONDS = 31536000
+    # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    # SECURE_HSTS_PRELOAD = True
 
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"

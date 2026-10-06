@@ -603,12 +603,35 @@
             margin-bottom: 14px;
             padding: 10px 12px;
             border-radius: 14px;
-            background: #fff2f4;
-            color: #b42345;
-            border: 1px solid #ffdce4;
             font-size: 9px;
             line-height: 1.45;
             font-weight: 800;
+            /* Default inabaki nyekundu kama haina tag */
+            background: #fff2f4;
+            color: #b42345;
+            border: 1px solid #ffdce4;
+        }
+
+        /* Rangi ya Kijani kwa Ujumbe wa Mafanikio (Success) */
+        .tc-form-message.success {
+            background: #f0fdf4;
+            color: #15803d;
+            border-color: #dcfce7;
+        }
+
+        /* Rangi ya Njano kwa Tahadhari / Taarifa (Warning/Info) */
+        .tc-form-message.warning,
+        .tc-form-message.info {
+            background: #fffbeb;
+            color: #b45309;
+            border-color: #fde68a;
+        }
+
+        /* Nyekundu inabaki kwa Error tu */
+        .tc-form-message.error {
+            background: #fff1f2;
+            color: #be123c;
+            border-color: #ffe4e6;
         }
 
         .tc-footer-note {
@@ -1402,7 +1425,7 @@
 
             {% if messages %}
                 {% for message in messages %}
-                    <div class="tc-form-message">{{ message }}</div>
+                    <div class="tc-form-message {{ message.tags }}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
 
@@ -1441,6 +1464,15 @@
                             <div class="tc-input-wrap">
                                 <input class="tc-input" id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="{% trans '07XXXXXXXX' %}" required>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4h3l1.2 4-2 1.3a14 14 0 0 0 5.5 5.5L16 13l4 1.2v3c0 1-.8 1.8-1.8 1.8C10.4 19 5 13.6 5 5.8 5 4.8 5.8 4 7 4Z"></path></svg>
+                            </div>
+                        </div>
+
+                        <!-- MPYA: KISANDUKU CHA WHATSAPP -->
+                        <div class="tc-field">
+                            <label class="tc-label" for="whatsapp_no">WhatsApp <span style="color:#10b981; font-weight:800; font-size:8px; margin-left:3px;">(Kwa msaada wa kiufundi)</span></label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="whatsapp_no" name="whatsapp_no" type="tel" inputmode="tel" placeholder="Acha wazi kama ni sawa na juu" style="background-color: #f0fdf4; border-color: #a7f3d0;">
+                                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" style="color:#10b981;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.347.298-.52.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51h-.57c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
                             </div>
                         </div>
 
