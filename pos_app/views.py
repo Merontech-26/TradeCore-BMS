@@ -7377,26 +7377,30 @@ def login_view(request):
 
 @login_required(login_url="login")
 def logout_view(request):
-    if hasattr(
-        request.user,
-        "profile",
-    ):
+    # SURGERY: Tunalinda zoezi la logout isikwame hata kama Profile haipo
+    try:
+        if hasattr(
+            request.user,
+            "profile",
+        ) and request.user.profile:
 
-        request.user.profile.muda_wa_mwisho = (
-            timezone.now()
+            request.user.profile.muda_wa_mwisho = (
+                timezone.now()
+            )
+
+            request.user.profile.save(
+                update_fields=[
+                    "muda_wa_mwisho"
+                ]
+            )
+
+        create_activity(
+            request.user,
+            "Ametoka kwenye mfumo",
+            "auth",
         )
-
-        request.user.profile.save(
-            update_fields=[
-                "muda_wa_mwisho"
-            ]
-        )
-
-    create_activity(
-        request.user,
-        "Ametoka kwenye mfumo",
-        "auth",
-    )
+    except Exception as e:
+        logger.warning(f"Logout tracking failed for user {request.user.username}: {e}")
 
     request.session.pop("tradecore_store_name", None)
     request.session.pop("tradecore_welcome_user", None)
