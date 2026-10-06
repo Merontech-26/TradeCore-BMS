@@ -215,12 +215,14 @@
       background: #fafafb;
       border: 1px solid transparent;
       transition: all 0.2s ease;
+      cursor: pointer;
     }
-    .row:hover { background: var(--surface); border-color: var(--border); box-shadow: var(--shadow-sm); }
+    .row:hover { background: var(--purple-light); border-color: #ddd6fe; box-shadow: var(--shadow-sm); }
     
     .primary { font-size: 14px; font-weight: 800; color: var(--ink); }
     .secondary { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500; }
     .right { text-align: right; }
+    .link-text { color: var(--purple-main); font-weight: 800; font-size: 12px; margin-top: 4px; }
     
     .gold { color: #b45309; font-weight: 900; }
     
@@ -261,6 +263,33 @@
     .mini .t { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
 
     .foot { margin-top: 24px; color: var(--muted); font-size: 12px; text-align: center; font-weight: 600; }
+
+    /* --- CUSTOM MODAL CSS --- */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      z-index: 1000; display: none; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-card {
+      background: var(--surface); border-radius: 24px; padding: 24px; width: 100%; max-width: 420px;
+      box-shadow: 0 24px 50px rgba(0,0,0,0.15); transform: scale(0.95); transition: transform 0.3s ease;
+    }
+    .modal-overlay.active .modal-card { transform: scale(1); }
+    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px; }
+    .modal-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--purple-main); background: var(--purple-light); padding: 4px 8px; border-radius: 6px; display: inline-block;}
+    .modal-title { font-size: 20px; font-weight: 900; margin: 8px 0 4px; color: var(--ink); }
+    .modal-subtitle { font-size: 13px; color: var(--muted); margin: 0; font-weight: 500; }
+    .modal-close { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--muted); font-size: 18px; font-weight: bold; cursor: pointer; display: grid; place-items: center; transition: all 0.2s; }
+    .modal-close:hover { background: #fee2e2; color: #ef4444; }
+    .modal-detail { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; }
+    .modal-detail .lbl { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .modal-detail .val { font-size: 13px; font-weight: 800; color: var(--ink); text-align: right; max-width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .modal-detail .val.highlight { color: var(--purple-main); }
+    .modal-detail .val.amber { color: #d97706; background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+    .btn-call { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: var(--purple-dark); color: var(--gold-main); padding: 16px; border-radius: 16px; font-weight: 900; font-size: 14px; text-decoration: none; margin-top: 20px; border: none; transition: transform 0.2s, background 0.2s; cursor: pointer;}
+    .btn-call:hover { transform: translateY(-2px); background: var(--purple-main); }
 
     /* --- ANIMATIONS --- */
     @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
@@ -348,16 +377,14 @@
           </form>
           <div class="rows">
             {% for business in recent_businesses %}
-            <!-- Kadi sasa ina onclick ili kufungua Popup -->
-            <div class="row cursor-pointer hover:bg-purple-50 transition-colors" 
-                 onclick="funguaTaarifaZaMteja('{{ business.jina_la_duka|default:'TradeCore Business'|escapejs }}', '{{ business.owner_name|escapejs }}', '{{ business.owner_email|escapejs }}', '{{ business.simu|default:'-'|escapejs }}', '{{ business.anwani_au_mahali|default:'-'|escapejs }}', '{{ business.get_business_type_display|default:'-'|escapejs }}', '{{ business.tin|default:'-'|escapejs }}', '{{ business.joined_local|date:'d M Y'|escapejs }}')">
+            <div class="row" onclick="funguaTaarifaZaMteja('{{ business.jina_la_duka|default:'TradeCore Business'|escapejs }}', '{{ business.owner_name|escapejs }}', '{{ business.owner_email|escapejs }}', '{{ business.simu|default:'-'|escapejs }}', '{{ business.anwani_au_mahali|default:'-'|escapejs }}', '{{ business.get_business_type_display|default:'-'|escapejs }}', '{{ business.tin|default:'-'|escapejs }}', '{{ business.joined_local|date:'d M Y'|escapejs }}')">
               <div>
-                <div class="primary text-purple-900">{{ business.jina_la_duka|default:"TradeCore Business" }}</div>
+                <div class="primary" style="color: var(--purple-dark);">{{ business.jina_la_duka|default:"TradeCore Business" }}</div>
                 <div class="secondary">{{ business.owner_name }} · {{ business.owner_email }}</div>
               </div>
               <div class="right">
                 <div class="secondary">{{ business.joined_local|date:"d M Y" }}</div>
-                <div class="secondary text-purple-700 font-bold">Tazama Zaidi ›</div>
+                <div class="link-text">Tazama Zaidi ›</div>
               </div>
             </div>
             {% empty %}
@@ -451,116 +478,67 @@
     <div class="foot">
       Last refresh: {{ last_refresh|date:"d M Y · H:i:s" }} · TradeCore Owner-Only Dashboard
     </div>
-
-    <!-- =========================================================
-         POPUP YA TAARIFA ZA MTEJA (CUSTOMER DETAILS MODAL)
-         ========================================================= -->
-    <div id="mtejaModalOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300" onclick="fungaTaarifaZaMteja(event)">
-      <div id="mtejaModalCard" class="bg-white rounded-3xl p-6 md:p-8 shadow-2xl w-full max-w-md transform scale-95 transition-transform duration-300 relative border border-gray-100">
-        
-        <!-- Header -->
-        <div class="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
-          <div>
-            <span class="text-[10px] font-black uppercase tracking-widest text-purple-700 bg-purple-50 px-2 py-1 rounded-md">TradeCore Client</span>
-            <h3 id="modalJinaDuka" class="text-xl font-black text-gray-900 mt-2">Jina la Duka</h3>
-            <p id="modalJinaMmiliki" class="text-sm text-gray-500 font-medium mt-1">Mmiliki</p>
-          </div>
-          <button type="button" onclick="fungaTaarifaZaMteja()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:text-rose-500 hover:bg-rose-50 font-bold transition-all text-xl leading-none">&times;</button>
-        </div>
-
-        <!-- Details Grid -->
-        <div class="space-y-4">
-          <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
-            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Simu</span>
-            <span id="modalSimu" class="text-sm font-black text-purple-900">-</span>
-          </div>
-
-          <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
-            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Email</span>
-            <span id="modalEmail" class="text-sm font-black text-gray-800">-</span>
-          </div>
-
-          <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
-            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Eneo / Anwani</span>
-            <span id="modalEneo" class="text-sm font-black text-gray-800 text-right w-1/2 truncate">-</span>
-          </div>
-
-          <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
-            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Aina ya Biashara</span>
-            <span id="modalAina" class="text-sm font-black text-amber-600 bg-amber-50 px-2 py-1 rounded-md">-</span>
-          </div>
-
-          <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
-            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">TIN No.</span>
-            <span id="modalTin" class="text-sm font-black text-gray-800">-</span>
-          </div>
-          
-          <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
-            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Tarehe Aliyojiunga</span>
-            <span id="modalTarehe" class="text-sm font-black text-gray-800">-</span>
-          </div>
-        </div>
-
-        <!-- Action Button -->
-        <a id="modalPigaSimu" href="#" class="mt-6 w-full bg-purple-900 hover:bg-purple-800 text-amber-400 font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2">
-          📞 Piga Simu Sasa
-        </a>
-      </div>
-    </div>
-
-    <!-- Scripts za kufungua na kufunga Modal -->
-    <script>
-      function funguaTaarifaZaMteja(duka, mmiliki, email, simu, eneo, aina, tin, tarehe) {
-        document.getElementById('modalJinaDuka').innerText = duka;
-        document.getElementById('modalJinaMmiliki').innerText = mmiliki;
-        document.getElementById('modalEmail').innerText = email;
-        document.getElementById('modalSimu').innerText = simu;
-        document.getElementById('modalEneo').innerText = eneo;
-        document.getElementById('modalAina').innerText = aina;
-        document.getElementById('modalTin').innerText = tin;
-        document.getElementById('modalTarehe').innerText = tarehe;
-        
-        // Weka link ya kupiga simu moja kwa moja
-        const btnPiga = document.getElementById('modalPigaSimu');
-        if(simu && simu !== '-') {
-            btnPiga.href = 'tel:' + simu;
-            btnPiga.style.display = 'flex';
-        } else {
-            btnPiga.style.display = 'none';
-        }
-
-        const overlay = document.getElementById('mtejaModalOverlay');
-        const card = document.getElementById('mtejaModalCard');
-        
-        overlay.classList.remove('hidden');
-        overlay.classList.add('flex');
-        
-        // Leta urembo wa Apple (Fade In & Scale Up)
-        setTimeout(() => {
-          overlay.classList.remove('opacity-0');
-          card.classList.remove('scale-95');
-          card.classList.add('scale-100');
-        }, 10);
-      }
-
-      function fungaTaarifaZaMteja(event) {
-        const overlay = document.getElementById('mtejaModalOverlay');
-        const card = document.getElementById('mtejaModalCard');
-        
-        // Kama amebonyeza nje ya kadi (kwenye kivuli), ifunge
-        if(event && event.target !== overlay && event.type === 'click') return;
-
-        overlay.classList.add('opacity-0');
-        card.classList.remove('scale-100');
-        card.classList.add('scale-95');
-        
-        setTimeout(() => {
-          overlay.classList.add('hidden');
-          overlay.classList.remove('flex');
-        }, 300);
-      }
-    </script>
-
   </main>
+
+  <!-- =========================================================
+       POPUP YA TAARIFA ZA MTEJA (CUSTOMER DETAILS MODAL)
+       IKO NJE YA MAIN ILI IFUNIKE UKURASA WOTE BILA MGONGANO
+       ========================================================= -->
+  <div id="mtejaModalOverlay" class="modal-overlay" onclick="fungaTaarifaZaMteja(event)">
+    <div id="mtejaModalCard" class="modal-card">
+      
+      <div class="modal-header">
+        <div>
+          <span class="modal-badge">TradeCore Client</span>
+          <h3 id="modalJinaDuka" class="modal-title">Jina la Duka</h3>
+          <p id="modalJinaMmiliki" class="modal-subtitle">Mmiliki</p>
+        </div>
+        <button type="button" onclick="fungaTaarifaZaMteja()" class="modal-close">&times;</button>
+      </div>
+
+      <div>
+        <div class="modal-detail"><span class="lbl">Simu</span><span id="modalSimu" class="val highlight">-</span></div>
+        <div class="modal-detail"><span class="lbl">Email</span><span id="modalEmail" class="val">-</span></div>
+        <div class="modal-detail"><span class="lbl">Eneo / Anwani</span><span id="modalEneo" class="val">-</span></div>
+        <div class="modal-detail"><span class="lbl">Aina ya Biashara</span><span id="modalAina" class="val amber">-</span></div>
+        <div class="modal-detail"><span class="lbl">TIN No.</span><span id="modalTin" class="val">-</span></div>
+        <div class="modal-detail"><span class="lbl">Tarehe Aliyojiunga</span><span id="modalTarehe" class="val">-</span></div>
+      </div>
+
+      <a id="modalPigaSimu" href="#" class="btn-call">📞 Piga Simu Sasa</a>
+    </div>
+  </div>
+
+  <script>
+    function funguaTaarifaZaMteja(duka, mmiliki, email, simu, eneo, aina, tin, tarehe) {
+      document.getElementById('modalJinaDuka').innerText = duka || 'TradeCore Business';
+      document.getElementById('modalJinaMmiliki').innerText = mmiliki || '-';
+      document.getElementById('modalEmail').innerText = email || '-';
+      document.getElementById('modalSimu').innerText = simu || '-';
+      document.getElementById('modalEneo').innerText = eneo || '-';
+      document.getElementById('modalAina').innerText = aina || '-';
+      document.getElementById('modalTin').innerText = tin || '-';
+      document.getElementById('modalTarehe').innerText = tarehe || '-';
+      
+      const btnPiga = document.getElementById('modalPigaSimu');
+      if(simu && simu !== '-') {
+          btnPiga.href = 'tel:' + simu;
+          btnPiga.style.display = 'flex';
+      } else {
+          btnPiga.style.display = 'none';
+      }
+
+      const overlay = document.getElementById('mtejaModalOverlay');
+      overlay.classList.add('active');
+    }
+
+    function fungaTaarifaZaMteja(event) {
+      const overlay = document.getElementById('mtejaModalOverlay');
+      // Kama tukio(event) lipo na aliyebonyezwa sio overlay (labda alibonyeza ndani ya card), usifunge
+      if(event && event.target !== overlay && event.type === 'click') return;
+      overlay.classList.remove('active');
+    }
+  </script>
+
 </body>
 </html>
