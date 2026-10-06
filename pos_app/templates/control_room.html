@@ -348,14 +348,16 @@
           </form>
           <div class="rows">
             {% for business in recent_businesses %}
-            <div class="row">
+            <!-- Kadi sasa ina onclick ili kufungua Popup -->
+            <div class="row cursor-pointer hover:bg-purple-50 transition-colors" 
+                 onclick="funguaTaarifaZaMteja('{{ business.jina_la_duka|default:'TradeCore Business'|escapejs }}', '{{ business.owner_name|escapejs }}', '{{ business.owner_email|escapejs }}', '{{ business.simu|default:'-'|escapejs }}', '{{ business.anwani_au_mahali|default:'-'|escapejs }}', '{{ business.get_business_type_display|default:'-'|escapejs }}', '{{ business.tin|default:'-'|escapejs }}', '{{ business.joined_local|date:'d M Y'|escapejs }}')">
               <div>
-                <div class="primary">{{ business.jina_la_duka|default:"TradeCore Business" }}</div>
+                <div class="primary text-purple-900">{{ business.jina_la_duka|default:"TradeCore Business" }}</div>
                 <div class="secondary">{{ business.owner_name }} · {{ business.owner_email }}</div>
               </div>
               <div class="right">
                 <div class="secondary">{{ business.joined_local|date:"d M Y" }}</div>
-                <div class="secondary">@{{ business.mwenye_duka.username }}</div>
+                <div class="secondary text-purple-700 font-bold">Tazama Zaidi ›</div>
               </div>
             </div>
             {% empty %}
@@ -449,7 +451,116 @@
     <div class="foot">
       Last refresh: {{ last_refresh|date:"d M Y · H:i:s" }} · TradeCore Owner-Only Dashboard
     </div>
-    
+
+    <!-- =========================================================
+         POPUP YA TAARIFA ZA MTEJA (CUSTOMER DETAILS MODAL)
+         ========================================================= -->
+    <div id="mtejaModalOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300" onclick="fungaTaarifaZaMteja(event)">
+      <div id="mtejaModalCard" class="bg-white rounded-3xl p-6 md:p-8 shadow-2xl w-full max-w-md transform scale-95 transition-transform duration-300 relative border border-gray-100">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-widest text-purple-700 bg-purple-50 px-2 py-1 rounded-md">TradeCore Client</span>
+            <h3 id="modalJinaDuka" class="text-xl font-black text-gray-900 mt-2">Jina la Duka</h3>
+            <p id="modalJinaMmiliki" class="text-sm text-gray-500 font-medium mt-1">Mmiliki</p>
+          </div>
+          <button type="button" onclick="fungaTaarifaZaMteja()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:text-rose-500 hover:bg-rose-50 font-bold transition-all text-xl leading-none">&times;</button>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Simu</span>
+            <span id="modalSimu" class="text-sm font-black text-purple-900">-</span>
+          </div>
+
+          <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Email</span>
+            <span id="modalEmail" class="text-sm font-black text-gray-800">-</span>
+          </div>
+
+          <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Eneo / Anwani</span>
+            <span id="modalEneo" class="text-sm font-black text-gray-800 text-right w-1/2 truncate">-</span>
+          </div>
+
+          <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Aina ya Biashara</span>
+            <span id="modalAina" class="text-sm font-black text-amber-600 bg-amber-50 px-2 py-1 rounded-md">-</span>
+          </div>
+
+          <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">TIN No.</span>
+            <span id="modalTin" class="text-sm font-black text-gray-800">-</span>
+          </div>
+          
+          <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Tarehe Aliyojiunga</span>
+            <span id="modalTarehe" class="text-sm font-black text-gray-800">-</span>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <a id="modalPigaSimu" href="#" class="mt-6 w-full bg-purple-900 hover:bg-purple-800 text-amber-400 font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2">
+          📞 Piga Simu Sasa
+        </a>
+      </div>
+    </div>
+
+    <!-- Scripts za kufungua na kufunga Modal -->
+    <script>
+      function funguaTaarifaZaMteja(duka, mmiliki, email, simu, eneo, aina, tin, tarehe) {
+        document.getElementById('modalJinaDuka').innerText = duka;
+        document.getElementById('modalJinaMmiliki').innerText = mmiliki;
+        document.getElementById('modalEmail').innerText = email;
+        document.getElementById('modalSimu').innerText = simu;
+        document.getElementById('modalEneo').innerText = eneo;
+        document.getElementById('modalAina').innerText = aina;
+        document.getElementById('modalTin').innerText = tin;
+        document.getElementById('modalTarehe').innerText = tarehe;
+        
+        // Weka link ya kupiga simu moja kwa moja
+        const btnPiga = document.getElementById('modalPigaSimu');
+        if(simu && simu !== '-') {
+            btnPiga.href = 'tel:' + simu;
+            btnPiga.style.display = 'flex';
+        } else {
+            btnPiga.style.display = 'none';
+        }
+
+        const overlay = document.getElementById('mtejaModalOverlay');
+        const card = document.getElementById('mtejaModalCard');
+        
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+        
+        // Leta urembo wa Apple (Fade In & Scale Up)
+        setTimeout(() => {
+          overlay.classList.remove('opacity-0');
+          card.classList.remove('scale-95');
+          card.classList.add('scale-100');
+        }, 10);
+      }
+
+      function fungaTaarifaZaMteja(event) {
+        const overlay = document.getElementById('mtejaModalOverlay');
+        const card = document.getElementById('mtejaModalCard');
+        
+        // Kama amebonyeza nje ya kadi (kwenye kivuli), ifunge
+        if(event && event.target !== overlay && event.type === 'click') return;
+
+        overlay.classList.add('opacity-0');
+        card.classList.remove('scale-100');
+        card.classList.add('scale-95');
+        
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+          overlay.classList.remove('flex');
+        }, 300);
+      }
+    </script>
+
   </main>
 </body>
 </html>
