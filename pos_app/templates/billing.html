@@ -223,62 +223,31 @@
          Hero image is configurable via billing_hero_image / TRADECORE_BILLING_HERO_IMAGE.
          ============================================================ -->
     <style id="tradecore-billing-registration-surface">
-        html {
-            background: #ffffff !important;
-        }
-
-        body {
+        html, body {
+            background: #ffffff radial-gradient(#d1d5db 1.5px, transparent 1.5px) 0 0 / 24px 24px !important;
             position: relative;
             overflow-x: hidden;
-            background-color: #ffffff !important;
-            background-image: radial-gradient(#d1d5db 1px, transparent 1px) !important;
-            background-size: 24px 24px !important;
-            background-position: 0 0 !important;
         }
 
         body::before {
             content: "";
-            position: fixed;
+            position: absolute;
             z-index: 0;
             top: 0;
             left: 0;
             right: 0;
-            height: clamp(235px, 27vh, 320px);
-            min-height: 235px;
-            max-height: 320px;
+            height: 380px;
             background-image:
-                linear-gradient(
-                    to bottom,
-                    rgba(14,12,18,.04) 0%,
-                    rgba(14,12,18,.08) 34%,
-                    rgba(255,255,255,.24) 58%,
-                    rgba(255,255,255,.78) 82%,
-                    rgba(255,255,255,1) 100%
-                ),
-                url("{% static billing_hero_image|default:'TradeCore Monthly Plan Banner.png' %}");
+                linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 60%, #ffffff 100%),
+                url("{% static 'TradeCore Monthly Plan Banner.png' %}");
             background-size: cover;
-            background-position: center 37%;
+            background-position: center top;
             background-repeat: no-repeat;
             pointer-events: none;
         }
 
         body::after {
-            content: "";
-            position: fixed;
-            z-index: 1;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 360px;
-            pointer-events: none;
-            background: linear-gradient(
-                to bottom,
-                rgba(255,255,255,0) 0%,
-                rgba(255,255,255,.08) 34%,
-                rgba(255,255,255,.48) 62%,
-                rgba(255,255,255,.90) 82%,
-                rgba(255,255,255,1) 100%
-            );
+            display: none !important;
         }
 
         /* Keep every real billing surface above the decorative background. */
