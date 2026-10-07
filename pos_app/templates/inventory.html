@@ -940,9 +940,9 @@ function inventoryT(key){ return INVENTORY_I18N[key] || key; }
   <div class="inventory-apple-card" style="width:min(520px,100%);">
     <div class="inventory-apple-grabber"></div>
     <div class="inventory-apple-header">
-      <div>
-        <h3>{% trans 'Tumia Simu kama Scanner' %}</h3>
-        <p>{% trans 'Scan QR hii kwa simu yako; barcode zitaingia kwenye Transfer ya desktop.' %}</p>
+      <div class="text-center">
+          <h3>{% trans 'Tumia Simu kama Scanner' %}</h3>  
+          <p>{% trans 'Scan QR hii kwa simu yako; barcode zitaingia kwenye Transfer ya desktop.' %}</p>
       </div>
       <button type="button" onclick="closeTradeCorePhoneScannerPairing()" class="inventory-apple-close">&times;</button>
     </div>

@@ -1527,28 +1527,32 @@
                             <label class="tc-label" for="business_type">{% trans 'Aina ya Biashara' %} <span class="tc-required">*</span></label>
                             <div class="tc-input-wrap">
                                 <select class="tc-select" id="business_type" name="business_type" required>
-                                    <option value="">{% trans 'Chagua aina' %}</option>
-                                    <option value="FASHION">{% trans 'Fashion & Clothing' %}</option>
-                                    <option value="COMPUTERS">{% trans 'Computers & Electronics' %}</option>
-                                    <option value="SUPERMARKET">{% trans 'Supermarket / Grocery' %}</option>
-                                    <option value="COSMETICS">{% trans 'Cosmetics & Beauty' %}</option>
-                                    <option value="PHARMACY">{% trans 'Pharmacy / Health Shop' %}</option>
-                                    <option value="HARDWARE">{% trans 'Hardware & Building Materials' %}</option>
-                                    <option value="RESTAURANT">{% trans 'Restaurant / Food' %}</option>
-                                    <option value="STATIONERY">{% trans 'Stationery & Bookshop' %}</option>
-                                    <option value="PHONES">{% trans 'Mobile Phones & Accessories' %}</option>
-                                    <option value="AUTOPARTS">{% trans 'Auto Parts' %}</option>
-                                    <option value="FURNITURE">{% trans 'Furniture & Home' %}</option>
-                                    <option value="GENERAL">{% trans 'General Retail' %}</option>
+                                    <option value="">{% trans 'Chagua aina ya biashara' %}</option>
+                                    {% for value, label in business_type_choices %}
+                                    <option value="{{ value }}" {% if value == selected_business_type %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
                                 </select>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m7 10 5 5 5-5"></path></svg>
                             </div>
                         </div>
 
                         <div class="tc-field">
-                            <label class="tc-label" for="location">{% trans 'Location / Eneo' %} <span class="tc-required">*</span></label>
+                            <label class="tc-label" for="mkoa">{% trans 'Mkoa wa Biashara' %} <span class="tc-required">*</span></label>
                             <div class="tc-input-wrap">
-                                <input class="tc-input" id="location" name="location" type="text" placeholder="{% trans 'Mfano: Dodoma Mjini' %}" required>
+                                <select class="tc-select" id="mkoa" name="mkoa" required>
+                                    <option value="">{% trans 'Chagua mkoa' %}</option>
+                                    {% for value, label in tanzania_region_choices %}
+                                    <option value="{{ value }}" {% if value == selected_mkoa %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m7 10 5 5 5-5"></path></svg>
+                            </div>
+                        </div>
+
+                        <div class="tc-field">
+                            <label class="tc-label" for="location">{% trans 'Eneo la Biashara' %} <span class="tc-required">*</span></label>
+                            <div class="tc-input-wrap">
+                                <input class="tc-input" id="location" name="location" type="text" value="{{ location_value|default:''|escape }}" placeholder="{% trans 'Mfano: Area C, Kariakoo, Sabasaba...' %}" required>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11Z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>
                             </div>
                         </div>
@@ -1585,7 +1589,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="tc-help">{% trans 'TIN ni optional kwa demo. Location, jina la biashara na simu ya biashara ni muhimu kwa profile na receipt.' %}</div>
+                    <div class="tc-help">{% trans 'TIN ni optional kwa demo. Mkoa, eneo, jina la biashara na simu ya biashara ni muhimu kwa profile na receipt.' %}</div>
                 </section>
 
                 <!-- STEP 3 -->
@@ -1652,7 +1656,7 @@
 
                     <div class="tc-review" style="margin-top: 14px;">
                         <div class="tc-review-top">
-                            <div><h3 id="reviewBusinessName">{% trans 'Jina la biashara' %}</h3><p id="reviewLocation">{% trans 'Location ya biashara' %}</p></div>
+                            <div><h3 id="reviewBusinessName">{% trans 'Jina la biashara' %}</h3><p id="reviewLocation">{% trans 'Mkoa na eneo la biashara' %}</p></div>
                             <div class="tc-review-badge">{% trans '30-DAY DEMO' %}</div>
                         </div>
                         <div class="tc-review-grid">
@@ -1763,7 +1767,8 @@
         if(step === 2){
             if(!requiredValue('business_name')) return showMessage("{% trans 'Weka jina la biashara.' %}"), false;
             if(!requiredValue('business_type')) return showMessage("{% trans 'Chagua aina ya biashara.' %}"), false;
-            if(!requiredValue('location')) return showMessage("{% trans 'Weka location / eneo la biashara.' %}"), false;
+            if(!requiredValue('mkoa')) return showMessage("{% trans 'Chagua mkoa wa biashara.' %}"), false;
+            if(!requiredValue('location')) return showMessage("{% trans 'Weka eneo la biashara.' %}"), false;
             if(!requiredValue('business_phone')) return showMessage("{% trans 'Weka simu ya biashara.' %}"), false;
         }
         if(step === 3){
@@ -1789,7 +1794,13 @@
         backBtn.style.display = step > 1 ? 'inline-flex' : 'none';
         nextBtn.style.display = step < 3 ? 'inline-flex' : 'none';
         submitBtn.style.display = step === 3 ? 'inline-flex' : 'none';
-        window.scrollTo({top: 0, behavior: 'smooth'});
+        const activePanel = document.querySelector(`[data-step-panel="${step}"]`);
+        if (activePanel) {
+            activePanel.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
         if(step === 3) syncReview();
     }
 
@@ -1840,22 +1851,23 @@
     });
 
     const businessType = document.getElementById('business_type');
+    const businessRegion = document.getElementById('mkoa');
     const businessPhone = document.getElementById('business_phone');
     const receiptPhonePreview = document.getElementById('receipt_phone_preview');
 
     function prettyType(value){
-        const map = {
-            FASHION:"{% trans 'Fashion & Clothing' %}", COMPUTERS:"{% trans 'Computers & Electronics' %}", SUPERMARKET:"{% trans 'Supermarket / Grocery' %}",
-            COSMETICS:"{% trans 'Cosmetics & Beauty' %}", PHARMACY:"{% trans 'Pharmacy / Health Shop' %}", HARDWARE:"{% trans 'Hardware & Building Materials' %}",
-            RESTAURANT:"{% trans 'Restaurant / Food' %}", STATIONERY:"{% trans 'Stationery & Bookshop' %}", PHONES:"{% trans 'Mobile Phones & Accessories' %}",
-            AUTOPARTS:"{% trans 'Auto Parts' %}", FURNITURE:"{% trans 'Furniture & Home' %}", GENERAL:"{% trans 'General Retail' %}"
-        };
-        return map[value] || '—';
+        if (!businessType || !value) return '—';
+        const option = businessType.options[businessType.selectedIndex];
+        return option ? option.textContent.trim() : '—';
     }
 
     function syncReview(){
         document.getElementById('reviewBusinessName').textContent = requiredValue('business_name') || "{% trans 'Jina la biashara' %}";
-        document.getElementById('reviewLocation').textContent = requiredValue('location') || "{% trans 'Location ya biashara' %}";
+        const region = requiredValue('mkoa');
+        const area = requiredValue('location');
+        document.getElementById('reviewLocation').textContent =
+            [region, area].filter(Boolean).join(' · ')
+            || "{% trans 'Mkoa na eneo la biashara' %}";
         document.getElementById('reviewOwner').textContent = requiredValue('full_name') || '—';
         document.getElementById('reviewPhone').textContent = requiredValue('business_phone') || '—';
         document.getElementById('reviewType').textContent = prettyType(businessType.value);
@@ -1865,7 +1877,7 @@
         receiptPhonePreview.classList.toggle('filled', !!receiptPhone);
     }
 
-    ['business_name','location','full_name','business_phone','tin'].forEach(id => {
+    ['business_name','location','mkoa','full_name','business_phone','tin'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.addEventListener('input', syncReview);
     });

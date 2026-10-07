@@ -18,14 +18,109 @@ h1{margin:0;font-size:20px;letter-spacing:-.03em}.copy{margin:4px 0 12px;font-si
 .last{margin-top:10px;padding:12px;border-radius:18px;background:#faf9fc;border:1px solid #eeeaf3}.last small{display:block;font-size:8px;color:#958da0;font-weight:800}.last b{display:block;margin-top:3px;font-size:15px;color:var(--p);word-break:break-all}
 .btn{margin-top:10px;width:100%;min-height:46px;border:0;border-radius:15px;background:var(--p);color:#ffd86b;font-weight:900;font-size:10px}.btn.secondary{background:#f2eef6;color:#5d5367}.hidden{display:none!important}.warning{margin-top:10px;padding:11px;border-radius:16px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:9px;font-weight:800}
 </style>
+
+<style id="tradecore-scanner-typography-polish-20261008">
+/* SURGERY 2026-10-08: visual typography/alignment only.
+   Camera, pairing, heartbeat and barcode logic remain untouched. */
+.card {
+    padding: 38px 16px 20px;
+}
+
+/* SURGERY: Tunavuta Logo na Jina la App vikae katikati */
+.brand {
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.scanner-intro {
+    text-align: center;
+    padding: 2px 8px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.scanner-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 24px;
+    padding: 5px 10px;
+    margin-bottom: 14px;
+    border-radius: 999px;
+    background: #f3edff;
+    border: 1px solid #e7dcff;
+    color: var(--p2);
+    font-size: 8px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+}
+
+.scanner-intro h1 {
+    margin: 0 auto;
+    max-width: 340px;
+    font-size: 24px;
+    line-height: 1.08;
+    letter-spacing: -.045em;
+    font-weight: 900;
+    color: #24152f;
+    text-align: center; /* Inavuta title katikati */
+}
+
+.scanner-intro h1 .accent {
+    color: var(--p2);
+}
+
+.scanner-intro .copy {
+    margin: 8px auto 14px;
+    max-width: 330px;
+    font-size: 11px;
+    line-height: 1.55;
+    font-weight: 650;
+    color: var(--muted);
+    text-align: center; /* Inavuta maelezo katikati */
+}
+
+#pairStatus,
+.warning {
+    text-align: center;
+}
+
+#pairStatus {
+    margin-top: 2px;
+    font-size: 10px;
+    line-height: 1.35;
+}
+
+.camera {
+    margin-top: 13px;
+}
+
+/* Tunavuta matokeo ya barcode yakae katikati */
+.last small, .last b {
+    letter-spacing: .08em;
+    text-align: center; 
+}
+
+.warning {
+    font-size: 9px;
+    line-height: 1.45;
+}
+</style>
+
 </head>
 <body>
 <div class="wrap">
 <div class="brand"><div class="logo">TC</div><div><b>TradeCore</b><span>Phone Scanner</span></div></div>
 {% if valid_pairing %}
 <div class="card">
-<h1>Tumia Simu kama Scanner</h1>
-<p class="copy">Barcode utakazoscani zitatumwa kwenye Transfer iliyofunguliwa kwenye desktop.</p>
+<div class="scanner-intro">
+<span class="scanner-eyebrow">TradeCore Mobile Scanner</span>
+<h1>Tumia simu kama <span class="accent">scanner</span></h1>
+<p class="copy">Scan barcode hapa. Kila scan itatumwa moja kwa moja kwenye Transfer ya desktop.</p>
+</div>
 <div id="pairStatus" class="status">Inaunganisha...</div>
 <div class="camera"><video id="phoneScannerVideo" playsinline muted autoplay></video><div class="frame"></div><div id="cameraMessage" class="camera-msg">Inaandaa camera...</div></div>
 <div class="last"><small>BARCODE YA MWISHO</small><b id="lastBarcode">—</b></div>

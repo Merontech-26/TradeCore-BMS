@@ -54,6 +54,112 @@
 
     </style>
     <link rel="stylesheet" href="{% static 'tradecore_pwa.css' %}">
+
+<style id="tradecore-mobile-appbar-store-name-fix">
+/* SURGERY 2026-10-08: Keep the business name visible in the mobile App Bar.
+   This is page-shell styling only; no sidebar/navigation architecture changes. */
+@media (max-width: 767px) {
+    #tradecoreMobileHeader {
+        display: grid !important;
+        grid-template-columns: 42px minmax(0, 1fr) auto !important;
+        align-items: center !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        gap: 8px !important;
+    }
+
+    #tradecoreMobileHeader .tc-header-logo,
+    #tradecoreMobileHeader .tc-header-right {
+        min-width: 0 !important;
+    }
+
+    #tradecoreMobileHeader .tc-header-center {
+        min-width: 0 !important;
+        width: 100% !important;
+        overflow: hidden !important;
+        text-align: center !important;
+    }
+
+    #tradecoreMobileHeader .tc-store-name-viewport {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+        text-align: center !important;
+    }
+
+    #tradecoreMobileHeader .tc-store-name {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        padding: 0 4px !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        text-overflow: ellipsis !important;
+        color: #4c1d95 !important;
+        font-size: 14px !important;
+        font-weight: 900 !important;
+        line-height: 1.2 !important;
+        letter-spacing: -0.02em !important;
+    }
+
+    #tradecoreMobileHeader .tc-store-name-text {
+        display: block !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        text-overflow: ellipsis !important;
+        transform: none !important;
+        will-change: auto !important;
+    }
+
+    #tradecoreMobileHeader .tc-store-subtitle {
+        display: block !important;
+        margin-top: 2px !important;
+        color: #8a8294 !important;
+        font-size: 8px !important;
+        font-weight: 800 !important;
+        line-height: 1.15 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    html.dark #tradecoreMobileHeader .tc-store-name {
+        color: #c4b5fd !important;
+    }
+
+    html.dark #tradecoreMobileHeader .tc-store-subtitle {
+        color: #94a3b8 !important;
+    }
+}
+</style>
+
+
+<style id="tradecore-alignment-polish-20261008">
+/* SURGERY 2026-10-08: alignment only.
+   No sync/scanner logic, routes, buttons or data flow changed. */
+
+#tradecoreSyncSheet .tradecore-sync-heading-group {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    text-align: center !important;
+}
+
+#tradecoreSyncSheet #tradecoreSyncTitle,
+#tradecoreSyncSheet #tradecoreSyncSubtitle {
+    width: 100% !important;
+    text-align: center !important;
+}
+
+#tradecoreSyncSheet #tradecoreSyncStatusCard .min-w-0 {
+    text-align: center !important;
+}
+</style>
+
+
 <script src="https://cdn.tailwindcss.com"></script>
     
     <script>
@@ -449,7 +555,7 @@
             <div class="tradecore-mobile-sheet-card" role="dialog" aria-modal="true" aria-labelledby="tradecoreSyncTitle">
                 <div class="tradecore-sheet-grabber"></div>
                 <div class="flex items-start justify-between gap-4">
-                    <div>
+                    <div class="tradecore-sync-heading-group">
                         <div id="tradecoreSyncTitle" class="tradecore-sheet-title">{% trans "Bila Mtandao na Usawazishaji" %}</div>
                         <div class="tradecore-sheet-subtitle" id="tradecoreSyncSubtitle">{% trans "TradeCore inalinda muamala wowote uliowekwa bila internet." %}</div>
                     </div>
@@ -903,6 +1009,39 @@
                 if (storeNameFromSession) {
                     storeNameEl.textContent = storeNameFromSession;
                     storeNameEl.title = storeNameFromSession;
+                }
+            }
+
+            /* SURGERY: Mobile App Bar gets the same resolved store name.
+               Session is preferred; the existing desktop store-name element
+               is a safe DOM fallback when an older/staff session lacks it. */
+            const mobileStoreNameText = document.querySelector(
+                "#tradecoreMobileHeader .tc-store-name-text"
+            );
+            if (mobileStoreNameText) {
+                let resolvedStoreName = storeNameFromSession.trim();
+
+                if (!resolvedStoreName && storeNameEl) {
+                    resolvedStoreName = (storeNameEl.textContent || "")
+                        .replace(/^🏬\s*/, "")
+                        .trim();
+                }
+
+                if (
+                    !resolvedStoreName ||
+                    resolvedStoreName === "TradeCore" ||
+                    resolvedStoreName === "TradeCore POS"
+                ) {
+                    const mobileCurrent = (mobileStoreNameText.textContent || "").trim();
+                    if (mobileCurrent && mobileCurrent !== "TradeCore POS") {
+                        resolvedStoreName = mobileCurrent;
+                    }
+                }
+
+                if (resolvedStoreName) {
+                    mobileStoreNameText.textContent = resolvedStoreName;
+                    mobileStoreNameText.title = resolvedStoreName;
+                    mobileStoreNameText.setAttribute("aria-label", resolvedStoreName);
                 }
             }
 

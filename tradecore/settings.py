@@ -281,6 +281,13 @@ MOMO_DAILY_REPORT_TEMPLATE_LANGUAGE = os.environ.get(
     "MOMO_DAILY_REPORT_TEMPLATE_LANGUAGE", "sw"
 ).strip()
 
+MOMO_WELCOME_TEMPLATE_NAME = os.environ.get(
+    "MOMO_WELCOME_TEMPLATE_NAME", ""
+).strip()
+MOMO_WELCOME_TEMPLATE_LANGUAGE = os.environ.get(
+    "MOMO_WELCOME_TEMPLATE_LANGUAGE", "sw"
+).strip()
+
 # Public daily-report link lifetime (seconds). 24 hours by default.
 TRADECORE_REPORT_TOKEN_MAX_AGE = _env_int(
     "TRADECORE_REPORT_TOKEN_MAX_AGE",

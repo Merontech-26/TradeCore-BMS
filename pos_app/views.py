@@ -57,6 +57,7 @@ from .models import (
     ActivityLog,
     Bidhaa,
     BUSINESS_TYPE_CHOICES,
+    TANZANIA_REGION_CHOICES,
     BusinessSubscription,
     Duka,
     Kategoria,
@@ -272,6 +273,24 @@ BUSINESS_CATEGORY_PACKS = {
     "PHONES": ["Smartphones", "Feature Phones", "Phone Cases", "Screen Protectors", "Chargers", "Power Banks", "USB Cables", "Earphones", "Headphones", "Memory Cards", "Phone Batteries", "Adapters", "Smart Watches", "Speakers", "Phone Accessories", "SIM Accessories", "Networking Accessories"],
     "AUTOPARTS": ["Engine Parts", "Brake System", "Suspension", "Steering", "Electrical", "Filters", "Belts", "Bearings", "Clutch", "Cooling System", "Fuel System", "Body Parts", "Lights", "Wipers", "Tyres", "Batteries", "Lubricants", "Auto Accessories", "Tools", "Motorcycle Parts"],
     "FURNITURE": ["Sofas", "Chairs", "Tables", "Beds", "Wardrobes", "Cabinets", "Desks", "Office Furniture", "Dining Sets", "TV Stands", "Shelves", "Mattresses", "Outdoor Furniture", "Home Decor", "Lighting", "Mirrors", "Curtains", "Carpets", "Kitchen Furniture"],
+    "HOTEL_LODGE": ["Rooms", "Accommodation", "Breakfast", "Restaurant", "Food & Beverage", "Conference", "Events", "Laundry", "Toiletries", "Housekeeping", "Mini Bar", "Travel Desk", "Airport Transfer"],
+    "BAKERY": ["Bread", "Cakes", "Pastries", "Doughnuts", "Cookies", "Biscuits", "Scones", "Pies", "Buns", "Sandwiches", "Snacks", "Ingredients", "Decorations", "Packaging"],
+    "SALON": ["Haircuts", "Braiding", "Hair Styling", "Hair Extensions", "Wigs", "Shampoo", "Conditioner", "Hair Treatment", "Hair Colour", "Barbering", "Manicure", "Pedicure", "Nail Art", "Makeup", "Skincare", "Beauty Products"],
+    "ELECTRONICS": ["Televisions", "Speakers", "Home Theatre", "Radios", "Appliances", "Fridges", "Freezers", "Washing Machines", "Microwaves", "Fans", "Blenders", "Cables", "Adapters", "Batteries", "Remote Controls", "LED Bulbs", "Accessories"],
+    "PHOTOGRAPHY": ["Cameras", "Lenses", "Lighting", "Tripods", "Memory Cards", "Batteries", "Audio Equipment", "Drones", "Photo Printing", "Albums", "Frames", "Studio Services", "Event Coverage", "Video Production"],
+    "PRINTING": ["Business Cards", "Flyers", "Posters", "Banners", "Stickers", "Receipt Books", "Booklets", "Calendars", "Invitations", "T-Shirts", "Branding", "Graphic Design", "Large Format Printing", "Digital Printing"],
+    "AGRICULTURE": ["Seeds", "Fertilizers", "Pesticides", "Herbicides", "Animal Feed", "Farm Tools", "Irrigation", "Greenhouse Supplies", "Poultry Supplies", "Livestock Supplies", "Agro Chemicals", "Harvest Equipment", "Packaging"],
+    "CONSTRUCTION": ["Building Construction", "Renovation", "Masonry", "Carpentry", "Electrical Installation", "Plumbing", "Painting", "Roofing", "Flooring", "Tiling", "Welding", "Site Services", "Equipment Hire"],
+    "TRANSPORT": ["Bus Tickets", "Travel Tickets", "Taxi", "Car Hire", "Motorcycle Transport", "Passenger Services", "Cargo Services", "Travel Booking", "Airport Transfers", "Tour Services"],
+    "LOGISTICS": ["Parcel Delivery", "Courier", "Freight", "Warehousing", "Distribution", "Last Mile Delivery", "Moving Services", "Packaging", "Cargo Handling", "Dispatch"],
+    "CAR_WASH": ["Car Wash", "Motorcycle Wash", "Interior Cleaning", "Exterior Detailing", "Waxing", "Polishing", "Engine Cleaning", "Vacuuming", "Tyre Services", "Air Fresheners"],
+    "FITNESS": ["Gym Membership", "Personal Training", "Group Training", "Classes", "Sportswear", "Sports Equipment", "Fitness Accessories", "Wellness Services"],
+    "EDUCATION": ["Tuition", "Courses", "Training", "Online Classes", "Books", "Textbooks", "Stationery", "Examinations", "Computer Training", "Professional Training", "Consultancy"],
+    "LAUNDRY": ["Washing", "Ironing", "Dry Cleaning", "Bedding", "Curtains", "Carpets", "Suits", "Shirts", "Blankets", "Collection & Delivery"],
+    "WHOLESALE": ["Food", "Beverages", "Household", "Personal Care", "Clothing", "Electronics", "Stationery", "Hardware", "Cosmetics", "Packaging", "General Distribution"],
+    "PET_SUPPLIES": ["Pet Food", "Pet Accessories", "Grooming", "Leashes & Collars", "Beds", "Toys", "Aquarium Supplies", "Pet Care Products"],
+    "AGENCY_SERVICES": ["Consulting", "Accounting", "Marketing", "Advertising", "Insurance", "Travel Agency", "Real Estate", "Digital Services", "Legal Services", "Business Services", "Event Services"],
+    "OTHER_SERVICES": ["General Services", "Consulting", "Repairs", "Maintenance", "Delivery", "Cleaning", "Professional Services", "Other"],
     "GENERAL": ["General Goods", "Household", "Personal Care", "Food", "Beverages", "Electronics", "Clothing", "Accessories", "Stationery", "Cleaning", "Hardware", "Other"],
 }
 
@@ -287,7 +306,26 @@ SMART_CATEGORY_HINTS = {
     "FURNITURE": {"sofa":"Sofas","chair":"Chairs","table":"Tables","bed":"Beds","wardrobe":"Wardrobes","cabinet":"Cabinets","desk":"Desks","mattress":"Mattresses","shelf":"Shelves","carpet":"Carpets","curtain":"Curtains","mirror":"Mirrors"},
     "RESTAURANT": {"pizza":"Fast Food","burger":"Fast Food","chips":"Fast Food","fries":"Fast Food","chicken":"Chicken","fish":"Fish","beef":"Meat","nyama":"Meat","juice":"Juices","soda":"Soft Drinks","coffee":"Hot Drinks","tea":"Hot Drinks","salad":"Salads","soup":"Soups","dessert":"Desserts"},
     "PHARMACY": {"paracetamol":"Pain Relief","ibuprofen":"Pain Relief","pain":"Pain Relief","cold":"Cold & Flu","flu":"Cold & Flu","vitamin":"Vitamins","bandage":"Bandages","antiseptic":"Antiseptics","thermometer":"Medical Devices","gloves":"First Aid","sanitizer":"Antiseptics","toothpaste":"Oral Care"},
+    "HOTEL_LODGE": {"room":"Rooms","breakfast":"Breakfast","restaurant":"Restaurant","conference":"Conference","laundry":"Laundry","toiletries":"Toiletries"},
+    "BAKERY": {"bread":"Bread","cake":"Cakes","pastry":"Pastries","cookie":"Cookies","doughnut":"Doughnuts","pie":"Pies"},
+    "SALON": {"haircut":"Haircuts","braiding":"Braiding","wig":"Wigs","extension":"Hair Extensions","shampoo":"Shampoo","manicure":"Manicure","pedicure":"Pedicure","makeup":"Makeup"},
+    "ELECTRONICS": {"tv":"Televisions","television":"Televisions","speaker":"Speakers","radio":"Radios","fridge":"Fridges","freezer":"Freezers","microwave":"Microwaves","blender":"Blenders","bulb":"LED Bulbs"},
+    "PHOTOGRAPHY": {"camera":"Cameras","lens":"Lenses","tripod":"Tripods","drone":"Drones","album":"Albums","frame":"Frames","printing":"Photo Printing"},
+    "PRINTING": {"poster":"Posters","banner":"Banners","sticker":"Stickers","flyer":"Flyers","invitation":"Invitations","business card":"Business Cards"},
+    "AGRICULTURE": {"seed":"Seeds","fertilizer":"Fertilizers","pesticide":"Pesticides","feed":"Animal Feed","irrigation":"Irrigation","tool":"Farm Tools"},
+    "CONSTRUCTION": {"cement":"Building Construction","plumbing":"Plumbing","roof":"Roofing","tile":"Tiling","welding":"Welding","paint":"Painting"},
+    "TRANSPORT": {"ticket":"Bus Tickets","taxi":"Taxi","hire":"Car Hire","cargo":"Cargo Services"},
+    "LOGISTICS": {"parcel":"Parcel Delivery","courier":"Courier","freight":"Freight","warehouse":"Warehousing","delivery":"Last Mile Delivery"},
+    "CAR_WASH": {"wash":"Car Wash","detail":"Exterior Detailing","wax":"Waxing","polish":"Polishing","tyre":"Tyre Services"},
+    "FITNESS": {"gym":"Gym Membership","trainer":"Personal Training","training":"Group Training","class":"Classes"},
+    "EDUCATION": {"tuition":"Tuition","course":"Courses","training":"Training","book":"Books","textbook":"Textbooks"},
+    "LAUNDRY": {"wash":"Washing","iron":"Ironing","dry clean":"Dry Cleaning","blanket":"Blankets","curtain":"Curtains"},
+    "WHOLESALE": {"wholesale":"General Distribution","food":"Food","beverage":"Beverages","hardware":"Hardware","clothing":"Clothing"},
+    "PET_SUPPLIES": {"pet food":"Pet Food","dog food":"Pet Food","cat food":"Pet Food","groom":"Grooming","collar":"Leashes & Collars","toy":"Toys"},
+    "AGENCY_SERVICES": {"accounting":"Accounting","marketing":"Marketing","insurance":"Insurance","travel":"Travel Agency","property":"Real Estate","consulting":"Consulting"},
+    "OTHER_SERVICES": {"repair":"Repairs","maintenance":"Maintenance","cleaning":"Cleaning","delivery":"Delivery"},
 }
+
 
 def get_store_profile(request, create=False):
     if not getattr(request.user, "is_authenticated", False):
@@ -7158,6 +7196,11 @@ def register_view(request):
     if request.user.is_authenticated:
         return redirect_by_role(request.user)
 
+    registration_context = {
+        "business_type_choices": BUSINESS_TYPE_CHOICES,
+        "tanzania_region_choices": TANZANIA_REGION_CHOICES,
+    }
+
     if request.method != "POST":
         # REGISTRATION UI SURGERY: discard stale flash messages left by
         # another page/session action (e.g. product delete/status notices).
@@ -7167,9 +7210,7 @@ def register_view(request):
         return render(
             request,
             "registration.html",
-            {
-                "business_type_choices": BUSINESS_TYPE_CHOICES,
-            },
+            registration_context,
         )
 
     # ---------------------------------------------------------
@@ -7188,11 +7229,18 @@ def register_view(request):
     # ---------------------------------------------------------
     business_name = (request.POST.get("business_name") or "").strip()
     business_type = (request.POST.get("business_type") or "GENERAL").strip().upper()
+    mkoa = (request.POST.get("mkoa") or "").strip()
     location = (request.POST.get("location") or "").strip()
     business_address = (request.POST.get("business_address") or "").strip()
     business_phone = (request.POST.get("business_phone") or "").strip()
     business_email = (request.POST.get("business_email") or "").strip().lower()
     tin = (request.POST.get("tin") or "").strip()
+
+    registration_context.update({
+        "selected_business_type": business_type,
+        "selected_mkoa": mkoa,
+        "location_value": location,
+    })
 
     # ---------------------------------------------------------
     # RECEIPT / STORE IDENTITY
@@ -7241,8 +7289,10 @@ def register_view(request):
         errors.append("Weka jina la biashara.")
     if business_type not in dict(BUSINESS_TYPE_CHOICES):
         errors.append("Aina ya biashara haijatambuliwa.")
+    if mkoa not in dict(TANZANIA_REGION_CHOICES):
+        errors.append("Chagua mkoa wa biashara.")
     if not location:
-        errors.append("Weka location / eneo la biashara.")
+        errors.append("Weka eneo la biashara.")
 
     business_phone_digits = re.sub(r"\D+", "", business_phone)
     if not business_phone or len(business_phone_digits) < 7:
@@ -7268,9 +7318,7 @@ def register_view(request):
         return render(
             request,
             "registration.html",
-            {
-                "business_type_choices": BUSINESS_TYPE_CHOICES,
-            },
+            registration_context,
         )
 
     # ---------------------------------------------------------
@@ -7281,7 +7329,7 @@ def register_view(request):
         return render(
             request,
             "registration.html",
-            {"business_type_choices": BUSINESS_TYPE_CHOICES},
+            registration_context,
         )
 
     if User.objects.filter(email__iexact=email).exists():
@@ -7289,7 +7337,7 @@ def register_view(request):
         return render(
             request,
             "registration.html",
-            {"business_type_choices": BUSINESS_TYPE_CHOICES},
+            registration_context,
         )
 
     if business_email and User.objects.filter(email__iexact=business_email).exists() and business_email != email:
@@ -7341,9 +7389,12 @@ def register_view(request):
                 ]
             )
 
-            store_address = location
+            location_parts = [mkoa, location]
             if business_address:
-                store_address = f"{location}, {business_address}"
+                location_parts.append(business_address)
+            store_address = " — ".join(part for part in location_parts if part).strip()
+            # Duka.anwani_au_mahali is an existing 150-character field.
+            store_address = store_address[:150]
 
             duka = Duka.objects.create(
                 mwenye_duka=user,
@@ -7404,49 +7455,162 @@ def register_view(request):
         # AUTOMATIC ONBOARDING WHATSAPP KWA MWENYE DUKA
         # =========================================================
         try:
-            import requests
             namba_lengo = whatsapp_no or phone or ""
             recipient = re.sub(r"\D", "", namba_lengo)
-            
+
             if recipient.startswith("0") and len(recipient) >= 10:
                 recipient = "255" + recipient[1:]
             elif recipient.startswith("7") and len(recipient) >= 9:
                 recipient = "255" + recipient
 
-            if recipient.startswith("255") and len(recipient) == 12:
-                namba_ofisi = "255623777290" # WEKA NAMBA YAKO YA MERON TECH HAPA
-                
-                message_text = f"""Habari, {full_name}! 🎉
+            api_base = (
+                getattr(
+                    settings,
+                    "MOMO_API_BASE_URL",
+                    "https://business.momo.tz/api/v3",
+                )
+                or "https://business.momo.tz/api/v3"
+            ).strip().rstrip("/")
+            token = (getattr(settings, "MOMO_API_TOKEN", "") or "").strip()
+            sender_id = (
+                getattr(settings, "MOMO_WHATSAPP_SENDER_ID", "") or ""
+            ).strip()
 
-Asante kwa kujiunga nasi TradeCore kusimamia na kukuza biashara yako.
+            # A new registration is an outbound business-initiated WhatsApp
+            # conversation. Prefer a Meta-approved template when configured.
+            welcome_template_name = (
+                getattr(settings, "MOMO_WELCOME_TEMPLATE_NAME", "") or ""
+            ).strip()
+            welcome_template_language = (
+                getattr(settings, "MOMO_WELCOME_TEMPLATE_LANGUAGE", "sw") or "sw"
+            ).strip()
 
-Je, unapata changamoto yoyote katika kusetup mfumo wako au kuingiza bidhaa?
-Wasiliana na kitengo chetu cha huduma kwa wateja muda wowote:
+            if not recipient.startswith("255") or len(recipient) != 12:
+                logger.warning(
+                    "Welcome WhatsApp skipped: invalid recipient=%s username=%s",
+                    recipient,
+                    username,
+                )
+            elif not token:
+                logger.error(
+                    "Welcome WhatsApp skipped: MOMO_API_TOKEN is missing. username=%s",
+                    username,
+                )
+            elif not welcome_template_name:
+                logger.error(
+                    "Welcome WhatsApp skipped: MOMO_WELCOME_TEMPLATE_NAME is missing. "
+                    "A new user should be contacted with an approved WhatsApp template. username=%s",
+                    username,
+                )
+            else:
+                payload = {
+                    "recipient": recipient,
+                    "message_type": "template",
+                    "template": {
+                        "name": welcome_template_name,
+                        "language": welcome_template_language,
+                        "components": [
+                            {
+                                "type": "body",
+                                "parameters": [
+                                    {
+                                        "type": "text",
+                                        "text": full_name,
+                                    }
+                                ],
+                            }
+                        ],
+                    },
+                }
 
-💬 *Chat WhatsApp:* https://wa.me/{namba_ofisi}
-📞 *Piga Simu:* +{namba_ofisi}
+                if sender_id:
+                    payload["sender_id"] = sender_id
 
-Kazi njema na biashara njema,
-*TradeCore by Meron Tech*"""
+                response = requests.post(
+                    f"{api_base}/whatsapp/send",
+                    headers={
+                        "Authorization": f"Bearer {token}",
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    json=payload,
+                    timeout=15,
+                )
 
-                api_base = getattr(settings, "MOMO_API_BASE_URL", "https://business.momo.tz/api/v3").rstrip("/")
-                token = getattr(settings, "MOMO_API_TOKEN", "")
-                
-                if token:
-                    payload = {"recipient": recipient, "message": message_text}
-                    sender_id = getattr(settings, "MOMO_WHATSAPP_SENDER_ID", "")
-                    if sender_id:
-                        payload["sender_id"] = sender_id
-                        
-                    # Inatuma kwenye background bila kumchelewesha mteja anayeingia
-                    requests.post(
-                        f"{api_base}/whatsapp/send",
-                        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-                        json=payload,
-                        timeout=5
+                try:
+                    response_data = response.json()
+                except ValueError:
+                    response_data = {
+                        "message": (response.text or "")[:1000]
+                    }
+
+                messages_data = []
+                if isinstance(response_data, dict):
+                    messages_data = (
+                        (response_data.get("data") or {}).get("messages")
+                        or []
                     )
-        except Exception as e:
-            logger.error(f"Failed to send welcome message to new business owner: {e}")
+
+                first = messages_data[0] if messages_data else {}
+                provider_status = str(
+                    first.get("status") or ""
+                ).lower()
+                provider_id = str(
+                    first.get("uid")
+                    or first.get("id")
+                    or first.get("gateway_message_id")
+                    or ""
+                )[:255]
+
+                api_success = response.status_code in {200, 201, 202}
+                delivery_ok = provider_status not in {"failed", "error"}
+
+                if api_success and delivery_ok:
+                    logger.info(
+                        "Welcome WhatsApp accepted: username=%s recipient=%s "
+                        "provider_status=%s uid=%s",
+                        username,
+                        recipient,
+                        provider_status or "unknown",
+                        provider_id or "none",
+                    )
+                else:
+                    provider_error = str(
+                        first.get("error_message")
+                        or (
+                            response_data.get("message")
+                            if isinstance(response_data, dict)
+                            else ""
+                        )
+                        or "Momo WhatsApp imekataa ujumbe."
+                    )[:1000]
+
+                    logger.error(
+                        "Welcome WhatsApp failed: username=%s recipient=%s "
+                        "http=%s provider_status=%s uid=%s error=%s response=%s",
+                        username,
+                        recipient,
+                        response.status_code,
+                        provider_status or "unknown",
+                        provider_id or "none",
+                        provider_error,
+                        response_data,
+                    )
+
+        except requests.RequestException as exc:
+            logger.exception(
+                "Welcome WhatsApp request failed for username=%s: %s",
+                username,
+                exc,
+            )
+        except Exception as exc:
+            logger.exception(
+                "Welcome WhatsApp unexpected failure for username=%s: %s",
+                username,
+                exc,
+            )
+        # =========================================================
+
         # =========================================================
 
         target = redirect_by_role(user)
@@ -7463,7 +7627,7 @@ Kazi njema na biashara njema,
         return render(
             request,
             "registration.html",
-            {"business_type_choices": BUSINESS_TYPE_CHOICES},
+            registration_context,
         )
 
 
