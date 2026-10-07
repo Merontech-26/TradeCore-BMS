@@ -34,6 +34,8 @@ from django.contrib.messages import get_messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.sessions.backends.db import SessionStore
+from django.contrib.sessions.models import Session
 from django.db import transaction
 from django.db.models import (
     Count,
@@ -1492,6 +1494,277 @@ def import_products(request):
         logger.exception("Product import failed")
         messages.error(request, f"Import imeshindikana: {exc}")
     return redirect("stoo_bidhaa")
+
+
+# =========================================================
+# PHONE-AS-SCANNER — SHORT-LIVED DESKTOP/PHONE PAIRING
+# Uses Django's existing DB-backed session table as the isolated
+# pairing channel. No new model or websocket dependency required.
+# =========================================================
+_PHONE_SCANNER_SALT="tradecore-phone-scanner-v1"
+_PHONE_SCANNER_TTL=300
+_PHONE_SCANNER_MAX_SCANS=100
+
+
+def _phone_scanner_signed_payload(token):
+    try:
+        payload=signing.loads(token,salt=_PHONE_SCANNER_SALT,max_age=_PHONE_SCANNER_TTL)
+    except (BadSignature,SignatureExpired,TypeError,ValueError):
+        return None
+    if not isinstance(payload,dict):
+        return None
+    sid=str(payload.get("sid") or "").strip()
+    pair_id=str(payload.get("pair_id") or "").strip()
+    if not sid or not pair_id:
+        return None
+    return payload
+
+
+def _phone_scanner_read(sid):
+    row=Session.objects.filter(session_key=sid,expire_date__gt=timezone.now()).first()
+    if not row:
+        return None
+    try:
+        return SessionStore(session_key=sid).decode(row.session_data)
+    except Exception:
+        return None
+
+
+def _phone_scanner_update(sid,updater):
+    with transaction.atomic():
+        row=(
+            Session.objects
+            .select_for_update()
+            .filter(session_key=sid,expire_date__gt=timezone.now())
+            .first()
+        )
+        if not row:
+            return None
+        store=SessionStore(session_key=sid)
+        data=store.decode(row.session_data) or {}
+        result=updater(data)
+        row.session_data=store.encode(data)
+        row.save(update_fields=["session_data"])
+        return result
+
+
+@login_required(login_url="login")
+@require_POST
+def phone_scanner_start(request):
+    denied=require_roles(request,"admin","stoo")
+    if denied:
+        return denied
+
+    duka=get_store_profile(request)
+    if not duka:
+        return JsonResponse({"ok":False,"message":"Duka halijatambuliwa."},status=400)
+
+    pair_id=uuid.uuid4().hex
+    store=SessionStore()
+    store.create()
+    sid=store.session_key
+
+    now=int(time.time())
+    store["tradecore_phone_scanner"]={
+        "active":True,
+        "pair_id":pair_id,
+        "owner_id":int(request.user.id),
+        "duka_id":int(duka.id),
+        "created_at":now,
+        "expires_at":now+_PHONE_SCANNER_TTL,
+        "phone_last_seen":0,
+        "scans":[],
+        "next_seq":0,
+    }
+    store.set_expiry(_PHONE_SCANNER_TTL)
+    store.save()
+
+    request.session["tradecore_phone_scanner_sid"]=sid
+
+    token=signing.dumps(
+        {"sid":sid,"pair_id":pair_id},
+        salt=_PHONE_SCANNER_SALT,
+        compress=True,
+    )
+    phone_url=request.build_absolute_uri(reverse("phone_scanner_page"))+"?token="+token
+
+    qr=qrcode.QRCode(version=None,box_size=8,border=3)
+    qr.add_data(phone_url)
+    qr.make(fit=True)
+    qr_image=qr.make_image(fill_color="#4c1d95",back_color="#ffffff")
+    qr_buffer=BytesIO()
+    qr_image.save(qr_buffer,format="PNG")
+    qr_data_url="data:image/png;base64,"+base64.b64encode(qr_buffer.getvalue()).decode("ascii")
+
+    return JsonResponse({
+        "ok":True,
+        "phone_url":phone_url,
+        "qr_data_url":qr_data_url,
+        "expires_in":_PHONE_SCANNER_TTL,
+        "pairing_id":pair_id,
+    })
+
+
+@login_required(login_url="login")
+@require_GET
+def phone_scanner_poll(request):
+    denied=require_roles(request,"admin","stoo")
+    if denied:
+        return denied
+
+    sid=str(request.session.get("tradecore_phone_scanner_sid") or "").strip()
+    if not sid:
+        return JsonResponse({"ok":False,"message":"Hakuna phone scanner session."},status=404)
+
+    duka=get_store_profile(request)
+    data=_phone_scanner_read(sid)
+    if not data or not duka:
+        return JsonResponse({"ok":False,"message":"Pairing imekwisha."},status=410)
+
+    pair=data.get("tradecore_phone_scanner") or {}
+    if (
+        not pair.get("active")
+        or int(pair.get("owner_id") or 0)!=int(request.user.id)
+        or int(pair.get("duka_id") or 0)!=int(duka.id)
+        or int(pair.get("expires_at") or 0)<=int(time.time())
+    ):
+        return JsonResponse({"ok":False,"message":"Pairing imekwisha."},status=410)
+
+    try:
+        cursor=max(0,int(request.GET.get("cursor") or 0))
+    except (TypeError,ValueError):
+        cursor=0
+
+    scans=[
+        item for item in (pair.get("scans") or [])
+        if int(item.get("seq") or 0)>cursor
+    ]
+    last_seen=int(pair.get("phone_last_seen") or 0)
+
+    return JsonResponse({
+        "ok":True,
+        "phone_online":(int(time.time())-last_seen)<=6,
+        "scans":scans,
+        "next_seq":int(pair.get("next_seq") or 0),
+        "expires_in":max(0,int(pair.get("expires_at") or 0)-int(time.time())),
+    })
+
+
+@login_required(login_url="login")
+@require_POST
+def phone_scanner_stop(request):
+    denied=require_roles(request,"admin","stoo")
+    if denied:
+        return denied
+
+    sid=str(request.session.get("tradecore_phone_scanner_sid") or "").strip()
+    if sid:
+        def close_pair(data):
+            pair=data.get("tradecore_phone_scanner") or {}
+            pair["active"]=False
+            data["tradecore_phone_scanner"]=pair
+        _phone_scanner_update(sid,close_pair)
+
+    request.session.pop("tradecore_phone_scanner_sid",None)
+    return JsonResponse({"ok":True})
+
+
+@require_GET
+def phone_scanner_page(request):
+    token=str(request.GET.get("token") or "").strip()
+    payload=_phone_scanner_signed_payload(token)
+    if not payload:
+        response=render(request,"phone_scanner.html",{"valid_pairing":False,"pair_token":""},status=410)
+        response["Cache-Control"]="no-store, no-cache, max-age=0"
+        response["Pragma"]="no-cache"
+        response["X-Robots-Tag"]="noindex, nofollow, noarchive"
+        return response
+
+    data=_phone_scanner_read(payload["sid"])
+    pair=(data or {}).get("tradecore_phone_scanner") or {}
+    valid=(
+        bool(pair)
+        and bool(pair.get("active"))
+        and str(pair.get("pair_id") or "")==payload["pair_id"]
+        and int(pair.get("expires_at") or 0)>int(time.time())
+    )
+    if not valid:
+        response=render(request,"phone_scanner.html",{"valid_pairing":False,"pair_token":""},status=410)
+        response["Cache-Control"]="no-store, no-cache, max-age=0"
+        response["Pragma"]="no-cache"
+        response["X-Robots-Tag"]="noindex, nofollow, noarchive"
+        return response
+
+    response=render(request,"phone_scanner.html",{"valid_pairing":True,"pair_token":token})
+    response["Cache-Control"]="no-store, no-cache, max-age=0"
+    response["Pragma"]="no-cache"
+    response["X-Robots-Tag"]="noindex, nofollow, noarchive"
+    return response
+
+
+@require_POST
+def phone_scanner_heartbeat(request):
+    token=str(request.POST.get("token") or "").strip()
+    payload=_phone_scanner_signed_payload(token)
+    if not payload:
+        return JsonResponse({"ok":False,"message":"Pairing token si sahihi."},status=410)
+
+    def touch_pair(data):
+        pair=data.get("tradecore_phone_scanner") or {}
+        if (
+            not pair.get("active")
+            or str(pair.get("pair_id") or "")!=payload["pair_id"]
+            or int(pair.get("expires_at") or 0)<=int(time.time())
+        ):
+            return False
+        pair["phone_last_seen"]=int(time.time())
+        data["tradecore_phone_scanner"]=pair
+        return True
+
+    ok=_phone_scanner_update(payload["sid"],touch_pair)
+    if ok is not True:
+        return JsonResponse({"ok":False,"message":"Pairing imekwisha."},status=410)
+    return JsonResponse({"ok":True})
+
+
+@require_POST
+def phone_scanner_receive(request):
+    token=str(request.POST.get("token") or "").strip()
+    barcode=str(request.POST.get("barcode") or "").strip()
+    payload=_phone_scanner_signed_payload(token)
+    if not payload:
+        return JsonResponse({"ok":False,"message":"Pairing token si sahihi."},status=410)
+    if not barcode or len(barcode)>128 or any(ord(ch)<32 for ch in barcode):
+        return JsonResponse({"ok":False,"message":"Barcode si sahihi."},status=400)
+
+    now_ms=int(time.time()*1000)
+
+    def receive(data):
+        pair=data.get("tradecore_phone_scanner") or {}
+        if (
+            not pair.get("active")
+            or str(pair.get("pair_id") or "")!=payload["pair_id"]
+            or int(pair.get("expires_at") or 0)<=int(time.time())
+        ):
+            return None
+
+        pair["phone_last_seen"]=int(time.time())
+        scans=list(pair.get("scans") or [])
+        last=scans[-1] if scans else {}
+        if str(last.get("barcode") or "")==barcode and now_ms-int(last.get("at_ms") or 0)<1000:
+            return {"seq":int(last.get("seq") or 0),"duplicate":True}
+
+        seq=int(pair.get("next_seq") or 0)+1
+        scans.append({"seq":seq,"barcode":barcode,"at_ms":now_ms})
+        pair["next_seq"]=seq
+        pair["scans"]=scans[-_PHONE_SCANNER_MAX_SCANS:]
+        data["tradecore_phone_scanner"]=pair
+        return {"seq":seq,"duplicate":False}
+
+    result=_phone_scanner_update(payload["sid"],receive)
+    if result is None:
+        return JsonResponse({"ok":False,"message":"Pairing imekwisha."},status=410)
+    return JsonResponse({"ok":True,**result})
 
 
 @login_required(login_url="login")

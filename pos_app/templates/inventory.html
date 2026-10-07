@@ -844,6 +844,9 @@ function inventoryT(key){ return INVENTORY_I18N[key] || key; }
       <div class="inventory-form-field"><label>{% trans 'Maelezo ya sababu' %}</label><textarea id="inventoryTransferReasonText" class="inventory-input" rows="2" maxlength="1000" placeholder="Andika sababu/maelezo muhimu..."></textarea></div>
     </div>
     <div class="flex items-center gap-2 mb-3 bg-gray-50 p-2 rounded-2xl border border-gray-100"><input type="text" class="inventory-input flex-1" style="min-height:36px; padding:6px 12px; font-size:11px;" placeholder="Andika Barcode au ID kisha Enter..." onkeydown="if(event.key==='Enter'){ window.tradecoreInventoryScanHandler(this.value); this.value=''; event.preventDefault(); }"><button type="button" onclick="TradeCoreMobile.openInventoryScanner('transfer')" class="px-3 py-2 rounded-xl bg-purple-100 text-purple-900 font-black text-[10px]">📷 Kamera</button></div>
+      <button type="button" onclick="openTradeCorePhoneScannerPairing()" class="w-full mb-3 px-4 py-3 rounded-2xl border border-purple-200 bg-purple-50 text-purple-900 font-black text-[10px] flex items-center justify-center gap-2 shadow-sm">
+        <span class="text-sm">📱</span><span>{% trans 'Tumia Simu kama Scanner' %}</span>
+      </button>
     <div id="inventoryTransferPicker" class="inventory-transfer-picker">
       <div class="inventory-transfer-picker-head">
         <div>
@@ -928,6 +931,40 @@ function inventoryT(key){ return INVENTORY_I18N[key] || key; }
     <div class="flex items-center justify-between gap-2 mt-2">
       <div class="text-[9px] text-gray-400 font-bold">{% trans 'USB/Bluetooth scanners za keyboard/HID zinakubaliwa moja kwa moja.' %}</div>
       <button id="tradecoreInventorySerialButton" type="button" onclick="TradeCoreMobile.connectInventorySerialScanner?.()" class="hidden shrink-0 px-3 py-2 rounded-xl bg-gray-100 text-gray-700 text-[9px] font-black">{% trans 'Serial 9600' %}</button>
+    </div>
+  </div>
+</div>
+
+<div id="tradecorePhoneScannerModal" class="inventory-apple-modal hidden" aria-hidden="true">
+  <div class="inventory-apple-backdrop" onclick="closeTradeCorePhoneScannerPairing()"></div>
+  <div class="inventory-apple-card" style="width:min(520px,100%);">
+    <div class="inventory-apple-grabber"></div>
+    <div class="inventory-apple-header">
+      <div>
+        <h3>{% trans 'Tumia Simu kama Scanner' %}</h3>
+        <p>{% trans 'Scan QR hii kwa simu yako; barcode zitaingia kwenye Transfer ya desktop.' %}</p>
+      </div>
+      <button type="button" onclick="closeTradeCorePhoneScannerPairing()" class="inventory-apple-close">&times;</button>
+    </div>
+    <div class="mt-2 rounded-3xl border border-purple-100 bg-purple-50/60 p-4 text-center">
+      <div id="tradecorePhoneScannerStatus" class="text-[10px] font-black text-gray-700">{% trans 'Inaunda pairing salama...' %}</div>
+      <div id="tradecorePhoneScannerQrWrap" class="mt-4 flex items-center justify-center min-h-[230px]">
+        <div class="text-[10px] font-bold text-gray-400">{% trans 'Inatengeneza QR Code...' %}</div>
+      </div>
+      <div id="tradecorePhoneScannerUrl" class="mt-3 break-all text-[9px] font-bold text-gray-400"></div>
+    </div>
+    <div class="mt-3 grid grid-cols-2 gap-2">
+      <div class="rounded-2xl border border-gray-100 bg-white p-3">
+        <div class="text-[9px] font-black text-gray-400 uppercase">{% trans 'Hali' %}</div>
+        <div id="tradecorePhoneScannerConnection" class="mt-1 text-[11px] font-black text-amber-600">{% trans 'Inasubiri simu...' %}</div>
+      </div>
+      <div class="rounded-2xl border border-gray-100 bg-white p-3">
+        <div class="text-[9px] font-black text-gray-400 uppercase">{% trans 'Scans' %}</div>
+        <div id="tradecorePhoneScannerCount" class="mt-1 text-[11px] font-black text-purple-900">0</div>
+      </div>
+    </div>
+    <div id="tradecorePhoneScannerLast" class="mt-3 rounded-2xl bg-gray-50 border border-gray-100 p-3 text-[10px] font-bold text-gray-600">
+      {% trans 'Simu ikishaunganishwa, barcode ya kwanza itaonekana hapa.' %}
     </div>
   </div>
 </div>
@@ -2298,6 +2335,109 @@ document.addEventListener('DOMContentLoaded',()=>{['storeSearch','filterCategory
   installInventoryGlobalScannerBridge();
   window.addEventListener('load',installInventoryGlobalScannerBridge,{once:false});
   setTimeout(installInventoryGlobalScannerBridge,1200);
+
+
+  // ============================================================
+  // TRADECORE PHONE-AS-SCANNER — DESKTOP ↔ PHONE PAIRING
+  // Short-lived signed pairing + HTTP polling; no new realtime dependency.
+  // ============================================================
+  let tradeCorePhoneScannerPollTimer=null;
+  let tradeCorePhoneScannerCursor=0;
+  let tradeCorePhoneScannerCount=0;
+  let tradeCorePhoneScannerActive=false;
+
+  function tradeCorePhoneScannerSetText(id,value){
+    const el=document.getElementById(id);
+    if(el) el.textContent=value;
+  }
+
+  function tradeCorePhoneScannerStopPolling(){
+    if(tradeCorePhoneScannerPollTimer){
+      clearInterval(tradeCorePhoneScannerPollTimer);
+      tradeCorePhoneScannerPollTimer=null;
+    }
+  }
+
+  async function tradeCorePhoneScannerPoll(){
+    if(!tradeCorePhoneScannerActive)return;
+    try{
+      const res=await fetch(`{% url 'phone_scanner_poll' %}?cursor=${encodeURIComponent(tradeCorePhoneScannerCursor)}`,{
+        credentials:'same-origin',
+        headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},
+        cache:'no-store'
+      });
+      if(!res.ok)return;
+      const data=await res.json();
+      tradeCorePhoneScannerSetText(
+        'tradecorePhoneScannerConnection',
+        data.phone_online?'Simu imeunganishwa ✓':'Inasubiri simu...'
+      );
+
+      const scans=Array.isArray(data.scans)?data.scans:[];
+      for(const scan of scans){
+        const seq=Number(scan.seq||0);
+        if(seq<=tradeCorePhoneScannerCursor)continue;
+
+        try{
+          if(typeof window.tradecoreInventoryScanHandler==='function' && state.mode==='transfer'){
+            await window.tradecoreInventoryScanHandler(scan.barcode);
+            tradeCorePhoneScannerCount+=1;
+            tradeCorePhoneScannerSetText('tradecorePhoneScannerCount',String(tradeCorePhoneScannerCount));
+            tradeCorePhoneScannerSetText(
+              'tradecorePhoneScannerLast',
+              `Barcode: ${scan.barcode} · umeingia kwenye Transfer ✓`
+            );
+          }
+        }catch(error){
+          tradeCorePhoneScannerSetText(
+            'tradecorePhoneScannerLast',
+            error?.message||'Scan imeshindikana kwenye Transfer.'
+          );
+        }finally{
+          tradeCorePhoneScannerCursor=seq;
+        }
+      }
+    }catch(_){}
+  }
+
+  window.openTradeCorePhoneScannerPairing=async function(){
+    const modal=document.getElementById('tradecorePhoneScannerModal');
+    if(!modal)return;
+
+    openOverlay('tradecorePhoneScannerModal');
+    tradeCorePhoneScannerStopPolling();
+    tradeCorePhoneScannerActive=true;
+    tradeCorePhoneScannerCursor=0;
+    tradeCorePhoneScannerCount=0;
+
+    tradeCorePhoneScannerSetText('tradecorePhoneScannerStatus','Inaunda pairing salama...');
+    tradeCorePhoneScannerSetText('tradecorePhoneScannerConnection','Inasubiri simu...');
+    tradeCorePhoneScannerSetText('tradecorePhoneScannerCount','0');
+
+    const qrWrap=document.getElementById('tradecorePhoneScannerQrWrap');
+    if(qrWrap)qrWrap.innerHTML='<div class="text-[10px] font-bold text-gray-400">Inatengeneza QR Code...</div>';
+
+    try{
+      const data=await postJson('{% url "phone_scanner_start" %}',{});
+      if(qrWrap){
+        qrWrap.innerHTML=`<img src="${data.qr_data_url}" alt="TradeCore phone scanner QR" style="width:230px;height:230px;border-radius:18px;background:#fff;padding:10px;box-shadow:0 10px 30px rgba(31,25,45,.08);">`;
+      }
+      tradeCorePhoneScannerSetText('tradecorePhoneScannerUrl',data.phone_url||'');
+      tradeCorePhoneScannerSetText('tradecorePhoneScannerStatus','QR iko tayari — scan kwa simu yako.');
+      await tradeCorePhoneScannerPoll();
+      tradeCorePhoneScannerPollTimer=setInterval(tradeCorePhoneScannerPoll,700);
+    }catch(error){
+      tradeCorePhoneScannerSetText('tradecorePhoneScannerStatus',error?.message||'Pairing imeshindikana.');
+      if(qrWrap)qrWrap.innerHTML='<div class="text-[10px] font-black text-rose-600">Pairing imeshindikana.</div>';
+    }
+  };
+
+  window.closeTradeCorePhoneScannerPairing=async function(){
+    tradeCorePhoneScannerActive=false;
+    tradeCorePhoneScannerStopPolling();
+    try{await postJson('{% url "phone_scanner_stop" %}',{});}catch(_){}
+    closeInventoryOverlay('tradecorePhoneScannerModal');
+  };
 
   window.finishInventoryTransfer=async function(){
     if(!state.items.length){showAppleStatus('error', 'Imeshindikana', inventoryT('scan_select_first'));return}

@@ -16,14 +16,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="TradeCore">
     <link rel="apple-touch-icon" href="{% static 'tradecore-icon-192.png' %}">
-    <link rel="stylesheet" href="{% static 'tradecore_pwa.css' %}">
     <style id="tradecore-pwa-critical-visibility">
-        /* Critical visibility guard: keeps PWA-only surfaces out of desktop even if the custom stylesheet is loading late. */
-        .tradecore-mobile-only, .tradecore-mobile-sheet, #tradecoreMobileTabbar { display: none !important; }
+        /* Critical visibility guard: hide PWA-only surfaces until the PWA stylesheet is ready. */
+        .tradecore-mobile-only, .tradecore-mobile-sheet, #tradecoreMobileTabbar { display: none; }
         @media (max-width: 767px) {
-            .tradecore-mobile-only { display: block !important; }
-            .tradecore-mobile-sheet { display: flex !important; }
-            #tradecoreMobileTabbar { display: flex !important; }
+            .tradecore-mobile-only { display: block; }
+            #tradecoreMobileTabbar { display: flex; }
         }
             /* Expired Trial — read-only notice */
         .tradecore-readonly-banner {
@@ -55,7 +53,8 @@
         html.dark .tradecore-readonly-banner a { color:#c4b5fd; }
 
     </style>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'tradecore_pwa.css' %}">
+<script src="https://cdn.tailwindcss.com"></script>
     
     <script>
         tailwind.config = {
@@ -142,7 +141,6 @@
     </div>
     {% endif %}
 
-
     <aside class="hidden md:flex flex-col items-center h-[calc(100vh-3rem)] w-20 sticky top-6 gap-4 z-40">
         <a href="{% url 'dashboard' %}" class="w-12 h-12 bg-purple-900 rounded-full flex items-center justify-center text-amber-400 font-black text-xl mb-4 border border-amber-500/30 shadow-sm cursor-pointer hover:scale-105 transition-all" title="TradeCore">
             TC
@@ -209,15 +207,19 @@
 
         <!-- 2. KATIKATI: Jina la Duka -->
         <div class="tc-header-center">
-            <h1 class="tc-store-name">
-                {% if request.session.tradecore_store_name %}
-                    {{ request.session.tradecore_store_name }}
-                {% elif request.user.profile.duka %}
-                    {{ request.user.profile.duka.jina_la_duka|default:'TradeCore POS' }}
-                {% else %}
-                    TradeCore POS
-                {% endif %}
-            </h1>
+            <div class="tc-store-name-viewport" data-tradecore-store-name-viewport>
+                <h1 class="tc-store-name" data-tradecore-store-name>
+                    <span class="tc-store-name-text">
+                        {% if request.session.tradecore_store_name %}
+                            {{ request.session.tradecore_store_name }}
+                        {% elif request.user.profile.duka %}
+                            {{ request.user.profile.duka.jina_la_duka|default:'TradeCore POS' }}
+                        {% else %}
+                            TradeCore POS
+                        {% endif %}
+                    </span>
+                </h1>
+            </div>
             <span class="tc-store-subtitle">{% trans "Duka Lililothibitishwa" %}</span>
         </div>
 
@@ -335,7 +337,6 @@
 
         {% block content %}
         {% endblock %}
-
 
         <!-- =====================================================
              TRADECORE MOBILE ACTION SHEETS
@@ -726,7 +727,12 @@
         </div>
     </div>
 
-    <div id="settingsModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden items-center justify-center z-[200] p-4 transition-opacity duration-300 opacity-0">
+    
+{% get_current_language as LANGUAGE_CODE %}
+{% get_available_languages as LANGUAGES %}
+{% get_language_info_list for LANGUAGES as languages %}
+
+<div id="settingsModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden items-center justify-center z-[200] p-4 transition-opacity duration-300 opacity-0">
         <div id="settingsModalCard" class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative border border-gray-100 transform scale-95 transition-all duration-300">
             <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-6">
                 <h3 class="text-xl font-black text-gray-900">{% trans "Mipangilio ya Mfumo" %} ⚙️</h3>
@@ -769,6 +775,57 @@
                         <input type="range" id="fontSizeSlider" min="80" max="120" value="100" step="10" oninput="badiliFontSize(this.value)" class="w-full accent-purple-900 h-1.5 bg-gray-300 rounded-lg appearance-none cursor-pointer">
                         <span class="text-lg font-bold text-gray-800">A</span>
                     </div>
+                </div>
+
+                <!-- TRADECORE LANGUAGE — PWA/MOBILE ONLY -->
+                <div class="pt-3 mt-1 border-t border-gray-100" id="tradecoreLanguageSettingsRow">
+                    <label class="block text-xs font-bold text-gray-700 mb-2">{% trans "Lugha" %}</label>
+
+                    <form action="{% url 'set_language' %}" method="post" id="languageFormMobile" class="notranslate" translate="no">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+
+                        <div class="rounded-2xl border border-gray-200 bg-gray-50 p-2">
+                            <div class="flex items-center gap-3 px-3 py-2">
+                                <span class="tc-language-leading shrink-0" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" class="w-4 h-4">
+                                        <circle cx="12" cy="12" r="9"/>
+                                        <path stroke-linecap="round" d="M3 12h18M12 3c2.2 2.5 3.3 5.5 3.3 9S14.2 18.5 12 21M12 3c-2.2 2.5-3.3 5.5-3.3 9S9.8 18.5 12 21"/>
+                                    </svg>
+                                </span>
+
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-[8px] font-extrabold uppercase tracking-[.08em] text-slate-400">{% trans "Lugha ya Mfumo" %}</div>
+                                    <div class="mt-1 text-[11px] font-black text-slate-800">
+                                        {% if LANGUAGE_CODE == 'sw' %}Kiswahili
+                                        {% elif LANGUAGE_CODE == 'en' %}English
+                                        {% elif LANGUAGE_CODE == 'fr' %}Français
+                                        {% elif LANGUAGE_CODE == 'es' %}Español
+                                        {% elif LANGUAGE_CODE == 'ar' %}العربية
+                                        {% else %}Kiswahili{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <select
+                                id="tradecoreLanguageSelectMobile"
+                                name="language"
+                                aria-label="{% trans "Chagua lugha ya mfumo" %}"
+                                onchange="this.form.submit()"
+                                class="mt-1 w-full h-11 rounded-xl border border-slate-200 bg-white px-3 text-[11px] font-black text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-500 cursor-pointer"
+                            >
+                                <option value="sw" {% if LANGUAGE_CODE == 'sw' %}selected{% endif %}>🇹🇿 Kiswahili</option>
+                                <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>🇬🇧 English</option>
+                                <option value="fr" {% if LANGUAGE_CODE == 'fr' %}selected{% endif %}>🇫🇷 Français</option>
+                                <option value="es" {% if LANGUAGE_CODE == 'es' %}selected{% endif %}>🇪🇸 Español</option>
+                                <option value="ar" {% if LANGUAGE_CODE == 'ar' %}selected{% endif %}>🇸🇦 العربية</option>
+                            </select>
+
+                            <div class="px-3 pt-2 text-[8px] font-bold text-slate-400">
+                                {% trans "Chagua lugha; TradeCore itatumia lugha hiyo kwenye ukurasa huu na kurasa nyingine." %}
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
                 <!-- TRADECORE TECHNICAL SUPPORT -->
@@ -1225,7 +1282,7 @@
             }
         }
     </script>
-    <script src="{% static 'tradecore_pwa.js' %}" defer></script>
+<script src="{% static 'tradecore_pwa.js' %}" defer></script>
 
     
 
@@ -1316,8 +1373,6 @@
         });
     });
 </script>
-
-
 
 <!-- =====================================================
      UCHAWI WA DRAGGABLE FAB (Umerekebishwa Kushinda CSS)
@@ -1428,7 +1483,6 @@
 
 </script>
 
-
 <!-- =========================================================
      TRADECORE LANGUAGE ENGINE
      - Prevents browser/Google auto-translation.
@@ -1449,7 +1503,19 @@
         position: relative;
     }
 
-    .tc-language-button {
+    #tradecoreLanguageSwitcherMobile {
+        display: none;
+        position: relative;
+        width: 100%;
+        z-index: 20;
+        font-family: inherit;
+    }
+
+    #tradecoreLanguageSwitcherMobile .tc-language-shell {
+        width: 100%;
+    }
+
+        .tc-language-button {
         min-width: 132px;
         height: 42px;
         padding: 0 13px;
@@ -1533,7 +1599,7 @@
         transform: rotate(180deg);
     }
 
-    .tc-language-menu {
+        .tc-language-menu {
         position: absolute;
         right: 0;
         bottom: calc(100% + 10px);
@@ -1657,26 +1723,33 @@
     html[dir="rtl"] .tc-language-menu { right: auto; left: 0; transform-origin: bottom left; }
     html[dir="rtl"] .tc-language-copy { text-align: right; }
     html[dir="rtl"] .tc-language-option { text-align: right; }
-
     @media (max-width: 767px) {
         #tradecoreLanguageSwitcher {
-            right: 12px;
-            bottom: 82px;
+            display: none;
         }
 
-        html[dir="rtl"] #tradecoreLanguageSwitcher {
+        #tradecoreLanguageSwitcherMobile {
+            display: block;
+            position: relative;
             right: auto;
-            left: 12px;
+            left: auto;
+            bottom: auto;
+            width: 100%;
+            z-index: 20;
         }
 
-        .tc-language-button {
-            min-width: 122px;
+        #tradecoreLanguageSwitcherMobile .tc-language-button {
+            min-width: 0;
+            width: 100%;
             height: 40px;
             border-radius: 15px;
         }
 
-        .tc-language-menu {
-            width: 180px;
+        #tradecoreLanguageSwitcherMobile .tc-language-menu {
+            width: 100%;
+            right: 0;
+            left: auto;
+            z-index: 210;
         }
     }
 
@@ -1689,83 +1762,118 @@
         }
     }
 </style>
-
 <!-- SURGERY FIX: Tumeondoa JS Engine Nzito na Kuweka Fomu Rahisi Inayoongea na Django Moja kwa Moja -->
-{% get_current_language as LANGUAGE_CODE %}
-{% get_available_languages as LANGUAGES %}
-{% get_language_info_list for LANGUAGES as languages %}
 
 <div id="tradecoreLanguageSwitcher" class="notranslate" translate="no">
-    <form action="{% url 'set_language' %}" method="post" id="languageForm">
-        {% csrf_token %}
-        <input name="next" type="hidden" value="{{ request.get_full_path }}">
-        <div class="tc-language-shell">
-            <div id="tradecoreLanguageMenu" class="tc-language-menu" role="menu" aria-hidden="true">
-                {% for lang in languages %}
-                <button type="submit" name="language" value="{{ lang.code }}" class="tc-language-option {% if lang.code == LANGUAGE_CODE %}is-active{% endif %}" role="menuitemradio" aria-pressed="{% if lang.code == LANGUAGE_CODE %}true{% else %}false{% endif %}">
-                    <span class="tc-language-flag" aria-hidden="true">
-                        {% if lang.code == 'sw' %}🇹🇿
-                        {% elif lang.code == 'en' %}🇬🇧
-                        {% elif lang.code == 'fr' %}🇫🇷
-                        {% elif lang.code == 'es' %}🇪🇸
-                        {% elif lang.code == 'ar' %}🇸🇦
-                        {% else %}🌐{% endif %}
-                    </span>
-                    <span class="tc-language-label">{{ lang.name_local|title }}</span>
-                    <svg class="tc-language-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6"/></svg>
-                </button>
-                {% endfor %}
-                <div id="tradecoreLanguageNote" class="tc-language-note">{% trans "Injini ya TradeCore ya Seva" %}</div>
-            </div>
+                            <form action="{% url 'set_language' %}" method="post" id="languageForm">
+                                {% csrf_token %}
+                                <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                                <div class="tc-language-shell">
+                                    <div id="tradecoreLanguageMenu" class="tc-language-menu" role="menu" aria-hidden="true">
+                                        {% for lang in languages %}
+                                        <button type="submit" name="language" value="{{ lang.code }}" class="tc-language-option {% if lang.code == LANGUAGE_CODE %}is-active{% endif %}" role="menuitemradio" aria-pressed="{% if lang.code == LANGUAGE_CODE %}true{% else %}false{% endif %}">
+                                            <span class="tc-language-flag" aria-hidden="true">
+                                                {% if lang.code == 'sw' %}🇹🇿
+                                                {% elif lang.code == 'en' %}🇬🇧
+                                                {% elif lang.code == 'fr' %}🇫🇷
+                                                {% elif lang.code == 'es' %}🇪🇸
+                                                {% elif lang.code == 'ar' %}🇸🇦
+                                                {% else %}🌐{% endif %}
+                                            </span>
+                                            <span class="tc-language-label">{{ lang.name_local|title }}</span>
+                                            <svg class="tc-language-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6"/></svg>
+                                        </button>
+                                        {% endfor %}
+                                        <div id="tradecoreLanguageNote" class="tc-language-note">{% trans "Injini ya TradeCore ya Seva" %}</div>
+                                    </div>
 
-            <button type="button" id="tradecoreLanguageButton" class="tc-language-button" aria-haspopup="true" aria-expanded="false" aria-controls="tradecoreLanguageMenu">
-                <span class="tc-language-leading" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" class="w-4 h-4"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M3 12h18M12 3c2.2 2.5 3.3 5.5 3.3 9S14.2 18.5 12 21M12 3c-2.2 2.5-3.3 5.5-3.3 9S9.8 18.5 12 21"/></svg>
-                </span>
-                <span class="tc-language-copy">
-                    <span id="tradecoreLanguageKicker" class="tc-language-kicker">{% trans "Lugha" %}</span>
-                    <span id="tradecoreLanguageCurrent" class="tc-language-current">
-                        {% for lang in languages %}
-                            {% if lang.code == LANGUAGE_CODE %}{{ lang.name_local|title }}{% endif %}
-                        {% endfor %}
-                    </span>
-                </span>
-                <svg class="tc-language-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
-            </button>
-        </div>
-    </form>
-</div>
+                                    <button type="button" id="tradecoreLanguageButton" class="tc-language-button" aria-haspopup="true" aria-expanded="false" aria-controls="tradecoreLanguageMenu">
+                                        <span class="tc-language-leading" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" class="w-4 h-4"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M3 12h18M12 3c2.2 2.5 3.3 5.5 3.3 9S14.2 18.5 12 21M12 3c-2.2 2.5-3.3 5.5-3.3 9S9.8 18.5 12 21"/></svg>
+                                        </span>
+                                        <span class="tc-language-copy">
+                                            <span id="tradecoreLanguageKicker" class="tc-language-kicker">{% trans "Lugha" %}</span>
+                                            <span id="tradecoreLanguageCurrent" class="tc-language-current">
+                                                {% for lang in languages %}
+                                                    {% if lang.code == LANGUAGE_CODE %}{{ lang.name_local|title }}{% endif %}
+                                                {% endfor %}
+                                            </span>
+                                        </span>
+                                        <svg class="tc-language-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
 
 <script id="tradecore-language-engine">
 (function () {
     "use strict";
-    // SURGERY FIX: Tumeacha Javascript nyepesi ya kufungua/kufunga Menu tu.
-    // Kazi nzito ya kutafsiri itafanywa na Django Backend.
-    const button = document.getElementById("tradecoreLanguageButton");
-    const menu = document.getElementById("tradecoreLanguageMenu");
-    const root = document.getElementById("tradecoreLanguageSwitcher");
 
-    if (!button || !menu || !root) return;
+    function bindLanguageSwitcher(buttonId, menuId, rootId) {
+        const button = document.getElementById(buttonId);
+        const menu = document.getElementById(menuId);
+        const root = document.getElementById(rootId);
+        if (!button || !menu || !root) return null;
 
-    function setMenu(open) {
-        button.classList.toggle("is-open", open);
-        menu.classList.toggle("is-open", open);
-        button.setAttribute("aria-expanded", open ? "true" : "false");
-        menu.setAttribute("aria-hidden", open ? "false" : "true");
+        function setMenu(open) {
+            button.classList.toggle("is-open", open);
+            menu.classList.toggle("is-open", open);
+            button.setAttribute("aria-expanded", open ? "true" : "false");
+            menu.setAttribute("aria-hidden", open ? "false" : "true");
+        }
+
+        button.addEventListener("click", event => {
+            event.stopPropagation();
+            setMenu(!menu.classList.contains("is-open"));
+        });
+
+        return { root, setMenu };
     }
 
-    button.addEventListener("click", event => {
-        event.stopPropagation();
-        setMenu(!menu.classList.contains("is-open"));
-    });
+    function init() {
+        const bindings = [];
+        const desktop = bindLanguageSwitcher(
+            "tradecoreLanguageButton",
+            "tradecoreLanguageMenu",
+            "tradecoreLanguageSwitcher"
+        );
+        if (desktop) bindings.push(desktop);
 
-    document.addEventListener("click", event => {
-        if (!root.contains(event.target)) setMenu(false);
-    });
+        // Mobile button has a direct inline fallback so it remains functional
+        // even when another page script interferes with event initialization.
+        const mobileRoot = document.getElementById("tradecoreLanguageSwitcherMobile");
+        const mobileMenu = document.getElementById("tradecoreLanguageMenuMobile");
+        if (mobileRoot && mobileMenu) {
+            bindings.push({
+                root: mobileRoot,
+                setMenu(open) {
+                    const button = document.getElementById("tradecoreLanguageButtonMobile");
+                    if (button) {
+                        button.classList.toggle("is-open", open);
+                        button.setAttribute("aria-expanded", open ? "true" : "false");
+                    }
+                    mobileMenu.classList.toggle("is-open", open);
+                    mobileMenu.setAttribute("aria-hidden", open ? "false" : "true");
+                }
+            });
+        }
 
-    document.addEventListener("keydown", event => {
-        if (event.key === "Escape") setMenu(false);
-    });
+        document.addEventListener("click", event => {
+            bindings.forEach(binding => {
+                if (!binding.root.contains(event.target)) binding.setMenu(false);
+            });
+        });
+
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") bindings.forEach(binding => binding.setMenu(false));
+        });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+    } else {
+        init();
+    }
 })();
 </script>
 

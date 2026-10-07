@@ -31,6 +31,12 @@
 
     function toggleLayer(el, open) {
         if (!el) return;
+        // Inventory scanner also carries Tailwind's `hidden` utility.
+        // Remove it when opening the camera sheet, otherwise the camera
+        // stream can run behind a display:none layer.
+        if (el.classList.contains('inventory-apple-modal')) {
+            el.classList.toggle('hidden', !open);
+        }
         el.classList.toggle('is-open', open);
         el.setAttribute('aria-hidden', open ? 'false' : 'true');
     }

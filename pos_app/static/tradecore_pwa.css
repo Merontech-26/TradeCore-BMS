@@ -968,16 +968,57 @@ html.dark .tradecore-sync-delete { background:#342d39; color:#c2bac8; }
         text-align: center;
         min-width: 0; 
     }
-    .tc-store-name {
-        font-size: 14px; font-weight: 900; line-height: 1.15; margin: 0; padding: 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 2; 
-        -webkit-box-orient: vertical;
+    .tc-store-name-viewport {
+        width: 100%;
+        max-width: 170px;
+        min-width: 0;
         overflow: hidden;
-        text-overflow: ellipsis;
+        position: relative;
+        text-align: center;
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%);
+        mask-image: linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%);
+    }
+
+    .tc-store-name {
+        width: max-content;
+        max-width: none;
+        min-width: 100%;
+        margin: 0;
+        padding: 0 8px;
+        display: block;
+        white-space: nowrap;
+        text-overflow: clip;
+        overflow: visible;
+        line-height: 1.15;
+        font-size: 14px;
+        font-weight: 900;
         background: linear-gradient(90deg, #15111d, #4c1d95);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        box-sizing: border-box;
+    }
+
+    .tc-store-name-text {
+        display: inline-block;
+        white-space: nowrap;
+        transform: translateX(0);
+        will-change: transform;
+    }
+
+    .tc-store-name-text.tc-store-name-animate {
+        animation: tc-store-name-marquee var(--tc-store-name-duration, 6.5s) ease-in-out infinite;
+    }
+
+    @keyframes tc-store-name-marquee {
+        0%, 17% {
+            transform: translateX(0);
+        }
+        50%, 67% {
+            transform: translateX(var(--tc-store-name-shift, -18px));
+        }
+        100% {
+            transform: translateX(0);
+        }
     }
     .tc-store-subtitle { font-size: 8px; font-weight: 900; color: #8a8294; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.1em; }
 
@@ -2815,5 +2856,20 @@ html.dark .tradecore-sync-delete { background:#342d39; color:#c2bac8; }
         max-height: 38dvh !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
+    }
+}
+
+
+/* =========================================================
+   APP BAR STORE NAME — ALWAYS-ANIMATE MOBILE DEMO
+   ---------------------------------------------------------
+   Short names use a subtle slide; long names use measured
+   overflow distance. Desktop remains untouched.
+   ========================================================= */
+@media (min-width: 768px) {
+    .tc-store-name-viewport,
+    .tc-store-name-text {
+        animation: none !important;
+        transform: none !important;
     }
 }
