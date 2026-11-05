@@ -96,10 +96,11 @@ if (
         "TRADECORE_PUBLIC_SITE_URL must be an absolute http(s) origin without a path, query, fragment, or credentials."
     )
 
-CSRF_TRUSTED_ORIGINS = _validate_origins(
-    "CSRF_TRUSTED_ORIGINS",
-    _env_list("CSRF_TRUSTED_ORIGINS"),
-)
+CSRF_TRUSTED_ORIGINS = [
+    'https://tradecore.merontech.co.tz',
+    'http://127.0.0.1',
+    'http://localhost',
+]
 
 
 # -----------------------------------------------------------------------------
