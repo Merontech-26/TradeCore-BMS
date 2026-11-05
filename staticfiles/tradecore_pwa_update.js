@@ -1,11 +1,11 @@
-/* TradeCore PWA release updater — v1.1.5.
+/* TradeCore PWA release updater — v1.1.7.
  * Shows a real cache-preparation progress screen only for an already-installed
  * PWA receiving a newer service worker. It never touches IndexedDB sales data.
  */
 (function () {
     'use strict';
 
-    const APP_VERSION = '1.1.5';
+    const APP_VERSION = '1.1.7';
     const SERVICE_WORKER_URL = '/service-worker.js';
     let registrationPromise = null;
     let registration = null;
@@ -28,7 +28,7 @@
         if (overlay || !document.body) return;
 
         const style = document.createElement('style');
-        style.id = 'tradecore-pwa-upgrade-style-v115';
+        style.id = 'tradecore-pwa-upgrade-style-v117';
         style.textContent = `
             #tc-pwa-upgrade-overlay {
                 position: fixed; inset: 0; z-index: 2147483647;
@@ -193,7 +193,7 @@
         nodes.title.textContent = 'TradeCore imesasishwa';
         nodes.error.hidden = true;
         nodes.retry.hidden = true;
-        setCopy('Toleo v1.1.5 limewekwa tayari. Tunafungua mfumo...');
+        setCopy('Toleo v1.1.7 limewekwa tayari. Tunafungua mfumo...');
         window.setTimeout(() => window.location.reload(), 650);
     }
 

@@ -250,12 +250,12 @@
     // Mobile product density -------------------------------------------------
     const DENSITY_KEY = 'tradecore_mobile_product_density_v1';
     const DENSITIES = [
-        { columns: 4, media: '62px', name: '9px', gap: '6px', label: '4×' },
-        { columns: 3, media: '76px', name: '10px', gap: '8px', label: '3×' },
-        { columns: 2, media: '112px', name: '11px', gap: '10px', label: '2×' }
+        // PWA product browser: fixed six-column compact layout (legacy saved
+        // density indexes are clamped to this single supported profile).
+        { columns: 6, media: '38px', name: '6.8px', gap: '4px', label: '6×' }
     ];
     function applyProductDensity(index) {
-        const safeIndex = Math.max(0, Math.min(DENSITIES.length - 1, Number(index) || 1));
+        const safeIndex = Math.max(0, Math.min(DENSITIES.length - 1, Number(index) || 0));
         const d = DENSITIES[safeIndex];
         const root = document.getElementById('productGridContainer');
         if (root) {
@@ -282,7 +282,7 @@
         const el = getEl('tradecoreScannerMessage');
         if (el) el.textContent = message;
     }
-    async function stopScanner() {
+    function stopScanner() {
         if (scannerTimer) { clearInterval(scannerTimer); scannerTimer = null; }
         scannerDetector = null;
         if (scannerStream) {
@@ -307,20 +307,22 @@
         toggleLayer(sheetEl, true);
         document.body.classList.add('tradecore-sheet-visible');
         const input = getEl('tradecoreScannerInput');
-        input?.focus();
-        await stopScanner();
+        stopScanner();
 
         const video = getEl('tradecoreScannerVideo');
         if (!('BarcodeDetector' in window)) {
-            setScannerMessage('Kifaa chako (k.m. Safari/iOS) hakisupport Barcode Scanner ya moja kwa moja. Tumia scanner ya Bluetooth/USB hapa chini.');
+            setScannerMessage('Browser hii haitambui barcode kupitia camera moja kwa moja. Tumia scanner ya Bluetooth/USB au andika barcode hapa chini.');
+            input?.focus();
             return;
         }
         if (!navigator.mediaDevices?.getUserMedia) {
-            setScannerMessage('Camera API haipatikani. Tumia scanner ya Bluetooth/USB hapa chini.');
+            setScannerMessage('Camera API haipatikani kwenye browser hii. Tumia scanner ya Bluetooth/USB au andika barcode hapa chini.');
+            input?.focus();
             return;
         }
         if (window.isSecureContext !== true) {
-            setScannerMessage('Camera inahitaji HTTPS kwenye simu. Kwa local HTTP tumia scanner ya Bluetooth/USB hapa chini.');
+            setScannerMessage('Camera inahitaji HTTPS kwenye simu. Kwa local HTTP tumia scanner ya Bluetooth/USB au andika barcode hapa chini.');
+            input?.focus();
             return;
         }
         try {
@@ -350,12 +352,37 @@
             }, 350);
         } catch (error) {
             if (error?.name === 'NotAllowedError' || error?.name === 'SecurityError') {
-                setScannerMessage('Ruhusa ya camera haikupatikana. Ruhusu Camera kwenye browser, au tumia scanner ya Bluetooth/USB.');
+                setScannerMessage('Ruhusa ya camera haikupatikana. Ruhusu Camera kwenye browser, au tumia scanner ya Bluetooth/USB / andika barcode hapa chini.');
             } else {
-                setScannerMessage('Camera haikufunguka kwenye kifaa hiki. Tumia scanner ya Bluetooth/USB hapa chini.');
+                setScannerMessage('Camera haikufunguka kwenye kifaa hiki. Tumia scanner ya Bluetooth/USB au andika barcode hapa chini.');
             }
+            input?.focus();
         }
     };
+    // Capture the Scan tap before the parent search surface can receive it.
+    // This keeps the trigger reliable even when the button is nested in #searchForm.
+    document.addEventListener('click', function (event) {
+        const target = event.target instanceof Element ? event.target.closest('[data-tradecore-open-scanner]') : null;
+        if (!target) return;
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        if (typeof TC.openScanner === 'function') {
+            Promise.resolve(TC.openScanner()).catch(function (error) {
+                console.error('TradeCore sales scanner failed to open:', error);
+                const scannerSheet = getEl('tradecoreScannerSheet');
+                if (scannerSheet) toggleLayer(scannerSheet, true);
+                document.body.classList.add('tradecore-sheet-visible');
+                setScannerMessage('Scanner haikufunguka. Refresh app kisha ujaribu tena; unaweza pia kutumia scanner ya Bluetooth/USB.');
+            });
+        } else {
+            const scannerSheet = getEl('tradecoreScannerSheet');
+            if (scannerSheet) toggleLayer(scannerSheet, true);
+            document.body.classList.add('tradecore-sheet-visible');
+            setScannerMessage('Scanner engine haijapakiwa. Refresh TradeCore kisha ujaribu tena.');
+        }
+    }, true);
+
     TC.submitScannerInput = async function () {
         const input = getEl('tradecoreScannerInput');
         const value = input?.value?.trim() || '';
