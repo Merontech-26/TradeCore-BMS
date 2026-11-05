@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}TradeCore · Daily Report{% endblock %}
+{% block content %}
+<style>
+.tc-daily{max-width:1400px;margin:0 auto;padding-bottom:120px}
+.tc-report-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}
+.tc-report-head h1{font-size:30px;font-weight:950;letter-spacing:-.03em;color:#241a2d}.tc-report-head p{margin-top:5px;color:#948b9b;font-size:12px;font-weight:650}
+.tc-report-actions{display:flex;gap:8px;flex-wrap:wrap}.tc-report-btn{border-radius:14px;padding:10px 14px;font-size:11px;font-weight:900;border:1px solid #e8e0ef;background:#fff;color:#5b21b6;text-decoration:none}.tc-report-btn.primary{background:#5b21b6;color:#fff;border-color:#5b21b6}
+.tc-report-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:16px}.tc-metric{background:rgba(255,255,255,.92);border:1px solid #ece5f2;border-radius:20px;padding:15px;box-shadow:0 7px 24px rgba(46,27,78,.05)}.tc-metric span{display:block;font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:900;color:#9c92a2}.tc-metric b{display:block;margin-top:5px;font-size:22px;color:#5b21b6}.tc-metric small{display:block;margin-top:2px;font-size:9px;color:#a39aa8;font-weight:700}
+.tc-report-card{background:rgba(255,255,255,.94);border:1px solid #ece5f2;border-radius:24px;box-shadow:0 8px 28px rgba(46,27,78,.045);overflow:hidden;margin-bottom:14px}.tc-report-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-bottom:1px solid #f0eaf4}.tc-report-card-head h2{font-size:13px;font-weight:950;color:#30243a}.tc-report-card-head span{font-size:9px;color:#988e9f;font-weight:800}.tc-report-table-wrap{overflow:auto}.tc-report-table{width:100%;border-collapse:collapse;font-size:10px}.tc-report-table th{background:#faf8fc;color:#998fa0;text-transform:uppercase;letter-spacing:.08em;font-size:8px;font-weight:900;padding:10px;text-align:left;white-space:nowrap}.tc-report-table td{padding:10px;border-top:1px solid #f1edf4;color:#3f3547;font-weight:700;vertical-align:top}.tc-report-table td.num{text-align:right;font-variant-numeric:tabular-nums}.tc-report-empty{padding:26px;text-align:center;color:#9e96a5;font-size:10px;font-weight:700}
+.tc-whatsapp{background:linear-gradient(145deg,#fbf8ff,#fffaf0)}.tc-whatsapp pre{white-space:pre-wrap;margin:0;padding:15px;font:600 10px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;color:#45394e;background:#fff;border:1px solid #eee6f4;border-radius:16px;max-height:430px;overflow:auto}.tc-report-date{border:1px solid #e8e0ef;border-radius:13px;padding:9px 11px;background:#fff;font-size:11px;font-weight:800;color:#4a3d55}
+@media(max-width:900px){.tc-report-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.tc-report-head{flex-direction:column}.tc-report-actions{width:100%}.tc-report-btn{flex:1;text-align:center}}
+@media(max-width:560px){.tc-daily{padding:0 0 110px}.tc-report-summary{grid-template-columns:1fr 1fr}.tc-metric b{font-size:19px}.tc-report-card{border-radius:20px}.tc-report-card-head{padding:13px}.tc-report-table{min-width:720px}.tc-report-btn{font-size:10px;padding:10px 11px}}
+</style>
+<div class="tc-daily">
+  <div class="tc-report-head">
+    <div><h1>Daily Business Report</h1><p>{{ store }} · Ripoti ya kila kilichofanyika siku hii.</p></div>
+    <div class="tc-report-actions">
+      <form method="get" class="flex items-center gap-2"><input class="tc-report-date" type="date" name="date" value="{{ report.date|date:'Y-m-d' }}"><button class="tc-report-btn" type="submit">Fungua Tarehe</button></form>
+      <a class="tc-report-btn primary" href="{% url 'daily_report_pdf' %}?date={{ report.date|date:'Y-m-d' }}" target="_blank">PDF Report</a>
+      <button type="button" class="tc-report-btn" onclick="navigator.clipboard?.writeText(document.getElementById('tcFullMessage').textContent).then(()=>alert('WhatsApp message ime-copy.'))">Copy WhatsApp</button>
+    </div>
+  </div>
+
+  <div class="tc-report-summary">
+    <div class="tc-metric"><span>Mauzo</span><b>TZS {{ report.gross_sales|floatformat:0|intcomma }}</b><small>{{ report.sales_transactions }} transactions</small></div>
+    <div class="tc-metric"><span>Items Sold</span><b>{{ report.total_items|intcomma }}</b><small>Product units zilizouzwa</small></div>
+    <div class="tc-metric"><span>Faida</span><b>TZS {{ report.profit|floatformat:0|intcomma }}</b><small>Sales − COGS</small></div>
+    <div class="tc-metric"><span>Matumizi</span><b>TZS {{ report.expenses_total|floatformat:0|intcomma }}</b><small>Expenses recorded</small></div>
+    <div class="tc-metric"><span>Bakio</span><b>TZS {{ report.balance|floatformat:0|intcomma }}</b><small>Mauzo − Matumizi</small></div>
+  </div>
+
+  <section class="tc-report-card"><div class="tc-report-card-head"><h2>1. Bidhaa Zilizouzwa</h2><span>{{ report.total_items }} units</span></div><div class="tc-report-table-wrap"><table class="tc-report-table"><thead><tr><th>Bidhaa</th><th>Qty</th><th>Sales</th><th>COGS</th><th>Faida</th></tr></thead><tbody>{% for x in report.product_rows %}<tr><td>{{ x.name }}</td><td class="num">{{ x.quantity }}</td><td class="num">TZS {{ x.sales|floatformat:0|intcomma }}</td><td class="num">TZS {{ x.cogs|floatformat:0|intcomma }}</td><td class="num">TZS {{ x.profit|floatformat:0|intcomma }}</td></tr>{% empty %}<tr><td colspan="5" class="tc-report-empty">Hakuna mauzo siku hii.</td></tr>{% endfor %}</tbody></table></div></section>
+
+  <section class="tc-report-card"><div class="tc-report-card-head"><h2>2. Sales Transactions</h2><span>Invoice-level detail</span></div><div class="tc-report-table-wrap"><table class="tc-report-table"><thead><tr><th>Muda</th><th>Invoice</th><th>Bidhaa</th><th>Qty</th><th>Kiasi</th><th>Aliyouza</th></tr></thead><tbody>{% for x in report.sales_rows %}<tr><td>{{ x.time }}</td><td>{{ x.invoice }}</td><td>{{ x.product }}</td><td class="num">{{ x.quantity }}</td><td class="num">TZS {{ x.amount|floatformat:0|intcomma }}</td><td>{{ x.user }}</td></tr>{% empty %}<tr><td colspan="6" class="tc-report-empty">Hakuna transactions.</td></tr>{% endfor %}</tbody></table></div></section>
+
+  <section class="tc-report-card"><div class="tc-report-card-head"><h2>3. Stock Movements</h2><span>Who · what · where · why</span></div><div class="tc-report-table-wrap"><table class="tc-report-table"><thead><tr><th>Muda</th><th>Aina</th><th>Bidhaa</th><th>Movement</th><th>Sababu</th><th>Ref</th><th>Aliyefanya</th></tr></thead><tbody>{% for m in report.movements %}<tr><td>{{ m.time }}</td><td>{{ m.type }}</td><td>{{ m.product }}</td><td>{{ m.detail }}</td><td>{{ m.reason|default:'—' }}</td><td>{{ m.reference }}</td><td>{{ m.user }}</td></tr>{% empty %}<tr><td colspan="7" class="tc-report-empty">Hakuna stock movement.</td></tr>{% endfor %}</tbody></table></div></section>
+
+  <section class="tc-report-card"><div class="tc-report-card-head"><h2>4. Transfers</h2><span>One transfer = one business event</span></div><div class="tc-report-table-wrap"><table class="tc-report-table"><thead><tr><th>Muda</th><th>Ref</th><th>Kutoka</th><th>Kwenda</th><th>Bidhaa</th><th>Sababu</th><th>Aliyefanya</th></tr></thead><tbody>{% for t in report.transfer_rows %}{% for item in t.items %}<tr><td>{{ t.time }}</td><td>{{ t.reference }}</td><td>{{ t.from }}</td><td>{{ t.to }}</td><td>{{ item.product }} × {{ item.quantity }}</td><td>{{ t.reason|default:'—' }}</td><td>{{ t.user }}</td></tr>{% endfor %}{% empty %}<tr><td colspan="7" class="tc-report-empty">Hakuna transfer.</td></tr>{% endfor %}</tbody></table></div></section>
+
+  <section class="tc-report-card"><div class="tc-report-card-head"><h2>5. Closing Stock</h2><span>Products touched today</span></div><div class="tc-report-table-wrap"><table class="tc-report-table"><thead><tr><th>Bidhaa</th><th>Store</th><th>Duka</th><th>Total</th></tr></thead><tbody>{% for x in report.closing_stock_rows %}<tr><td>{{ x.name }}</td><td class="num">{{ x.store }}</td><td class="num">{{ x.shop }}</td><td class="num">{{ x.total }}</td></tr>{% empty %}<tr><td colspan="4" class="tc-report-empty">Hakuna stock position ya bidhaa zilizoguswa leo.</td></tr>{% endfor %}</tbody></table></div></section>
+
+  <section class="tc-report-card"><div class="tc-report-card-head"><h2>6. Matumizi</h2><span>TZS {{ report.expenses_total|floatformat:0|intcomma }}</span></div><div class="tc-report-table-wrap"><table class="tc-report-table"><thead><tr><th>Muda</th><th>Kategoria</th><th>Maelezo</th><th>Kiasi</th><th>Aliyesajili</th></tr></thead><tbody>{% for e in report.expense_rows %}<tr><td>{{ e.time }}</td><td>{{ e.category }}</td><td>{{ e.description }}</td><td class="num">TZS {{ e.amount|floatformat:0|intcomma }}</td><td>{{ e.user }}</td></tr>{% empty %}<tr><td colspan="5" class="tc-report-empty">Hakuna matumizi yaliyosajiliwa.</td></tr>{% endfor %}</tbody></table></div></section>
+
+  <section class="tc-report-card tc-whatsapp"><div class="tc-report-card-head"><h2>WhatsApp Message — Full Daily Report</h2><span>Prepared from the same report data</span></div><div style="padding:14px"><pre id="tcFullMessage">{{ whatsapp_message }}</pre></div></section>
+
+  <section class="tc-report-card tc-whatsapp"><div class="tc-report-card-head"><h2>WhatsApp Message — Habari za Asubuhi</h2><span>Previous-day opening summary</span></div><div style="padding:14px"><pre id="tcMorningMessage">{{ morning_message }}</pre></div></section>
+</div>
+{% endblock %}

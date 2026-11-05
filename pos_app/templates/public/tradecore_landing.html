@@ -1,0 +1,238 @@
+{% load static %}
+<!doctype html>
+<html lang="sw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    {% if google_site_verification %}<meta name="google-site-verification" content="{{ google_site_verification|escape }}">{% endif %}
+    <title>TradeCore | Mfumo wa POS, Stoo na Usimamizi wa Biashara Tanzania</title>
+    <meta name="description" content="TradeCore ni mfumo wa POS na usimamizi wa biashara unaosaidia kusimamia mauzo, stoo, bidhaa, stock transfer, matumizi, wateja na ripoti sehemu moja.">
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="icon" href="{% static 'tradecore-icon-192.png' %}" type="image/png">
+    <meta name="theme-color" content="#f7f8f3">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="TradeCore">
+    <meta property="og:title" content="TradeCore — Simamia biashara yako kwa mfumo mmoja">
+    <meta property="og:description" content="Mfumo wa POS, usimamizi wa stoo, stock, matumizi, wateja na ripoti kwa biashara Tanzania.">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:image" content="{{ hero_image_url }}">
+    <meta property="og:image:alt" content="TradeCore business and inventory management system">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="TradeCore — POS na Stock Management Tanzania">
+    <meta name="twitter:description" content="Simamia mauzo, bidhaa, stoo, matumizi na ripoti kwa TradeCore.">
+    <meta name="twitter:image" content="{{ hero_image_url }}">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "{{ site_origin|escapejs }}/#organization",
+          "name": "Meron Tech",
+          "url": "{{ site_origin|escapejs }}/",
+          "brand": { "@type": "Brand", "name": "TradeCore" }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "{{ site_origin|escapejs }}/#website",
+          "url": "{{ site_origin|escapejs }}/",
+          "name": "TradeCore",
+          "publisher": { "@id": "{{ site_origin|escapejs }}/#organization" },
+          "inLanguage": "sw-TZ"
+        },
+        {
+          "@type": "WebPage",
+          "@id": "{{ canonical_url|escapejs }}#webpage",
+          "url": "{{ canonical_url|escapejs }}",
+          "name": "TradeCore | Mfumo wa POS, Stoo na Usimamizi wa Biashara Tanzania",
+          "description": "Mfumo wa kusimamia mauzo, bidhaa, stoo, matumizi, wateja na ripoti.",
+          "isPartOf": { "@id": "{{ site_origin|escapejs }}/#website" },
+          "about": { "@id": "{{ site_origin|escapejs }}/#organization" },
+          "inLanguage": "sw-TZ"
+        }
+      ]
+    }
+    </script>
+    <style>
+        :root{color-scheme:light;--ink:#172033;--muted:#647084;--olive:#667342;--olive-dark:#39452d;--olive-soft:#eef1e6;--gold:#d4a72c;--line:#e5e9df;--paper:#fff;--canvas:#f7f8f3}
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{margin:0;background:var(--canvas);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;line-height:1.6}
+        a{color:inherit;text-decoration:none}
+        .wrap{width:min(1160px,calc(100% - 40px));margin-inline:auto}
+        .nav{height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+        .brand{display:flex;align-items:center;gap:11px;font-weight:850;font-size:21px;letter-spacing:-.04em}
+        .brand img{width:39px;height:39px;object-fit:contain}
+        .nav-links{display:flex;align-items:center;gap:26px;color:#606b5a;font-size:13px;font-weight:650}
+        .nav-actions{display:flex;align-items:center;gap:10px}
+        .button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 19px;border-radius:13px;font-weight:750;font-size:13px;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+        .button:hover{transform:translateY(-1px)}
+        .button-primary{background:var(--olive);color:#fff;box-shadow:0 8px 22px #6673422b}
+        .button-secondary{border:1px solid var(--line);background:#fff;color:var(--ink)}
+        .hero{display:grid;grid-template-columns:1.02fr .98fr;align-items:center;gap:54px;padding:56px 0 70px}
+        .eyebrow{display:inline-flex;align-items:center;gap:8px;background:#e9eddf;color:var(--olive-dark);border:1px solid #dce4cd;padding:7px 12px;border-radius:999px;font-weight:800;font-size:10px;letter-spacing:.13em;text-transform:uppercase}
+        h1{font-size:clamp(38px,5vw,61px);line-height:1.04;letter-spacing:-.055em;margin:21px 0 18px;max-width:650px}
+        h1 span{color:var(--olive)}
+        .hero-copy{font-size:17px;color:var(--muted);max-width:610px;margin:0}
+        .hero-actions{display:flex;flex-wrap:wrap;gap:11px;margin-top:28px}
+        .trustline{display:flex;flex-wrap:wrap;gap:18px;margin-top:23px;color:#66715f;font-size:12px;font-weight:650}
+        .trustline span{display:inline-flex;align-items:center;gap:7px}
+        .dot{width:7px;height:7px;background:#83a15a;border-radius:50%}
+        .hero-visual{position:relative}
+        .hero-image{display:block;width:100%;height:auto;border-radius:27px;box-shadow:0 25px 70px #26311d20;border:1px solid #ffffff}
+        .visual-note{position:absolute;left:-18px;bottom:20px;background:#fff;border:1px solid var(--line);border-radius:15px;padding:12px 16px;box-shadow:0 12px 35px #17203315;font-size:12px;font-weight:750;color:var(--olive-dark)}
+        .section{padding:72px 0}
+        .section-white{background:#fff;border-block:1px solid var(--line)}
+        .section-heading{text-align:center;max-width:720px;margin:0 auto 35px}
+        .section-heading h2{font-size:clamp(27px,3vw,39px);letter-spacing:-.04em;line-height:1.15;margin:12px 0}
+        .section-heading p{color:var(--muted);margin:0}
+        .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+        .feature{padding:24px;border:1px solid var(--line);background:#fff;border-radius:20px;min-height:190px;box-shadow:0 8px 28px #28351b08}
+        .feature-icon{width:42px;height:42px;border-radius:13px;background:var(--olive-soft);color:var(--olive-dark);display:grid;place-items:center;margin-bottom:18px}
+        .feature-icon svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+        .feature h3{font-size:16px;margin:0 0 7px;letter-spacing:-.02em}
+        .feature p{font-size:13px;color:var(--muted);margin:0}
+        .workflow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;counter-reset:step}
+        .step{background:var(--olive-soft);border:1px solid #e0e7d5;border-radius:17px;padding:20px;counter-increment:step}
+        .step:before{content:"0" counter(step);font-size:11px;font-weight:900;color:var(--olive);letter-spacing:.12em}
+        .step h3{font-size:14px;margin:9px 0 5px}.step p{font-size:12px;color:var(--muted);margin:0}
+        .cta{background:var(--olive-dark);color:#fff;border-radius:27px;padding:42px;display:flex;align-items:center;justify-content:space-between;gap:25px}
+        .cta h2{font-size:clamp(25px,3vw,36px);line-height:1.15;margin:0 0 9px;letter-spacing:-.04em}.cta p{color:#d8dfca;margin:0;font-size:14px}
+        .cta .button-primary{background:#e4c15c;color:#28321f;box-shadow:none;white-space:nowrap}
+        .faq{max-width:820px;margin:0 auto;display:grid;gap:12px}
+        .faq article{padding:19px 21px;background:#fff;border:1px solid var(--line);border-radius:16px}
+        .faq h3{font-size:14px;margin:0 0 5px}.faq p{font-size:13px;color:var(--muted);margin:0}
+        footer{padding:28px 0;color:#77816f;font-size:12px}
+        .footer-inner{display:flex;align-items:center;justify-content:space-between;gap:20px}
+        @media(max-width:850px){.nav-links{display:none}.hero{grid-template-columns:1fr;gap:35px;padding-top:40px}.hero-visual{max-width:650px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workflow{grid-template-columns:repeat(2,minmax(0,1fr))}.visual-note{left:10px}}
+        @media(max-width:560px){.wrap{width:min(100% - 28px,1160px)}.nav{height:66px}.brand{font-size:18px}.brand img{width:34px;height:34px}.nav-actions .button-secondary{display:none}.hero{padding:34px 0 48px}.hero-copy{font-size:15px}.grid,.workflow{grid-template-columns:1fr}.feature{min-height:0}.section{padding:53px 0}.cta{padding:27px;align-items:flex-start;flex-direction:column}.footer-inner{align-items:flex-start;flex-direction:column}.visual-note{position:static;display:inline-block;margin-top:12px}}
+        @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+    </style>
+</head>
+<body>
+<header class="wrap nav">
+    <a class="brand" href="{{ canonical_url }}" aria-label="TradeCore home">
+        <img src="{% static 'tradecore-icon-192.png' %}" width="39" height="39" alt="">
+        <span>TradeCore</span>
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+        <a href="#features">Vipengele</a>
+        <a href="#workflow">Jinsi inavyofanya kazi</a>
+        <a href="#faq">Maswali</a>
+    </nav>
+    <div class="nav-actions">
+        <a class="button button-secondary" href="{% url 'login' %}">Ingia</a>
+        <a class="button button-primary" href="{% url 'register' %}">Anza demo</a>
+    </div>
+</header>
+
+<main>
+    <section class="wrap hero">
+        <div>
+            <span class="eyebrow">Business management · Tanzania</span>
+            <h1>Simamia biashara yako <span>kwa mfumo mmoja.</span></h1>
+            <p class="hero-copy">TradeCore ni mfumo wa POS na usimamizi wa biashara unaokusaidia kufuatilia mauzo, bidhaa, stoo, matumizi, wateja na ripoti. Pata mwonekano wa shughuli za biashara yako bila kurukaruka kati ya mifumo mingi.</p>
+            <div class="hero-actions">
+                <a class="button button-primary" href="{% url 'register' %}">Anza kutumia TradeCore <span aria-hidden="true">→</span></a>
+                <a class="button button-secondary" href="{% url 'login' %}">Ingia kwenye akaunti</a>
+            </div>
+            <div class="trustline">
+                <span><i class="dot"></i> Mauzo na POS</span>
+                <span><i class="dot"></i> Stoo na stock</span>
+                <span><i class="dot"></i> Ripoti za biashara</span>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <img class="hero-image" src="{% static 'tradecore_market_welcome_banner.png' %}" width="1672" height="941" fetchpriority="high" decoding="async" alt="TradeCore business management system for retail and inventory operations">
+            <div class="visual-note">TradeCore · Simamia biashara yako</div>
+        </div>
+    </section>
+
+    <section class="section section-white" id="features">
+        <div class="wrap">
+            <div class="section-heading">
+                <span class="eyebrow">Kila kitu sehemu moja</span>
+                <h2>Mfumo wa POS na usimamizi wa stoo kwa biashara</h2>
+                <p>TradeCore inakusanya kazi muhimu za kila siku za biashara kwenye mfumo mmoja unaopatikana kupitia browser.</p>
+            </div>
+            <div class="grid">
+                <article class="feature">
+                    <div class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 8H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg></div>
+                    <h3>POS na usimamizi wa mauzo</h3>
+                    <p>Rekodi mauzo, tafuta bidhaa, tumia barcode scanner, hifadhi mauzo ya kusubiri na fuatilia miamala.</p>
+                </article>
+                <article class="feature">
+                    <div class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 9-4 9 4-9 4-9-4Z"/><path d="M3 7v10l9 4 9-4V7M12 11v10"/></svg></div>
+                    <h3>Stock na Inventory Management</h3>
+                    <p>Fuatilia idadi ya bidhaa, stock in, stock adjustment, stock take na uhamisho wa bidhaa kati ya maeneo ya stoo.</p>
+                </article>
+                <article class="feature">
+                    <div class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h10M7 13h5M7 16h7"/></svg></div>
+                    <h3>Matumizi na gharama</h3>
+                    <p>Rekodi matumizi ya biashara, fuatilia malipo na linganisha gharama na mapato kwenye ripoti.</p>
+                </article>
+                <article class="feature">
+                    <div class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M17 8h5M19.5 5.5v5"/></svg></div>
+                    <h3>Wateja na wafanyakazi</h3>
+                    <p>Simamia taarifa za wateja, watumiaji wa mfumo na majukumu yao kulingana na ruhusa za akaunti.</p>
+                </article>
+                <article class="feature">
+                    <div class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+                    <h3>Ripoti na Business Analytics</h3>
+                    <p>Angalia mwenendo wa mauzo, matumizi, faida, stock na shughuli za biashara kwenye dashboard na ripoti.</p>
+                </article>
+                <article class="feature">
+                    <div class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 18h6M9 6h6"/></svg></div>
+                    <h3>Inapatikana kwenye vifaa mbalimbali</h3>
+                    <p>Tumia TradeCore kwenye desktop, laptop au simu kupitia browser. PWA inaweza kusakinishwa kwenye vifaa vinavyoiunga mkono.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="workflow">
+        <div class="wrap">
+            <div class="section-heading">
+                <span class="eyebrow">Anza kwa hatua chache</span>
+                <h2>Jinsi ya kuanza kutumia TradeCore</h2>
+                <p>Fungua akaunti, weka taarifa za biashara yako, kisha anza kusimamia shughuli zako.</p>
+            </div>
+            <div class="workflow">
+                <article class="step"><h3>Fungua akaunti</h3><p>Jisajili na uweke taarifa za akaunti yako.</p></article>
+                <article class="step"><h3>Weka biashara yako</h3><p>Jaza jina la biashara na taarifa muhimu za stoo na risiti.</p></article>
+                <article class="step"><h3>Ingiza bidhaa</h3><p>Ongeza bidhaa zako na taarifa za stock.</p></article>
+                <article class="step"><h3>Anza kusimamia</h3><p>Rekodi mauzo, matumizi na fuatilia ripoti za biashara.</p></article>
+            </div>
+        </div>
+    </section>
+
+    <section class="wrap section" id="faq">
+        <div class="section-heading">
+            <span class="eyebrow">Maswali yanayoulizwa mara kwa mara</span>
+            <h2>Maswali kuhusu TradeCore</h2>
+        </div>
+        <div class="faq">
+            <article><h3>TradeCore ni nini?</h3><p>TradeCore ni mfumo wa POS na business management unaosaidia kusimamia mauzo, stoo, bidhaa, matumizi, wateja, wafanyakazi na ripoti.</p></article>
+            <article><h3>Naweza kutumia TradeCore kwenye simu?</h3><p>Ndiyo. TradeCore inafunguka kwenye browser ya simu na inaweza kusakinishwa kama Progressive Web App kwenye vifaa vinavyoiunga mkono.</p></article>
+            <article><h3>Je, mfumo una barcode na stock transfer?</h3><p>Ndiyo. Mfumo una workflows za barcode ya bidhaa, stock in, stock take, adjustment na transfer kati ya inventory locations.</p></article>
+            <article><h3>Naanzaje kutumia TradeCore?</h3><p>Fungua akaunti kupitia ukurasa wa usajili, kamilisha taarifa za biashara yako na uanze kuweka bidhaa na kusimamia mauzo.</p></article>
+        </div>
+    </section>
+
+    <section class="wrap" aria-label="Get started">
+        <div class="cta">
+            <div><h2>Biashara yako. Taarifa zako. Udhibiti wako.</h2><p>Anza kusimamia mauzo, stoo na ripoti zako kupitia TradeCore.</p></div>
+            <a class="button button-primary" href="{% url 'register' %}">Anza demo <span aria-hidden="true">→</span></a>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="wrap footer-inner">
+        <span>© {% now "Y" %} TradeCore · A product by Meron Tech</span>
+        <span><a href="mailto:info@merontech.co.tz">Wasiliana na Meron Tech</a></span>
+    </div>
+</footer>
+</body>
+</html>
