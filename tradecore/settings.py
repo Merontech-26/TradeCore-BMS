@@ -73,10 +73,7 @@ if not SECRET_KEY:
             "SECRET_KEY must be set in the environment when DEBUG=False."
         )
 
-ALLOWED_HOSTS = _env_list(
-    "ALLOWED_HOSTS",
-    default=["127.0.0.1", "localhost"],
-)
+ALLOWED_HOSTS = ['tradecore.merontech.co.tz', '127.0.0.1', 'localhost', '*']
 
 # Canonical public origin used by TradeCore's marketing page, robots.txt and sitemap.
 # Override this in production if the public product page is hosted on another domain.
@@ -281,7 +278,7 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
