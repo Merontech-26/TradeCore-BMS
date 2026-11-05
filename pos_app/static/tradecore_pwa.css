@@ -2761,3 +2761,375 @@ html.dark .tradecore-sync-delete { background:#342d39; color:#c2bac8; }
         scroll-padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
     }
 }
+
+/* =========================================================
+   INVENTORY PWA QUICK STOCK ACTIONS — FIRST-PAINT SAFE
+   The HTML is hidden by default. The head-loaded PWA stylesheet
+   reveals it with final dimensions, preventing oversized SVG flash.
+   Desktop Inventory remains unchanged.
+   ========================================================= */
+.inventory-pwa-stock-quick-actions {
+    display: none !important;
+}
+
+@media (max-width: 1023px) {
+    #inventoryPwaStockQuickActions {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        margin: 0 0 14px;
+        box-sizing: border-box;
+        align-items: stretch;
+    }
+
+    #inventoryPwaStockQuickActions .tc-inventory-quick-action {
+        appearance: none;
+        -webkit-appearance: none;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 9px;
+        width: 100%;
+        min-width: 0;
+        min-height: 56px;
+        margin: 0;
+        padding: 9px 11px;
+        box-sizing: border-box;
+        border: 1px solid #e9e3f0;
+        border-radius: 15px;
+        background: rgba(255,255,255,.97);
+        color: #3f3154;
+        text-align: left;
+        white-space: normal;
+        box-shadow: 0 2px 9px rgba(31,25,45,.045);
+        -webkit-tap-highlight-color: transparent;
+        cursor: pointer;
+    }
+
+    #inventoryPwaStockQuickActions .tc-inventory-quick-action:active {
+        transform: scale(.985);
+        background: #f8f5fc;
+    }
+
+    #inventoryPwaStockQuickActions .tc-inventory-quick-action:focus-visible {
+        outline: 3px solid rgba(91,33,182,.28);
+        outline-offset: 2px;
+    }
+
+    #inventoryPwaStockQuickActions .tc-inventory-quick-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 30px;
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        min-height: 30px;
+        border-radius: 10px;
+        background: #f3edfb;
+        color: #5b21b6;
+    }
+
+    #inventoryPwaStockQuickActions .tc-inventory-quick-icon svg {
+        display: block;
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px;
+        min-height: 18px;
+        max-width: 18px;
+        max-height: 18px;
+        flex: 0 0 18px;
+    }
+
+    #inventoryPwaStockQuickActions .tc-inventory-quick-copy {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        min-width: 0;
+        gap: 3px;
+    }
+
+    #inventoryPwaStockQuickActions strong {
+        display: block;
+        width: 100%;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #342646;
+        font-size: 11px;
+        line-height: 1.15;
+        font-weight: 900;
+    }
+
+    #inventoryPwaStockQuickActions small {
+        display: block;
+        width: 100%;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #8b8295;
+        font-size: 8px;
+        line-height: 1.15;
+        font-weight: 650;
+    }
+}
+
+@media (max-width: 680px) {
+    #inventoryPwaStockQuickActions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    #inventoryPwaStockQuickActions .tc-inventory-quick-action {
+        min-height: 51px;
+        padding: 8px 10px;
+    }
+}
+
+@media (max-width: 350px) {
+    #inventoryPwaStockQuickActions .tc-inventory-quick-action {
+        gap: 7px;
+        padding: 7px 8px;
+    }
+
+    #inventoryPwaStockQuickActions .tc-inventory-quick-icon {
+        flex-basis: 27px;
+        width: 27px;
+        height: 27px;
+        min-width: 27px;
+        min-height: 27px;
+    }
+
+    #inventoryPwaStockQuickActions strong { font-size: 10px; }
+    #inventoryPwaStockQuickActions small { font-size: 7.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #inventoryPwaStockQuickActions .tc-inventory-quick-action { transition: none !important; }
+}
+
+/* TRADECORE RELEASE 1.1.9 — Inventory responsive first-paint stabilization.
+   This is intentionally in the head-loaded PWA stylesheet, not at the bottom
+   of inventory.html, so the browser has final dimensions before painting cards. */
+@media (max-width: 1023px) {
+    #inventoryPageRoot,
+    #inventoryPageRoot > *,
+    #inventoryPageRoot .grid,
+    #inventoryPageRoot .grid > *,
+    #inventoryPageRoot #inventoryPageHeader,
+    #inventoryPageRoot #inventoryStatusSwitch,
+    #inventoryPageRoot #inventoryGrid,
+    #inventoryPageRoot .inventory-table-card,
+    #inventoryPageRoot .inventory-table-scroll {
+        box-sizing: border-box !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    #inventoryPageRoot {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+    }
+
+    #inventoryPageRoot #inventoryPageHeader .inventory-primary-actions {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        gap: 7px !important;
+    }
+
+    #inventoryPageRoot #inventoryPageHeader .inventory-primary-actions > * {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
+    }
+
+    #inventoryPageRoot #inventoryStatusSwitch .inventory-command-top {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    #inventoryPageRoot #inventoryStatusSwitch #inventoryInlineSearch,
+    #inventoryPageRoot #inventoryStatusSwitch #inventoryCategoryControl,
+    #inventoryPageRoot #inventoryStatusSwitch #inventoryPresentationSwitch {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    /* The product grid is its own scroll surface; keep its last row above the app bar. */
+    #inventoryPageRoot #inventoryGrid.inventory-product-grid {
+        display: grid !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        align-content: start !important;
+        grid-auto-rows: max-content !important;
+        padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+        scroll-padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #inventoryPageRoot #inventoryGrid.inventory-product-grid::-webkit-scrollbar,
+    #inventoryPageRoot .inventory-table-scroll::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    #inventoryPageRoot #inventoryGrid .inventory-product-card {
+        min-width: 0 !important;
+        height: auto !important;
+        min-height: 140px !important;
+        max-width: 100% !important;
+        align-self: start !important;
+        overflow: hidden !important;
+        border-radius: 12px !important;
+    }
+
+    #inventoryPageRoot #inventoryGrid .inventory-product-media {
+        height: 62px !important;
+        min-height: 62px !important;
+        max-width: 100% !important;
+    }
+
+    #inventoryPageRoot #inventoryGrid .inventory-product-card-body {
+        min-width: 0 !important;
+        padding: 7px 8px !important;
+    }
+
+    #inventoryPageRoot #inventoryGrid .inventory-product-name {
+        min-width: 0 !important;
+        min-height: 24px !important;
+        font-size: 10px !important;
+        line-height: 1.2 !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    #inventoryPageRoot #inventoryGrid .inventory-product-meta {
+        font-size: 8px !important;
+        line-height: 1.2 !important;
+        margin-top: 2px !important;
+    }
+
+    #inventoryPageRoot #inventoryGrid .inventory-store-stock-row {
+        display: flex !important;
+        align-items: baseline !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+        margin-top: 5px !important;
+    }
+
+    #inventoryPageRoot #inventoryGrid .inventory-store-stock-row span,
+    #inventoryPageRoot #inventoryGrid .inventory-store-stock-row small {
+        font-size: 8px !important;
+    }
+
+    #inventoryPageRoot #inventoryGrid .inventory-store-stock-row strong {
+        font-size: 14px !important;
+    }
+
+    #inventoryPageRoot #inventoryGrid .inventory-card-extra {
+        font-size: 8px !important;
+        line-height: 1.2 !important;
+        gap: 3px !important;
+    }
+
+    #inventoryPageRoot .inventory-table-scroll {
+        max-width: 100% !important;
+        min-width: 0 !important;
+        overflow-x: auto !important;
+        overflow-y: auto !important;
+        padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+        scroll-padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Agreed adaptive product density: 2 / 3 / 4 / 6. Desktop (>=1024px) is untouched. */
+@media (max-width: 399px) {
+    #inventoryPageRoot #inventoryGrid.inventory-product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+        padding-left: 2px !important;
+        padding-right: 2px !important;
+    }
+    #inventoryPageRoot #inventoryGrid .inventory-product-media {
+        height: 58px !important;
+        min-height: 58px !important;
+    }
+    #inventoryPageRoot #inventoryGrid .inventory-product-name { font-size: 10px !important; }
+}
+
+@media (min-width: 400px) and (max-width: 599px) {
+    #inventoryPageRoot #inventoryGrid.inventory-product-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 7px !important;
+    }
+    #inventoryPageRoot #inventoryGrid .inventory-product-card { min-height: 142px !important; }
+    #inventoryPageRoot #inventoryGrid .inventory-product-media {
+        height: 56px !important;
+        min-height: 56px !important;
+    }
+    #inventoryPageRoot #inventoryGrid .inventory-product-card-body { padding: 6px !important; }
+    #inventoryPageRoot #inventoryGrid .inventory-product-name { font-size: 9px !important; }
+}
+
+@media (min-width: 600px) and (max-width: 899px) {
+    #inventoryPageRoot #inventoryGrid.inventory-product-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+    }
+    #inventoryPageRoot #inventoryGrid .inventory-product-card { min-height: 148px !important; }
+    #inventoryPageRoot #inventoryGrid .inventory-product-media {
+        height: 64px !important;
+        min-height: 64px !important;
+    }
+    #inventoryPageRoot #inventoryGrid .inventory-product-name { font-size: 10px !important; }
+}
+
+@media (min-width: 900px) and (max-width: 1023px) {
+    #inventoryPageRoot #inventoryGrid.inventory-product-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+        gap: 7px !important;
+    }
+    #inventoryPageRoot #inventoryGrid .inventory-product-card { min-height: 150px !important; }
+    #inventoryPageRoot #inventoryGrid .inventory-product-media {
+        height: 58px !important;
+        min-height: 58px !important;
+    }
+    #inventoryPageRoot #inventoryGrid .inventory-product-card-body { padding: 6px !important; }
+    #inventoryPageRoot #inventoryGrid .inventory-product-name { font-size: 9px !important; }
+}
+
+@media (max-width: 680px) {
+    #inventoryPwaStockQuickActions {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}

@@ -808,11 +808,20 @@
                 cache: 'no-store',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
+                    'X-TradeCore-Queue-Owner': ownerKey,
                     'Accept': 'application/json'
                 }
             });
 
             if (response.status === 403) {
+                const denial = await response.clone().json().catch(() => null);
+                if (denial?.code === 'queue_owner_mismatch') {
+                    return {
+                        success: false,
+                        terminal: true,
+                        message: denial.message || 'Offline sale hii ni ya akaunti nyingine.'
+                    };
+                }
                 const freshToken = await refreshCsrfToken(item.action);
                 if (freshToken && freshToken !== payload.csrfmiddlewaretoken) {
                     payload.csrfmiddlewaretoken = freshToken;
@@ -826,6 +835,7 @@
                         cache: 'no-store',
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
+                            'X-TradeCore-Queue-Owner': ownerKey,
                             'Accept': 'application/json'
                         }
                     });

@@ -1,0 +1,524 @@
+{% load static %}
+<!doctype html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>{{ title|default:"TradeCore Control Room" }}</title>
+  <style>
+    /* =========================================================
+       TRADECORE CONTROL ROOM - EXECUTIVE THEME
+       ========================================================= */
+    :root {
+      --bg: #f4f5f8;
+      --surface: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --purple-dark: #4c1d95;
+      --purple-main: #6d28d9;
+      --purple-light: #f5f3ff;
+      --gold-main: #d4af37;
+      --gold-light: #fefce8;
+      --green-main: #10b981;
+      --red-main: #ef4444;
+      --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.03);
+      --shadow-lg: 0 16px 40px rgba(45, 30, 83, 0.08);
+      --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-stack);
+      color: var(--ink);
+      background-color: var(--bg);
+      background-image: radial-gradient(circle at 12% 0%, rgba(109, 40, 217, 0.04), transparent 30%),
+                        radial-gradient(circle at 100% 10%, rgba(212, 175, 55, 0.04), transparent 25%);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
+
+    /* --- TOPBAR --- */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      animation: fadeDown 0.5s ease-out;
+    }
+
+    .brand { display: flex; align-items: center; gap: 14px; }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--purple-dark), var(--purple-main));
+      color: #fff;
+      font-weight: 900;
+      font-size: 18px;
+      box-shadow: 0 10px 24px rgba(109, 40, 217, 0.25), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .name {
+      font-weight: 900;
+      font-size: 20px;
+      margin-top: 2px;
+      letter-spacing: -0.02em;
+    }
+
+    .refresh {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--ink);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+    .refresh:hover { background: var(--purple-light); color: var(--purple-main); border-color: #ddd6fe; }
+    .refresh:active { transform: scale(0.96); }
+
+    /* --- EXECUTIVE HERO --- */
+    .hero {
+      background: linear-gradient(135deg, var(--purple-dark) 0%, var(--purple-main) 100%);
+      color: #ffffff;
+      border-radius: 32px;
+      padding: 36px 40px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(76, 29, 149, 0.2);
+      animation: fadeUp 0.6s ease-out;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      top: -150px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    .hero .eyebrow { color: rgba(255, 255, 255, 0.7); }
+    .hero h1 { margin: 12px 0 10px; font-size: clamp(28px, 4vw, 44px); letter-spacing: -0.04em; font-weight: 900; }
+    .hero p { margin: 0; color: rgba(255, 255, 255, 0.85); max-width: 650px; font-size: 15px; line-height: 1.6; font-weight: 500; }
+
+    /* --- KPIS --- */
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.7s ease-out;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 24px;
+      padding: 20px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+
+    .kpi .label { font-size: 12px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi .value { font-size: 32px; font-weight: 900; letter-spacing: -0.03em; margin-top: 8px; color: var(--ink); }
+    .kpi .sub { font-size: 12px; color: var(--muted); margin-top: 6px; font-weight: 600; }
+
+    .kpi.revenue { background: linear-gradient(145deg, #ffffff, var(--gold-light)); border-color: #fef08a; }
+    .kpi.revenue .value { color: #854d0e; }
+
+    /* --- GRIDS & SECTIONS --- */
+    .grid2 { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 20px; animation: fadeUp 0.8s ease-out; }
+    .stack { display: grid; gap: 20px; align-content: start; }
+
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    .section-head h2 { margin: 0; font-size: 18px; font-weight: 800; }
+
+    .pill {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      background: var(--purple-light);
+      color: var(--purple-main);
+      border: 1px solid #ede9fe;
+    }
+
+    /* --- SEARCH --- */
+    .search { display: flex; gap: 10px; margin-bottom: 16px; }
+    .search input {
+      flex: 1;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      padding: 12px 16px;
+      border-radius: 14px;
+      outline: none;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .search input:focus { border-color: var(--purple-main); background: var(--surface); box-shadow: 0 0 0 3px var(--purple-light); }
+    .search button {
+      border: 0;
+      border-radius: 14px;
+      padding: 0 20px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .search button:hover { background: var(--purple-main); }
+
+    /* --- LISTS & ROWS --- */
+    .rows { display: grid; gap: 6px; }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #fafafb;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .row:hover { background: var(--purple-light); border-color: #ddd6fe; box-shadow: var(--shadow-sm); }
+
+    .primary { font-size: 14px; font-weight: 800; color: var(--ink); }
+    .secondary { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500; }
+    .right { text-align: right; }
+    .link-text { color: var(--purple-main); font-weight: 800; font-size: 12px; margin-top: 4px; }
+
+    .gold { color: #b45309; font-weight: 900; }
+
+    /* --- STATUS INDICATORS --- */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .status-badge.live { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .status-badge.live::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 1.5s infinite;
+    }
+
+    .success { color: var(--green-main); font-weight: 900; }
+    .danger { color: var(--red-main); font-weight: 900; }
+
+    /* --- MINI GRID (System Pulse) --- */
+    .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .mini {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: linear-gradient(180deg, var(--surface) 0%, #f8fafc 100%);
+    }
+    .mini .n { font-size: 24px; font-weight: 900; letter-spacing: -0.03em; color: var(--ink); }
+    .mini .t { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .foot { margin-top: 24px; color: var(--muted); font-size: 12px; text-align: center; font-weight: 600; }
+
+    /* --- CUSTOM MODAL CSS --- */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      z-index: 1000; display: none; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-card {
+      background: var(--surface); border-radius: 24px; padding: 24px; width: 100%; max-width: 420px;
+      box-shadow: 0 24px 50px rgba(0,0,0,0.15); transform: scale(0.95); transition: transform 0.3s ease;
+    }
+    .modal-overlay.active .modal-card { transform: scale(1); }
+    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px; }
+    .modal-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--purple-main); background: var(--purple-light); padding: 4px 8px; border-radius: 6px; display: inline-block;}
+    .modal-title { font-size: 20px; font-weight: 900; margin: 8px 0 4px; color: var(--ink); }
+    .modal-subtitle { font-size: 13px; color: var(--muted); margin: 0; font-weight: 500; }
+    .modal-close { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--muted); font-size: 18px; font-weight: bold; cursor: pointer; display: grid; place-items: center; transition: all 0.2s; }
+    .modal-close:hover { background: #fee2e2; color: #ef4444; }
+    .modal-detail { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; }
+    .modal-detail .lbl { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .modal-detail .val { font-size: 13px; font-weight: 800; color: var(--ink); text-align: right; max-width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .modal-detail .val.highlight { color: var(--purple-main); }
+    .modal-detail .val.amber { color: #d97706; background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+    .btn-call { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: var(--purple-dark); color: var(--gold-main); padding: 16px; border-radius: 16px; font-weight: 900; font-size: 14px; text-decoration: none; margin-top: 20px; border: none; transition: transform 0.2s, background 0.2s; cursor: pointer;}
+    .btn-call:hover { transform: translateY(-2px); background: var(--purple-main); }
+
+    /* --- ANIMATIONS --- */
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 900px) {
+      .kpis { grid-template-columns: 1fr 1fr; }
+      .grid2 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .wrap { padding: 16px 12px 30px; }
+      .hero { border-radius: 24px; padding: 24px; }
+      .hero h1 { font-size: 26px; }
+      .card { border-radius: 20px; padding: 16px; }
+      .kpi .value { font-size: 26px; }
+      .search { flex-direction: column; }
+      .search button { padding: 12px; }
+      .mini-grid { gap: 8px; }
+      .mini { padding: 12px; }
+     }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">TC</div>
+        <div>
+          <div class="eyebrow">Private Owner Area</div>
+          <div class="name">TradeCore Control Room</div>
+        </div>
+      </div>
+      <button class="refresh" type="button" data-control-room-action="refresh">↻ Refresh Data</button>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="eyebrow">Platform Command Center</div>
+      <h1>Habari za TradeCore, kwa muhtasari.</h1>
+      <p>Dashibodi hii ni ya mmiliki wa mfumo kuona akaunti, biashara, malipo na watumiaji walio hewani bila kulazimika kuingia kwenye Django Admin.</p>
+    </section>
+
+    <!-- KPIS -->
+    <section class="kpis">
+      <div class="card kpi">
+        <div class="label">Total Accounts</div>
+        <div class="value">{{ total_users }}</div>
+        <div class="sub">Businesses: {{ total_businesses }}</div>
+      </div>
+      <div class="card kpi">
+        <div class="label">Premium Active</div>
+        <div class="value">{{ active_premium }}</div>
+        <div class="sub">Trial active: {{ active_trial }}</div>
+      </div>
+      <div class="card kpi revenue">
+        <div class="label">Total Revenue</div>
+        <div class="value">TZS {{ revenue_total }}</div>
+        <div class="sub">Leo: TZS {{ revenue_today }}</div>
+      </div>
+      <div class="card kpi">
+        <div class="label">Live Now</div>
+        <div class="value success">{{ online_users }}</div>
+        <div class="sub">Heartbeat ndani ya dakika 5</div>
+      </div>
+    </section>
+
+    <!-- MAIN GRIDS -->
+    <section class="grid2">
+
+      <!-- LEFT COLUMN -->
+      <div class="stack">
+        <!-- Recent Signups -->
+        <div class="card">
+          <div class="section-head">
+            <h2>Recent Signups</h2>
+            <span class="pill">{{ registrations_30d }} / 30d</span>
+          </div>
+          <form class="search" method="get">
+            <input name="q" value="{{ query }}" placeholder="Tafuta biashara, username au email…">
+            <button type="submit">Tafuta</button>
+          </form>
+          <div class="rows">
+            {% for business in recent_businesses %}
+            <div class="row" role="button" tabindex="0" data-control-room-business
+                 data-business-name="{{ business.jina_la_duka|default:'TradeCore Business' }}"
+                 data-owner-name="{{ business.owner_name|default:'-' }}"
+                 data-owner-email="{{ business.owner_email|default:'-' }}"
+                 data-business-phone="{{ business.simu|default:'-' }}"
+                 data-business-area="{{ business.anwani_au_mahali|default:'-' }}"
+                 data-business-type="{{ business.get_business_type_display|default:'-' }}"
+                 data-business-tin="{{ business.tin|default:'-' }}"
+                 data-business-joined="{{ business.joined_local|date:'d M Y' }}">
+              <div>
+                <div class="primary" style="color: var(--purple-dark);">{{ business.jina_la_duka|default:"TradeCore Business" }}</div>
+                <div class="secondary">{{ business.owner_name }} · {{ business.owner_email }}</div>
+              </div>
+              <div class="right">
+                <div class="secondary">{{ business.joined_local|date:"d M Y" }}</div>
+                <div class="link-text">Tazama Zaidi ›</div>
+              </div>
+            </div>
+            {% empty %}
+            <div class="secondary" style="padding: 10px 0;">Hakuna business iliyopatikana.</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Recent Payments -->
+        <div class="card">
+          <div class="section-head">
+            <h2>Recent Payments</h2>
+            <span class="pill">{{ pending_payments }} pending</span>
+          </div>
+          <div class="rows">
+            {% for payment in recent_payments %}
+            <div class="row">
+              <div>
+                <div class="primary">{{ payment.customer_name }}</div>
+                <div class="secondary">{{ payment.method }}{% if payment.network %} · {{ payment.network }}{% endif %} · {{ payment.tx_ref }}</div>
+              </div>
+              <div class="right">
+                <div class="gold">TZS {{ payment.display_amount }}</div>
+                <div class="secondary">{{ payment.status }} · {{ payment.created_local|date:"d M H:i" }}</div>
+              </div>
+            </div>
+            {% empty %}
+            <div class="secondary" style="padding: 10px 0;">Hakuna payment bado.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="stack">
+        <!-- System Pulse -->
+        <div class="card">
+          <div class="section-head">
+            <h2>System Pulse</h2>
+            <span class="pill">{{ registrations_today }} today</span>
+          </div>
+          <div class="mini-grid">
+            <div class="mini"><div class="n">{{ registrations_7d }}</div><div class="t">Signups / 7d</div></div>
+            <div class="mini"><div class="n">{{ registrations_30d }}</div><div class="t">Signups / 30d</div></div>
+            <div class="mini"><div class="n">{{ expired_trial }}</div><div class="t">Expired Trial</div></div>
+            <div class="mini"><div class="n">{{ expired_premium }}</div><div class="t">Expired Premium</div></div>
+          </div>
+        </div>
+
+        <!-- Subscriptions -->
+        <div class="card">
+          <div class="section-head">
+            <h2>Subscriptions</h2>
+          </div>
+          <div class="mini-grid">
+            <div class="mini"><div class="n success">{{ active_premium }}</div><div class="t">Premium Active</div></div>
+            <div class="mini"><div class="n">{{ active_trial }}</div><div class="t">Trial Active</div></div>
+            <div class="mini"><div class="n">{{ pending_payments }}</div><div class="t">Pending Payments</div></div>
+            <div class="mini"><div class="n danger">{{ failed_payments }}</div><div class="t">Failed / Canceled</div></div>
+          </div>
+        </div>
+
+        <!-- Live Users -->
+        <div class="card">
+          <div class="section-head">
+            <h2>Live Users</h2>
+            <span class="pill">{{ online_users }} online</span>
+          </div>
+          <div class="rows">
+            {% for profile in live_users %}
+            <div class="row">
+              <div>
+                <div class="primary">{{ profile.live_name }}</div>
+                <div class="secondary">@{{ profile.user.username }}</div>
+              </div>
+              <div class="right">
+                <div class="status-badge live">Live</div>
+                <div class="secondary">{{ profile.live_since|date:"H:i:s" }}</div>
+              </div>
+            </div>
+            {% empty %}
+            <div class="secondary" style="padding: 10px 0;">Hakuna user aliye online sasa.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <div class="foot">
+      Last refresh: {{ last_refresh|date:"d M Y · H:i:s" }} · TradeCore Owner-Only Dashboard
+    </div>
+  </main>
+
+  <!-- =========================================================
+       POPUP YA TAARIFA ZA MTEJA (CUSTOMER DETAILS MODAL)
+       IKO NJE YA MAIN ILI IFUNIKE UKURASA WOTE BILA MGONGANO
+       ========================================================= -->
+  <div id="mtejaModalOverlay" class="modal-overlay" data-control-room-modal-overlay>
+    <div id="mtejaModalCard" class="modal-card">
+
+      <div class="modal-header">
+        <div>
+          <span class="modal-badge">TradeCore Client</span>
+          <h3 id="modalJinaDuka" class="modal-title">Jina la Duka</h3>
+          <p id="modalJinaMmiliki" class="modal-subtitle">Mmiliki</p>
+        </div>
+        <button type="button" data-control-room-close class="modal-close" aria-label="Close">&times;</button>
+      </div>
+
+      <div>
+        <div class="modal-detail"><span class="lbl">Simu</span><span id="modalSimu" class="val highlight">-</span></div>
+        <div class="modal-detail"><span class="lbl">Email</span><span id="modalEmail" class="val">-</span></div>
+        <div class="modal-detail"><span class="lbl">Eneo / Anwani</span><span id="modalEneo" class="val">-</span></div>
+        <div class="modal-detail"><span class="lbl">Aina ya Biashara</span><span id="modalAina" class="val amber">-</span></div>
+        <div class="modal-detail"><span class="lbl">TIN No.</span><span id="modalTin" class="val">-</span></div>
+        <div class="modal-detail"><span class="lbl">Tarehe Aliyojiunga</span><span id="modalTarehe" class="val">-</span></div>
+      </div>
+
+      <a id="modalPigaSimu" href="#" class="btn-call">📞 Piga Simu Sasa</a>
+    </div>
+  </div>
+
+  <script src="{% static 'control_room.js' %}?v=20261105-cr-restore1" defer></script>
+
+</body>
+</html>

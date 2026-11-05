@@ -4,13 +4,13 @@ from django.views.decorators.http import require_GET
 
 
 # TradeCore application release. Keep in sync with templates and the PWA updater.
-APP_VERSION = "1.1.7"
+APP_VERSION = "1.1.9"
 
 # Static asset cache + safe client-side background-sync queue.
 # No Django business data is cached here. Sales data lives in the PWA's
 # IndexedDB queue and is posted back to the existing /mauzo/ endpoint.
-SERVICE_WORKER_JS = r'''const APP_VERSION = "1.1.7";
-const CACHE_NAME = "tradecore-static-v1.1.7-responsive-stability-02";
+SERVICE_WORKER_JS = r'''const APP_VERSION = "1.1.9";
+const CACHE_NAME = "tradecore-static-v1.1.9-owner-scope-inventory-firstpaint-01";
 const CACHE_PREFIX = "tradecore-static-";
 const STATIC_ASSETS = [
   "/static/tradecore_pwa.css",
@@ -112,11 +112,15 @@ self.addEventListener("fetch", event => {
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
-    const cached = await cache.match(request);
+    // Ignore the cache-busting query string: the release cache itself is versioned.
+    const cached = await cache.match(request, { ignoreSearch: true });
     if (cached) {
-      // Refresh the cached asset in the background, but keep the current page fast.
+      // Refresh the canonical path in the background without creating query-key variants.
       fetch(request).then(response => {
-        if (response && response.ok) return cache.put(request, response.clone());
+        if (response && response.ok) {
+          const canonicalRequest = new Request(url.origin + url.pathname, { credentials: "same-origin" });
+          return cache.put(canonicalRequest, response.clone());
+        }
       }).catch(() => {});
       return cached;
     }
@@ -158,6 +162,33 @@ function getSales() {
   }));
 }
 
+
+/* Fail closed: Background Sync must only submit items belonging to the user
+   whose authenticated page last set the existing IndexedDB active_owner key. */
+function getActiveOwnerKeyFromDb() {
+  return openDb().then(db => new Promise((resolve, reject) => {
+    let ownerKey = "";
+    const tx = db.transaction("meta", "readonly");
+    const req = tx.objectStore("meta").get("active_owner");
+    req.onsuccess = () => {
+      const value = String(req.result?.ownerKey || "").trim();
+      ownerKey = /^\d+$/.test(value) ? value : "";
+    };
+    req.onerror = () => {
+      db.close();
+      reject(req.error || new Error("Active owner metadata could not be read."));
+    };
+    tx.oncomplete = () => {
+      db.close();
+      resolve(ownerKey);
+    };
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error || new Error("Active owner transaction failed."));
+    };
+  }));
+}
+
 function putSale(item) {
   return openDb().then(db => new Promise((resolve, reject) => {
     const tx = db.transaction(SALES_STORE, "readwrite");
@@ -188,10 +219,24 @@ function backgroundSyncSales() {
   if (syncInFlight) return syncInFlight;
 
   syncInFlight = (async () => {
-    const items = (await getSales()).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+    let activeOwnerKey = "";
+    try {
+      activeOwnerKey = await getActiveOwnerKeyFromDb();
+    } catch (error) {
+      // Do not submit any queued sale if ownership cannot be established.
+      console.warn("TradeCore background sync paused: active owner unavailable.", error);
+      return;
+    }
+    if (!activeOwnerKey) {
+      console.warn("TradeCore background sync paused: no authenticated queue owner.");
+      return;
+    }
+
+    const items = (await getSales())
+      .filter(item => String(item.ownerKey || "") === activeOwnerKey && item.state === "pending")
+      .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 
     for (const item of items) {
-      if (item.state !== "pending") continue;
 
       item.attempts = Number(item.attempts || 0) + 1;
       item.updatedAt = Date.now();
@@ -215,6 +260,7 @@ function backgroundSyncSales() {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
             "X-Requested-With": "XMLHttpRequest",
+            "X-TradeCore-Queue-Owner": activeOwnerKey,
             "Accept": "application/json"
           }
         });
@@ -231,7 +277,9 @@ function backgroundSyncSales() {
 
         if (response.status === 403) {
           item.state = "needs_attention";
-          item.lastError = "CSRF Session imeisha. Fungua App ukiwa na internet ili kusync.";
+          item.lastError = data?.code === "queue_owner_mismatch"
+            ? (data.message || "Offline sale hii ni ya akaunti nyingine.")
+            : "CSRF Session imeisha. Fungua App ukiwa na internet ili kusync.";
           await putSale(item);
           continue;
         }
@@ -277,7 +325,17 @@ self.addEventListener("sync", event => {
 });
 
 self.addEventListener("message", event => {
-  if (event.data?.type === "TRADECORE_SYNC_NOW") {
+  const data = event.data || {};
+  if (data.type === "TRADECORE_SET_ACTIVE_OWNER") {
+    // Page code has already persisted this value to IndexedDB. Validate the
+    // message for diagnostics/forward compatibility; the DB remains authoritative.
+    const ownerKey = String(data.ownerKey || "").trim();
+    if (!/^\d+$/.test(ownerKey)) {
+      console.warn("TradeCore ignored an invalid active-owner message.");
+    }
+    return;
+  }
+  if (data.type === "TRADECORE_SYNC_NOW") {
     event.waitUntil?.(backgroundSyncSales());
   }
 });

@@ -650,6 +650,78 @@ function inventoryT(key){ return INVENTORY_I18N[key] || key; }
   </div>
 </div>
 
+
+<!-- PWA QUICK STOCK OPERATIONS
+     Hidden by default and revealed only by the render-blocking PWA stylesheet.
+     Actions call the existing Inventory workflow; no stock logic is duplicated. -->
+<div id="inventoryPwaStockQuickActions"
+     class="hidden inventory-pwa-stock-quick-actions"
+     aria-label="{% trans 'Stock operations' %}">
+  <button type="button"
+          data-inventory-quick-action="stock-in"
+          aria-label="{% trans 'Stock In' %}"
+          onclick="window.startInventoryMode('stock_in',{openScanner:false})"
+          class="tc-inventory-quick-action tc-stock-in">
+    <span class="tc-inventory-quick-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+        <path d="M12 5v14M5 12h14"/><path d="M4 4h16v16H4z" opacity=".25"/>
+      </svg>
+    </span>
+    <span class="tc-inventory-quick-copy">
+      <strong>{% trans 'Stock In' %}</strong>
+      <small>{% trans 'Mzigo unaingia Store' %}</small>
+    </span>
+  </button>
+
+  <button type="button"
+          data-inventory-quick-action="transfer"
+          aria-label="{% trans 'Transfer' %}"
+          onclick="window.startInventoryMode('transfer',{openScanner:false})"
+          class="tc-inventory-quick-action tc-transfer">
+    <span class="tc-inventory-quick-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+        <path d="M4 8h15l-4-4M20 16H5l4 4"/>
+      </svg>
+    </span>
+    <span class="tc-inventory-quick-copy">
+      <strong>{% trans 'Transfer' %}</strong>
+      <small>{% trans 'Hamisha Store ↔ Duka' %}</small>
+    </span>
+  </button>
+
+  <button type="button"
+          data-inventory-quick-action="stock-take"
+          aria-label="{% trans 'Stock Take' %}"
+          onclick="window.startInventoryMode('stock_take',{openScanner:false})"
+          class="tc-inventory-quick-action tc-stock-take">
+    <span class="tc-inventory-quick-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+        <path d="M8 4h8M9 3h6v3H9zM6 5H5a2 2 0 0 0-2 2v13h18V7a2 2 0 0 0-2-2h-1"/><path d="m8 13 2.5 2.5L16 10"/>
+      </svg>
+    </span>
+    <span class="tc-inventory-quick-copy">
+      <strong>{% trans 'Stock Take' %}</strong>
+      <small>{% trans 'Hesabu stock' %}</small>
+    </span>
+  </button>
+
+  <button type="button"
+          data-inventory-quick-action="adjustment"
+          aria-label="{% trans 'Adjustment' %}"
+          onclick="window.startInventoryMode('adjustment',{openScanner:false})"
+          class="tc-inventory-quick-action tc-adjustment">
+    <span class="tc-inventory-quick-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+        <path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="9"/>
+      </svg>
+    </span>
+    <span class="tc-inventory-quick-copy">
+      <strong>{% trans 'Adjustment' %}</strong>
+      <small>{% trans 'Rekebisha stock' %}</small>
+    </span>
+  </button>
+</div>
+
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
   <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100"><p class="text-[10px] font-bold text-gray-400 uppercase">{% trans 'Jumla ya Bidhaa' %}</p><p class="text-2xl font-black text-gray-900 mt-1">{{ jumla_bidhaa }}</p></div>
   <div class="inventory-value-summary-card p-5 rounded-3xl shadow-sm border"><p class="text-[10px] font-bold text-white/75 uppercase">{% trans 'Thamani ya Stoo (Selling)' %}</p><p class="text-2xl font-black text-white mt-1">TZS <span id="inventoryValueAmount" class="text-amber-300" data-compact-money="{{ thamani_stoo|default_if_none:0 }}">{{ thamani_stoo|intcomma }}</span></p></div>
@@ -1017,6 +1089,9 @@ function inventoryT(key){ return INVENTORY_I18N[key] || key; }
       <div class="inventory-form-field"><label>{% trans 'Maelezo ya sababu' %}</label><textarea id="inventoryTransferReasonText" class="inventory-input" rows="2" maxlength="1000" placeholder="Andika sababu/maelezo muhimu..."></textarea></div>
     </div>
     <div class="flex items-center gap-2 mb-3 bg-gray-50 p-2 rounded-2xl border border-gray-100"><input type="text" class="inventory-input flex-1" style="min-height:36px; padding:6px 12px; font-size:11px;" placeholder="Andika Barcode au ID kisha Enter..." onkeydown="if(event.key==='Enter'){ window.tradecoreInventoryScanHandler(this.value); this.value=''; event.preventDefault(); }"><button type="button" onclick="TradeCoreMobile.openInventoryScanner('transfer')" class="px-3 py-2 rounded-xl bg-purple-100 text-purple-900 font-black text-[10px]"><svg class="inline h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#tc-icon-camera"></use></svg> {% trans 'Kamera' %}</button></div>
+    <button type="button" onclick="openTradeCorePhoneScannerPairing()" class="w-full mb-3 px-4 py-3 rounded-2xl border border-purple-200 bg-purple-50 text-purple-900 font-black text-[10px] flex items-center justify-center gap-2 shadow-sm">
+      <span class="text-sm">📱</span><span>{% trans 'Tumia Simu kama Scanner' %}</span>
+    </button>
     <div id="inventoryTransferPicker" class="inventory-transfer-picker">
       <div class="inventory-transfer-picker-head">
         <div>
@@ -1101,6 +1176,57 @@ function inventoryT(key){ return INVENTORY_I18N[key] || key; }
     <div class="flex items-center justify-between gap-2 mt-2">
       <div class="text-[9px] text-gray-400 font-bold">{% trans 'USB/Bluetooth scanners za keyboard/HID zinakubaliwa moja kwa moja.' %}</div>
       <button id="tradecoreInventorySerialButton" type="button" onclick="TradeCoreMobile.connectInventorySerialScanner?.()" class="hidden shrink-0 px-3 py-2 rounded-xl bg-gray-100 text-gray-700 text-[9px] font-black">{% trans 'Serial 9600' %}</button>
+    </div>
+  </div>
+</div>
+
+<div id="tradecorePhoneScannerModal" class="inventory-apple-modal hidden" aria-hidden="true">
+  <div class="inventory-apple-backdrop" onclick="closeTradeCorePhoneScannerPairing()"></div>
+  <div class="inventory-apple-card inventory-phone-scanner-card" role="dialog" aria-modal="true" aria-labelledby="tradecorePhoneScannerTitle">
+    <div class="inventory-apple-grabber"></div>
+    <div class="inventory-phone-header">
+      <div class="inventory-phone-heading">
+        <div class="inventory-phone-icon" aria-hidden="true">⌁</div>
+        <div class="min-w-0">
+          <h3 id="tradecorePhoneScannerTitle">{% trans 'Tumia Simu kama Scanner' %}</h3>
+          <p>{% trans 'Scan QR hii kwa simu yako; barcode zitaingia kwenye Transfer ya desktop.' %}</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeTradeCorePhoneScannerPairing()" class="inventory-apple-close" aria-label="{% trans 'Funga' %}">&times;</button>
+    </div>
+
+    <div class="inventory-phone-content">
+      <div class="inventory-phone-instruction">
+        <span class="inventory-phone-step">1</span>
+        <div>
+          <div class="inventory-phone-instruction-title">{% trans 'Scan QR code' %}</div>
+          <div class="inventory-phone-instruction-text">{% trans 'Fungua kamera ya simu yako na uscan QR code iliyo hapa chini.' %}</div>
+        </div>
+      </div>
+
+      <div class="inventory-phone-qr-panel">
+        <div id="tradecorePhoneScannerStatus" class="inventory-phone-status">{% trans 'Inaunda pairing salama...' %}</div>
+        <div id="tradecorePhoneScannerQrWrap" class="inventory-phone-qr-wrap">
+          <div class="text-[10px] font-bold text-gray-400">{% trans 'Inatengeneza QR Code...' %}</div>
+        </div>
+        <div id="tradecorePhoneScannerUrl" class="inventory-phone-url"></div>
+      </div>
+
+      <div class="inventory-phone-live-grid">
+        <div class="inventory-phone-live-card">
+          <div class="inventory-phone-live-label">{% trans 'Hali ya Muunganisho' %}</div>
+          <div id="tradecorePhoneScannerConnection" class="inventory-phone-live-value is-waiting">{% trans 'Inasubiri simu...' %}</div>
+        </div>
+        <div class="inventory-phone-live-card">
+          <div class="inventory-phone-live-label">{% trans 'Scans' %}</div>
+          <div id="tradecorePhoneScannerCount" class="inventory-phone-live-value is-count">0</div>
+        </div>
+      </div>
+
+      <div id="tradecorePhoneScannerLast" class="inventory-phone-last">
+        <span class="inventory-phone-last-dot" aria-hidden="true"></span>
+        <span>{% trans 'Simu ikishaunganishwa, barcode ya kwanza itaonekana hapa.' %}</span>
+      </div>
     </div>
   </div>
 </div>
@@ -2257,6 +2383,40 @@ document.addEventListener('DOMContentLoaded',()=>{
 @media print{#inventorySupplierOrderModal{display:none!important}}
 </style>
 
+<style id="tradecore-phone-scanner-apple-surgery">
+/* Phone-as-scanner: restrained Apple-style hierarchy. Logic/IDs intentionally preserved. */
+.inventory-phone-scanner-card{width:min(500px,100%);padding:20px 20px 18px;border-radius:30px;overflow:hidden;background:rgba(255,255,255,.96)}
+.inventory-phone-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:2px 2px 18px;border-bottom:1px solid #f0ecf4}
+.inventory-phone-heading{display:flex;align-items:center;gap:11px;min-width:0}
+.inventory-phone-icon{width:38px;height:38px;flex:0 0 38px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#f3edff;color:#5b21b6;font-size:21px;font-weight:900;box-shadow:inset 0 0 0 1px rgba(91,33,182,.07)}
+.inventory-phone-heading h3{margin:0;font-size:20px;line-height:1.12;font-weight:950;letter-spacing:-.035em;color:#20172d}
+.inventory-phone-heading p{margin:5px 0 0;max-width:355px;font-size:10px;line-height:1.55;font-weight:650;color:#918897}
+.inventory-phone-content{padding-top:16px}
+.inventory-phone-instruction{display:flex;align-items:flex-start;gap:10px;margin:0 2px 13px}
+.inventory-phone-step{width:22px;height:22px;flex:0 0 22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#5b21b6;color:#fff;font-size:9px;font-weight:950}
+.inventory-phone-instruction-title{font-size:11px;line-height:1.2;font-weight:900;color:#33283d}
+.inventory-phone-instruction-text{margin-top:3px;font-size:9px;line-height:1.5;color:#958c9f;max-width:390px}
+.inventory-phone-qr-panel{display:flex;flex-direction:column;align-items:center;padding:15px 14px 13px;border:1px solid #ece6f3;border-radius:23px;background:linear-gradient(180deg,#faf8fc,#f6f2fa);box-shadow:0 8px 24px rgba(31,25,45,.045)}
+.inventory-phone-status{min-height:15px;text-align:center;font-size:9px;font-weight:850;color:#6f6677}
+.inventory-phone-qr-wrap{width:216px;height:216px;margin-top:9px;display:flex;align-items:center;justify-content:center;padding:12px;border-radius:20px;background:#fff;border:1px solid #ece8f0;box-shadow:0 7px 22px rgba(31,25,45,.07)}
+.inventory-phone-qr-wrap img,.inventory-phone-qr-wrap canvas,.inventory-phone-qr-wrap svg{display:block;max-width:100%;max-height:100%;border-radius:5px}
+.inventory-phone-url{width:min(100%,360px);margin-top:8px;min-height:13px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8px;font-weight:700;color:#aaa1b0}
+.inventory-phone-live-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(100px,.65fr);gap:8px;margin-top:10px}
+.inventory-phone-live-card{min-width:0;padding:11px 12px;border:1px solid #eee9f2;border-radius:17px;background:#fff}
+.inventory-phone-live-label{font-size:7px;line-height:1.2;text-transform:uppercase;letter-spacing:.11em;font-weight:950;color:#a39aa8}
+.inventory-phone-live-value{margin-top:5px;font-size:10px;line-height:1.25;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inventory-phone-live-value.is-waiting{color:#b7791f}.inventory-phone-live-value.is-count{color:#5b21b6}
+.inventory-phone-last{display:flex;align-items:center;gap:8px;margin-top:9px;padding:10px 12px;border-radius:15px;background:#f8f7fa;color:#7e7484;font-size:8px;line-height:1.45;font-weight:700}
+.inventory-phone-last-dot{width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:#5b21b6;box-shadow:0 0 0 4px #eee8f8}
+@media(max-width:767px){
+  .inventory-phone-scanner-card{padding:16px 15px 15px;border-radius:28px 28px 0 0}
+  .inventory-phone-heading h3{font-size:18px}
+  .inventory-phone-heading p{font-size:9px;max-width:285px}
+  .inventory-phone-qr-wrap{width:200px;height:200px}
+  .inventory-phone-live-grid{grid-template-columns:1fr 92px}
+}
+</style>
+
 <script id="tradecore-inventory-logic-surgery">
 (function(){
   'use strict';
@@ -2754,6 +2914,108 @@ document.addEventListener('DOMContentLoaded',()=>{
   window.addEventListener('load',installInventoryGlobalScannerBridge,{once:false});
   setTimeout(installInventoryGlobalScannerBridge,1200);
 
+  // ============================================================
+  // TRADECORE PHONE-AS-SCANNER — DESKTOP ↔ PHONE PAIRING
+  // Short-lived signed pairing + HTTP polling; no new realtime dependency.
+  // ============================================================
+  let tradeCorePhoneScannerPollTimer=null;
+  let tradeCorePhoneScannerCursor=0;
+  let tradeCorePhoneScannerCount=0;
+  let tradeCorePhoneScannerActive=false;
+
+  function tradeCorePhoneScannerSetText(id,value){
+    const el=document.getElementById(id);
+    if(el) el.textContent=value;
+  }
+
+  function tradeCorePhoneScannerStopPolling(){
+    if(tradeCorePhoneScannerPollTimer){
+      clearInterval(tradeCorePhoneScannerPollTimer);
+      tradeCorePhoneScannerPollTimer=null;
+    }
+  }
+
+  async function tradeCorePhoneScannerPoll(){
+    if(!tradeCorePhoneScannerActive)return;
+    try{
+      const res=await fetch(`{% url 'phone_scanner_poll' %}?cursor=${encodeURIComponent(tradeCorePhoneScannerCursor)}`,{
+        credentials:'same-origin',
+        headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},
+        cache:'no-store'
+      });
+      if(!res.ok)return;
+      const data=await res.json();
+      tradeCorePhoneScannerSetText(
+        'tradecorePhoneScannerConnection',
+        data.phone_online?'Simu imeunganishwa ✓':'Inasubiri simu...'
+      );
+
+      const scans=Array.isArray(data.scans)?data.scans:[];
+      for(const scan of scans){
+        const seq=Number(scan.seq||0);
+        if(seq<=tradeCorePhoneScannerCursor)continue;
+
+        try{
+          if(typeof window.tradecoreInventoryScanHandler==='function' && state.mode==='transfer'){
+            await window.tradecoreInventoryScanHandler(scan.barcode);
+            tradeCorePhoneScannerCount+=1;
+            tradeCorePhoneScannerSetText('tradecorePhoneScannerCount',String(tradeCorePhoneScannerCount));
+            tradeCorePhoneScannerSetText(
+              'tradecorePhoneScannerLast',
+              `Barcode: ${scan.barcode} · umeingia kwenye Transfer ✓`
+            );
+          }
+        }catch(error){
+          tradeCorePhoneScannerSetText(
+            'tradecorePhoneScannerLast',
+            error?.message||'Scan imeshindikana kwenye Transfer.'
+          );
+        }finally{
+          tradeCorePhoneScannerCursor=seq;
+        }
+      }
+    }catch(_){}
+  }
+
+  window.openTradeCorePhoneScannerPairing=async function(){
+    const modal=document.getElementById('tradecorePhoneScannerModal');
+    if(!modal)return;
+
+    openOverlay('tradecorePhoneScannerModal');
+    tradeCorePhoneScannerStopPolling();
+    tradeCorePhoneScannerActive=true;
+    tradeCorePhoneScannerCursor=0;
+    tradeCorePhoneScannerCount=0;
+
+    tradeCorePhoneScannerSetText('tradecorePhoneScannerStatus','Inaunda pairing salama...');
+    tradeCorePhoneScannerSetText('tradecorePhoneScannerConnection','Inasubiri simu...');
+    tradeCorePhoneScannerSetText('tradecorePhoneScannerCount','0');
+
+    const qrWrap=document.getElementById('tradecorePhoneScannerQrWrap');
+    if(qrWrap)qrWrap.innerHTML='<div class="text-[10px] font-bold text-gray-400">Inatengeneza QR Code...</div>';
+
+    try{
+      const data=await postJson('{% url "phone_scanner_start" %}',{});
+      if(qrWrap){
+        qrWrap.innerHTML=`<img src="${data.qr_data_url}" alt="TradeCore phone scanner QR" style="width:230px;height:230px;border-radius:18px;background:#fff;padding:10px;box-shadow:0 10px 30px rgba(31,25,45,.08);">`;
+      }
+      tradeCorePhoneScannerSetText('tradecorePhoneScannerUrl',data.phone_url||'');
+      tradeCorePhoneScannerSetText('tradecorePhoneScannerStatus','QR iko tayari — scan kwa simu yako.');
+      await tradeCorePhoneScannerPoll();
+      tradeCorePhoneScannerPollTimer=setInterval(tradeCorePhoneScannerPoll,700);
+    }catch(error){
+      tradeCorePhoneScannerSetText('tradecorePhoneScannerStatus',error?.message||'Pairing imeshindikana.');
+      if(qrWrap)qrWrap.innerHTML='<div class="text-[10px] font-black text-rose-600">Pairing imeshindikana.</div>';
+    }
+  };
+
+  window.closeTradeCorePhoneScannerPairing=async function(){
+    tradeCorePhoneScannerActive=false;
+    tradeCorePhoneScannerStopPolling();
+    try{await postJson('{% url "phone_scanner_stop" %}',{});}catch(_){}
+    closeInventoryOverlay('tradecorePhoneScannerModal');
+  };
+
   window.finishInventoryTransfer=async function(){
     if(!state.items.length){showAppleStatus('error', 'Imeshindikana', inventoryT('scan_select_first'));return}
     const fromId=Number(document.getElementById('inventoryTransferFrom')?.value||0),toId=Number(document.getElementById('inventoryTransferTo')?.value||0);
@@ -2967,7 +3229,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 
   window.addEventListener('resize',()=>{requestAnimationFrame(()=>{syncInventoryStatusIndicator();syncInventoryPresentationIndicator()})},{passive:true});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'){['inventoryScanModeModal','inventoryTransferModal','inventoryStockInModal','inventoryStockTakeModal','inventoryAdjustmentModal','inventoryProductDetailModal','inventoryBarcodeActionsModal','inventoryBarcodePreviewModal','inventoryBarcodeConfirmModal'].forEach(closeInventoryOverlay)}});
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Escape') return;
+    const phoneModal=document.getElementById('tradecorePhoneScannerModal');
+    if(phoneModal && !phoneModal.classList.contains('hidden')) window.closeTradeCorePhoneScannerPairing?.();
+    ['inventoryScanModeModal','inventoryTransferModal','inventoryStockInModal','inventoryStockTakeModal','inventoryAdjustmentModal','inventoryProductDetailModal','inventoryBarcodeActionsModal','inventoryBarcodePreviewModal','inventoryBarcodeConfirmModal'].forEach(closeInventoryOverlay);
+  });
 })();
 </script>
 
@@ -3350,130 +3617,5 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 })();
 </script>
-
-<style id="tradecore-inventory-pwa-six-column-surgery">
-/* PWA only: compact six-column product grid while preserving the desktop layout. */
-@media (max-width: 1023px) {
-  body:has(#inventoryPageRoot) #inventoryGrid.inventory-product-grid {
-    display:grid !important;
-    grid-template-columns:repeat(6,minmax(0,1fr)) !important;
-    gap:4px !important;
-    padding:6px 1px 72px !important;
-    overflow-x:hidden !important;
-    overflow-y:auto !important;
-    scrollbar-width:none !important;
-    -ms-overflow-style:none !important;
-  }
-  body:has(#inventoryPageRoot) #inventoryGrid.inventory-product-grid::-webkit-scrollbar { display:none !important; width:0 !important; height:0 !important; }
-  body:has(#inventoryPageRoot) #inventoryGrid .inventory-product-card {
-    min-width:0 !important;
-    min-height:96px !important;
-    height:auto !important;
-    border-radius:9px !important;
-  }
-  body:has(#inventoryPageRoot) #inventoryGrid .inventory-product-media {
-    height:38px !important;
-    min-height:38px !important;
-    border-radius:6px !important;
-  }
-  body:has(#inventoryPageRoot) #inventoryGrid .inventory-product-card-body { padding:4px 3px !important; }
-  body:has(#inventoryPageRoot) #inventoryGrid .inventory-product-name {
-    min-height:15px !important;
-    font-size:6.8px !important;
-    line-height:1.1 !important;
-    overflow-wrap:anywhere !important;
-  }
-  body:has(#inventoryPageRoot) #inventoryGrid .inventory-product-meta { font-size:5.8px !important; margin-top:1px !important; }
-  body:has(#inventoryPageRoot) #inventoryGrid .inventory-store-stock-row { gap:2px !important; margin-top:3px !important; }
-  body:has(#inventoryPageRoot) #inventoryGrid .inventory-store-stock-row span,
-  body:has(#inventoryPageRoot) #inventoryGrid .inventory-store-stock-row small { font-size:5.5px !important; }
-  body:has(#inventoryPageRoot) #inventoryGrid .inventory-store-stock-row strong { font-size:10px !important; }
-  body:has(#inventoryPageRoot) #inventoryGrid .inventory-card-extra { font-size:5.5px !important; line-height:1.1 !important; gap:2px !important; }
-  body:has(#inventoryPageRoot) #inventoryGrid .inventory-product-more { top:40px !important; right:2px !important; font-size:8px !important; }
-}
-</style>
-
-<style id="tradecore-inventory-pwa-viewport-containment">
-/* PWA only: keep the Inventory page itself inside the phone viewport.
-   Horizontal movement remains available only inside intentional controls/tables. */
-@media (max-width: 767px) {
-  html:has(#inventoryPageRoot),
-  body:has(#inventoryPageRoot) {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: hidden !important;
-  }
-  body:has(#inventoryPageRoot) { box-sizing: border-box !important; }
-  body:has(#inventoryPageRoot) main {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    box-sizing: border-box !important;
-  }
-  body:has(#inventoryPageRoot) #inventoryPageRoot {
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    overflow-x: hidden !important;
-    box-sizing: border-box !important;
-  }
-  body:has(#inventoryPageRoot) #inventoryPageRoot > *,
-  body:has(#inventoryPageRoot) #inventoryPageRoot > .grid,
-  body:has(#inventoryPageRoot) #inventoryPageRoot > .grid > *,
-  body:has(#inventoryPageRoot) #inventoryPageHeader,
-  body:has(#inventoryPageRoot) #inventoryPageHeader > *,
-  body:has(#inventoryPageRoot) #inventoryStatusSwitch,
-  body:has(#inventoryPageRoot) #inventoryStatusSwitch .inventory-command-top,
-  body:has(#inventoryPageRoot) #inventoryGrid,
-  body:has(#inventoryPageRoot) .inventory-table-card,
-  body:has(#inventoryPageRoot) .inventory-table-scroll {
-    min-width: 0 !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-  }
-  body:has(#inventoryPageRoot) #inventoryPageHeader .inventory-primary-actions {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    gap: 7px !important;
-  }
-  body:has(#inventoryPageRoot) #inventoryPageHeader .inventory-primary-actions > * {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    justify-content: center !important;
-    white-space: nowrap !important;
-  }
-  body:has(#inventoryPageRoot) #inventoryStatusSwitch .inventory-command-top {
-    width: 100% !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-  }
-  body:has(#inventoryPageRoot) #inventoryStatusSwitch #inventoryInlineSearch,
-  body:has(#inventoryPageRoot) #inventoryStatusSwitch #inventoryCategoryControl,
-  body:has(#inventoryPageRoot) #inventoryStatusSwitch #inventoryPresentationSwitch {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-  }
-  body:has(#inventoryPageRoot) #inventoryGrid.inventory-product-grid {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-  }
-  body:has(#inventoryPageRoot) .inventory-table-scroll {
-    overflow-x: auto !important;
-    overflow-y: auto !important;
-  }
-}
-
-</style>
 
 {% endblock %}

@@ -1067,7 +1067,7 @@ body:has(#posContainer) #paymentDock {
             </div>
             <span class="flex-1 text-xs font-bold text-gray-500 truncate">{% trans "Tafuta bidhaa kwa jina au barcode..." %}</span>
             <!-- SURGERY: Imeongezwa lg:hidden ili isionekane kwenye Desktop -->
-            <button type="button" class="tradecore-mobile-scan-inline lg:hidden" data-tradecore-open-scanner aria-label="{% trans "Scan barcode kwa kamera" %}">⌁ <span>{% trans "Scan" %}</span></button>
+            <button type="button" class="tradecore-mobile-scan-inline lg:hidden" data-tradecore-open-scanner aria-label="{% trans "Scan barcode kwa kamera" %}" aria-haspopup="dialog" aria-controls="tradecoreScannerSheet">⌁ <span>{% trans "Scan" %}</span></button>
         </div>
 
         <div class="flex gap-2 overflow-x-auto pb-1 custom-scrollbar" id="categoryFilters">

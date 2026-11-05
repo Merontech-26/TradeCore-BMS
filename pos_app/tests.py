@@ -720,6 +720,17 @@ class TradeCorePremiumCommercialBillingTests(TestCase):
         self.subscription.is_active = True
         self.subscription.save()
 
+                # Ensure the test account represents a business owner.
+        profile = self.owner.profile
+        profile.ni_admin = True
+        profile.ni_cashier = False
+        profile.ni_stoo = False
+        profile.save(update_fields=[
+            "ni_admin",
+            "ni_cashier",
+            "ni_stoo",
+        ])
+
         self.client.login(username="commercial_owner", password="test-password")
 
         read_response = self.client.get("/")

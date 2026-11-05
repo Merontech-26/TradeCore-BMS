@@ -19,11 +19,11 @@
             } catch (error) { /* Keep the browser default if storage is unavailable. */ }
         })();
     </script>
-    <meta name="tradecore-app-version" content="1.1.7">
+    <meta name="tradecore-app-version" content="1.1.9">
     <meta name="google" content="notranslate">
     <title>{% block title %}TradeCore POS{% endblock %}</title>
     {% load static %}
-    <link rel="manifest" href="{% static 'manifest.webmanifest' %}?v=1.1.7">
+    <link rel="manifest" href="{% static 'manifest.webmanifest' %}?v=1.1.9">
     <meta name="theme-color" content="#5b21b6" id="tradecoreThemeColor">
     <script id="tradecore-theme-first-paint-init">
         (function () {
@@ -297,7 +297,7 @@ html.dark[data-theme="olive-dark"] [class~="divide-purple-950"] > :not([hidden])
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="TradeCore">
     <link rel="apple-touch-icon" href="{% static 'tradecore-icon-192.png' %}">
-    <link rel="stylesheet" href="{% static 'tradecore_pwa.css' %}?v=20261105-responsive-stability2">
+    <link rel="stylesheet" href="{% static 'tradecore_pwa.css' %}?v=20261105-stabilization-119">
     <style id="tradecore-pwa-critical-visibility">
         /* Critical visibility guard: keeps PWA-only surfaces out of desktop even if the custom stylesheet is loading late. */
         .tradecore-mobile-only, .tradecore-mobile-sheet, #tradecoreMobileTabbar { display: none !important; }
@@ -2495,8 +2495,8 @@ html.dark[data-theme="olive-dark"] [class~="divide-purple-950"] > :not([hidden])
             }
         }
     </script>
-    <script src="{% static 'tradecore_pwa_update.js' %}?v=1.1.7" defer></script>
-    <script src="{% static 'tradecore_pwa.js' %}?v=20261105-responsive-stability2" defer></script>
+    <script src="{% static 'tradecore_pwa_update.js' %}?v=1.1.9" defer></script>
+    <script src="{% static 'tradecore_pwa.js' %}?v=20261105-stabilization-119" defer></script>
 
     
 

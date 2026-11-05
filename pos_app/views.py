@@ -13,7 +13,7 @@ import base64
 import requests
 from io import BytesIO
 from django.core.files.base import ContentFile
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
@@ -34,6 +34,8 @@ from django.contrib.messages import get_messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.sessions.backends.db import SessionStore
+from django.contrib.sessions.models import Session
 from django.db import transaction
 from django.db.models import (
     Count,
@@ -2085,6 +2087,19 @@ def mauzo_view(request):
     denied = require_roles(request, 'admin', 'cashier')
     if denied:
         return denied
+
+    # Offline queue ownership is checked again on the server. The browser's
+    # IndexedDB owner filter is useful UX, but it is not an authorization boundary:
+    # a stale service-worker cookie must never submit User A's queued sale as User B.
+    queue_owner = (request.headers.get("X-TradeCore-Queue-Owner") or "").strip()
+    if request.method == "POST" and queue_owner:
+        if not queue_owner.isdigit() or queue_owner != str(request.user.pk):
+            return JsonResponse({
+                "ok": False,
+                "code": "queue_owner_mismatch",
+                "message": "Offline sale hii ni ya akaunti nyingine. Ingia kwa akaunti iliyoanzisha mauzo hayo kabla ya kusawazisha.",
+                "duplicate": False,
+            }, status=403)
 
     sale_duka = get_store_profile(request)
     if sale_duka is None:
@@ -9316,3 +9331,407 @@ def tuma_daily_report_whatsapp(request):
     )[:500]
     return JsonResponse({"status": "error", "message": provider_message}, status=400)
 
+
+# =========================================================
+# PHONE-AS-SCANNER — SHORT-LIVED DESKTOP/PHONE PAIRING
+# Uses Django's existing DB-backed session table as the isolated
+# pairing channel. No new model or websocket dependency required.
+# =========================================================
+_PHONE_SCANNER_SALT="tradecore-phone-scanner-v1"
+_PHONE_SCANNER_TTL=300
+_PHONE_SCANNER_MAX_SCANS=100
+
+
+def _phone_scanner_signed_payload(token):
+    try:
+        payload=signing.loads(token,salt=_PHONE_SCANNER_SALT,max_age=_PHONE_SCANNER_TTL)
+    except (BadSignature,SignatureExpired,TypeError,ValueError):
+        return None
+    if not isinstance(payload,dict):
+        return None
+    sid=str(payload.get("sid") or "").strip()
+    pair_id=str(payload.get("pair_id") or "").strip()
+    if not sid or not pair_id:
+        return None
+    return payload
+
+
+def _phone_scanner_read(sid):
+    row=Session.objects.filter(session_key=sid,expire_date__gt=timezone.now()).first()
+    if not row:
+        return None
+    try:
+        return SessionStore(session_key=sid).decode(row.session_data)
+    except Exception:
+        return None
+
+
+def _phone_scanner_update(sid,updater):
+    with transaction.atomic():
+        row=(
+            Session.objects
+            .select_for_update()
+            .filter(session_key=sid,expire_date__gt=timezone.now())
+            .first()
+        )
+        if not row:
+            return None
+        store=SessionStore(session_key=sid)
+        data=store.decode(row.session_data) or {}
+        result=updater(data)
+        row.session_data=store.encode(data)
+        row.save(update_fields=["session_data"])
+        return result
+
+
+@login_required(login_url="login")
+@require_POST
+def phone_scanner_start(request):
+    denied=require_roles(request,"admin","stoo")
+    if denied:
+        return denied
+
+    duka=get_store_profile(request)
+    if not duka:
+        return JsonResponse({"ok":False,"message":"Duka halijatambuliwa."},status=400)
+
+    pair_id=uuid.uuid4().hex
+    store=SessionStore()
+    store.create()
+    sid=store.session_key
+
+    now=int(time.time())
+    store["tradecore_phone_scanner"]={
+        "active":True,
+        "pair_id":pair_id,
+        "owner_id":int(request.user.id),
+        "duka_id":int(duka.id),
+        "created_at":now,
+        "expires_at":now+_PHONE_SCANNER_TTL,
+        "phone_last_seen":0,
+        "scans":[],
+        "next_seq":0,
+    }
+    store.set_expiry(_PHONE_SCANNER_TTL)
+    store.save()
+
+    request.session["tradecore_phone_scanner_sid"]=sid
+
+    token=signing.dumps(
+        {"sid":sid,"pair_id":pair_id},
+        salt=_PHONE_SCANNER_SALT,
+        compress=True,
+    )
+    phone_url=request.build_absolute_uri(reverse("phone_scanner_page"))+"?token="+token
+
+    qr=qrcode.QRCode(version=None,box_size=8,border=3)
+    qr.add_data(phone_url)
+    qr.make(fit=True)
+    qr_image=qr.make_image(fill_color="#4c1d95",back_color="#ffffff")
+    qr_buffer=BytesIO()
+    qr_image.save(qr_buffer,format="PNG")
+    qr_data_url="data:image/png;base64,"+base64.b64encode(qr_buffer.getvalue()).decode("ascii")
+
+    return JsonResponse({
+        "ok":True,
+        "phone_url":phone_url,
+        "qr_data_url":qr_data_url,
+        "expires_in":_PHONE_SCANNER_TTL,
+        "pairing_id":pair_id,
+    })
+
+
+@login_required(login_url="login")
+@require_GET
+def phone_scanner_poll(request):
+    denied=require_roles(request,"admin","stoo")
+    if denied:
+        return denied
+
+    sid=str(request.session.get("tradecore_phone_scanner_sid") or "").strip()
+    if not sid:
+        return JsonResponse({"ok":False,"message":"Hakuna phone scanner session."},status=404)
+
+    duka=get_store_profile(request)
+    data=_phone_scanner_read(sid)
+    if not data or not duka:
+        return JsonResponse({"ok":False,"message":"Pairing imekwisha."},status=410)
+
+    pair=data.get("tradecore_phone_scanner") or {}
+    if (
+        not pair.get("active")
+        or int(pair.get("owner_id") or 0)!=int(request.user.id)
+        or int(pair.get("duka_id") or 0)!=int(duka.id)
+        or int(pair.get("expires_at") or 0)<=int(time.time())
+    ):
+        return JsonResponse({"ok":False,"message":"Pairing imekwisha."},status=410)
+
+    try:
+        cursor=max(0,int(request.GET.get("cursor") or 0))
+    except (TypeError,ValueError):
+        cursor=0
+
+    scans=[
+        item for item in (pair.get("scans") or [])
+        if int(item.get("seq") or 0)>cursor
+    ]
+    last_seen=int(pair.get("phone_last_seen") or 0)
+
+    return JsonResponse({
+        "ok":True,
+        "phone_online":(int(time.time())-last_seen)<=6,
+        "scans":scans,
+        "next_seq":int(pair.get("next_seq") or 0),
+        "expires_in":max(0,int(pair.get("expires_at") or 0)-int(time.time())),
+    })
+
+
+@login_required(login_url="login")
+@require_POST
+def phone_scanner_stop(request):
+    denied=require_roles(request,"admin","stoo")
+    if denied:
+        return denied
+
+    sid=str(request.session.get("tradecore_phone_scanner_sid") or "").strip()
+    if sid:
+        def close_pair(data):
+            pair=data.get("tradecore_phone_scanner") or {}
+            pair["active"]=False
+            data["tradecore_phone_scanner"]=pair
+        _phone_scanner_update(sid,close_pair)
+
+    request.session.pop("tradecore_phone_scanner_sid",None)
+    return JsonResponse({"ok":True})
+
+
+@require_GET
+def phone_scanner_page(request):
+    token=str(request.GET.get("token") or "").strip()
+    payload=_phone_scanner_signed_payload(token)
+    if not payload:
+        response=render(request,"phone_scanner.html",{"valid_pairing":False,"pair_token":""},status=410)
+        response["Cache-Control"]="no-store, no-cache, max-age=0"
+        response["Pragma"]="no-cache"
+        response["X-Robots-Tag"]="noindex, nofollow, noarchive"
+        return response
+
+    data=_phone_scanner_read(payload["sid"])
+    pair=(data or {}).get("tradecore_phone_scanner") or {}
+    valid=(
+        bool(pair)
+        and bool(pair.get("active"))
+        and str(pair.get("pair_id") or "")==payload["pair_id"]
+        and int(pair.get("expires_at") or 0)>int(time.time())
+    )
+    if not valid:
+        response=render(request,"phone_scanner.html",{"valid_pairing":False,"pair_token":""},status=410)
+        response["Cache-Control"]="no-store, no-cache, max-age=0"
+        response["Pragma"]="no-cache"
+        response["X-Robots-Tag"]="noindex, nofollow, noarchive"
+        return response
+
+    response=render(request,"phone_scanner.html",{"valid_pairing":True,"pair_token":token})
+    response["Cache-Control"]="no-store, no-cache, max-age=0"
+    response["Pragma"]="no-cache"
+    response["X-Robots-Tag"]="noindex, nofollow, noarchive"
+    return response
+
+
+@require_POST
+def phone_scanner_heartbeat(request):
+    token=str(request.POST.get("token") or "").strip()
+    payload=_phone_scanner_signed_payload(token)
+    if not payload:
+        return JsonResponse({"ok":False,"message":"Pairing token si sahihi."},status=410)
+
+    def touch_pair(data):
+        pair=data.get("tradecore_phone_scanner") or {}
+        if (
+            not pair.get("active")
+            or str(pair.get("pair_id") or "")!=payload["pair_id"]
+            or int(pair.get("expires_at") or 0)<=int(time.time())
+        ):
+            return False
+        pair["phone_last_seen"]=int(time.time())
+        data["tradecore_phone_scanner"]=pair
+        return True
+
+    ok=_phone_scanner_update(payload["sid"],touch_pair)
+    if ok is not True:
+        return JsonResponse({"ok":False,"message":"Pairing imekwisha."},status=410)
+    return JsonResponse({"ok":True})
+
+
+@require_POST
+def phone_scanner_receive(request):
+    token=str(request.POST.get("token") or "").strip()
+    barcode=str(request.POST.get("barcode") or "").strip()
+    payload=_phone_scanner_signed_payload(token)
+    if not payload:
+        return JsonResponse({"ok":False,"message":"Pairing token si sahihi."},status=410)
+    if not barcode or len(barcode)>128 or any(ord(ch)<32 for ch in barcode):
+        return JsonResponse({"ok":False,"message":"Barcode si sahihi."},status=400)
+
+    now_ms=int(time.time()*1000)
+
+    def receive(data):
+        pair=data.get("tradecore_phone_scanner") or {}
+        if (
+            not pair.get("active")
+            or str(pair.get("pair_id") or "")!=payload["pair_id"]
+            or int(pair.get("expires_at") or 0)<=int(time.time())
+        ):
+            return None
+
+        pair["phone_last_seen"]=int(time.time())
+        scans=list(pair.get("scans") or [])
+        last=scans[-1] if scans else {}
+        if str(last.get("barcode") or "")==barcode and now_ms-int(last.get("at_ms") or 0)<1000:
+            return {"seq":int(last.get("seq") or 0),"duplicate":True}
+
+        seq=int(pair.get("next_seq") or 0)+1
+        scans.append({"seq":seq,"barcode":barcode,"at_ms":now_ms})
+        pair["next_seq"]=seq
+        pair["scans"]=scans[-_PHONE_SCANNER_MAX_SCANS:]
+        data["tradecore_phone_scanner"]=pair
+        return {"seq":seq,"duplicate":False}
+
+    result=_phone_scanner_update(payload["sid"],receive)
+    if result is None:
+        return JsonResponse({"ok":False,"message":"Pairing imekwisha."},status=410)
+    return JsonResponse({"ok":True,**result})
+
+
+# =========================================================
+# TRADECORE CONTROL ROOM — OWNER / PLATFORM MONITORING
+# =========================================================
+def _control_money(value):
+    """Compact TZS display for the private TradeCore owner dashboard."""
+    value = Decimal(str(value or "0"))
+    absolute = abs(value)
+    if absolute >= Decimal("1000000000"):
+        text = f"{value / Decimal('1000000000'):.1f}B"
+    elif absolute >= Decimal("1000000"):
+        text = f"{value / Decimal('1000000'):.1f}M"
+    elif absolute >= Decimal("1000"):
+        text = f"{value / Decimal('1000'):.1f}K"
+    else:
+        text = f"{value:.0f}"
+    return text.replace(".0B", "B").replace(".0M", "M").replace(".0K", "K")
+
+
+@login_required(login_url="login")
+@require_GET
+def control_room(request):
+    """Private owner-only operational dashboard for TradeCore."""
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("Access denied.")
+
+    now = timezone.now()
+    today = now.date()
+    seven_days_ago = now - timedelta(days=7)
+    thirty_days_ago = now - timedelta(days=30)
+    five_minutes_ago = now - timedelta(minutes=5)
+
+    # Platform-wide owner dashboard; do not change tenant-scoped business modules.
+    users_qs = User.objects.filter(is_superuser=False)
+    businesses_qs = Duka.objects.select_related("mwenye_duka").filter(mwenye_duka__is_superuser=False)
+    subscriptions_qs = BusinessSubscription.objects.select_related("user")
+    payments_qs = PaymentTransaction.objects.select_related("user", "subscription")
+
+    q = (request.GET.get("q") or "").strip()
+    if q:
+        businesses_qs = businesses_qs.filter(
+            Q(jina_la_duka__icontains=q)
+            | Q(mwenye_duka__username__icontains=q)
+            | Q(mwenye_duka__first_name__icontains=q)
+            | Q(mwenye_duka__last_name__icontains=q)
+            | Q(mwenye_duka__email__icontains=q)
+        )
+
+    total_users = users_qs.count()
+    total_businesses = businesses_qs.count()
+    registrations_today = users_qs.filter(date_joined__date=today).count()
+    registrations_7d = users_qs.filter(date_joined__gte=seven_days_ago).count()
+    registrations_30d = users_qs.filter(date_joined__gte=thirty_days_ago).count()
+
+    online_users = Profile.objects.filter(
+        user__is_superuser=False,
+        muda_wa_mwisho__gte=five_minutes_ago,
+    ).count()
+
+    active_trial = subscriptions_qs.filter(
+        plan_type="TRIAL",
+        is_active=True,
+        trial_start_date__lte=now,
+        trial_start_date__gte=thirty_days_ago,
+    ).count()
+    active_premium = subscriptions_qs.filter(
+        plan_type="PREMIUM",
+        is_active=True,
+        premium_end_date__gt=now,
+    ).count()
+    expired_trial = subscriptions_qs.filter(
+        plan_type="TRIAL",
+        trial_start_date__lt=thirty_days_ago,
+    ).count()
+    expired_premium = subscriptions_qs.filter(
+        plan_type="PREMIUM",
+    ).filter(Q(premium_end_date__isnull=True) | Q(premium_end_date__lte=now)).count()
+
+    successful_payments = payments_qs.filter(status="SUCCESSFUL")
+    revenue_total = successful_payments.aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+    revenue_today = successful_payments.filter(created_at__date=today).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+    pending_payments = payments_qs.filter(status__in=["INITIATED", "PENDING", "PENDING_BANK"]).count()
+    failed_payments = payments_qs.filter(status__in=["FAILED", "CANCELLED"]).count()
+
+    recent_businesses = list(
+        businesses_qs.select_related("mwenye_duka")
+        .order_by("-mwenye_duka__date_joined")[:50]
+    )
+    recent_payments = list(payments_qs.order_by("-created_at")[:20])
+    live_users = list(
+        Profile.objects.select_related("user")
+        .filter(user__is_superuser=False, muda_wa_mwisho__gte=five_minutes_ago)
+        .order_by("-muda_wa_mwisho")[:20]
+    )
+
+    for business in recent_businesses:
+        owner = business.mwenye_duka
+        business.owner_name = owner.get_full_name().strip() or owner.username
+        business.owner_email = owner.email or "—"
+        business.joined_local = timezone.localtime(owner.date_joined)
+
+    for payment in recent_payments:
+        payment.display_amount = _control_money(payment.amount)
+        payment.created_local = timezone.localtime(payment.created_at)
+        payment.customer_name = payment.user.get_full_name().strip() or payment.user.username
+
+    for profile in live_users:
+        profile.live_name = profile.user.get_full_name().strip() or profile.user.username
+        profile.live_since = timezone.localtime(profile.muda_wa_mwisho)
+
+    context = {
+        "title": "TradeCore Control Room",
+        "query": q,
+        "total_users": total_users,
+        "total_businesses": total_businesses,
+        "registrations_today": registrations_today,
+        "registrations_7d": registrations_7d,
+        "registrations_30d": registrations_30d,
+        "online_users": online_users,
+        "active_trial": active_trial,
+        "active_premium": active_premium,
+        "expired_trial": expired_trial,
+        "expired_premium": expired_premium,
+        "revenue_total": _control_money(revenue_total),
+        "revenue_today": _control_money(revenue_today),
+        "pending_payments": pending_payments,
+        "failed_payments": failed_payments,
+        "recent_businesses": recent_businesses,
+        "recent_payments": recent_payments,
+        "live_users": live_users,
+        "last_refresh": timezone.localtime(now),
+    }
+    return render(request, "control_room.html", context)
